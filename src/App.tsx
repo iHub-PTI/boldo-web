@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import axios from 'axios'
+import { Route, Switch } from 'react-router-dom'
+import Call from './pages/Call'
+import Dashboard from './pages/Dashboard'
+import Home from './pages/Home'
+
+import { GLOBALS } from './helpers'
+
+import './styles.output.css'
+
+axios.defaults.withCredentials = true
+axios.defaults.baseURL = GLOBALS.SERVER
 
 function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='antialiased App'>
+          <Switch>
+            <Route exact path='/call'>
+              <Call />
+            </Route>
+            <Route exact path='/'>
+              <Home />
+            </Route>
+
+            <Route exact path='/dashboard'>
+             <Dashboard />
+            </Route>
+          </Switch>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
