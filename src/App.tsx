@@ -13,7 +13,7 @@ axios.defaults.withCredentials = true
 axios.defaults.baseURL = GLOBALS.SERVER
 
 function App() {
-
+  console.log(process.env)
   return (
     <div className='antialiased App'>
           <Switch>

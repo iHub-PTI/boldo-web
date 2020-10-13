@@ -1,9 +1,10 @@
 import React from 'react'
 
-const SERVER_ADDRESS = process.env.SERVER_ADDRESS
-const KEYCLOAK_ADDRESS = process.env.KEYCLOAK_ADDRESS
+const REACT_APP_SERVER_ADDRESS = process.env.REACT_APP_SERVER_ADDRESS
+const REACT_APP_KEYCLOAK_ADDRESS = process.env.REACT_APP_KEYCLOAK_ADDRESS
 
 export default function Home() {
+
     return (
         <div className='relative min-h-screen overflow-hidden bg-gray-50'>
         <div className='relative pt-6 pb-12 sm:pb-16 md:pb-20 lg:pb-28 xl:pb-32'>
@@ -20,7 +21,7 @@ export default function Home() {
               <div className='max-w-md mx-auto mt-5 sm:flex sm:justify-center md:mt-8'>
                 <div className='mt-3 rounded-md shadow sm:mt-0 sm:ml-3'>
                   <a
-                    href={`${KEYCLOAK_ADDRESS}/auth/realms/PTI-Health/protocol/openid-connect/auth?response_type=code&client_id=boldo-patient&redirect_uri=${SERVER_ADDRESS}/api/auth/code`}
+                    href={`${REACT_APP_KEYCLOAK_ADDRESS}/auth/realms/PTI-Health/protocol/openid-connect/auth?response_type=code&client_id=boldo-patient&redirect_uri=${REACT_APP_SERVER_ADDRESS}/api/auth/code`}
                     className='flex items-center justify-center w-full px-8 py-3 text-base font-medium leading-6 text-indigo-600 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-indigo-500 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo md:py-4 md:text-lg md:px-10'
                   >
                     Login
