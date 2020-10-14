@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Transition } from '@tailwindui/react'
+import { Transition } from '@headlessui/react'
 import { useHistory } from 'react-router-dom'
 
-const Layout = props => {
+const Layout: React.FC<{}> = props => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const main = useRef<HTMLElement>(null)
 
@@ -130,10 +130,14 @@ const Sidebar = () => {
   )
 }
 
-const Header = props => {
+interface HeaderProps {
+  openMobile: () => void
+}
+
+const Header: React.FC<HeaderProps> = props => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
-  const  history = useHistory()
+  const history = useHistory()
   const { openMobile } = props
 
   // Allow for outside click
