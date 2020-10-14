@@ -7,7 +7,6 @@ interface Room {
   roomId: string
 }
 
-
 export default function Dashboard() {
   const [rooms, setRooms] = useState<Room[]>()
   const socket = useSocket()
@@ -17,7 +16,7 @@ export default function Dashboard() {
     }
 
     const getWaitingRooms = async () => {
-      socket.on('waitingRooms', rooms => {
+      socket.on('waitingRooms', (rooms: any) => {
         let arrayOfRooms = []
         let arrayOfRoomsWithUsers = []
         for (let room in rooms) {
@@ -84,33 +83,4 @@ export default function Dashboard() {
       </div>
     </Layout>
   )
-}
-
-{
-  /* <div
-onClick={() => {
-  window.location.href = `/call?room=${e.roomId}`
-}}
-key={e.roomId}
-className='w-24 h-24 border shadow cursor-pointer '
->
-<div>ROOM ID: {e.roomId}</div>
-USERS: {e.users.length}
-</div> */
-}
-
-export const getServerSideProps = async ctx => {
-  const res = await fetch(`http://${ctx.req.headers.host}/api/auth/tokens/validate`, {
-    headers: { Cookie: `${ctx.req.headers.cookie}` },
-  })
-  // time for refresh!
-  if (res.status === 403) {
-    ctx.res.writeHead(302, { Location: '/api/auth/tokens/refresh?redirect=home' }).end()
-    return { props: {} }
-  }
-  if (res.status !== 200) {
-    ctx.res.writeHead(500).end()
-    return { props: {} }
-  }
-  return { props: {} }
 }

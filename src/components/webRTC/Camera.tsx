@@ -3,21 +3,21 @@ import * as React from 'react'
 const { useRef } = React
 
 type Props = {
-  style?: any
-  poster?: any
+  style?: React.CSSProperties
+  poster?: string
   className?: string
-  mediaStream: any
+  mediaStream: MediaStream | undefined
 }
 
 const Camera: React.FC<Props> = ({ style, poster, className, mediaStream }) => {
-  const videoRef = useRef(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
+  if (mediaStream && videoRef.current && !videoRef.current?.srcObject) {
     videoRef.current.srcObject = mediaStream
   }
 
   function handleCanPlay() {
-    videoRef.current.play()
+    videoRef.current?.play()
   }
 
   return (

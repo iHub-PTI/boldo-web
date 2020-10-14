@@ -1,34 +1,38 @@
 import * as React from 'react'
-import {  useHistory  } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import { useSocket } from '../components/hooks/sockets'
-
 import Camera from '../components/webRTC/Camera'
 import Stream from '../components/webRTC/Stream'
 
 const { useEffect, useState } = React
-const CAPTURE_OPTIONS = {
+
+const CAPTURE_OPTIONS: MediaStreamConstraints = {
   audio: true,
   video: { width: 1280, height: 640 },
 }
 
 const Call = () => {
-  const [roomID, setRoomID] = useState('')
+  const [roomID, setRoomID] = useState<string>('')
+
   const mediaStream = useUserMedia(CAPTURE_OPTIONS)
   const socket = useSocket()
   const history = useHistory()
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const room = urlParams.get('room')
-    if (!room) alert('Invalid room ID.')
+    if (!room) return alert('Invalid room ID.')
     setRoomID(room)
   }, [])
+
   const hangUp = async () => {
     if (socket) {
       socket.emit('end_call')
       history.push('/dashboard')
     }
   }
+
   return (
     <>
       <div className='m-10'>
@@ -80,8 +84,8 @@ const Call = () => {
   )
 }
 
-function useUserMedia(requestedMedia) {
-  const [mediaStream, setMediaStream] = useState(null)
+const useUserMedia = (requestedMedia: MediaStreamConstraints) => {
+  const [mediaStream, setMediaStream] = useState<MediaStream>()
 
   useEffect(() => {
     async function enableStream() {
