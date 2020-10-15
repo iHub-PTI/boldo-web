@@ -1,31 +1,85 @@
-import React from 'react'
+import React, { useEffect, createContext, useState } from 'react'
 import axios from 'axios'
 import { Route, Switch } from 'react-router-dom'
+
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home'
+import { loginURL } from './utils/helpers'
 
 import './styles.output.css'
 
+// FIXME! Bad Practice to include credentials in all requests.
+// Easily leads to cookies sent in requests that should not contain those
+// Use axios instance
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 
-function App() {
-  return (
-    <div className='antialiased App'>
-      <Switch>
-        <Route exact path='/call'>
-          <Call />
-        </Route>
-        <Route exact path='/'>
-          <Home />
-        </Route>
+export const UserContext = createContext<{ type: string; id: string } | null>(null)
 
-        <Route exact path='/dashboard'>
-          <Dashboard />
-        </Route>
-      </Switch>
-    </div>
+const App = () => {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const refreshAccessToken = async () => {
+      try {
+        await axios.post('/refreshtoken')
+      } catch (err) {
+        console.log(err)
+        window.location.href = loginURL
+      }
+    }
+
+    axios.interceptors.response.use(
+      response => response,
+      async function (error) {
+        const originalRequest = error.config
+
+        if (error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true
+          await refreshAccessToken()
+          return axios(originalRequest)
+        }
+        return Promise.reject(error)
+      }
+    )
+  }, [])
+
+  useEffect(() => {
+    const effect = async () => {
+      try {
+        const res = await axios.get('/profile')
+        console.log(res.data)
+        setUser(res.data)
+      } catch (err) {
+        console.log(err)
+        window.location.href = loginURL
+      }
+    }
+
+    effect()
+  }, [])
+
+  if (!user) return <div className='h-1 fakeload-15 bg-primary-500' />
+
+  return (
+    <UserContext.Provider value={user}>
+      <div className='antialiased App'>
+        <Switch>
+          <Route exact path='/'>
+            <Home />
+          </Route>
+
+          <Route exact path='/call'>
+            <Call />
+          </Route>
+
+          <Route exact path='/dashboard'>
+            <Dashboard />
+          </Route>
+        </Switch>
+      </div>
+    </UserContext.Provider>
   )
 }
 
