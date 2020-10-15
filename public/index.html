@@ -33,9 +33,31 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
     <title>Boldo for Doctors</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      @keyframes scale {
+        0% {
+          -webkit-transform: scaleX(0);
+        }
+        100% {
+          -webkit-transform: scaleX(1);
+        }
+      }
+
+      .fakeload-15 {
+        transform-origin: left top;
+        animation: scale 15s cubic-bezier(0.05, 1, 0, 1);
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="fakeload-15" style="height: 0.25rem; background-color: #27bec2"></div>
+    </div>
   </body>
 </html>
