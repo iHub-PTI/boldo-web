@@ -5,6 +5,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home'
+import Settings from './pages/Settings'
 import { loginURL } from './utils/helpers'
 
 import './styles.output.css'
@@ -15,7 +16,7 @@ import './styles.output.css'
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 
-export const UserContext = createContext<{ type: string; id: string } | null>(null)
+export const UserContext = createContext<{ type: string; id: string; name: string; email: string } | null>(null)
 
 const App = () => {
   const [user, setUser] = useState(null)
@@ -23,7 +24,7 @@ const App = () => {
   useEffect(() => {
     const refreshAccessToken = async () => {
       try {
-        await axios.post('/refreshtoken')
+        await axios.get('/refreshtoken')
       } catch (err) {
         console.log(err)
         window.location.href = loginURL
@@ -34,7 +35,6 @@ const App = () => {
       response => response,
       async function (error) {
         const originalRequest = error.config
-
         if (error.response.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true
           await refreshAccessToken()
@@ -49,11 +49,10 @@ const App = () => {
     const effect = async () => {
       try {
         const res = await axios.get('/profile')
-        console.log(res.data)
         setUser(res.data)
       } catch (err) {
         console.log(err)
-        window.location.href = loginURL
+        if (err?.response?.status === 401) window.location.href = loginURL
       }
     }
 
@@ -68,6 +67,10 @@ const App = () => {
         <Switch>
           <Route exact path='/'>
             <Dashboard />
+          </Route>
+
+          <Route exact path='/settings'>
+            <Settings />
           </Route>
 
           <Route exact path='/call'>

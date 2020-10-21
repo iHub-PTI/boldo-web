@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.fc-view-harness {
+  @apply overflow-hidden;
+  @apply overflow-x-auto;
+  @apply shadow;
+}
+
+@screen sm {
+  .fc-view-harness {
+    @apply rounded-lg;
+  }
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  @apply border-0;
+}
+
+/* .fc-theme-standard td:last-of-type,
+.fc-theme-standard th:last-of-type {
+  @apply border-0;
+} */
+.fc-theme-standard td:nth-last-child(1) {
+  @apply border-r-0;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-xl;
+  @apply font-bold;
+}
+
+.fc-theme-standard .fc-col-header th {
+  @apply border-l-0;
+  @apply border-r-0;
+  @apply border-gray-200;
+  @apply bg-gray-50;
+}
+
+.fc-toolbar-chunk {
+  @apply flex;
+  @apply items-center;
+}

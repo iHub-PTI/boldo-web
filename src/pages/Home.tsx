@@ -14,7 +14,7 @@ export default function Home() {
         backgroundImage: 'linear-gradient(140deg, #27BEC2 0%, #009688 75%)',
       }}
     >
-      <img src='/img/logo.svg' alt='Boldo Logo' />
+      <img src='/img/logo-white.svg' alt='Boldo Logo' />
       <div className='mt-4 text-center text-white'>
         <a className='underline ' href={loginURL}>
           Logged in. (Login again?)

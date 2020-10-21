@@ -1,15 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Transition } from '@headlessui/react'
-import { useHistory } from 'react-router-dom'
+import md5 from 'md5'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 
-const Layout: React.FC<{}> = props => {
+import { UserContext } from '../App'
+
+const Navbar: React.FC<{}> = props => {
+  const { pathname } = useLocation()
+
   const [mobileOpen, setMobileOpen] = useState(false)
   const main = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setMobileOpen(false)
     main.current?.scrollTo(0, 0)
-  }, [main])
+  }, [pathname, main])
 
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
@@ -94,35 +99,40 @@ const Layout: React.FC<{}> = props => {
   )
 }
 
-export default Layout
+export default Navbar
 
 const Sidebar = () => {
   return (
     <>
       <div className='flex items-center flex-shrink-0 px-6'>
-        <img className='w-auto h-8' src='/Logo.svg' alt='Boldo' />
+        <img className='w-auto h-8' src='/img/logo.svg' alt='Boldo Logo' />
       </div>
       {/* Sidebar component */}
       <div className='flex flex-col flex-1 h-0 overflow-y-auto'>
         {/* Navigation */}
         <nav className='px-3 mt-6'>
-          <div className='mt-8'>
-            {/* Secondary navigation */}
-            <h3
-              className='px-3 text-xs font-semibold leading-4 tracking-wider text-gray-500 uppercase'
-              id='teams-headline'
+          <div className='space-y-1'>
+            <NavLink
+              exact
+              activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+              to={`/`}
+              className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
             >
-              Dashboard
-            </h3>
-            <div className='mt-1 space-y-1' role='group' aria-labelledby='teams-headline'>
-              <a
-                href={'/dashboard'}
-                className='flex items-center px-3 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+              <svg
+                className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
               >
-                <span className='w-2.5 h-2.5 mr-4 bg-indigo-500 rounded-full' />
-                <span className='truncate'>WaitRooms</span>
-              </a>
-            </div>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+                />
+              </svg>
+              Calendario
+            </NavLink>
           </div>
         </nav>
       </div>
@@ -134,10 +144,13 @@ interface HeaderProps {
   openMobile: () => void
 }
 
-const Header: React.FC<HeaderProps> = props => {
+const Header = (props: HeaderProps) => {
+  const user = useContext(UserContext)
+  const { name, email } = user || {}
+
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
-  const history = useHistory()
+
   const { openMobile } = props
 
   // Allow for outside click
@@ -184,7 +197,7 @@ const Header: React.FC<HeaderProps> = props => {
           </svg>
         </button>
         {/* Search bar */}
-        <div className='flex justify-end flex-1 px-4 sm:px-6 lg:max-w-6xl lg:mx-auto lg:px-8'>
+        <div className='flex justify-end flex-1 px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center ml-4 md:ml-6'>
             {/* <button
               className='p-1 rounded-full text-cool-gray-400 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
@@ -209,13 +222,12 @@ const Header: React.FC<HeaderProps> = props => {
                   aria-haspopup='true'
                   onClick={() => setDropdownOpen(v => !v)}
                 >
-                  {/* <img
+                  <img
                     className='w-8 h-8 rounded-full'
-                    src={`https://www.gravatar.com/avatar/${md5(props.user.email)}.jpg?d=mp`}
+                    src={`https://www.gravatar.com/avatar/${md5(email || '')}.jpg?d=mp`}
                     alt='Avatar'
-                  /> */}
-
-                  <p className='hidden ml-3 text-sm font-medium leading-5 text-cool-gray-700 lg:block'>Diego King</p>
+                  />
+                  <p className='hidden ml-3 text-sm font-medium leading-5 text-cool-gray-700 lg:block'>{name}</p>
                   <svg
                     className='flex-shrink-0 hidden w-5 h-5 ml-1 text-cool-gray-400 lg:block'
                     viewBox='0 0 20 20'
@@ -247,13 +259,41 @@ const Header: React.FC<HeaderProps> = props => {
                   onClick={() => setDropdownOpen(false)}
                 >
                   <div className='py-1'>
+                    <Link
+                      to='/settings'
+                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                      role='menuitem'
+                    >
+                      Mi cuenta
+                    </Link>
+                  </div>
+                  <div className='border-t border-gray-100' />
+                  <div className='py-1'>
+                    <a
+                      href='https://play.google.com/store'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                      role='menuitem'
+                    >
+                      Get patient app
+                    </a>
+                    <a
+                      href='mailto:soporte@pti.org.py'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                      role='menuitem'
+                    >
+                      Support
+                    </a>
+                  </div>
+                  <div className='border-t border-gray-100' />
+                  <div className='py-1'>
                     <button
                       className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                       role='menuitem'
-                      onClick={async () => {
-                        await fetch('/api/auth/logout')
-                        history.push('/')
-                      }}
+                      onClick={() => {}}
                     >
                       Logout
                     </button>
