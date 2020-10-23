@@ -6,7 +6,6 @@ import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home'
 import Settings from './pages/Settings'
-import { loginURL } from './utils/helpers'
 
 import './styles.output.css'
 
@@ -21,38 +20,16 @@ export const UserContext = createContext<{ type: string; id: string; name: strin
 const App = () => {
   const [user, setUser] = useState(null)
 
-  useEffect(() => {
-    const refreshAccessToken = async () => {
-      try {
-        await axios.get('/refreshtoken')
-      } catch (err) {
-        console.log(err)
-        window.location.href = loginURL
-      }
-    }
-
-    axios.interceptors.response.use(
-      response => response,
-      async function (error) {
-        const originalRequest = error.config
-        if (error.response.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true
-          await refreshAccessToken()
-          return axios(originalRequest)
-        }
-        return Promise.reject(error)
-      }
-    )
-  }, [])
-
+  // TODO: Create Interceptor to ensure logout once the server sends 400 (or 403?)
   useEffect(() => {
     const effect = async () => {
       try {
-        const res = await axios.get('/profile')
+        const res = await axios.get('/me')
         setUser(res.data)
       } catch (err) {
         console.log(err)
-        if (err?.response?.status === 401) window.location.href = loginURL
+        if (err?.response?.status === 401 && err.response?.data?.message)
+          window.location.href = err.response.data.message
       }
     }
 

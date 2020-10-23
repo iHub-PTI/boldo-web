@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { useSocket } from '../components/hooks/sockets'
 import Camera from '../components/webRTC/Camera'
 import Stream from '../components/webRTC/Stream'
+import Layout from '../components/Layout'
 
 const { useEffect, useState } = React
 
@@ -34,7 +35,7 @@ const Call = () => {
   }
 
   return (
-    <>
+    <Layout>
       <div className='m-10'>
         <div className='flex justify-between'>
           <div>
@@ -80,7 +81,7 @@ const Call = () => {
           <Camera className='rounded-lg' mediaStream={mediaStream} style={{ transform: 'rotateY(180deg)' }} />
         </div>
       </div>
-    </>
+    </Layout>
   )
 }
 

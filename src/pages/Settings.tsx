@@ -1,6 +1,8 @@
-import React, { useState, useReducer } from 'react'
+import React, { useState, useReducer, useEffect } from 'react'
+// import axios from 'axios'
 
 import Layout from '../components/Layout'
+import { useHistory } from 'react-router-dom'
 
 interface Interval {
   start: number
@@ -46,6 +48,7 @@ const initialState: Boldo.Doctor = {
 }
 
 type Action =
+  | { type: 'initial'; value: Boldo.Doctor }
   | { type: 'default'; value: Partial<Boldo.Doctor> }
   | { type: 'AddOpenHour'; value: { day: weekDay } }
   | { type: 'RemoveOpenHour'; value: { day: weekDay; index: number } }
@@ -53,6 +56,10 @@ type Action =
 
 function reducer(state: Boldo.Doctor, action: Action): Boldo.Doctor {
   switch (action.type) {
+    case 'initial': {
+      return action.value
+    }
+
     case 'default':
       return { ...state, ...action.value }
 
@@ -87,12 +94,41 @@ function reducer(state: Boldo.Doctor, action: Action): Boldo.Doctor {
 interface Props {}
 
 const Settings = (props: Props) => {
+  let history = useHistory()
+
   const [doctor, dispatch] = useReducer(reducer, initialState)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+
+    const loadUser = async () => {
+      try {
+        // Currenly broken endpoint
+        // const res = await axios.get<Boldo.Doctor>('/profile/doctor')
+
+        if (mounted) {
+          // dispatch({ type: 'initial', value: res.data })
+        }
+        setShow(true)
+      } catch (err) {
+        console.log(err)
+        history.replace(`/`)
+      }
+    }
+
+    loadUser()
+
+    return () => {
+      mounted = false
+    }
+  }, [history])
+
+  if (!show) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <Layout>

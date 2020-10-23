@@ -4,11 +4,21 @@ import md5 from 'md5'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
 import { UserContext } from '../App'
+import { useSocket } from './hooks/sockets'
+
+interface Room {
+  users: string[]
+  roomId: string
+}
+
+const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
+const FRONTEND_URL = process.env.REACT_APP_FRONTEND_ADDRESS
 
 const Navbar: React.FC<{}> = props => {
   const { pathname } = useLocation()
 
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [waitingroomOpen, setWaitingroomOpen] = useState(false)
   const main = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -30,72 +40,75 @@ const Navbar: React.FC<{}> = props => {
   }, [mobileOpen])
 
   return (
-    <div className='flex h-screen overflow-hidden bg-white'>
-      {/* Off-canvas menu for mobile */}
-      <div className='lg:hidden'>
-        <Transition show={mobileOpen} className='absolute inset-0 z-40 flex'>
-          {/* Off-canvas menu overlay, show/hide based on off-canvas menu state.*/}
-          <Transition.Child
-            enter='transition-opacity ease-linear duration-300'
-            enterFrom='opacity-0'
-            enterTo='opacity-100'
-            leave='transition-opacity ease-linear duration-300'
-            leaveFrom='opacity-100'
-            leaveTo='opacity-0'
-            className='fixed inset-0'
-          >
-            <div className='absolute inset-0 bg-gray-600 opacity-75' onClick={() => setMobileOpen(false)} />
-          </Transition.Child>
+    <>
+      <div className='flex h-screen overflow-hidden bg-white'>
+        {/* Off-canvas menu for mobile */}
+        <div className='lg:hidden'>
+          <Transition show={mobileOpen} className='absolute inset-0 z-40 flex'>
+            {/* Off-canvas menu overlay, show/hide based on off-canvas menu state.*/}
+            <Transition.Child
+              enter='transition-opacity ease-linear duration-300'
+              enterFrom='opacity-0'
+              enterTo='opacity-100'
+              leave='transition-opacity ease-linear duration-300'
+              leaveFrom='opacity-100'
+              leaveTo='opacity-0'
+              className='fixed inset-0'
+            >
+              <div className='absolute inset-0 bg-gray-600 opacity-75' onClick={() => setMobileOpen(false)} />
+            </Transition.Child>
 
-          {/* Off-canvas menu, show/hide based on off-canvas menu state.*/}
-          <Transition.Child
-            enter='transition ease-in-out duration-300 transform'
-            enterFrom='-translate-x-full'
-            enterTo='translate-x-0'
-            leave='transition ease-in-out duration-300 transform'
-            leaveFrom='translate-x-0'
-            leaveTo='-translate-x-full'
-            className='relative flex flex-col flex-1 w-full max-w-xs pt-5 pb-4 bg-white'
-          >
-            <div className='absolute top-0 right-0 p-1 -mr-14'>
-              <Transition.Child
-                enter='transition-opacity duration-300'
-                enterFrom='opacity-0'
-                enterTo='opacity-100'
-                leave='transition-opacity duration-300'
-                leaveFrom='opacity-100'
-                leaveTo='opacity-0'
-                className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
-                aria-label='Close sidebar'
-                as='button'
-                onClick={() => setMobileOpen(false)}
-              >
-                <svg className='w-6 h-6 text-white' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                </svg>
-              </Transition.Child>
-            </div>
+            {/* Off-canvas menu, show/hide based on off-canvas menu state.*/}
+            <Transition.Child
+              enter='transition ease-in-out duration-300 transform'
+              enterFrom='-translate-x-full'
+              enterTo='translate-x-0'
+              leave='transition ease-in-out duration-300 transform'
+              leaveFrom='translate-x-0'
+              leaveTo='-translate-x-full'
+              className='relative flex flex-col flex-1 w-full max-w-xs pt-5 pb-4 bg-white'
+            >
+              <div className='absolute top-0 right-0 p-1 -mr-14'>
+                <Transition.Child
+                  enter='transition-opacity duration-300'
+                  enterFrom='opacity-0'
+                  enterTo='opacity-100'
+                  leave='transition-opacity duration-300'
+                  leaveFrom='opacity-100'
+                  leaveTo='opacity-0'
+                  className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
+                  aria-label='Close sidebar'
+                  as='button'
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <svg className='w-6 h-6 text-white' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                  </svg>
+                </Transition.Child>
+              </div>
+              <Sidebar />
+            </Transition.Child>
+            {/* Dummy element to force sidebar to shrink to fit close icon */}
+            <div className='flex-shrink-0 w-14'></div>
+          </Transition>
+        </div>
+        {/* Static sidebar for desktop */}
+        <div className='hidden lg:flex lg:flex-shrink-0'>
+          <div className='flex flex-col w-64 pt-5 pb-4 bg-gray-100 border-r border-gray-200'>
             <Sidebar />
-          </Transition.Child>
-          {/* Dummy element to force sidebar to shrink to fit close icon */}
-          <div className='flex-shrink-0 w-14'></div>
-        </Transition>
-      </div>
-      {/* Static sidebar for desktop */}
-      <div className='hidden lg:flex lg:flex-shrink-0'>
-        <div className='flex flex-col w-64 pt-5 pb-4 bg-gray-100 border-r border-gray-200'>
-          <Sidebar />
+          </div>
+        </div>
+        {/* Main column */}
+        <div className='flex flex-col flex-1 w-0 overflow-hidden'>
+          {/* Search header */}
+          <Header openMobile={() => setMobileOpen(true)} openWaitingRoom={() => setWaitingroomOpen(true)} />
+          <main ref={main} className='relative z-0 flex-1 overflow-y-auto focus:outline-none' tabIndex={0}>
+            {props.children}
+            <WaitingRoomSidebar show={waitingroomOpen} hideSidebar={() => setWaitingroomOpen(false)} />
+          </main>
         </div>
       </div>
-      {/* Main column */}
-      <div className='flex flex-col flex-1 w-0 overflow-hidden'>
-        {/* Search header */}
-        <Header openMobile={() => setMobileOpen(true)} />
-        <main ref={main} className='relative z-0 flex-1 overflow-y-auto focus:outline-none' tabIndex={0}>
-          {props.children}
-        </main>
-      </div>
-    </div>
+    </>
   )
 }
 
@@ -142,6 +155,7 @@ const Sidebar = () => {
 
 interface HeaderProps {
   openMobile: () => void
+  openWaitingRoom: () => void
 }
 
 const Header = (props: HeaderProps) => {
@@ -151,7 +165,7 @@ const Header = (props: HeaderProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
 
-  const { openMobile } = props
+  const { openMobile, openWaitingRoom } = props
 
   // Allow for outside click
   useEffect(() => {
@@ -199,9 +213,10 @@ const Header = (props: HeaderProps) => {
         {/* Search bar */}
         <div className='flex justify-end flex-1 px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center ml-4 md:ml-6'>
-            {/* <button
+            <button
               className='p-1 rounded-full text-cool-gray-400 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
               aria-label='Notifications'
+              onClick={() => openWaitingRoom()}
             >
               <svg className='w-6 h-6' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
                 <path
@@ -211,7 +226,7 @@ const Header = (props: HeaderProps) => {
                   d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
                 />
               </svg>
-            </button> */}
+            </button>
             {/* Profile dropdown */}
             <div className='relative ml-3' ref={container}>
               <div>
@@ -227,7 +242,7 @@ const Header = (props: HeaderProps) => {
                     src={`https://www.gravatar.com/avatar/${md5(email || '')}.jpg?d=mp`}
                     alt='Avatar'
                   />
-                  <p className='hidden ml-3 text-sm font-medium leading-5 text-cool-gray-700 lg:block'>{name}</p>
+                  <p className='hidden ml-3 text-sm font-medium leading-5 text-cool-gray-700 lg:block'>{email}</p>
                   <svg
                     className='flex-shrink-0 hidden w-5 h-5 ml-1 text-cool-gray-400 lg:block'
                     viewBox='0 0 20 20'
@@ -290,13 +305,13 @@ const Header = (props: HeaderProps) => {
                   </div>
                   <div className='border-t border-gray-100' />
                   <div className='py-1'>
-                    <button
+                    <a
                       className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                       role='menuitem'
-                      onClick={() => {}}
+                      href={`${SERVER_URL}/logout?redirect_url=${FRONTEND_URL}`}
                     >
                       Logout
-                    </button>
+                    </a>
                   </div>
                 </div>
               </Transition>
@@ -305,5 +320,152 @@ const Header = (props: HeaderProps) => {
         </div>
       </div>
     </>
+  )
+}
+
+interface WaitingRoomSidebarProps {
+  show: boolean
+  hideSidebar: () => void
+}
+
+const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSidebar }) => {
+  const [rooms, setRooms] = useState<Room[]>()
+  const socket = useSocket()
+  useEffect(() => {
+    if (!socket) {
+      return
+    }
+
+    const getWaitingRooms = async () => {
+      socket.on('waitingRooms', (rooms: any) => {
+        let arrayOfRooms = []
+        let arrayOfRoomsWithUsers = []
+        for (let room in rooms) {
+          arrayOfRooms.push(room)
+        }
+
+        for (let room of arrayOfRooms) {
+          arrayOfRoomsWithUsers.push({ roomId: room, users: rooms[room] })
+        }
+
+        setRooms(arrayOfRoomsWithUsers)
+      })
+      socket.emit('addDoctorListening')
+    }
+
+    getWaitingRooms()
+  }, [socket])
+
+  return (
+    <Transition show={show}>
+      <div className='fixed inset-0 z-50 overflow-hidden'>
+        <div className='absolute inset-0 overflow-hidden'>
+          <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16' style={{ paddingTop: 64 }}>
+            {/* Slide-over panel, show/hide based on slide-over state. */}
+            <Transition.Child
+              enter='transform transition ease-in-out duration-500 sm:duration-700'
+              enterFrom='translate-x-full'
+              enterTo='translate-x-0'
+              leave='transform transition ease-in-out duration-500 sm:duration-700'
+              leaveFrom='translate-x-0'
+              leaveTo='translate-x-full'
+              className='w-screen max-w-md'
+            >
+              <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+                <div className='flex-1'>
+                  {/* Header */}
+                  <header className='px-4 py-6 bg-gray-50 sm:px-6'>
+                    <div className='flex items-start justify-between space-x-3'>
+                      <div className='space-y-1'>
+                        <h2 className='text-lg font-medium leading-7 text-gray-900'>Sala de espera</h2>
+                        <p className='text-sm leading-5 text-gray-500'>
+                          En esta sección encontrarás los pacientes que se encuentren listos para iniciar la consulta
+                          médica.
+                        </p>
+                      </div>
+                      <div className='flex items-center h-7'>
+                        <button
+                          aria-label='Close panel'
+                          className='text-gray-400 transition duration-150 ease-in-out hover:text-gray-500'
+                          onClick={() => hideSidebar()}
+                        >
+                          {/* Heroicon name: x */}
+                          <svg
+                            className='w-6 h-6'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M6 18L18 6M6 6l12 12'
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </header>
+                  {/* Divider container */}
+                  <div className='py-6 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-gray-200'>
+                    {/* Project name */}
+                    <div className='px-4 space-y-1 sm:px-6 sm:py-5'>
+                      {/* <ul className=''> */}
+                      {rooms?.map(e => {
+                        if (!e.users.length) {
+                          return
+                        }
+                        return (
+                          <li className='col-span-1 bg-white rounded-lg shadow'>
+                            <div className='flex items-center justify-between w-full p-6 space-x-6'>
+                              <div className='flex-1 truncate'>
+                                <div className='flex items-center space-x-3'>
+                                  <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
+                                    Room Number: {e.roomId}
+                                  </h3>
+                                </div>
+                                <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
+                                  Pations count: {e.users.length}
+                                </p>
+                              </div>
+                              <img
+                                className='flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full'
+                                src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60'
+                                alt=''
+                              />
+                            </div>
+                            <div className='border-t border-gray-200'>
+                              <div className='flex -mt-px'>
+                                <div className='flex flex-1 w-0 -ml-px'>
+                                  <div
+                                    onClick={() => {
+                                      window.location.href = `/call?room=${e.roomId}`
+                                    }}
+                                    className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
+                                  >
+                                    {/* Heroicon name: phone */}
+                                    <svg className='w-5 h-5 text-gray-400' viewBox='0 0 20 20' fill='currentColor'>
+                                      <path d='M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z' />
+                                    </svg>
+                                    <span className='ml-3'>Join Call</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </li>
+                        )
+                      })}
+                      {/* </ul> */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition.Child>
+          </section>
+        </div>
+      </div>
+    </Transition>
   )
 }

@@ -20,11 +20,13 @@ The browser application is specifically for doctors.
    # REACT_APP_SOCKETS_ADDRESS = https://sockets.boldo.penguin.software
    # REACT_APP_SERVER_ADDRESS = https://api.boldo.penguin.software
    # REACT_APP_KEYCLOAK_REALM_ADDRESS = https://sso-test.pti.org.py/auth/realms/iHub
+   # REACT_APP_FRONTEND_ADDRESS = https://boldo.penguin.software
 
    # ###################### Local ######################
    REACT_APP_SOCKETS_ADDRESS = http://localhost:8000
    REACT_APP_SERVER_ADDRESS = http://localhost:8008
    REACT_APP_KEYCLOAK_REALM_ADDRESS = http://localhost:8080/auth/realms/iHub
+   REACT_APP_FRONTEND_ADDRESS =http://localhost:3000
    ```
 
 4. `npm start` - to start the app on [localhost:3000](http://localhost:3000)
