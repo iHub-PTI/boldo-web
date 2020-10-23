@@ -160,7 +160,7 @@ interface HeaderProps {
 
 const Header = (props: HeaderProps) => {
   const user = useContext(UserContext)
-  const { name, email } = user || {}
+  const { email } = user || {}
 
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)

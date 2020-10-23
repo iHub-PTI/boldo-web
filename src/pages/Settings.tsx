@@ -115,9 +115,12 @@ const Settings = (props: Props) => {
           // dispatch({ type: 'initial', value: res.data })
         }
         setShow(true)
+        setSuccess('')
+        setLoading(false)
       } catch (err) {
         console.log(err)
         history.replace(`/`)
+        setError('')
       }
     }
 
