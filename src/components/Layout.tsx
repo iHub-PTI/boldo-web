@@ -411,7 +411,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                   {/* Divider container */}
                   <div className='py-6 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-gray-200'>
                     {/* Project name */}
-                    <div className='px-4 space-y-1 sm:px-6 sm:py-5'>
+                    <ul className='px-4 space-y-1 sm:px-6 sm:py-5'>
                       {/* <ul className=''> */}
                       {rooms?.map(e => {
                         if (!e.users.length) {
@@ -458,7 +458,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                         )
                       })}
                       {/* </ul> */}
-                    </div>
+                    </ul>
                   </div>
                 </div>
               </div>

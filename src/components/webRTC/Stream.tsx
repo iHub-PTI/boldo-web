@@ -24,7 +24,7 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
   const rtcPeerConnection = useRef<RTCPeerConnection>()
 
   const onUnload = async () => {
-    socketRef.current?.emit('disconnect')
+    socketRef.current?.emit('end_call')
   }
 
   useEffect(() => {
@@ -81,7 +81,10 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
             }
 
             socketRef.current?.emit('answer', payload)
-          })
+          }).catch((e)=>
+          //FIXME: Handle possible addTrack error.
+          console.log(e)
+          )
       })
 
       socketRef.current.on('answer', (payload: Offer) => {
@@ -94,7 +97,7 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
         rtcPeerConnection.current?.addIceCandidate(new RTCIceCandidate(incomingCandidate))
       })
 
-      socketRef.current.on('user disconnects', () => {
+      socketRef.current.on('end_call', () => {
         remoteUser.current = undefined
         rtcPeerConnection.current = undefined
         if (remoteVideo.current) remoteVideo.current.srcObject = null
