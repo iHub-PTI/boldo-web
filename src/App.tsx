@@ -4,14 +4,10 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
-import Home from './pages/Home'
 import Settings from './pages/Settings'
 
 import './styles.output.css'
 
-// FIXME! Bad Practice to include credentials in all requests.
-// Easily leads to cookies sent in requests that should not contain those
-// Use axios instance
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 
@@ -20,7 +16,18 @@ export const UserContext = createContext<{ type: string; id: string; name: strin
 const App = () => {
   const [user, setUser] = useState(null)
 
-  // TODO: Create Interceptor to ensure logout once the server sends 400 (or 403?)
+  useEffect(() => {
+    axios.interceptors.response.use(
+      response => response,
+      async error => {
+        if (error.response.status === 401 && error.response?.data?.message) {
+          window.location.href = error.response.data.message
+        }
+        return Promise.reject(error)
+      }
+    )
+  }, [])
+
   useEffect(() => {
     const effect = async () => {
       try {
@@ -28,8 +35,6 @@ const App = () => {
         setUser(res.data)
       } catch (err) {
         console.log(err)
-        if (err?.response?.status === 401 && err.response?.data?.message)
-          window.location.href = err.response.data.message
       }
     }
 
@@ -52,10 +57,6 @@ const App = () => {
 
           <Route exact path='/call'>
             <Call />
-          </Route>
-
-          <Route exact path='/home'>
-            <Home />
           </Route>
 
           <Route>

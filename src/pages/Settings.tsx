@@ -1,5 +1,5 @@
 import React, { useState, useReducer, useEffect } from 'react'
-// import axios from 'axios'
+import axios from 'axios'
 
 import Layout from '../components/Layout'
 import { useHistory } from 'react-router-dom'
@@ -108,18 +108,17 @@ const Settings = (props: Props) => {
 
     const loadUser = async () => {
       try {
-        // Currenly broken endpoint
-        // const res = await axios.get<Boldo.Doctor>('/profile/doctor')
+        const res = await axios.get<Boldo.Doctor | null>('/profile/doctor')
 
+        console.log(res.data)
         if (mounted) {
-          // dispatch({ type: 'initial', value: res.data })
+          if (res.data) dispatch({ type: 'initial', value: res.data })
         }
         setShow(true)
         setSuccess('')
         setLoading(false)
       } catch (err) {
         console.log(err)
-        history.replace(`/`)
         setError('')
       }
     }
