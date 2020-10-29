@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 
-export const useSocket = () => {
-  const [socket, setSocket] = useState<SocketIOClient.Socket>()
+let socket: SocketIOClient.Socket
 
+export const useSocket = () => {
+  const [rerender, setRerender] = useState(false)
   useEffect(() => {
-    const socketIo = io.connect(process.env.REACT_APP_SOCKETS_ADDRESS!)
-    setSocket(socketIo)
     function cleanup() {
-      socketIo.disconnect()
+      if (!socket) return
+      // FIXME: Is handled for every use hook and will break the still existing hooks.
+      // socket.disconnect()
     }
+    if (socket) return cleanup
+
+    socket = io.connect(process.env.REACT_APP_SOCKETS_ADDRESS!)
+    setRerender(!rerender)
+
     return cleanup
   }, [])
 

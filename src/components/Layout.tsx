@@ -6,11 +6,6 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { UserContext } from '../App'
 import { useSocket } from './hooks/sockets'
 
-interface Room {
-  users: string[]
-  roomId: string
-}
-
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_ADDRESS
 
@@ -329,31 +324,31 @@ interface WaitingRoomSidebarProps {
 }
 
 const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSidebar }) => {
-  const [rooms, setRooms] = useState<Room[]>()
+  const [rooms, setRooms] = useState<string[]>([])
+
   const socket = useSocket()
+
   useEffect(() => {
-    if (!socket) {
-      return
-    }
+    if (!socket) return
 
-    const getWaitingRooms = async () => {
-      socket.on('waitingRooms', (rooms: any) => {
-        let arrayOfRooms = []
-        let arrayOfRoomsWithUsers = []
-        for (let room in rooms) {
-          arrayOfRooms.push(room)
-        }
+    let appointmentsData = [{ id: '1' }, { id: '2' }, { id: '3' }]
 
-        for (let room of arrayOfRooms) {
-          arrayOfRoomsWithUsers.push({ roomId: room, users: rooms[room] })
-        }
+    socket.emit(
+      'find patients',
+      appointmentsData.map(e => e.id)
+    )
 
-        setRooms(arrayOfRoomsWithUsers)
+    socket.on('patient ready', (appointmentId: string) => {
+      setRooms(rooms => {
+        if (rooms.find(e => e === appointmentId)) return rooms
+        return [...(rooms || []), appointmentId]
       })
-      socket.emit('addDoctorListening')
-    }
+    })
 
-    getWaitingRooms()
+    socket.on('patient not ready', (appointmentId: string) => {
+      setRooms(rooms => rooms.filter(e => e !== appointmentId))
+      socket.emit('find patients', [appointmentId])
+    })
   }, [socket])
 
   return (
@@ -413,22 +408,19 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                     {/* Project name */}
                     <ul className='px-4 space-y-1 sm:px-6 sm:py-5'>
                       {/* <ul className=''> */}
-                      {rooms?.map(e => {
-                        if (!e.users.length) {
-                          return
-                        }
+                      {rooms.map(e => {
                         return (
                           <li className='col-span-1 bg-white rounded-lg shadow'>
                             <div className='flex items-center justify-between w-full p-6 space-x-6'>
                               <div className='flex-1 truncate'>
                                 <div className='flex items-center space-x-3'>
                                   <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
-                                    Room Number: {e.roomId}
+                                    Room Number: {e}
                                   </h3>
                                 </div>
-                                <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
+                                {/* <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
                                   Pations count: {e.users.length}
-                                </p>
+                                </p> */}
                               </div>
                               <img
                                 className='flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full'
@@ -441,7 +433,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                 <div className='flex flex-1 w-0 -ml-px'>
                                   <div
                                     onClick={() => {
-                                      window.location.href = `/call?room=${e.roomId}`
+                                      window.location.href = `/call?room=${e}`
                                     }}
                                     className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
                                   >

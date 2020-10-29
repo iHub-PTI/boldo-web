@@ -1,11 +1,11 @@
 import * as React from 'react'
-
+import { useHistory } from 'react-router-dom'
 const { useRef, useEffect } = React
 
 interface Offer {
   sdp: RTCSessionDescriptionInit
-  caller: string
-  target: string
+
+  appointmentId: string
 }
 
 type Props = {
@@ -22,9 +22,9 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
   const remoteUser = useRef<string>()
   const remoteVideo = useRef<HTMLVideoElement>(null)
   const rtcPeerConnection = useRef<RTCPeerConnection>()
-
+  const history = useHistory()
   const onUnload = async () => {
-    socketRef.current?.emit('end_call')
+    socketRef.current?.emit('end call', roomID)
   }
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
       })
 
       socketRef.current.on('offer', (incomingOffer: Offer) => {
-        console.log('offer')
+        console.log('VERY NICE offer', incomingOffer)
         rtcPeerConnection.current = createPeerConnection(null)
         rtcPeerConnection.current
           .setRemoteDescription(new RTCSessionDescription(incomingOffer.sdp))
@@ -75,15 +75,16 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
           })
           .then(() => {
             const payload = {
-              target: incomingOffer.caller,
-              caller: socketRef.current?.id,
+              appointmentId: incomingOffer.appointmentId,
+
               sdp: rtcPeerConnection.current?.localDescription,
             }
 
             socketRef.current?.emit('answer', payload)
-          }).catch((e)=>
-          //FIXME: Handle possible addTrack error.
-          console.log(e)
+          })
+          .catch(e =>
+            //FIXME: Handle possible addTrack error.
+            console.log(e)
           )
       })
 
@@ -97,10 +98,11 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
         rtcPeerConnection.current?.addIceCandidate(new RTCIceCandidate(incomingCandidate))
       })
 
-      socketRef.current.on('end_call', () => {
+      socketRef.current.on('end call', () => {
         remoteUser.current = undefined
         rtcPeerConnection.current = undefined
         if (remoteVideo.current) remoteVideo.current.srcObject = null
+        history.push('/dashboard')
       })
     }
 
@@ -129,8 +131,8 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
           })
           .then(() => {
             const payload = {
-              target: userID,
-              caller: socketRef.current?.id,
+              appointmentId: roomID,
+
               sdp: rtcPeerConnection.current?.localDescription,
             }
 
@@ -142,7 +144,7 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
       peerConnection.onicecandidate = e => {
         if (e.candidate) {
           const payload = {
-            target: remoteUser.current,
+            appointmentId: roomID,
             candidate: e.candidate,
           }
 

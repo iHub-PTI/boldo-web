@@ -29,7 +29,7 @@ const Call = () => {
 
   const hangUp = async () => {
     if (socket) {
-      socket.emit('end_call')
+      socket.emit('end call', roomID)
       history.push('/dashboard')
     }
   }
