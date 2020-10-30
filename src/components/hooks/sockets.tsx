@@ -5,6 +5,7 @@ let socket: SocketIOClient.Socket
 
 export const useSocket = () => {
   const [rerender, setRerender] = useState(false)
+
   useEffect(() => {
     function cleanup() {
       if (!socket) return
@@ -17,7 +18,7 @@ export const useSocket = () => {
     setRerender(!rerender)
 
     return cleanup
-  }, [])
+  }, [rerender])
 
   return socket
 }

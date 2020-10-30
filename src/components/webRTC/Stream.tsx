@@ -23,13 +23,14 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
   const remoteVideo = useRef<HTMLVideoElement>(null)
   const rtcPeerConnection = useRef<RTCPeerConnection>()
   const history = useHistory()
-  const onUnload = async () => {
-    socketRef.current?.emit('end call', roomID)
-  }
 
   useEffect(() => {
     var iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0
     var eventName = iOS ? 'pagehide' : 'beforeunload'
+
+    const onUnload = async () => {
+      socketRef.current?.emit('end call', roomID)
+    }
 
     window.addEventListener(eventName, onUnload)
 
@@ -162,7 +163,7 @@ const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream
     }
 
     return () => window.removeEventListener(eventName, onUnload)
-  }, [mediaStream, roomID, socket])
+  }, [mediaStream, roomID, socket, history])
 
   return <video playsInline autoPlay ref={remoteVideo} className={className} style={style} />
 }
