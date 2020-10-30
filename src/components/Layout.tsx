@@ -350,7 +350,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
       })
     })
 
-    socket.on('patient not ready', (appointmentId: string) => {
+    socket.on('peer not ready', (appointmentId: string) => {
       setRooms(rooms => rooms.filter(e => e !== appointmentId))
       socket.emit('find patients', [appointmentId])
     })
