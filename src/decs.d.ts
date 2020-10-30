@@ -6,21 +6,21 @@
 export as namespace iHub
 
 export interface Doctor {
-  photo: string
+  photo?: string
   givenName: string
   familyName: string
   languages: string[]
-  biography: string
+  biography?: string
   birthDate: string
   gender: string
   email: string
-  phone: string
-  street: string
-  city: string
-  neighborhood: string
-  addressDescription: string
-  specialtyId: string
-  licenseId: string
+  phone?: string
+  street?: string
+  city?: string
+  neighborhood?: string
+  addressDescription?: string
+  specializations: string[]
+  license?: string // not writable
 }
 
 export interface Patient {
@@ -36,4 +36,9 @@ export interface Patient {
   city: string
   neighborhood: string
   reference: string
+}
+
+export interface Specialization {
+  id: string
+  description: string
 }
