@@ -9,7 +9,11 @@ import { useSocket } from './hooks/sockets'
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_ADDRESS
 
-const Navbar: React.FC<{}> = props => {
+interface Props {
+  isLoading?: boolean
+}
+
+const Navbar: React.FC<Props> = ({ isLoading, children }) => {
   const { pathname } = useLocation()
 
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -98,7 +102,8 @@ const Navbar: React.FC<{}> = props => {
           {/* Search header */}
           <Header openMobile={() => setMobileOpen(true)} openWaitingRoom={() => setWaitingroomOpen(true)} />
           <main ref={main} className='relative z-0 flex-1 overflow-y-auto focus:outline-none' tabIndex={0}>
-            {props.children}
+            {isLoading ? <div className='h-1 fakeload-15 bg-primary-500' /> : children}
+
             <WaitingRoomSidebar show={waitingroomOpen} hideSidebar={() => setWaitingroomOpen(false)} />
           </main>
         </div>

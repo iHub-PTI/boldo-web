@@ -188,10 +188,8 @@ const Settings = (props: Props) => {
     setLoading(false)
   }
 
-  if (!show) return <div className='h-1 fakeload-15 bg-primary-500' />
-
   return (
-    <Layout>
+    <Layout isLoading={!show}>
       <div className='w-full min-h-screen py-6 bg-gray-100 sm:px-6 lg:px-8'>
         <div className='mx-auto max-w-7xl'>
           <form onSubmit={e => handleSubmit(e)}>
