@@ -1,8 +1,11 @@
 import React, { useState, useReducer, useEffect } from 'react'
 import axios from 'axios'
+import { useHistory } from 'react-router-dom'
 
 import Layout from '../components/Layout'
-import { useHistory } from 'react-router-dom'
+import Listbox from '../components/Listbox'
+import MultiListbox from '../components/MultiListbox'
+import Languages from '../util/ISO639-1-es.json'
 
 interface Interval {
   start: number
@@ -34,8 +37,8 @@ const initialState: Boldo.Doctor = {
   city: '',
   neighborhood: '',
   addressDescription: '',
-  specialtyId: '',
-  licenseId: '',
+  specializations: [],
+  license: '',
   openHours: {
     mon: [],
     tue: [],
@@ -91,12 +94,15 @@ function reducer(state: Boldo.Doctor, action: Action): Boldo.Doctor {
   }
 }
 
+type List = { value: string; name: string }[]
+
 interface Props {}
 
 const Settings = (props: Props) => {
   let history = useHistory()
 
   const [doctor, dispatch] = useReducer(reducer, initialState)
+  const [specializations, setSpecializations] = useState<List>([])
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -106,29 +112,81 @@ const Settings = (props: Props) => {
   useEffect(() => {
     let mounted = true
 
-    const loadUser = async () => {
+    const load = async () => {
       try {
         const res = await axios.get<Boldo.Doctor | null>('/profile/doctor')
+        const res2 = await axios.get<iHub.Specialization[]>('/specializations')
 
-        console.log(res.data)
         if (mounted) {
           if (res.data) dispatch({ type: 'initial', value: res.data })
+          const specializations = res2.data.map(spec => {
+            return { value: spec.id.toString(), name: spec.description }
+          })
+          setSpecializations(specializations)
+          setShow(true)
         }
-        setShow(true)
-        setSuccess('')
-        setLoading(false)
       } catch (err) {
         console.log(err)
-        setError('')
+        if (mounted) {
+          setError('ERROR: Failed to load initial Data')
+          setShow(true)
+        }
       }
     }
 
-    loadUser()
+    load()
 
     return () => {
       mounted = false
     }
   }, [history])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    // Validate Birthdate. Because Safari does not have date input
+    const validateBirthDate = (dayInput: string) => {
+      try {
+        const date = new Date(dayInput)
+        const isoString = date.toISOString().split('T')[0]
+        if (new Date() < date) return false // Please enter a Date in the past
+        return isoString === dayInput
+      } catch (err) {
+        return false
+      }
+    }
+
+    let validationError = false
+
+    if (!validateBirthDate(doctor.birthDate)) {
+      validationError = true
+      setError('Fecha de nacimiento!')
+    }
+
+    if (doctor.languages.length === 0) {
+      validationError = true
+      setError('Add at least one Language!')
+    }
+
+    if (doctor.specializations.length === 0) {
+      validationError = true
+      setError('Add one specialization!')
+    }
+
+    if (!validationError) {
+      try {
+        await axios.post('/profile/doctor', doctor)
+        setSuccess('Actualización exitosa!')
+      } catch (err) {
+        setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+        console.log(err)
+      }
+    }
+
+    setLoading(false)
+  }
 
   if (!show) return <div className='h-1 fakeload-15 bg-primary-500' />
 
@@ -136,7 +194,7 @@ const Settings = (props: Props) => {
     <Layout>
       <div className='w-full min-h-screen py-6 bg-gray-100 sm:px-6 lg:px-8'>
         <div className='mx-auto max-w-7xl'>
-          <form onSubmit={e => e.preventDefault()}>
+          <form onSubmit={e => handleSubmit(e)}>
             <div className='px-4 pb-5 space-y-3 border-b border-gray-200 sm:flex sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0 sm:px-0'>
               <h3 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate'>
                 Mi cuenta
@@ -271,36 +329,32 @@ const Settings = (props: Props) => {
                             onChange={e => dispatch({ type: 'default', value: { birthDate: e.target.value } })}
                             value={doctor.birthDate}
                             required
-                            type='text'
+                            type='date'
+                            placeholder='yyyy-mm-dd'
                           />
                         </div>
                         <div className='col-span-6 sm:col-span-3'>
-                          <label htmlFor='gender' className='block text-sm font-medium leading-5 text-gray-700'>
-                            Género
-                          </label>
-                          <input
-                            id='gender'
-                            className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
-                            onChange={e => dispatch({ type: 'default', value: { gender: e.target.value } })}
+                          <Listbox
+                            data={[
+                              { value: 'male', name: 'Male' },
+                              { value: 'female', name: 'Female' },
+                              { value: 'other', name: 'Other' },
+                            ]}
+                            label='Género'
                             value={doctor.gender}
-                            required
-                            type='text'
+                            onChange={value => dispatch({ type: 'default', value: { gender: value } })}
                           />
                         </div>
                       </div>
                       <div className='mt-6'>
                         <div className='grid grid-cols-6 gap-6 mt-6'>
-                          <div className='col-span-6 sm:col-span-3'>
-                            <label htmlFor='languages' className='block text-sm font-medium leading-5 text-gray-700'>
-                              Idiomas
-                            </label>
-                            <input
-                              id='languages'
-                              className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
-                              onChange={e => dispatch({ type: 'default', value: { languages: [e.target.value] } })}
+                          <div className='col-span-6 sm:col-span-4'>
+                            <MultiListbox
+                              data={Languages}
+                              drawLine={[3]}
+                              label='Idiomas'
                               value={doctor.languages}
-                              required
-                              type='text'
+                              onChange={value => dispatch({ type: 'default', value: { languages: value } })}
                             />
                           </div>
                         </div>
@@ -358,7 +412,7 @@ const Settings = (props: Props) => {
                             onChange={e => dispatch({ type: 'default', value: { email: e.target.value } })}
                             value={doctor.email}
                             required
-                            type='text'
+                            type='email'
                           />
                         </div>
                         <div className='col-span-6 sm:col-span-3'>
@@ -370,8 +424,7 @@ const Settings = (props: Props) => {
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
                             onChange={e => dispatch({ type: 'default', value: { phone: e.target.value } })}
                             value={doctor.phone}
-                            required
-                            type='text'
+                            type='tel'
                           />
                         </div>
                         <div className='col-span-6 sm:col-span-3'>
@@ -383,7 +436,6 @@ const Settings = (props: Props) => {
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
                             onChange={e => dispatch({ type: 'default', value: { street: e.target.value } })}
                             value={doctor.street}
-                            required
                             type='text'
                           />
                         </div>
@@ -396,7 +448,6 @@ const Settings = (props: Props) => {
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
                             onChange={e => dispatch({ type: 'default', value: { neighborhood: e.target.value } })}
                             value={doctor.neighborhood}
-                            required
                             type='text'
                           />
                         </div>
@@ -409,7 +460,6 @@ const Settings = (props: Props) => {
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
                             onChange={e => dispatch({ type: 'default', value: { city: e.target.value } })}
                             value={doctor.city}
-                            required
                             type='text'
                           />
                         </div>
@@ -429,7 +479,6 @@ const Settings = (props: Props) => {
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
                             onChange={e => dispatch({ type: 'default', value: { addressDescription: e.target.value } })}
                             value={doctor.addressDescription}
-                            required
                             type='text'
                           />
                         </div>
@@ -460,17 +509,12 @@ const Settings = (props: Props) => {
                   <div className='shadow sm:rounded-md sm:overflow-hidden'>
                     <div className='px-4 py-5 bg-white sm:p-6'>
                       <div className='grid grid-cols-6 gap-6'>
-                        <div className='col-span-6 sm:col-span-3'>
-                          <label htmlFor='specialtyId' className='block text-sm font-medium leading-5 text-gray-700'>
-                            Especialidad Médica
-                          </label>
-                          <input
-                            id='specialtyId'
-                            className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
-                            onChange={e => dispatch({ type: 'default', value: { specialtyId: e.target.value } })}
-                            value={doctor.specialtyId}
-                            required
-                            type='text'
+                        <div className='col-span-6 mb-40 sm:col-span-3'>
+                          <MultiListbox
+                            data={specializations}
+                            label='Especialidad Médica'
+                            value={doctor.specializations}
+                            onChange={value => dispatch({ type: 'default', value: { specializations: value } })}
                           />
                         </div>
                       </div>
