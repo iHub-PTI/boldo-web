@@ -22,6 +22,7 @@ const App = () => {
       async error => {
         if (error.response.status === 401 && error.response?.data?.message) {
           window.location.href = error.response.data.message
+          delete error.response.data.message
         }
         return Promise.reject(error)
       }
