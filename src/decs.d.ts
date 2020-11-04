@@ -6,7 +6,7 @@
 export as namespace iHub
 
 export interface Doctor {
-  photo?: string
+  photoUrl?: string
   givenName: string
   familyName: string
   languages: string[]
@@ -24,7 +24,7 @@ export interface Doctor {
 }
 
 export interface Patient {
-  photo: string
+  photoUrl: string
   givenName: string
   familyName: string
   birthDate: string

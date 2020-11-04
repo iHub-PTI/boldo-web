@@ -415,7 +415,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                       {/* <ul className=''> */}
                       {rooms.map(e => {
                         return (
-                          <li className='col-span-1 bg-white rounded-lg shadow'>
+                          <li key={e} className='col-span-1 bg-white rounded-lg shadow'>
                             <div className='flex items-center justify-between w-full p-6 space-x-6'>
                               <div className='flex-1 truncate'>
                                 <div className='flex items-center space-x-3'>

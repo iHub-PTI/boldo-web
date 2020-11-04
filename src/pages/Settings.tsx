@@ -7,6 +7,30 @@ import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
 
+export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
+
+export function validFileType(file: string) {
+  return fileTypes.includes(file)
+}
+
+export const upload = async (file: File | string) => {
+  if (!file) return
+  if (typeof file === 'string') return file
+  try {
+    const res = await axios.get('/presigned')
+    const ress = await axios({
+      method: 'put',
+      url: `${res.data.uploadUrl}&x-amz-acl=public-read`,
+      data: file,
+      withCredentials: false,
+      headers: { 'Content-Type': file.type, authentication: null },
+    })
+    if (ress.status === 200) return res.data.location
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 interface Interval {
   start: number
   end: number
@@ -23,8 +47,10 @@ const weekDays = {
   sun: 'Sunday',
 }
 
-const initialState: Boldo.Doctor = {
-  photo: '',
+type DoctorForm = Omit<Boldo.Doctor, 'photoUrl'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
+
+const initialState: DoctorForm = {
+  photoUrl: '',
   givenName: '',
   familyName: '',
   languages: [],
@@ -51,13 +77,13 @@ const initialState: Boldo.Doctor = {
 }
 
 type Action =
-  | { type: 'initial'; value: Boldo.Doctor }
-  | { type: 'default'; value: Partial<Boldo.Doctor> }
+  | { type: 'initial'; value: DoctorForm }
+  | { type: 'default'; value: Partial<DoctorForm> }
   | { type: 'AddOpenHour'; value: { day: weekDay } }
   | { type: 'RemoveOpenHour'; value: { day: weekDay; index: number } }
   | { type: 'ChangeOpenHour'; value: { day: weekDay; index: number; interval: Interval } }
 
-function reducer(state: Boldo.Doctor, action: Action): Boldo.Doctor {
+function reducer(state: DoctorForm, action: Action): DoctorForm {
   switch (action.type) {
     case 'initial': {
       return action.value
@@ -177,7 +203,15 @@ const Settings = (props: Props) => {
 
     if (!validationError) {
       try {
-        await axios.post('/profile/doctor', doctor)
+        let photoUrl = doctor.photoUrl
+        if (doctor.photoUrl) {
+          photoUrl = await upload(doctor.photoUrl)
+
+          if (!photoUrl) return setError('Ha ocurrido un error con las imágenes! Intente de nuevo.')
+          dispatch({ type: 'default', value: { photoUrl } })
+        }
+
+        await axios.post('/profile/doctor', { ...doctor, photoUrl })
         setSuccess('Actualización exitosa!')
       } catch (err) {
         setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
@@ -251,25 +285,25 @@ const Settings = (props: Props) => {
                         </p>
                         <div className='flex items-center mt-2'>
                           <span className='inline-block w-12 h-12 overflow-hidden bg-gray-100 rounded-full'>
-                            {/* {!doctor.imageUrl ? (
+                            {!doctor.photoUrl ? (
                               <svg className='w-full h-full text-gray-300' fill='currentColor' viewBox='0 0 24 24'>
                                 <path d='M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z' />
                               </svg>
                             ) : (
                               <img
                                 src={
-                                  typeof doctor.imageUrl === 'object'
-                                    ? URL.createObjectURL(doctor.imageUrl)
-                                    : doctor.imageUrl
+                                  typeof doctor.photoUrl === 'object'
+                                    ? URL.createObjectURL(doctor.photoUrl)
+                                    : doctor.photoUrl
                                 }
                                 alt='Restaurant Banner Preview'
                                 className='object-cover w-full h-full max-w-none'
                               />
-                            )} */}
+                            )}
                           </span>
                           <span className='ml-5'>
                             <label
-                              htmlFor='imageUrl'
+                              htmlFor='photoUrl'
                               className='px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition duration-150 ease-in-out border border-gray-300 rounded-md cursor-pointer hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800'
                             >
                               Change
@@ -277,15 +311,15 @@ const Settings = (props: Props) => {
                             <input
                               type='file'
                               accept='image/x-png,image/webp,image/jpeg,image/pjpeg,image/gif'
-                              id='photo'
-                              name='photo'
+                              id='photoUrl'
+                              name='photoUrl'
                               className='hidden w-0'
-                              //   onChange={e => {
-                              //     const file = e.target.files?.[0]
-                              //     if (!file || !validFileType(file.type)) return
+                              onChange={e => {
+                                const file = e.target.files?.[0]
+                                if (!file || !validFileType(file.type)) return
 
-                              //     dispatch({ type: 'default', value: { imageUrl: file } })
-                              //   }}
+                                dispatch({ type: 'default', value: { photoUrl: file } })
+                              }}
                             />
                           </span>
                         </div>

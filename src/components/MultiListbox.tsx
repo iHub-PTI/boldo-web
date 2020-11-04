@@ -38,7 +38,10 @@ const MultiListboxComponent: React.FC<Props> = ({ data, label, value, onChange, 
                 <div>
                   {selected.length
                     ? selected.map(selectedValue => (
-                        <span className='m-1 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-indigo-100 text-indigo-800'>
+                        <span
+                          key={selectedValue}
+                          className='m-1 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-indigo-100 text-indigo-800'
+                        >
                           {data.find(el => el.value === selectedValue)?.name || selectedValue}
                         </span>
                       ))
