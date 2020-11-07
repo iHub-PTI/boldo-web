@@ -2,43 +2,149 @@
 @tailwind components;
 @tailwind utilities;
 
-.fc-view-harness {
-  @apply overflow-hidden;
-  @apply overflow-x-auto;
-  @apply shadow;
-}
-
-@screen sm {
-  .fc-view-harness {
-    @apply rounded-lg;
-  }
-}
-
 .fc-theme-standard .fc-scrollgrid {
   @apply border-0;
 }
 
-/* .fc-theme-standard td:last-of-type,
-.fc-theme-standard th:last-of-type {
-  @apply border-0;
-} */
 .fc-theme-standard td:nth-last-child(1) {
   @apply border-r-0;
 }
 
-.fc .fc-toolbar-title {
-  @apply text-xl;
-  @apply font-bold;
-}
-
 .fc-theme-standard .fc-col-header th {
-  @apply border-l-0;
-  @apply border-r-0;
-  @apply border-gray-200;
-  @apply bg-gray-50;
+  @apply border-l-0 border-r-0 border-gray-200 bg-gray-50;
 }
 
 .fc-toolbar-chunk {
-  @apply flex;
-  @apply items-center;
+  @apply flex items-center;
+}
+
+.fc .fc-timegrid-slot-minor {
+  border: none;
+}
+
+.fc .fc-timegrid-slot-label {
+  @apply text-xs;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  @apply pl-4 pr-2;
+}
+
+/* 
+Toolbar
+*/
+
+.fc .fc-toolbar {
+  @apply flex-col items-start;
+}
+
+.fc .fc-toolbar > :nth-child(2) {
+  @apply order-first;
+}
+
+.fc .fc-toolbar > :not(template) + :not(template) {
+  @apply my-2;
+}
+
+@screen sm {
+  .fc .fc-toolbar {
+    @apply flex-row items-center;
+  }
+
+  .fc .fc-toolbar > :nth-child(2) {
+    @apply order-none;
+  }
+
+  .fc .fc-toolbar > :not(template) + :not(template) {
+    @apply mt-0;
+  }
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  @apply px-4 py-2 mb-0;
+}
+
+@screen sm {
+  .fc .fc-toolbar.fc-header-toolbar {
+    @apply px-6;
+  }
+}
+
+@screen lg {
+  .fc .fc-toolbar.fc-header-toolbar {
+    @apply px-8;
+  }
+}
+
+/* 
+Title
+ */
+
+.fc .fc-toolbar-title {
+  @apply text-xl font-bold capitalize;
+}
+
+/* 
+Button
+ */
+
+.fc .fc-button {
+  @apply relative inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-l-md;
+}
+
+.fc .fc-button:hover {
+  @apply text-gray-500;
+}
+
+.fc .fc-button:focus {
+  @apply z-10 border-blue-300 outline-none shadow-outline-blue;
+}
+
+.fc .fc-button:active {
+  @apply text-gray-700 bg-gray-100;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  @apply text-gray-700 bg-gray-100 border-gray-300;
+}
+
+.fc .fc-button-primary:hover {
+  @apply text-gray-500 bg-white border-gray-300;
+}
+
+.fc .fc-button-group > .fc-button:hover,
+.fc .fc-button-group > .fc-button:focus,
+.fc .fc-button-group > .fc-button:active,
+.fc .fc-button-group > .fc-button.fc-button-active {
+  @apply z-auto;
+}
+
+.fc .fc-button-group > .fc-button:focus {
+  @apply z-10;
+}
+
+.fc .fc-button-primary:disabled {
+  @apply text-gray-400 bg-white border-gray-300;
+}
+
+/* 
+Events
+ */
+
+.event-appointment {
+  background-color: theme('colors.primary.500');
+  border-color: theme('colors.primary.600');
+}
+.event-private {
+  background-color: theme('colors.gray.400');
+  border-color: theme('colors.gray.500');
+  color: theme('colors.gray.900');
+}
+.event-other {
+  background-color: theme('colors.linen.500');
+}
+
+.fc-media-screen .fc-timegrid-event {
+  min-height: 23px;
 }

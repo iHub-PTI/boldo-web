@@ -16,6 +16,12 @@ type Props = {
   mediaStream: MediaStream | undefined
 }
 
+// FIXME: This file needs urgent fixing for cleaning up conections.
+// Currently there are listeners set that are not removed afterwards.
+// The problem exists in Both: SocketIO and WebRTC
+// For SocketIO see: https://stackoverflow.com/a/34716449/5157205
+// For WebRTC See Ticket Info
+
 const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream }) => {
   const localMedia = useRef<MediaStream>()
   const socketRef = useRef<SocketIOClient.Socket>()

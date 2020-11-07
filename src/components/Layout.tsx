@@ -1,24 +1,28 @@
-import React, { useEffect, useState, useRef, useContext } from 'react'
-import { Transition } from '@headlessui/react'
+import React, { useEffect, useState, useRef, useContext, useMemo } from 'react'
+import { Transition, Menu } from '@headlessui/react'
 import md5 from 'md5'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import { UserContext } from '../App'
-import { useSocket } from './hooks/sockets'
+import { RoomsContext } from '../App'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_ADDRESS
 
 interface Props {
   isLoading?: boolean
 }
 
-const Navbar: React.FC<Props> = ({ isLoading, children }) => {
+const Layout: React.FC<Props> = ({ children, isLoading }) => {
   const { pathname } = useLocation()
+  const main = useRef<HTMLElement>(null)
 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [waitingroomOpen, setWaitingroomOpen] = useState(false)
-  const main = useRef<HTMLElement>(null)
+
+  const { rooms } = useContext(RoomsContext)
+  const user = useContext(UserContext)
+  const { email } = user || {}
+  const gravatarURL = useMemo(() => `https://www.gravatar.com/avatar/${md5(email || '')}.jpg?d=mp`, [email])
 
   useEffect(() => {
     setMobileOpen(false)
@@ -39,289 +43,409 @@ const Navbar: React.FC<Props> = ({ isLoading, children }) => {
   }, [mobileOpen])
 
   return (
-    <>
-      <div className='flex h-screen overflow-hidden bg-white'>
-        {/* Off-canvas menu for mobile */}
-        <div className='lg:hidden'>
-          <Transition show={mobileOpen} className='absolute inset-0 z-40 flex'>
-            {/* Off-canvas menu overlay, show/hide based on off-canvas menu state.*/}
-            <Transition.Child
-              enter='transition-opacity ease-linear duration-300'
-              enterFrom='opacity-0'
-              enterTo='opacity-100'
-              leave='transition-opacity ease-linear duration-300'
-              leaveFrom='opacity-100'
-              leaveTo='opacity-0'
-              className='fixed inset-0'
-            >
-              <div className='absolute inset-0 bg-gray-600 opacity-75' onClick={() => setMobileOpen(false)} />
-            </Transition.Child>
-
-            {/* Off-canvas menu, show/hide based on off-canvas menu state.*/}
-            <Transition.Child
-              enter='transition ease-in-out duration-300 transform'
-              enterFrom='-translate-x-full'
-              enterTo='translate-x-0'
-              leave='transition ease-in-out duration-300 transform'
-              leaveFrom='translate-x-0'
-              leaveTo='-translate-x-full'
-              className='relative flex flex-col flex-1 w-full max-w-xs pt-5 pb-4 bg-white'
-            >
-              <div className='absolute top-0 right-0 p-1 -mr-14'>
-                <Transition.Child
-                  enter='transition-opacity duration-300'
-                  enterFrom='opacity-0'
-                  enterTo='opacity-100'
-                  leave='transition-opacity duration-300'
-                  leaveFrom='opacity-100'
-                  leaveTo='opacity-0'
-                  className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
-                  aria-label='Close sidebar'
-                  as='button'
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <svg className='w-6 h-6 text-white' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                  </svg>
-                </Transition.Child>
-              </div>
-              <Sidebar />
-            </Transition.Child>
-            {/* Dummy element to force sidebar to shrink to fit close icon */}
-            <div className='flex-shrink-0 w-14'></div>
-          </Transition>
-        </div>
-        {/* Static sidebar for desktop */}
-        <div className='hidden lg:flex lg:flex-shrink-0'>
-          <div className='flex flex-col w-64 pt-5 pb-4 bg-gray-100 border-r border-gray-200'>
-            <Sidebar />
-          </div>
-        </div>
-        {/* Main column */}
-        <div className='flex flex-col flex-1 w-0 overflow-hidden'>
-          {/* Search header */}
-          <Header openMobile={() => setMobileOpen(true)} openWaitingRoom={() => setWaitingroomOpen(true)} />
-          <main ref={main} className='relative z-0 flex-1 overflow-y-auto focus:outline-none' tabIndex={0}>
-            {isLoading ? <div className='h-1 fakeload-15 bg-primary-500' /> : children}
-
-            <WaitingRoomSidebar show={waitingroomOpen} hideSidebar={() => setWaitingroomOpen(false)} />
-          </main>
-        </div>
-      </div>
-    </>
-  )
-}
-
-export default Navbar
-
-const Sidebar = () => {
-  return (
-    <>
-      <div className='flex items-center flex-shrink-0 px-6'>
-        <img className='w-auto h-8' src='/img/logo.svg' alt='Boldo Logo' />
-      </div>
-      {/* Sidebar component */}
-      <div className='flex flex-col flex-1 h-0 overflow-y-auto'>
-        {/* Navigation */}
-        <nav className='px-3 mt-6'>
-          <div className='space-y-1'>
-            <NavLink
-              exact
-              activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
-              to={`/`}
-              className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
-            >
-              <svg
-                className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
-                />
-              </svg>
-              Calendario
-            </NavLink>
-          </div>
-        </nav>
-      </div>
-    </>
-  )
-}
-
-interface HeaderProps {
-  openMobile: () => void
-  openWaitingRoom: () => void
-}
-
-const Header = (props: HeaderProps) => {
-  const user = useContext(UserContext)
-  const { email } = user || {}
-
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const container = useRef<HTMLDivElement>(null)
-
-  const { openMobile, openWaitingRoom } = props
-
-  // Allow for outside click
-  useEffect(() => {
-    function handleOutsideClick(event: MouseEvent) {
-      if (!container.current?.contains(event.target as Node)) {
-        if (!dropdownOpen) return
-        setDropdownOpen(false)
-      }
-    }
-
-    window.addEventListener('click', handleOutsideClick)
-    return () => window.removeEventListener('click', handleOutsideClick)
-  }, [dropdownOpen, container])
-
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (!dropdownOpen) return
-
-      if (event.key === 'Escape') {
-        setDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('keyup', handleEscape)
-    return () => document.removeEventListener('keyup', handleEscape)
-  }, [dropdownOpen])
-
-  return (
-    <>
-      <div className='relative z-10 flex flex-shrink-0 h-16 bg-white border-b border-gray-200 '>
-        <button
-          className='px-4 border-r border-cool-gray-200 text-cool-gray-400 focus:outline-none focus:bg-cool-gray-100 focus:text-cool-gray-600 lg:hidden'
-          aria-label='Open sidebar'
-          onClick={() => openMobile()}
-        >
-          <svg
-            className='w-6 h-6 transition duration-150 ease-in-out'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
+    <div className='flex h-screen overflow-hidden bg-white'>
+      {/* Off-canvas menu for mobile, show/hide based on off-canvas menu state. */}
+      <Transition show={mobileOpen} className='lg:hidden'>
+        <div className='fixed inset-0 z-40 flex'>
+          {/* Off-canvas menu overlay, show/hide based on off-canvas menu state. */}
+          <Transition.Child
+            enter='transition-opacity ease-linear duration-300'
+            enterFrom='opacity-0'
+            enterTo='opacity-100'
+            leave='transition-opacity ease-linear duration-300'
+            leaveFrom='opacity-100'
+            leaveTo='opacity-0'
+            className='fixed inset-0'
           >
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h8m-8 6h16' />
-          </svg>
-        </button>
-        {/* Search bar */}
-        <div className='flex justify-end flex-1 px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center ml-4 md:ml-6'>
-            <button
-              className='p-1 rounded-full text-cool-gray-400 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-              aria-label='Notifications'
-              onClick={() => openWaitingRoom()}
-            >
-              <svg className='w-6 h-6' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
-                />
-              </svg>
-            </button>
-            {/* Profile dropdown */}
-            <div className='relative ml-3' ref={container}>
-              <div>
+            <div className='absolute inset-0 bg-gray-600 opacity-75' onClick={() => setMobileOpen(false)} />
+          </Transition.Child>
+          {/* Off-canvas menu, show/hide based on off-canvas menu state. */}
+          <Transition.Child
+            enter='transition ease-in-out duration-300 transform'
+            enterFrom='-translate-x-full'
+            enterTo='translate-x-0'
+            leave='transition ease-in-out duration-300 transform'
+            leaveFrom='translate-x-0'
+            leaveTo='-translate-x-full'
+            className='relative flex flex-col flex-1 w-full max-w-xs pt-5 pb-4 bg-white'
+          >
+            <div className='absolute top-0 right-0 p-1 -mr-14'>
+              <button
+                className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
+                aria-label='Close sidebar'
+                onClick={() => setMobileOpen(false)}
+              >
+                <svg className='w-6 h-6 text-white' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                </svg>
+              </button>
+            </div>
+            <div className='flex items-center flex-shrink-0 px-4'>
+              <img className='w-auto h-8' src='/img/logo.svg' alt='Boldo' />
+            </div>
+            <div className='flex-1 h-0 mt-5 overflow-y-auto'>
+              <nav className='px-2'>
+                <div className='space-y-1'>
+                  <NavLink
+                    exact
+                    activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+                    to={`/`}
+                    className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+                  >
+                    <svg
+                      className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+                      />
+                    </svg>
+                    Calendario
+                  </NavLink>
+                  <NavLink
+                    exact
+                    activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+                    to={`/settings`}
+                    className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+                  >
+                    <svg
+                      className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+                      />
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+                      />
+                    </svg>
+                    Mi cuenta
+                  </NavLink>
+                </div>
+              </nav>
+            </div>
+          </Transition.Child>
+          <div className='flex-shrink-0 w-14'>{/* Dummy element to force sidebar to shrink to fit close icon */}</div>
+        </div>
+      </Transition>
+
+      <WaitingRoomSidebar show={waitingroomOpen} hideSidebar={() => setWaitingroomOpen(false)} />
+
+      {/* Static sidebar for desktop */}
+      <div className='hidden lg:flex lg:flex-shrink-0'>
+        <div className='flex flex-col w-64 pt-5 pb-4 bg-white border-r border-gray-200'>
+          <div className='flex items-center flex-shrink-0 px-6'>
+            <img className='w-auto h-8' src='/img/logo.svg' alt='Boldo' />
+          </div>
+          {/* Sidebar component, swap this element with another sidebar if you like */}
+          <div className='flex flex-col flex-1 h-0 overflow-y-auto'>
+            {/* User account dropdown */}
+            <div className='relative inline-block px-3 mt-6 text-left'>
+              {/* Dropdown menu toggle, controlling the show/hide state of dropdown menu. */}
+              <Menu>
+                {({ open }) => (
+                  <>
+                    <div>
+                      <Menu.Button className='group w-full rounded-md px-3.5 py-2 text-sm leading-5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500 focus:outline-none focus:bg-gray-200 focus:border-blue-300 active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150'>
+                        <div className='flex items-center justify-between w-full'>
+                          <div className='flex items-center justify-between min-w-0 space-x-3'>
+                            <img
+                              className='flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full'
+                              src={gravatarURL}
+                              alt='Avatar'
+                            />
+                            <div className='flex-1 min-w-0'>
+                              <h2 className='text-sm font-medium leading-5 text-gray-900 truncate'>{email}</h2>
+                              <p className='text-sm leading-5 text-left text-gray-500 truncate'>@jessyschwarz</p>
+                            </div>
+                          </div>
+                          {/* Heroicon name: chevron-down */}
+                          <svg
+                            className='flex-shrink-0 w-5 h-5 text-gray-400 group-hover:text-gray-500'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                          >
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                          </svg>
+                        </div>
+                      </Menu.Button>
+                    </div>
+                    {/* Dropdown panel, show/hide based on dropdown state. */}
+                    <Transition
+                      show={open}
+                      enter='transition ease-out duration-100'
+                      enterFrom='transform opacity-0 scale-95'
+                      enterTo='transform opacity-100 scale-100'
+                      leave='transition ease-in duration-75'
+                      leaveFrom='transform opacity-100 scale-100'
+                      leaveTo='transform opacity-0 scale-95'
+                      className='absolute left-0 right-0 z-10 mx-3 mt-1 origin-top rounded-md shadow-lg'
+                    >
+                      <div
+                        className='bg-white rounded-md shadow-xs'
+                        role='menu'
+                        aria-orientation='vertical'
+                        aria-labelledby='options-menu'
+                      >
+                        <div className='py-1'>
+                          <a
+                            href='https://play.google.com/store'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Get patient app
+                          </a>
+                          <a
+                            href='mailto:soporte@pti.org.py'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Support
+                          </a>
+                        </div>
+                        <div className='border-t border-gray-100' />
+                        <div className='py-1'>
+                          <a
+                            className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                            href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
+                          >
+                            Logout
+                          </a>
+                        </div>
+                      </div>
+                    </Transition>
+                  </>
+                )}
+              </Menu>
+            </div>
+            <div className='w-full px-3 mt-5'>
+              <span className='relative inline-flex w-full rounded-md shadow-sm'>
                 <button
-                  className='flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:bg-cool-gray-100 lg:p-2 lg:rounded-md lg:hover:bg-cool-gray-100'
-                  id='user-menu'
-                  aria-label='User menu'
-                  aria-haspopup='true'
-                  onClick={() => setDropdownOpen(v => !v)}
+                  type='button'
+                  className='inline-flex items-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+                  onClick={() => setWaitingroomOpen(true)}
                 >
-                  <img
-                    className='w-8 h-8 rounded-full'
-                    src={`https://www.gravatar.com/avatar/${md5(email || '')}.jpg?d=mp`}
-                    alt='Avatar'
-                  />
-                  <p className='hidden ml-3 text-sm font-medium leading-5 text-cool-gray-700 lg:block'>{email}</p>
                   <svg
-                    className='flex-shrink-0 hidden w-5 h-5 ml-1 text-cool-gray-400 lg:block'
-                    viewBox='0 0 20 20'
+                    className='w-6 h-6 mr-3 text-gray-400'
+                    viewBox='0 0 24 25'
                     fill='currentColor'
+                    xmlns='http://www.w3.org/2000/svg'
                   >
                     <path
                       fillRule='evenodd'
-                      d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
                       clipRule='evenodd'
+                      d='M6 5.5H18C19.1 5.5 20 6.4 20 7.5V9.65C18.84 10.07 18 11.17 18 12.47V14.5H6V12.47C6 11.16 5.16 10.06 4 9.65V7.5C4 6.4 4.9 5.5 6 5.5ZM19 12.5C19 11.4 19.9 10.5 21 10.5C22.1 10.5 23 11.4 23 12.5V17.5C23 18.6 22.1 19.5 21 19.5H3C1.9 19.5 1 18.6 1 17.5V12.5C1 11.4 1.9 10.5 3 10.5C4.1 10.5 5 11.4 5 12.5V15.5H19V12.5Z'
                     />
                   </svg>
+                  Sala de espera
                 </button>
-              </div>
-              <Transition
-                show={dropdownOpen}
-                enter='transition ease-out duration-100'
-                enterFrom='transform opacity-0 scale-95'
-                enterTo='transform opacity-100 scale-100'
-                leave='transition ease-in duration-75'
-                leaveFrom='transform opacity-100 scale-100'
-                leaveTo='transform opacity-0 scale-95'
-                className='absolute right-0 w-48 mt-2 origin-top-right rounded-md shadow-lg'
-              >
-                <div
-                  className='py-1 bg-white rounded-md shadow-xs'
-                  role='menu'
-                  aria-orientation='vertical'
-                  aria-labelledby='user-menu'
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <div className='py-1'>
-                    <Link
-                      to='/settings'
-                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                      role='menuitem'
-                    >
-                      Mi cuenta
-                    </Link>
-                  </div>
-                  <div className='border-t border-gray-100' />
-                  <div className='py-1'>
-                    <a
-                      href='https://play.google.com/store'
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                      role='menuitem'
-                    >
-                      Get patient app
-                    </a>
-                    <a
-                      href='mailto:soporte@pti.org.py'
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                      role='menuitem'
-                    >
-                      Support
-                    </a>
-                  </div>
-                  <div className='border-t border-gray-100' />
-                  <div className='py-1'>
-                    <a
-                      className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                      role='menuitem'
-                      href={`${SERVER_URL}/logout?redirect_url=${FRONTEND_URL}`}
-                    >
-                      Logout
-                    </a>
-                  </div>
-                </div>
-              </Transition>
+
+                {!!rooms.length && (
+                  <span className='absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1'>
+                    <span className='absolute inline-flex w-full h-full bg-pink-400 rounded-full opacity-75 animate-ping'></span>
+                    <span className='relative inline-flex w-3 h-3 bg-pink-500 rounded-full'></span>
+                  </span>
+                )}
+              </span>
             </div>
+            {/* Navigation */}
+            <nav className='px-3 mt-6'>
+              <div className='space-y-1'>
+                <NavLink
+                  exact
+                  activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+                  to={`/`}
+                  className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+                >
+                  <svg
+                    className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+                    />
+                  </svg>
+                  Calendario
+                </NavLink>
+                <NavLink
+                  exact
+                  activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+                  to={`/settings`}
+                  className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+                >
+                  <svg
+                    className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+                    />
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+                    />
+                  </svg>
+                  Mi cuenta
+                </NavLink>
+              </div>
+            </nav>
           </div>
         </div>
       </div>
-    </>
+      {/* Main column */}
+      <div className='flex flex-col flex-1 w-0 overflow-hidden'>
+        {/* Search header */}
+        <div className='relative z-10 flex flex-shrink-0 h-16 bg-white border-b border-gray-200 lg:hidden'>
+          {/* Sidebar toggle, controls the 'sidebarOpen' sidebar state. */}
+          <button
+            className='px-4 text-gray-500 border-r border-gray-200 focus:outline-none focus:bg-gray-100 focus:text-gray-600 lg:hidden'
+            aria-label='Open sidebar'
+            onClick={() => setMobileOpen(value => !value)}
+          >
+            <svg
+              className='w-6 h-6'
+              fill='none'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path d='M4 6h16M4 12h8m-8 6h16' />
+            </svg>
+          </button>
+          <div className='flex justify-end flex-1 px-4 sm:px-6 lg:px-8'>
+            <div className='flex items-center'>
+              <div className='relative flex-grow-0 mr-3 inline-box'>
+                <button
+                  className='p-1 rounded-full inline-box text-cool-gray-400 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
+                  aria-label='Waitingroom'
+                  onClick={() => setWaitingroomOpen(true)}
+                >
+                  <svg className='w-6 h-6' viewBox='0 0 24 25' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M6 5.5H18C19.1 5.5 20 6.4 20 7.5V9.65C18.84 10.07 18 11.17 18 12.47V14.5H6V12.47C6 11.16 5.16 10.06 4 9.65V7.5C4 6.4 4.9 5.5 6 5.5ZM19 12.5C19 11.4 19.9 10.5 21 10.5C22.1 10.5 23 11.4 23 12.5V17.5C23 18.6 22.1 19.5 21 19.5H3C1.9 19.5 1 18.6 1 17.5V12.5C1 11.4 1.9 10.5 3 10.5C4.1 10.5 5 11.4 5 12.5V15.5H19V12.5Z'
+                    />
+                  </svg>
+                </button>
+                {!!!!rooms.length && (
+                  <span className='absolute top-0 right-0 flex w-3 h-3 pointer-events-none'>
+                    <span className='absolute inline-flex w-full h-full bg-pink-400 rounded-full opacity-75 animate-ping'></span>
+                    <span className='relative inline-flex w-3 h-3 bg-pink-500 rounded-full'></span>
+                  </span>
+                )}
+              </div>
+              {/* Profile dropdown */}
+              <div className='relative ml-3'>
+                <Menu>
+                  {({ open }) => (
+                    <>
+                      <div>
+                        <Menu.Button className='flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:shadow-outline'>
+                          <img className='w-8 h-8 rounded-full' src={gravatarURL} alt='Avatar' />
+                        </Menu.Button>
+                      </div>
+                      {/* Profile dropdown panel, show/hide based on dropdown state. */}
+                      <Transition
+                        show={open}
+                        enter='transition ease-out duration-100'
+                        enterFrom='transform opacity-0 scale-95'
+                        enterTo='transform opacity-100 scale-100'
+                        leave='transition ease-in duration-75'
+                        leaveFrom='transform opacity-100 scale-100'
+                        leaveTo='transform opacity-0 scale-95'
+                        className='absolute right-0 w-48 mt-2 origin-top-right rounded-md shadow-lg'
+                      >
+                        <div
+                          className='bg-white rounded-md shadow-xs'
+                          role='menu'
+                          aria-orientation='vertical'
+                          aria-labelledby='user-menu'
+                        >
+                          <div className='py-1'>
+                            <a
+                              href='https://play.google.com/store'
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                              role='menuitem'
+                            >
+                              Get patient app
+                            </a>
+                            <a
+                              href='mailto:soporte@pti.org.py'
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                              role='menuitem'
+                            >
+                              Support
+                            </a>
+                          </div>
+                          <div className='border-t border-gray-100' />
+                          <div className='py-1'>
+                            <a
+                              className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                              role='menuitem'
+                              href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
+                            >
+                              Logout
+                            </a>
+                          </div>
+                        </div>
+                      </Transition>
+                    </>
+                  )}
+                </Menu>
+              </div>
+            </div>
+          </div>
+        </div>
+        <main ref={main} className='relative z-0 flex-1 overflow-y-auto focus:outline-none' tabIndex={0}>
+          {isLoading ? <div className='h-1 fakeload-15 bg-primary-500' /> : children}
+        </main>
+      </div>
+    </div>
   )
 }
+
+export default Layout
 
 interface WaitingRoomSidebarProps {
   show: boolean
@@ -329,38 +453,46 @@ interface WaitingRoomSidebarProps {
 }
 
 const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSidebar }) => {
-  const [rooms, setRooms] = useState<string[]>([])
+  const container = useRef<HTMLDivElement>(null)
+  const { rooms, setAppointments } = useContext(RoomsContext)
 
-  const socket = useSocket()
+  // Ping for data
+  useEffect(() => {
+    // FIXME: load real appointments here
+    setAppointments?.([{ id: '1' }, { id: '2' }, { id: '3' }] as any)
+  }, [setAppointments])
+
+  // Allow for outside click
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      if (!container.current?.contains(event.target as Node)) {
+        if (!show) return
+        hideSidebar()
+      }
+    }
+
+    window.addEventListener('click', handleOutsideClick)
+    return () => window.removeEventListener('click', handleOutsideClick)
+  }, [show, hideSidebar])
 
   useEffect(() => {
-    if (!socket) return
+    function handleEscape(event: KeyboardEvent) {
+      if (!show) return
 
-    let appointmentsData = [{ id: '1' }, { id: '2' }, { id: '3' }]
+      if (event.key === 'Escape') {
+        hideSidebar()
+      }
+    }
 
-    socket.emit(
-      'find patients',
-      appointmentsData.map(e => e.id)
-    )
-
-    socket.on('patient ready', (appointmentId: string) => {
-      setRooms(rooms => {
-        if (rooms.find(e => e === appointmentId)) return rooms
-        return [...(rooms || []), appointmentId]
-      })
-    })
-
-    socket.on('peer not ready', (appointmentId: string) => {
-      setRooms(rooms => rooms.filter(e => e !== appointmentId))
-      socket.emit('find patients', [appointmentId])
-    })
-  }, [socket])
+    document.addEventListener('keyup', handleEscape)
+    return () => document.removeEventListener('keyup', handleEscape)
+  }, [show, hideSidebar])
 
   return (
     <Transition show={show}>
       <div className='fixed inset-0 z-50 overflow-hidden'>
         <div className='absolute inset-0 overflow-hidden'>
-          <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16' style={{ paddingTop: 64 }}>
+          <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16'>
             {/* Slide-over panel, show/hide based on slide-over state. */}
             <Transition.Child
               enter='transform transition ease-in-out duration-500 sm:duration-700'
@@ -371,7 +503,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
               leaveTo='translate-x-full'
               className='w-screen max-w-md'
             >
-              <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+              <div ref={container} className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
                 <div className='flex-1'>
                   {/* Header */}
                   <header className='px-4 py-6 bg-gray-50 sm:px-6'>

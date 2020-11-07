@@ -9,12 +9,19 @@ export interface Doctor extends iHub.Doctor {
   openHours: OpenHours
 }
 
+type Interval = { start: number; end: number }
+
 interface OpenHours {
-  mon: { start: number; end: number }[]
-  tue: { start: number; end: number }[]
-  wed: { start: number; end: number }[]
-  thu: { start: number; end: number }[]
-  fri: { start: number; end: number }[]
-  sat: { start: number; end: number }[]
-  sun: { start: number; end: number }[]
+  mon: Interval[]
+  tue: Interval[]
+  wed: Interval[]
+  thu: Interval[]
+  fri: Interval[]
+  sat: Interval[]
+  sun: Interval[]
+}
+
+export interface Appointment extends iHub.Appointment {
+  name: string
+  type: 'PrivateEvent' | 'CustomAppointment' | 'Appointment'
 }

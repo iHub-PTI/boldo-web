@@ -6,6 +6,7 @@ import Layout from '../components/Layout'
 import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
+import { validateDate } from '../util/helpers'
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 
@@ -47,7 +48,7 @@ const weekDays = {
   sun: 'Sunday',
 }
 
-type DoctorForm = Omit<Boldo.Doctor, 'photoUrl'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
+type DoctorForm = Omit<Boldo.Doctor, 'photoUrl' | 'id'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
 
 const initialState: DoctorForm = {
   photoUrl: '',
@@ -172,21 +173,9 @@ const Settings = (props: Props) => {
     setLoading(true)
     setError('')
 
-    // Validate Birthdate. Because Safari does not have date input
-    const validateBirthDate = (dayInput: string) => {
-      try {
-        const date = new Date(dayInput)
-        const isoString = date.toISOString().split('T')[0]
-        if (new Date() < date) return false // Please enter a Date in the past
-        return isoString === dayInput
-      } catch (err) {
-        return false
-      }
-    }
-
     let validationError = false
 
-    if (!validateBirthDate(doctor.birthDate)) {
+    if (!validateDate(doctor.birthDate, 'past')) {
       validationError = true
       setError('Fecha de nacimiento!')
     }
