@@ -59,7 +59,7 @@ const App = () => {
                 <Settings />
               </Route>
 
-              <Route exact path='/call'>
+              <Route exact path='/appointments/:id/call'>
                 <Call />
               </Route>
 
@@ -114,7 +114,8 @@ const Sockets: React.FC = ({ children }) => {
 export const RoomsContext = createContext<{
   rooms: string[]
   setAppointments?: (appointments: Boldo.Appointment[]) => void
-}>({ rooms: [] })
+  appointments: Boldo.Appointment[]
+}>({ rooms: [], appointments: [] })
 
 export const Rooms: React.FC = ({ children }) => {
   const [rooms, setRooms] = useState<string[]>([])
@@ -151,5 +152,5 @@ export const Rooms: React.FC = ({ children }) => {
     )
   }, [socket, appointments])
 
-  return <RoomsContext.Provider value={{ rooms, setAppointments }}>{children}</RoomsContext.Provider>
+  return <RoomsContext.Provider value={{ rooms, appointments, setAppointments }}>{children}</RoomsContext.Provider>
 }

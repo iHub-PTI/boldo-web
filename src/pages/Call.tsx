@@ -1,36 +1,41 @@
-import * as React from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 
 import { useSocket } from '../components/hooks/sockets'
 import Camera from '../components/webRTC/Camera'
 import Stream from '../components/webRTC/Stream'
 import Layout from '../components/Layout'
 
-const { useEffect, useState } = React
+const Gate = () => {
+  const history = useHistory()
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
+  const id = match?.params.id
+
+  if (!id) {
+    history.replace(`/`)
+    return null
+  }
+
+  return <Call id={id} />
+}
+
+export default Gate
 
 const CAPTURE_OPTIONS: MediaStreamConstraints = {
   audio: true,
   video: { width: 1280, height: 640 },
 }
 
-const Call = () => {
-  const [roomID, setRoomID] = useState<string>('')
+const Call = ({ id }: { id: string }) => {
+  const history = useHistory()
 
   const mediaStream = useUserMedia(CAPTURE_OPTIONS)
   const socket = useSocket()
-  const history = useHistory()
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const room = urlParams.get('room')
-    if (!room) return alert('Invalid room ID.')
-    setRoomID(room)
-  }, [])
 
   const hangUp = async () => {
     if (socket) {
-      socket.emit('end call', roomID)
-      history.push('/dashboard')
+      socket.emit('end call', id)
+      history.push('/')
     }
   }
 
@@ -64,7 +69,7 @@ const Call = () => {
               </button>
             </div>
 
-            <span className='text-gray-500 font-xl'>Room: {roomID}</span>
+            <span className='text-gray-500 font-xl'>Room: {id}</span>
           </div>
           <span className='block mb-4 sm:ml-2 sm:inline-block'>
             <a href='/dashboard' className='font-bold underline'>
@@ -75,7 +80,7 @@ const Call = () => {
       </div>
       <div className='m-10 md:flex md:items-end'>
         <div className='md:w-8/12'>
-          <Stream roomID={roomID} className='rounded-lg' mediaStream={mediaStream} socket={socket} />
+          <Stream roomID={id} className='rounded-lg' mediaStream={mediaStream} socket={socket} />
         </div>
         <div className='max-w-xs mt-8 md:ml-8 md:w-3/12 md:mt-0 md:max-w-none'>
           <Camera className='rounded-lg' mediaStream={mediaStream} style={{ transform: 'rotateY(180deg)' }} />
@@ -111,5 +116,3 @@ const useUserMedia = (requestedMedia: MediaStreamConstraints) => {
 
   return mediaStream
 }
-
-export default Call

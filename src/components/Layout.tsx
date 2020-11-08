@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useContext, useMemo } from 'react'
 import { Transition, Menu } from '@headlessui/react'
 import md5 from 'md5'
 import { NavLink, useLocation } from 'react-router-dom'
+import axios from 'axios'
 
 import { UserContext } from '../App'
 import { RoomsContext } from '../App'
@@ -454,12 +455,24 @@ interface WaitingRoomSidebarProps {
 
 const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSidebar }) => {
   const container = useRef<HTMLDivElement>(null)
-  const { rooms, setAppointments } = useContext(RoomsContext)
+  const { rooms, setAppointments, appointments } = useContext(RoomsContext)
 
-  // Ping for data
   useEffect(() => {
-    // FIXME: load real appointments here
-    setAppointments?.([{ id: '1' }, { id: '2' }, { id: '3' }] as any)
+    const load = async () => {
+      const res = await axios.get<Boldo.Appointment[]>('/profile/doctor/appointments/openAppointments')
+
+      // Ping for data
+      setAppointments?.([{ id: '1' }, { id: '2' }, { id: '3' }, ...res.data] as any)
+      // FIXME: Remove hardcoded IDs!
+    }
+    load()
+    if (setAppointments) {
+      // FIXME: Would probably be better to not use setInterval here
+      const timer = setInterval(() => {
+        load()
+      }, 60 * 1000)
+      return () => clearInterval(timer)
+    }
   }, [setAppointments])
 
   // Allow for outside click
@@ -478,10 +491,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (!show) return
-
-      if (event.key === 'Escape') {
-        hideSidebar()
-      }
+      if (event.key === 'Escape') hideSidebar()
     }
 
     document.addEventListener('keyup', handleEscape)
@@ -544,33 +554,46 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                   <div className='py-6 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-gray-200'>
                     {/* Project name */}
                     <ul className='px-4 space-y-1 sm:px-6 sm:py-5'>
-                      {/* <ul className=''> */}
-                      {rooms.map(e => {
+                      {rooms.map(room => {
+                        const appointment = appointments.find(appointment => appointment.id === room)
+
+                        if (!appointment) {
+                          console.log('Could not find appointment for room: ', room)
+                          return null
+                        }
+                        const start = appointment.start
+                          ? new Intl.DateTimeFormat('default', {
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }).format(new Date(appointment.start))
+                          : '00:00'
+
                         return (
-                          <li key={e} className='col-span-1 bg-white rounded-lg shadow'>
-                            <div className='flex items-center justify-between w-full p-6 space-x-6'>
-                              <div className='flex-1 truncate'>
-                                <div className='flex items-center space-x-3'>
-                                  <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
-                                    Room Number: {e}
-                                  </h3>
-                                </div>
-                                {/* <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
-                                  Pations count: {e.users.length}
-                                </p> */}
-                              </div>
+                          <li key={room} className='col-span-1 bg-white rounded-lg shadow'>
+                            <div className='flex items-center w-full p-6 space-x-6 justify-left'>
                               <img
-                                className='flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full'
-                                src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60'
+                                className='flex-shrink-0 w-20 h-20 bg-gray-300 rounded-lg'
+                                src='/img/patient-f.svg'
                                 alt=''
                               />
+                              <div className='flex-1 truncate'>
+                                <div className='flex items-center justify-between space-x-3'>
+                                  <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
+                                    {appointment.patientId || room}
+                                  </h3>
+                                  <span className='inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-gray-100 text-gray-800'>
+                                    {start}
+                                  </span>
+                                </div>
+                                <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>32 años | Femenino</p>
+                              </div>
                             </div>
                             <div className='border-t border-gray-200'>
                               <div className='flex -mt-px'>
                                 <div className='flex flex-1 w-0 -ml-px'>
                                   <div
                                     onClick={() => {
-                                      window.location.href = `/call?room=${e}`
+                                      window.location.href = `/call?room=${room}`
                                     }}
                                     className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
                                   >
@@ -586,7 +609,6 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                           </li>
                         )
                       })}
-                      {/* </ul> */}
                     </ul>
                   </div>
                 </div>

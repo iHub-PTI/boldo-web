@@ -4,9 +4,10 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
 import esLocale from '@fullcalendar/core/locales/es'
-import { EventInput, EventSourceFunc } from '@fullcalendar/common'
+import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
 import axios from 'axios'
-import { addDays, differenceInDays } from 'date-fns'
+import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
+import { Link } from 'react-router-dom'
 
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
@@ -23,7 +24,8 @@ const eventDataTransform = (event: Boldo.Appointment) => {
     title: event.name || event.patientId,
     start: event.start,
     end: event.end,
-    classNames: [getColorClass(event.type)],
+    classNames: [getColorClass(event.type), 'boldo-event'],
+    extendedProps: event,
   }
 }
 
@@ -104,9 +106,16 @@ export default function Dashboard() {
   const [appointment, dispatch] = useReducer(reducer, initialAppointment)
 
   const calendar = useRef<FullCalendar>(null)
-  const [showModal, setShowModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState<Boldo.Appointment | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // FIXME: Can this be improved?
+  const setAppointmentsAndReload: typeof setAppointments = arg0 => {
+    setAppointments(arg0)
+    setDateRange(range => ({ ...range, refetch: true }))
+  }
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -153,14 +162,15 @@ export default function Dashboard() {
     try {
       const payload = {
         ...appointment,
-        start: new Date(`${appointment.date}T${appointment.start}`).toISOString().slice(0, -1),
-        end: new Date(`${appointment.date}T${appointment.end}`).toISOString().slice(0, -1),
+        start: new Date(`${appointment.date}T${appointment.start}`).toISOString(),
+        end: new Date(`${appointment.date}T${appointment.end}`).toISOString(),
       }
+
       const res = await axios.post<Boldo.Appointment>(`/profile/doctor/appointments`, payload)
 
-      setAppointments(appointments => [eventDataTransform(res.data), ...appointments])
-      setDateRange(range => ({ ...range, refetch: true }))
-      setShowModal(false)
+      // Useless setting data as will anyways reload?
+      setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
+      setShowEditModal(false)
       dispatch({ type: 'reset' })
     } catch (err) {
       setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
@@ -169,6 +179,10 @@ export default function Dashboard() {
     setLoading(false)
   }
 
+  // FIXME: It's a mess how this handles the loadEvents. It should work:
+  // This loads Events whenever needed and setsState
+  // FC automaticall rerenders when appointmens[] has changed.
+  // Check why it doesn't work like that.
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
@@ -192,6 +206,11 @@ export default function Dashboard() {
       })
   }
 
+  const handleEventClick = (info: EventClickArg) => {
+    info.jsEvent.stopPropagation()
+    if (info.event.display !== 'background') setSelectedAppointment(info.event.extendedProps as Boldo.Appointment)
+  }
+
   return (
     <>
       <Layout>
@@ -211,7 +230,7 @@ export default function Dashboard() {
                     e.stopPropagation()
                     dispatch({ type: 'reset' })
                     setError('')
-                    setShowModal(true)
+                    setShowEditModal(true)
                   }}
                 >
                   Add Event
@@ -223,10 +242,9 @@ export default function Dashboard() {
           <FullCalendar
             ref={calendar}
             events={{ events: loadEvents, id: 'server' }}
+            eventClick={handleEventClick}
             height='100%'
             stickyHeaderDates={true}
-            // contentHeight={2000}
-            // aspectRatio={0.1}
             plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
             initialView='timeGridWeek'
             nowIndicator={true}
@@ -265,7 +283,7 @@ export default function Dashboard() {
           />
         </div>
       </Layout>
-      <Modal show={showModal} setShow={setShowModal} size='xl' noPadding>
+      <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
         <form
           onSubmit={e => {
             e.preventDefault()
@@ -455,7 +473,7 @@ export default function Dashboard() {
                   type='button'
                   className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue sm:text-sm sm:leading-5'
                   onClick={() => {
-                    setShowModal(false)
+                    setShowEditModal(false)
                     dispatch({ type: 'reset' })
                   }}
                 >
@@ -492,6 +510,242 @@ export default function Dashboard() {
           </div>
         </form>
       </Modal>
+      {selectedAppointment && (
+        <EventModal
+          setShow={show => {
+            if (!show) setSelectedAppointment(null)
+          }}
+          appointment={selectedAppointment}
+          setAppointmentsAndReload={setAppointmentsAndReload}
+        />
+      )}
     </>
+  )
+}
+
+interface EventModalProps {
+  setShow: (arg: boolean) => void
+  appointment: Boldo.Appointment
+  setAppointmentsAndReload: (arg: any) => void
+}
+
+const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventModalProps) => {
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState('')
+  const [error, setError] = useState('')
+
+  const date = useMemo(() => {
+    const date = new Intl.DateTimeFormat('default', {
+      weekday: 'long',
+      // year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(appointment.start))
+
+    const start = new Intl.DateTimeFormat('default', {
+      hour: 'numeric',
+      minute: 'numeric',
+    }).format(new Date(appointment.start))
+
+    const end = new Intl.DateTimeFormat('default', {
+      hour: 'numeric',
+      minute: 'numeric',
+    }).format(new Date(appointment.end))
+
+    return { date, start, end }
+  }, [appointment])
+
+  const type = useMemo(() => {
+    let type = ''
+    switch (appointment.type) {
+      case 'PrivateEvent':
+        type = 'Private Event'
+        break
+
+      case 'CustomAppointment':
+        type = 'Custom Patient Consultation'
+        break
+
+      case 'Appointment':
+        type = 'Scheduled Patient Consultation'
+        break
+
+      default:
+        type = 'Other'
+        break
+    }
+    return type
+  }, [appointment])
+
+  const hasPicture = appointment.type === 'Appointment'
+
+  useEffect(() => {
+    if (appointment.type === 'Appointment') {
+      const calculate = () => {
+        const minutes = differenceInMinutes(parseISO(appointment.start as any), Date.now())
+        if (minutes < 15) {
+          setStatus('open')
+        } else if (minutes < 16) {
+          const seconds = differenceInSeconds(parseISO(appointment.start as any), Date.now())
+          setStatus(`opens in ${seconds + 1 - 60 * 15} seconds`)
+        } else if (minutes < 60) {
+          setStatus(`opens in ${minutes - 14} minutes`)
+        } else {
+          setStatus(`Will open 15 minutes before start`)
+        }
+      }
+      calculate()
+      const timer = setInterval(() => {
+        calculate()
+      }, 1000)
+      return () => clearInterval(timer)
+    }
+  }, [appointment])
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Está seguro que desea eliminar esta Event?')) return
+    setLoading(true)
+    setError('')
+    try {
+      await axios.delete(`/profile/doctor/appointments/${id}`)
+      setAppointmentsAndReload((appointments: EventInput[]) =>
+        appointments.filter(appointment => appointment.extendedProps?.id !== id)
+      )
+      setLoading(false)
+      setShow(false)
+    } catch (err) {
+      setLoading(false)
+      setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+      console.log(err)
+    }
+  }
+
+  return (
+    <Modal show={true} setShow={setShow} size='xl' noPadding>
+      <div className=''>
+        <div className='divide-y divide-gray-200'>
+          <div className='pb-6'>
+            <div className='h-24 bg-primary-700 sm:h-20 lg:h-28' />
+            <div
+              className={`flow-root px-4 space-y-6 sm:flex sm:items-end sm:px-6 sm:space-x-6 ${
+                hasPicture ? '-mt-12 lg:-mt-15 sm:-mt-8' : ''
+              }`}
+            >
+              {hasPicture && (
+                <div>
+                  <div className='flex -m-1'>
+                    <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
+                      <img
+                        className='flex-shrink-0 w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
+                        src='/img/patient-f.svg'
+                        alt=''
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className='mt-6 space-y-5 sm:flex-1'>
+                <div>
+                  <div className='flex items-center space-x-2.5'>
+                    <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
+                      {appointment.name || appointment.patientId}
+                    </h3>
+                    <span
+                      aria-label='Online'
+                      className='flex-shrink-0 inline-block w-2 h-2 bg-green-400 rounded-full'
+                    />
+                  </div>
+                  <p className='space-x-2 text-sm leading-5 text-gray-500'>
+                    <span>{date.date}</span>
+                    <span>⋅</span>
+                    <span>
+                      {date.start} – {date.end}
+                    </span>
+                  </p>
+                </div>
+                {status === 'open' && (
+                  <div className='flex flex-wrap'>
+                    <span className='inline-flex flex-shrink-0 w-full rounded-md shadow-sm sm:flex-1'>
+                      <Link
+                        to={`/appointments/${appointment.id}/call`}
+                        className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700'
+                      >
+                        Start Call
+                      </Link>
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className='px-4 py-5 sm:px-0 sm:py-0'>
+            <dl className='space-y-8 sm:space-y-0 sm:divide-y sm:divide-gray-200'>
+              {appointment.description && (
+                <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+                  <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
+                    Description
+                  </dt>
+                  <dd className='mt-1 overflow-auto text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+                    <p className='break-words'>{appointment.description}</p>
+                  </dd>
+                </div>
+              )}
+              <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+                <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Type</dt>
+                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{type}</dd>
+              </div>
+              {status && (
+                <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+                  <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
+                    Status
+                  </dt>
+                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{status}</dd>
+                </div>
+              )}
+              {/* <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+                <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
+                  Birthday
+                </dt>
+                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+                  <time dateTime='1982-06-23'>June 23, 1982</time>
+                </dd>
+              </div> */}
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div className='px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:justify-between'>
+        <div className='flex items-center'>
+          {appointment.type === 'PrivateEvent' && (
+            <span className='flex w-full rounded-md shadow-sm sm:w-auto'>
+              <button
+                type='button'
+                className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-500 focus:outline-none focus:border-red-700 focus:shadow-outline-red sm:text-sm sm:leading-5'
+                onClick={() => handleDelete(appointment.id)}
+                disabled={loading}
+              >
+                Eliminar
+              </button>
+            </span>
+          )}
+        </div>
+        {error && <p className='mx-4 text-sm text-red-600'>{error}</p>}
+        <div className='flex items-center'>
+          <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto'>
+            <button
+              type='button'
+              className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue sm:text-sm sm:leading-5'
+              onClick={() => {
+                setShow(false)
+              }}
+            >
+              Close
+            </button>
+          </span>
+          <p></p>
+        </div>
+      </div>
+    </Modal>
   )
 }
