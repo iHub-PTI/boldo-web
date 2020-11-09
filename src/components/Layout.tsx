@@ -593,7 +593,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                 <div className='flex flex-1 w-0 -ml-px'>
                                   <div
                                     onClick={() => {
-                                      window.location.href = `/call?room=${room}`
+                                      window.location.href = `/appointments/${room}/call` //`/call?room=${room}`
                                     }}
                                     className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
                                   >
