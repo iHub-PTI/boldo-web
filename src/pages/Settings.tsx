@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from 'react'
+import React, { useState, useReducer, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { useHistory } from 'react-router-dom'
 
@@ -7,6 +7,7 @@ import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
 import { validateDate } from '../util/helpers'
+import { UserContext } from '../App'
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 
@@ -136,6 +137,8 @@ const Settings = (props: Props) => {
   const [loading, setLoading] = useState(false)
   const [show, setShow] = useState(false)
 
+  const { updateUser } = useContext(UserContext)
+
   useEffect(() => {
     let mounted = true
 
@@ -190,6 +193,11 @@ const Settings = (props: Props) => {
       setError('Add one specialization!')
     }
 
+    if (doctor.gender === 'unknown') {
+      validationError = true
+      setError('Please select a Género!')
+    }
+
     if (!validationError) {
       try {
         let photoUrl = doctor.photoUrl
@@ -202,6 +210,12 @@ const Settings = (props: Props) => {
 
         await axios.post('/profile/doctor', { ...doctor, photoUrl })
         setSuccess('Actualización exitosa!')
+        updateUser({
+          ...(typeof photoUrl === 'string' && { photoUrl }),
+          givenName: doctor.givenName,
+          familyName: doctor.familyName,
+          openHours: doctor.openHours,
+        })
       } catch (err) {
         setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
         console.log(err)
@@ -360,6 +374,9 @@ const Settings = (props: Props) => {
                               { value: 'male', name: 'Male' },
                               { value: 'female', name: 'Female' },
                               { value: 'other', name: 'Other' },
+                              ...(doctor.gender === 'unknown'
+                                ? [{ value: 'unknown', name: 'Please select a Género' }]
+                                : []),
                             ]}
                             label='Género'
                             value={doctor.gender}

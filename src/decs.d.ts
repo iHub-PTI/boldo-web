@@ -10,11 +10,12 @@ export interface Doctor {
   photoUrl?: string
   givenName: string
   familyName: string
-  languages: string[]
-  biography?: string
   birthDate: string
   gender: string
   email: string
+
+  languages: string[]
+  biography?: string
   phone?: string
   street?: string
   city?: string
@@ -26,13 +27,14 @@ export interface Doctor {
 
 export interface Patient {
   id: string
-  photoUrl: string
+  photoUrl?: string
   givenName: string
   familyName: string
   birthDate: string
-  occupation: string
   gender: string
   email: string
+
+  occupation: string
   phone: string
   street: string
   city: string

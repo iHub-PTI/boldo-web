@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef, useContext, useMemo } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Transition, Menu } from '@headlessui/react'
-import md5 from 'md5'
 import { NavLink, useLocation } from 'react-router-dom'
 import axios from 'axios'
 
-import { UserContext } from '../App'
-import { RoomsContext } from '../App'
+import { UserContext, RoomsContext } from '../App'
+import { avatarPlaceholder } from '../util/helpers'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 
@@ -21,9 +20,8 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
   const [waitingroomOpen, setWaitingroomOpen] = useState(false)
 
   const { rooms } = useContext(RoomsContext)
-  const user = useContext(UserContext)
-  const { email } = user || {}
-  const gravatarURL = useMemo(() => `https://www.gravatar.com/avatar/${md5(email || '')}.jpg?d=mp`, [email])
+  const { user } = useContext(UserContext)
+  const { givenName, familyName, gender, photoUrl, license } = user || {}
 
   useEffect(() => {
     setMobileOpen(false)
@@ -164,14 +162,34 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                       <Menu.Button className='group w-full rounded-md px-3.5 py-2 text-sm leading-5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500 focus:outline-none focus:bg-gray-200 focus:border-blue-300 active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150'>
                         <div className='flex items-center justify-between w-full'>
                           <div className='flex items-center justify-between min-w-0 space-x-3'>
-                            <img
-                              className='flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full'
-                              src={gravatarURL}
-                              alt='Avatar'
-                            />
+                            <span className='relative inline-block'>
+                              <span className='inline-block w-12 h-12 overflow-hidden bg-gray-100 rounded-full'>
+                                <img
+                                  src={photoUrl || avatarPlaceholder('doctor', gender)}
+                                  alt='Avatar'
+                                  className='object-cover w-full h-full max-w-none'
+                                />
+                              </span>
+
+                              <svg
+                                className='absolute bottom-0 right-0 block w-5 h-5 text-primary-500'
+                                viewBox='0 0 18 18'
+                                fill='currentColor'
+                                xmlns='http://www.w3.org/2000/svg'
+                              >
+                                <path d='M1.21019 11.9057C1.49696 12.1557 1.7327 12.4694 1.70974 12.6828C1.69624 12.8103 1.68879 12.9399 1.68879 13.0716C1.68879 15.0114 3.14757 16.5838 4.94685 16.5838C5.16909 16.5838 5.38593 16.5597 5.5957 16.514C5.94899 16.4372 6.36613 16.5859 6.61607 16.8766C7.21018 17.567 8.05729 18 8.99999 18C9.9957 18 10.8871 17.5181 11.4846 16.759C11.722 16.4574 12.124 16.332 12.4813 16.4443C12.7698 16.5349 13.0751 16.5838 13.3909 16.5838C15.1902 16.5838 16.649 15.0111 16.649 13.0716C16.649 12.8546 16.6301 12.6425 16.5943 12.4368C16.5338 12.0898 16.6949 11.6575 16.9641 11.3866C17.6008 10.7465 18 9.83593 18 8.82297C18 7.7201 17.5278 6.73761 16.7898 6.0943C16.503 5.84435 16.2673 5.53063 16.2902 5.31715C16.3038 5.18971 16.3112 5.06012 16.3112 4.92839C16.3112 2.98854 14.8524 1.4162 13.0531 1.4162C12.8309 1.4162 12.614 1.44027 12.4043 1.48596C12.051 1.56278 11.6339 1.41409 11.3839 1.12341C10.7898 0.433006 9.94268 0 8.99999 0C8.05733 0 7.21021 0.433006 6.61607 1.12341C6.36613 1.41372 5.94899 1.56278 5.5957 1.48596C5.38596 1.44027 5.16909 1.4162 4.94685 1.4162C3.1476 1.4162 1.68879 2.98891 1.68879 4.92839C1.68879 5.11533 1.70264 5.29871 1.72931 5.47754C1.77388 5.77848 1.57223 6.14951 1.27906 6.39135C0.502236 7.03255 0 8.04052 0 9.17703C0 10.2799 0.472178 11.2624 1.21019 11.9057Z' />
+                                <path
+                                  d='M4.66396 9.33865C4.73623 9.20443 4.92068 9.20269 5.08955 9.35638L6.78918 10.6122C6.88137 10.671 6.96954 10.7011 7.05431 10.7011C7.22961 10.7011 7.36842 10.5687 7.5025 10.4411L12.9415 4.73419C13.2816 4.3465 13.6122 4.20985 13.8281 4.35854C13.9277 4.42722 13.9922 4.53059 14.0095 4.64992C14.0301 4.79154 13.9828 4.94412 13.8764 5.07938L7.33667 13.4067C7.24176 13.5274 7.12085 13.594 6.99656 13.594C6.84895 13.594 6.71522 13.5008 6.62907 13.3387L4.70956 9.71138C4.63019 9.57583 4.6126 9.43499 4.66396 9.33865Z'
+                                  fill='white'
+                                />
+                              </svg>
+                            </span>
+
                             <div className='flex-1 min-w-0'>
-                              <h2 className='text-sm font-medium leading-5 text-gray-900 truncate'>{email}</h2>
-                              <p className='text-sm leading-5 text-left text-gray-500 truncate'>@jessyschwarz</p>
+                              <h2 className='text-sm font-medium leading-5 text-gray-900 truncate'>
+                                {`${givenName} ${familyName}`}
+                              </h2>
+                              <p className='text-sm leading-5 text-left text-gray-500 truncate'>{license}</p>
                             </div>
                           </div>
                           {/* Heroicon name: chevron-down */}
@@ -378,9 +396,29 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                   {({ open }) => (
                     <>
                       <div>
-                        <Menu.Button className='flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:shadow-outline'>
-                          <img className='w-8 h-8 rounded-full' src={gravatarURL} alt='Avatar' />
-                        </Menu.Button>
+                        <span className='relative inline-block'>
+                          <Menu.Button className='flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:shadow-outline'>
+                            <span className='inline-block w-10 h-10 overflow-hidden bg-gray-100 rounded-full'>
+                              <img
+                                src={photoUrl || avatarPlaceholder('doctor', gender)}
+                                alt='Avatar'
+                                className='object-cover w-full h-full max-w-none'
+                              />
+                            </span>
+                          </Menu.Button>
+                          <svg
+                            className='absolute bottom-0 right-0 block w-4 h-4 text-primary-500'
+                            viewBox='0 0 18 18'
+                            fill='currentColor'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <path d='M1.21019 11.9057C1.49696 12.1557 1.7327 12.4694 1.70974 12.6828C1.69624 12.8103 1.68879 12.9399 1.68879 13.0716C1.68879 15.0114 3.14757 16.5838 4.94685 16.5838C5.16909 16.5838 5.38593 16.5597 5.5957 16.514C5.94899 16.4372 6.36613 16.5859 6.61607 16.8766C7.21018 17.567 8.05729 18 8.99999 18C9.9957 18 10.8871 17.5181 11.4846 16.759C11.722 16.4574 12.124 16.332 12.4813 16.4443C12.7698 16.5349 13.0751 16.5838 13.3909 16.5838C15.1902 16.5838 16.649 15.0111 16.649 13.0716C16.649 12.8546 16.6301 12.6425 16.5943 12.4368C16.5338 12.0898 16.6949 11.6575 16.9641 11.3866C17.6008 10.7465 18 9.83593 18 8.82297C18 7.7201 17.5278 6.73761 16.7898 6.0943C16.503 5.84435 16.2673 5.53063 16.2902 5.31715C16.3038 5.18971 16.3112 5.06012 16.3112 4.92839C16.3112 2.98854 14.8524 1.4162 13.0531 1.4162C12.8309 1.4162 12.614 1.44027 12.4043 1.48596C12.051 1.56278 11.6339 1.41409 11.3839 1.12341C10.7898 0.433006 9.94268 0 8.99999 0C8.05733 0 7.21021 0.433006 6.61607 1.12341C6.36613 1.41372 5.94899 1.56278 5.5957 1.48596C5.38596 1.44027 5.16909 1.4162 4.94685 1.4162C3.1476 1.4162 1.68879 2.98891 1.68879 4.92839C1.68879 5.11533 1.70264 5.29871 1.72931 5.47754C1.77388 5.77848 1.57223 6.14951 1.27906 6.39135C0.502236 7.03255 0 8.04052 0 9.17703C0 10.2799 0.472178 11.2624 1.21019 11.9057Z' />
+                            <path
+                              d='M4.66396 9.33865C4.73623 9.20443 4.92068 9.20269 5.08955 9.35638L6.78918 10.6122C6.88137 10.671 6.96954 10.7011 7.05431 10.7011C7.22961 10.7011 7.36842 10.5687 7.5025 10.4411L12.9415 4.73419C13.2816 4.3465 13.6122 4.20985 13.8281 4.35854C13.9277 4.42722 13.9922 4.53059 14.0095 4.64992C14.0301 4.79154 13.9828 4.94412 13.8764 5.07938L7.33667 13.4067C7.24176 13.5274 7.12085 13.594 6.99656 13.594C6.84895 13.594 6.71522 13.5008 6.62907 13.3387L4.70956 9.71138C4.63019 9.57583 4.6126 9.43499 4.66396 9.33865Z'
+                              fill='white'
+                            />
+                          </svg>
+                        </span>
                       </div>
                       {/* Profile dropdown panel, show/hide based on dropdown state. */}
                       <Transition

@@ -17,3 +17,8 @@ export const validateTime = (timeInput: string) => {
     return false
   else return true
 }
+
+export const avatarPlaceholder = (profession: string, gender?: string) => {
+  let genderShort = gender === 'male' ? 'm' : 'f'
+  return `/img/${profession}-${genderShort}.svg`
+}

@@ -12,10 +12,16 @@ import './styles.output.css'
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 
-export const UserContext = createContext<{ type: string; id: string; name: string; email: string } | null>(null)
+export const UserContext = createContext<{
+  user: Boldo.Doctor | undefined
+  updateUser: (arg: Partial<Boldo.Doctor>) => void
+}>({
+  user: undefined,
+  updateUser: async () => {},
+})
 
 const App = () => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<Boldo.Doctor | undefined>()
 
   useEffect(() => {
     axios.interceptors.response.use(
@@ -33,7 +39,7 @@ const App = () => {
   useEffect(() => {
     const effect = async () => {
       try {
-        const res = await axios.get('/me')
+        const res = await axios.get('/profile/doctor')
         setUser(res.data)
       } catch (err) {
         console.log(err)
@@ -43,10 +49,14 @@ const App = () => {
     effect()
   }, [])
 
+  const updateUser = (arg: Partial<Boldo.Doctor>) => {
+    setUser(user => (user ? { ...user, ...arg } : undefined))
+  }
+
   if (!user) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={{ user, updateUser }}>
       <Sockets>
         <Rooms>
           <div className='antialiased App'>

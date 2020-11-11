@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useMemo, useRef, useEffect } from 'react'
+import React, { useState, useReducer, useMemo, useRef, useEffect, useContext } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import { validateDate, validateTime } from '../util/helpers'
+import { UserContext } from '../App'
 
 const eventDataTransform = (event: Boldo.Appointment) => {
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
@@ -39,11 +40,10 @@ const calculateOpenHours = (openHours: Boldo.OpenHours, start: Date, end: Date) 
     const openHoursOfDay = openHours[dayOfTheWeek]
 
     return openHoursOfDay.map(openHour => {
-      const sTime = new Date(openHour.start * 1000 * 60)
-      const eTime = new Date(openHour.end * 1000 * 60)
-
-      const startDate = new Date(day).setHours(sTime.getHours(), sTime.getMinutes(), 0, 0)
-      const endDate = new Date(day).setHours(eTime.getHours(), eTime.getMinutes(), 0, 0)
+      const startDate = new Date(day)
+      startDate.setHours(0, openHour.start, 0)
+      const endDate = new Date(day)
+      endDate.setHours(0, openHour.end, 0)
 
       return { start: startDate, end: endDate }
     })
@@ -97,7 +97,6 @@ interface Room {
 
 export default function Dashboard() {
   const [appointments, setAppointments] = useState<EventInput[]>([])
-  const [openHours, setOpenHours] = useState<Boldo.OpenHours>()
   const [dateRange, setDateRange] = useState<{ start: string; end: string; refetch: boolean }>({
     start: '',
     end: '',
@@ -111,6 +110,9 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const { user } = useContext(UserContext)
+  const { openHours } = user || {}
+
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
     setAppointments(arg0)
@@ -120,24 +122,6 @@ export default function Dashboard() {
   const isNew = useMemo(() => {
     return appointment.id === 'new'
   }, [appointment.id])
-
-  useEffect(() => {
-    let mounted = true
-
-    const load = async () => {
-      try {
-        const res = await axios.get<Boldo.OpenHours>('/profile/doctor/openHours')
-        if (mounted) setOpenHours(res.data)
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    load()
-
-    return () => {
-      mounted = false
-    }
-  }, [])
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -197,7 +181,6 @@ export default function Dashboard() {
 
         setDateRange({ start, end, refetch: false })
         setAppointments([...events, ...openHourDatesTransformed])
-        console.log('loading done. Start: ', start, 'end:', end)
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
       })
       .catch(err => {
