@@ -42,8 +42,11 @@ module.exports = {
           900: '#33312F',
         },
       },
+      screens: {
+        '2xl': '1920px',
+      },
     },
   },
   variants: { textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'] },
-  plugins: [require('@tailwindcss/ui')({ layout: 'sidebar' })],
+  plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }

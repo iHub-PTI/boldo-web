@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { useHistory } from 'react-router-dom'
 const { useRef, useEffect } = React
 
@@ -14,6 +14,7 @@ type Props = {
   roomID: string
   socket: SocketIOClient.Socket | undefined
   mediaStream: MediaStream | undefined
+  _ref: any // React.RefObject<HTMLVideoElement> | null
 }
 
 // FIXME: This file needs urgent fixing for cleaning up conections.
@@ -22,11 +23,17 @@ type Props = {
 // For SocketIO see: https://stackoverflow.com/a/34716449/5157205
 // For WebRTC See Ticket Info
 
-const Stream: React.FC<Props> = ({ roomID, className, style, socket, mediaStream }) => {
+const Stream: React.FC<Props> = ({ _ref, roomID, className, style, socket, mediaStream }) => {
   const localMedia = useRef<MediaStream>()
   const socketRef = useRef<SocketIOClient.Socket>()
   const remoteUser = useRef<string>()
   const remoteVideo = useRef<HTMLVideoElement>(null)
+
+  // FIXME: this is not a very pretty way of handeling this
+  // We are passing the ref to the video to the parent component.
+  // Essentialy we are creating here a ref.current.current which seems to be a hack.
+  if (_ref) _ref.current = remoteVideo
+
   const rtcPeerConnection = useRef<RTCPeerConnection>()
   const history = useHistory()
 

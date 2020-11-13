@@ -605,10 +605,10 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
 
   return (
     <Modal show={true} setShow={setShow} size='xl' noPadding>
-      <div className=''>
+      <div>
         <div className='divide-y divide-gray-200'>
           <div className='pb-6'>
-            <div className='h-24 bg-primary-700 sm:h-20 lg:h-28' />
+            <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
             <div
               className={`flow-root px-4 space-y-6 sm:flex sm:items-end sm:px-6 sm:space-x-6 ${
                 hasPicture ? '-mt-12 lg:-mt-15 sm:-mt-8' : ''

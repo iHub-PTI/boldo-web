@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+.blur-10 {
+  backdrop-filter: blur(10px);
+}
+
+.gradient-primary {
+  background: #27bec2;
+  background: linear-gradient(168deg, #27bec2 0%, #009688 100%);
+}
+
+/* 
+///////////////////////////////////////////////////////////////////////////////
+Calendar
+///////////////////////////////////////////////////////////////////////////////
+*/
+
 .fc-theme-standard .fc-scrollgrid {
   @apply border-0;
 }

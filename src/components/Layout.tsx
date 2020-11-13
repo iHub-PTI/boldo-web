@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Transition, Menu } from '@headlessui/react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import axios from 'axios'
 
 import { UserContext, RoomsContext } from '../App'
@@ -629,10 +629,8 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                             <div className='border-t border-gray-200'>
                               <div className='flex -mt-px'>
                                 <div className='flex flex-1 w-0 -ml-px'>
-                                  <div
-                                    onClick={() => {
-                                      window.location.href = `/appointments/${room}/call` //`/call?room=${room}`
-                                    }}
+                                  <Link
+                                    to={`/appointments/${room}/call`}
                                     className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
                                   >
                                     {/* Heroicon name: phone */}
@@ -640,7 +638,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                       <path d='M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z' />
                                     </svg>
                                     <span className='ml-3'>Join Call</span>
-                                  </div>
+                                  </Link>
                                 </div>
                               </div>
                             </div>
