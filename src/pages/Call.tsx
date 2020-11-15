@@ -44,7 +44,7 @@ const Call = ({ id }: { id: string }) => {
     <Layout>
       <div ref={container} className='flex w-full h-full lg:h-screen bg-cool-gray-50'>
         <div className='relative flex-1'>
-          <Stream _ref={stream} roomID={id} className='w-full h-full' mediaStream={mediaStream} socket={socket} />
+          <Stream ref={stream} roomID={id} className='w-full h-full' mediaStream={mediaStream} socket={socket} />
 
           <div
             className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
@@ -82,14 +82,12 @@ const Call = ({ id }: { id: string }) => {
                   className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
                   aria-label='Picture in Picture'
                   onClick={() => {
-                    const elem = stream.current?.current as any
-                    if (!elem) return
+                    if (!stream.current) return
 
-                    if ((document as any).pictureInPictureEnabled && !elem.disablePictureInPicture) {
+                    if ((document as any).pictureInPictureEnabled && !stream.current.disablePictureInPicture) {
                       try {
                         if ((document as any).pictureInPictureElement) (document as any).exitPictureInPicture()
-                        console.log(elem)
-                        elem.requestPictureInPicture().catch((err: Error) => console.log(err))
+                        stream.current.requestPictureInPicture().catch((err: Error) => console.log(err))
                       } catch (err) {
                         console.error(err)
                       }
