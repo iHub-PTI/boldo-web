@@ -6,6 +6,7 @@ import io from 'socket.io-client'
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
+import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
 
@@ -56,31 +57,33 @@ const App = () => {
   if (!user) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
-    <UserContext.Provider value={{ user, updateUser }}>
-      <Sockets>
-        <Rooms>
-          <div className='antialiased App'>
-            <Switch>
-              <Route exact path='/'>
-                <Dashboard />
-              </Route>
+    <ToastProvider>
+      <UserContext.Provider value={{ user, updateUser }}>
+        <SocketsProvider>
+          <RoomsProvider>
+            <div className='antialiased App'>
+              <Switch>
+                <Route exact path='/'>
+                  <Dashboard />
+                </Route>
 
-              <Route exact path='/settings'>
-                <Settings />
-              </Route>
+                <Route exact path='/settings'>
+                  <Settings />
+                </Route>
 
-              <Route exact path='/appointments/:id/call'>
-                <Call />
-              </Route>
+                <Route exact path='/appointments/:id/call'>
+                  <Call />
+                </Route>
 
-              <Route>
-                <Redirect to='/' />
-              </Route>
-            </Switch>
-          </div>
-        </Rooms>
-      </Sockets>
-    </UserContext.Provider>
+                <Route>
+                  <Redirect to='/' />
+                </Route>
+              </Switch>
+            </div>
+          </RoomsProvider>
+        </SocketsProvider>
+      </UserContext.Provider>
+    </ToastProvider>
   )
 }
 
@@ -94,7 +97,7 @@ export default App
 
 export const SocketContext = createContext<SocketIOClient.Socket | undefined>(undefined)
 
-const Sockets: React.FC = ({ children }) => {
+const SocketsProvider: React.FC = ({ children }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setRerender] = useState(false)
   const socket = useRef<SocketIOClient.Socket>()
@@ -127,7 +130,7 @@ export const RoomsContext = createContext<{
   appointments: Boldo.Appointment[]
 }>({ rooms: [], appointments: [] })
 
-export const Rooms: React.FC = ({ children }) => {
+export const RoomsProvider: React.FC = ({ children }) => {
   const [rooms, setRooms] = useState<string[]>([])
   const [appointments, setAppointments] = useState<Boldo.Appointment[]>([])
   const socket = useContext(SocketContext)

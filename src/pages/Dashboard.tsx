@@ -13,6 +13,7 @@ import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import { validateDate, validateTime } from '../util/helpers'
 import { UserContext } from '../App'
+import { useToasts } from '../components/Toast'
 
 const eventDataTransform = (event: Boldo.Appointment) => {
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
@@ -96,6 +97,7 @@ interface Room {
 }
 
 export default function Dashboard() {
+  const { addErrorToast } = useToasts()
   const [appointments, setAppointments] = useState<EventInput[]>([])
   const [dateRange, setDateRange] = useState<{ start: string; end: string; refetch: boolean }>({
     start: '',
@@ -171,6 +173,7 @@ export default function Dashboard() {
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
+
     axios
       .get<Boldo.Appointment[]>('/profile/doctor/appointments')
       .then(res => {
@@ -185,6 +188,7 @@ export default function Dashboard() {
       })
       .catch(err => {
         console.log(err)
+        addErrorToast(`Failed to load Appointments. Details: ${err}`)
         failureCallback(err)
       })
   }

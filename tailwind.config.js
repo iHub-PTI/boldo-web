@@ -45,6 +45,7 @@ module.exports = {
       screens: {
         '2xl': '1920px',
       },
+      maxHeight: { 0: '0', 200: '200px' },
     },
   },
   variants: { textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'] },
