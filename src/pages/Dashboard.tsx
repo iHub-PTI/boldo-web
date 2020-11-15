@@ -97,7 +97,7 @@ interface Room {
 }
 
 export default function Dashboard() {
-  const { addErrorToast } = useToasts()
+  const { addToast, addErrorToast } = useToasts()
   const [appointments, setAppointments] = useState<EventInput[]>([])
   const [dateRange, setDateRange] = useState<{ start: string; end: string; refetch: boolean }>({
     start: '',
@@ -158,6 +158,11 @@ export default function Dashboard() {
       setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
       setShowEditModal(false)
       dispatch({ type: 'reset' })
+      addToast({
+        type: 'success',
+        title: 'Appointment created',
+        text: 'Appointment successfully created!',
+      })
     } catch (err) {
       setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
     }
