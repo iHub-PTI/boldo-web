@@ -16,11 +16,6 @@ The browser application is specifically for doctors.
 3. Create a `.env` file in the project's root folder and add these contents:
 
    ```
-   # ###################### Online ######################
-   # REACT_APP_SOCKETS_ADDRESS = https://sockets.boldo.penguin.software
-   # REACT_APP_SERVER_ADDRESS = https://api.boldo.penguin.software
-   # REACT_APP_FRONTEND_ADDRESS = https://boldo.penguin.software
-
    # ###################### Local ######################
    REACT_APP_SOCKETS_ADDRESS = http://localhost:8000
    REACT_APP_SERVER_ADDRESS = http://localhost:8008
