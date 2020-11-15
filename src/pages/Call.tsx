@@ -7,6 +7,7 @@ import Camera from '../components/webRTC/Camera'
 import Stream from '../components/webRTC/Stream'
 import Layout from '../components/Layout'
 import { SocketContext } from '../App'
+import { useToasts } from '../components/Toast'
 
 const Gate = () => {
   const history = useHistory()
@@ -23,18 +24,13 @@ const Gate = () => {
 
 export default Gate
 
-const CAPTURE_OPTIONS: MediaStreamConstraints = {
-  audio: true,
-  video: { width: 1280, height: 640 },
-}
-
 const Call = ({ id }: { id: string }) => {
   const history = useHistory()
   const container = useRef<HTMLDivElement>(null)
   const stream = useRef<any>(null) //HTMLVideoElement
   const [showCallMenu, setShowCallMenu] = useState(false)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
-  const mediaStream = useUserMedia(CAPTURE_OPTIONS)
+  const mediaStream = useUserMedia()
   const socket = useContext(SocketContext)
 
   const hangUp = async () => {
@@ -219,29 +215,32 @@ const Call = ({ id }: { id: string }) => {
   )
 }
 
-const useUserMedia = (requestedMedia: MediaStreamConstraints) => {
+const useUserMedia = () => {
+  const { addErrorToast } = useToasts()
   const [mediaStream, setMediaStream] = useState<MediaStream>()
 
   useEffect(() => {
+    let mounted = true
+
     async function enableStream() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia(requestedMedia)
-        setMediaStream(stream)
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: { width: 1280, height: 640 },
+        })
+        if (mounted) setMediaStream(stream)
       } catch (err) {
         console.log(err)
+        addErrorToast(`Could not access Microhpone and Camera. Reason: ${err}`)
       }
     }
 
-    if (!mediaStream) {
-      enableStream()
-    } else {
-      return function cleanup() {
-        mediaStream.getTracks().forEach(track => {
-          track.stop()
-        })
-      }
+    if (!mediaStream) enableStream()
+    return () => {
+      mounted = false
+      mediaStream?.getTracks().forEach(track => track.stop())
     }
-  }, [mediaStream, requestedMedia])
+  }, [addErrorToast, mediaStream])
 
   return mediaStream
 }

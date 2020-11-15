@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Transition } from '@headlessui/react'
 
@@ -73,13 +73,18 @@ export const ToastContext = createContext<IContext | null>(null)
 export const ToastProvider: React.FC = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([])
 
-  const add = (toast: Omit<Toast, 'id'>) => {
-    const id = generateUEID()
-    setToasts(toasts => [...toasts, { ...toast, id }])
-  }
+  const value = useMemo(
+    () => ({
+      add: (toast: Omit<Toast, 'id'>) => {
+        const id = generateUEID()
+        setToasts(toasts => [...toasts, { ...toast, id }])
+      },
+    }),
+    []
+  )
 
   return (
-    <ToastContext.Provider value={{ add }}>
+    <ToastContext.Provider value={value}>
       {children}
       {ReactDOM.createPortal(
         <div className='fixed inset-0 z-50 flex flex-col-reverse items-center px-4 py-6 pointer-events-none sm:items-end sm:flex-col sm:p-6'>
@@ -100,13 +105,15 @@ export const useToasts = () => {
     throw Error('The `useToasts` hook must be called from a descendent of the `ToastProvider`.')
   }
 
-  const addErrorToast = (text: string) => {
-    ctx.add({ title: 'Error', text, type: 'error' })
-  }
-  return {
-    addToast: ctx.add,
-    addErrorToast,
-  }
+  return useMemo(
+    () => ({
+      addToast: ctx.add,
+      addErrorToast: (text: string) => {
+        ctx.add({ title: 'Error', text: text.toString(), type: 'error' })
+      },
+    }),
+    [ctx]
+  )
 }
 
 function generateUEID() {
@@ -146,9 +153,9 @@ const Icon: React.FC<{ type: Toast['type'] }> = ({ type }) => {
         stroke='currentColor'
       >
         <path
-          stroke-linecap='round'
-          stroke-linejoin='round'
-          stroke-width='2'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth='2'
           d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
         />
       </svg>
@@ -163,9 +170,9 @@ const Icon: React.FC<{ type: Toast['type'] }> = ({ type }) => {
         stroke='currentColor'
       >
         <path
-          stroke-linecap='round'
-          stroke-linejoin='round'
-          stroke-width='2'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth='2'
           d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
         />
       </svg>

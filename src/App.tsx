@@ -1,4 +1,4 @@
-import React, { useEffect, createContext, useState, useContext, useRef } from 'react'
+import React, { useEffect, createContext, useState, useContext, useRef, useMemo } from 'react'
 import axios from 'axios'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import io from 'socket.io-client'
@@ -165,5 +165,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
     )
   }, [socket, appointments])
 
-  return <RoomsContext.Provider value={{ rooms, appointments, setAppointments }}>{children}</RoomsContext.Provider>
+  const value = useMemo(() => ({ rooms, appointments, setAppointments }), [appointments, rooms])
+
+  return <RoomsContext.Provider value={value}>{children}</RoomsContext.Provider>
 }
