@@ -33,7 +33,8 @@
     "react-scripts": "^3.4.4",
     "socket.io-client": "^2.3.1",
     "tailwindcss": "^1.9.6",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "webrtc-adapter": "^7.7.0"
   },
   "scripts": {
     "build:tailwind": "postcss src/tailwind.css -o src/styles.output.css",

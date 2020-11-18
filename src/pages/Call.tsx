@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { Prompt, useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInSeconds } from 'date-fns'
 import { Transition } from '@headlessui/react'
 
-import Camera from '../components/webRTC/Camera'
-import Stream from '../components/webRTC/Stream'
+import Stream from '../components/Stream'
 import Layout from '../components/Layout'
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
@@ -13,6 +12,11 @@ const Gate = () => {
   const history = useHistory()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
+
+  // FIXME: This should request a JWT from the server.
+  // Only continue to start call, once issued.
+  // This token contains the role and the appointment meeting and is signed
+  // Token has to be included in any request to WebRTC Server
 
   if (!id) {
     history.replace(`/`)
@@ -26,13 +30,48 @@ export default Gate
 
 const Call = ({ id }: { id: string }) => {
   const history = useHistory()
+  const socket = useContext(SocketContext)
+  const mediaStream = useUserMedia()
+
   const container = useRef<HTMLDivElement>(null)
-  const stream = useRef<any>(null) //HTMLVideoElement
+  const stream = useRef<HTMLVideoElement>(null)
+  const video = useRef<HTMLVideoElement>(null)
+
   const [showCallMenu, setShowCallMenu] = useState(false)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
-  const mediaStream = useUserMedia()
-  const socket = useContext(SocketContext)
 
+  const [audioEnabled, setAudioEnabled] = useState(true)
+  const [videoEnabled, setVideoEnabled] = useState(true)
+
+  const muteAudio = () => {
+    if (!mediaStream) return
+    setAudioEnabled(() => {
+      const newState = !mediaStream.getAudioTracks()[0].enabled
+      mediaStream.getAudioTracks()[0].enabled = newState
+      return newState
+    })
+
+    console.log(mediaStream?.getAudioTracks()[0].enabled)
+  }
+
+  const muteVideo = () => {
+    if (!mediaStream) return
+    setVideoEnabled(() => {
+      const newState = !mediaStream.getVideoTracks()[0].enabled
+      mediaStream.getVideoTracks()[0].enabled = newState
+      return newState
+    })
+  }
+
+  // FIXME: Mutes audio for development comfort
+  // useEffect(() => {
+  //   if (mediaStream) {
+  //     mediaStream.getAudioTracks()[0].enabled = false
+  //     setAudioEnabled(false)
+  //   }
+  // }, [mediaStream])
+
+  // FIXME: Hanging Up should not ask for confirmation.
   const hangUp = async () => {
     if (socket) {
       socket.emit('end call', id)
@@ -40,11 +79,17 @@ const Call = ({ id }: { id: string }) => {
     }
   }
 
+  if (mediaStream && video.current && !video.current?.srcObject) {
+    video.current.srcObject = mediaStream
+  }
+
   return (
     <Layout>
+      {/* FIXME: Should prompt on redirect only during active call */}
+      <BeforeUnloadPromt active={false} />
       <div ref={container} className='flex w-full h-full lg:h-screen bg-cool-gray-50'>
         <div className='relative flex-1'>
-          <Stream ref={stream} roomID={id} className='w-full h-full' mediaStream={mediaStream} socket={socket} />
+          <Stream ref={stream} room={id} className='w-full h-full' mediaStream={mediaStream} socket={socket} />
 
           <div
             className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
@@ -84,10 +129,12 @@ const Call = ({ id }: { id: string }) => {
                   onClick={() => {
                     if (!stream.current) return
 
-                    if ((document as any).pictureInPictureEnabled && !stream.current.disablePictureInPicture) {
+                    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
                       try {
-                        if ((document as any).pictureInPictureElement) (document as any).exitPictureInPicture()
-                        stream.current.requestPictureInPicture().catch((err: Error) => console.log(err))
+                        if ((document as any).pictureInPictureElement) {
+                          ;(document as any).exitPictureInPicture()
+                        }
+                        ;(stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
                       } catch (err) {
                         console.error(err)
                       }
@@ -127,10 +174,14 @@ const Call = ({ id }: { id: string }) => {
           <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
             <div className='absolute'>
               <div className='aspect-h-16 aspect-w-9' style={{ maxWidth: '14rem', minWidth: '8rem', width: '15vw' }}>
-                <Camera
-                  className='object-cover rounded-lg'
-                  mediaStream={mediaStream}
+                <video
+                  ref={video}
+                  onCanPlay={e => (e.target as HTMLVideoElement).play()}
+                  autoPlay
+                  playsInline
+                  muted
                   style={{ transform: 'rotateY(180deg)' }}
+                  className='object-cover rounded-lg'
                 />
               </div>
             </div>
@@ -156,29 +207,79 @@ const Call = ({ id }: { id: string }) => {
                 />
               </svg>
             </button>
-            <div className='space-y-4'>
+            <div className='flex flex-col items-end space-y-4'>
               {showCallMenu && (
                 <>
-                  <button
-                    className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-                    onClick={() => {}}
-                  >
-                    <svg className='w-6 h-6' fill='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                      <path
-                        fillRule='evenodd'
-                        clipRule='evenodd'
-                        d='M14.999 11.5C14.999 13.16 13.659 14.5 11.999 14.5C10.339 14.5 8.99904 13.16 8.99904 11.5V5.5C8.99904 3.84 10.339 2.5 11.999 2.5C13.659 2.5 14.999 3.84 14.999 5.5V11.5ZM16.929 12.35C17.009 11.86 17.419 11.5 17.909 11.5C18.519 11.5 19.009 12.04 18.909 12.64C18.419 15.64 16.019 17.99 12.999 18.42V20.5C12.999 21.05 12.549 21.5 11.999 21.5C11.449 21.5 10.999 21.05 10.999 20.5V18.42C7.97901 17.99 5.57901 15.64 5.08901 12.64C4.99901 12.04 5.47901 11.5 6.08901 11.5C6.57901 11.5 6.98901 11.86 7.06901 12.35C7.47901 14.7 9.52901 16.5 11.999 16.5C14.469 16.5 16.519 14.7 16.929 12.35Z'
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-                    onClick={() => {}}
-                  >
-                    <svg className='w-6 h-6' fill='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
-                      <path d='M17 10.5V7C17 6.45 16.55 6 16 6H4C3.45 6 3 6.45 3 7V17C3 17.55 3.45 18 4 18H16C16.55 18 17 17.55 17 17V13.5L19.29 15.79C19.92 16.42 21 15.97 21 15.08V8.91C21 8.02 19.92 7.57 19.29 8.2L17 10.5Z' />
-                    </svg>
-                  </button>
+                  <div className='flex items-center'>
+                    <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getAudioTracks()[0].label}</p>
+                    <button
+                      className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+                      onClick={muteAudio}
+                    >
+                      {audioEnabled ? (
+                        <svg
+                          className='w-6 h-6'
+                          viewBox='0 0 24 24'
+                          fill='currentColor'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className='w-6 h-6'
+                          viewBox='0 0 24 24'
+                          fill='currentColor'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  <div className='flex items-center'>
+                    <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getVideoTracks()[0].label}</p>
+                    <button
+                      className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+                      onClick={muteVideo}
+                    >
+                      {videoEnabled ? (
+                        <svg
+                          className='w-6 h-6'
+                          viewBox='0 0 24 24'
+                          fill='currentColor'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M3 5H15C16.1046 5 17 5.89543 17 7V8.38197L23 5.38197V18.618L17 15.618V17C17 18.1046 16.1046 19 15 19H3C1.89543 19 1 18.1046 1 17V7C1 5.89543 1.89543 5 3 5ZM17 13.382L21 15.382V8.61803L17 10.618V13.382ZM3 7V17H15V7H3Z'
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className='w-6 h-6'
+                          viewBox='0 0 24 24'
+                          fill='currentColor'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            clipRule='evenodd'
+                            d='M1.70718 0.292892L0.292969 1.70711L3.58586 5H3.00008C1.89551 5 1.00008 5.89543 1.00008 7V17C1.00008 18.1046 1.89551 19 3.00008 19H15.0001C15.7022 19 16.3198 18.6382 16.6767 18.0908L22.293 23.7071L23.7072 22.2929L1.70718 0.292892ZM15.0001 16.4142L5.58586 7H3.00008V17H15.0001V16.4142ZM17.0001 8.38197L23.0001 5.38197V18.3701L21.0001 16.3701V8.61803L17.0001 10.618V13.0008L15.0001 11.0008V7H10.9993L8.99929 5H15.0001C16.1046 5 17.0001 5.89543 17.0001 7V8.38197Z'
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </>
               )}
               <button
@@ -220,16 +321,40 @@ const useUserMedia = () => {
   useEffect(() => {
     let mounted = true
 
+    // Handle errors which occur when trying to access the local media
+    // hardware; that is, exceptions thrown by getUserMedia(). The two most
+    // likely scenarios are that the user has no camera and/or microphone
+    // or that they declined to share their equipment when prompted.
+
+    const handleGetUserMediaError = (e: Error) => {
+      console.log(e)
+      switch (e.name) {
+        case 'NotFoundError':
+          addErrorToast('Unable to open your call because no camera and/or microphone were found.')
+          break
+        case 'SecurityError':
+          addErrorToast('Security Error. Details: ' + e.message)
+          break
+        case 'PermissionDeniedError':
+          addErrorToast('Could not access Microhpone and Camera. Reason: ' + e.message)
+          break
+        default:
+          addErrorToast('Error opening your camera and/or microphone: ' + e.message)
+          break
+      }
+
+      // Make sure we shut down our end of the RTCPeerConnection so we're
+      // ready to try again.
+
+      // closeVideoCall()
+    }
+
     async function enableStream() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: { width: 1280, height: 640 },
-        })
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }) // { width: 1280, height: 640 }
         if (mounted) setMediaStream(stream)
       } catch (err) {
-        console.log(err)
-        addErrorToast(`Could not access Microhpone and Camera. Reason: ${err}`)
+        handleGetUserMediaError(err)
       }
     }
 
@@ -290,8 +415,8 @@ const SidebarContainer = ({ show, hideSidebar }: SidebarContainerProps) => {
       }
     }
 
-    window.addEventListener('click', handleOutsideClick)
-    return () => window.removeEventListener('click', handleOutsideClick)
+    window.addEventListener('click', handleOutsideClick, true)
+    return () => window.removeEventListener('click', handleOutsideClick, true)
   }, [show, hideSidebar])
 
   useEffect(() => {
@@ -450,4 +575,29 @@ const Sidebar = ({ hideSidebar }: SidebarProps) => {
       </div>
     </div>
   )
+}
+
+const BeforeUnloadPromt: React.FC<{ active: boolean }> = ({ active }) => {
+  useEffect(() => {
+    if (!active) return
+
+    const onUnload = async (e: BeforeUnloadEvent | PageTransitionEvent) => {
+      // Cancel the event as stated by the standard.
+      e.preventDefault()
+      // Older browsers supported custom message
+      e.returnValue = 'Are you sure?'
+      // Safari uses return string
+      return 'Are you sure?'
+    }
+
+    window.addEventListener('pagehide', onUnload)
+    window.addEventListener('beforeunload', onUnload)
+    return () => {
+      window.removeEventListener('pagehide', onUnload)
+      window.removeEventListener('beforeunload', onUnload)
+    }
+  }, [active])
+
+  if (!active) return null
+  return <Prompt when={true} message='Are you sure you want to leave?' />
 }
