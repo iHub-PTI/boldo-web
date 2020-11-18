@@ -55,8 +55,6 @@ const Toast: React.FC<{ toast: Toast }> = ({ toast }) => {
   )
 }
 
-export default Toast
-
 interface Toast {
   title?: string
   text?: string
