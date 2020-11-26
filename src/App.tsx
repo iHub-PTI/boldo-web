@@ -10,6 +10,8 @@ import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
 
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 
@@ -126,13 +128,13 @@ const SocketsProvider: React.FC = ({ children }) => {
 
 export const RoomsContext = createContext<{
   rooms: string[]
-  setAppointments?: (appointments: Boldo.Appointment[]) => void
-  appointments: Boldo.Appointment[]
+  setAppointments?: (appointments: AppointmentWithPatient[]) => void
+  appointments: AppointmentWithPatient[]
 }>({ rooms: [], appointments: [] })
 
 export const RoomsProvider: React.FC = ({ children }) => {
   const [rooms, setRooms] = useState<string[]>([])
-  const [appointments, setAppointments] = useState<Boldo.Appointment[]>([])
+  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([])
   const socket = useContext(SocketContext)
 
   useEffect(() => {

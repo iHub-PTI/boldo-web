@@ -7,15 +7,18 @@ import esLocale from '@fullcalendar/core/locales/es'
 import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
 import axios from 'axios'
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 
 import Layout from '../components/Layout'
 import Modal from '../components/Modal'
 import { validateDate, validateTime } from '../util/helpers'
 import { UserContext } from '../App'
 import { useToasts } from '../components/Toast'
+import DateFormatted from '../components/DateFormatted'
 
-const eventDataTransform = (event: Boldo.Appointment) => {
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+
+const eventDataTransform = (event: AppointmentWithPatient) => {
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
     if (eventType === 'Appointment') return 'event-appointment'
     if (eventType === 'PrivateEvent') return 'event-private'
@@ -23,7 +26,7 @@ const eventDataTransform = (event: Boldo.Appointment) => {
   }
 
   return {
-    title: event.name || event.patientId,
+    title: event.name || `${event.patient.givenName} ${event.patient.familyName}`,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
@@ -97,6 +100,7 @@ interface Room {
 }
 
 export default function Dashboard() {
+  const history = useHistory()
   const { addToast, addErrorToast } = useToasts()
   const [appointments, setAppointments] = useState<EventInput[]>([])
   const [dateRange, setDateRange] = useState<{ start: string; end: string; refetch: boolean }>({
@@ -108,7 +112,7 @@ export default function Dashboard() {
 
   const calendar = useRef<FullCalendar>(null)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedAppointment, setSelectedAppointment] = useState<Boldo.Appointment | null>(null)
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithPatient | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -152,9 +156,7 @@ export default function Dashboard() {
         end: new Date(`${appointment.date}T${appointment.end}`).toISOString(),
       }
 
-      const res = await axios.post<Boldo.Appointment>(`/profile/doctor/appointments`, payload)
-
-      // Useless setting data as will anyways reload?
+      const res = await axios.post(`/profile/doctor/appointments`, payload) // <Boldo.Appointment>
       setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
       setShowEditModal(false)
       dispatch({ type: 'reset' })
@@ -180,7 +182,7 @@ export default function Dashboard() {
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     axios
-      .get<Boldo.Appointment[]>('/profile/doctor/appointments')
+      .get<AppointmentWithPatient[]>('/profile/doctor/appointments')
       .then(res => {
         const events = res.data.map(event => eventDataTransform(event))
 
@@ -200,7 +202,10 @@ export default function Dashboard() {
 
   const handleEventClick = (info: EventClickArg) => {
     info.jsEvent.stopPropagation()
-    if (info.event.display !== 'background') setSelectedAppointment(info.event.extendedProps as Boldo.Appointment)
+    if (info.event.display === 'background') return
+    if (info.event.extendedProps.type === 'Appointment')
+      return history.push(`/appointments/${info.event.extendedProps.id}/call`)
+    setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
   }
 
   return (
@@ -517,7 +522,7 @@ export default function Dashboard() {
 
 interface EventModalProps {
   setShow: (arg: boolean) => void
-  appointment: Boldo.Appointment
+  appointment: AppointmentWithPatient
   setAppointmentsAndReload: (arg: any) => void
 }
 
@@ -525,27 +530,6 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-
-  const date = useMemo(() => {
-    const date = new Intl.DateTimeFormat('default', {
-      weekday: 'long',
-      // year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(appointment.start))
-
-    const start = new Intl.DateTimeFormat('default', {
-      hour: 'numeric',
-      minute: 'numeric',
-    }).format(new Date(appointment.start))
-
-    const end = new Intl.DateTimeFormat('default', {
-      hour: 'numeric',
-      minute: 'numeric',
-    }).format(new Date(appointment.end))
-
-    return { date, start, end }
-  }, [appointment])
 
   const type = useMemo(() => {
     let type = ''
@@ -640,19 +624,11 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
                 <div>
                   <div className='flex items-center space-x-2.5'>
                     <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
-                      {appointment.name || appointment.patientId}
+                      {appointment.name || `${appointment.patient.givenName} ${appointment.patient.familyName}`}
                     </h3>
-                    <span
-                      aria-label='Online'
-                      className='flex-shrink-0 inline-block w-2 h-2 bg-green-400 rounded-full'
-                    />
                   </div>
                   <p className='space-x-2 text-sm leading-5 text-gray-500'>
-                    <span>{date.date}</span>
-                    <span>⋅</span>
-                    <span>
-                      {date.start} – {date.end}
-                    </span>
+                    <DateFormatted start={appointment.start} end={appointment.end} />
                   </p>
                 </div>
                 {status === 'open' && (

@@ -5,8 +5,11 @@ import axios from 'axios'
 
 import { UserContext, RoomsContext } from '../App'
 import { avatarPlaceholder } from '../util/helpers'
+import { differenceInYears } from 'date-fns'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
+
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 interface Props {
   isLoading?: boolean
@@ -497,11 +500,10 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
 
   useEffect(() => {
     const load = async () => {
-      const res = await axios.get<Boldo.Appointment[]>('/profile/doctor/appointments/openAppointments')
+      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments/openAppointments')
 
       // Ping for data
-      setAppointments?.([{ id: '1' }, { id: '2' }, { id: '3' }, ...res.data] as any)
-      // FIXME: Remove hardcoded IDs!
+      setAppointments?.(res.data)
     }
     load()
     if (setAppointments) {
@@ -611,19 +613,25 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                             <div className='flex items-center w-full p-6 space-x-6 justify-left'>
                               <img
                                 className='flex-shrink-0 w-20 h-20 bg-gray-300 rounded-lg'
-                                src='/img/patient-f.svg'
+                                src={
+                                  appointment.patient.photoUrl ||
+                                  avatarPlaceholder('patient', appointment.patient.gender)
+                                }
                                 alt=''
                               />
                               <div className='flex-1 truncate'>
                                 <div className='flex items-center justify-between space-x-3'>
                                   <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
-                                    {appointment.patientId || room}
+                                    {`${appointment.patient.givenName} ${appointment.patient.familyName}` || room}
                                   </h3>
                                   <span className='inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-gray-100 text-gray-800'>
                                     {start}
                                   </span>
                                 </div>
-                                <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>32 años | Femenino</p>
+                                <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
+                                  {differenceInYears(Date.now(), new Date(appointment.patient.birthDate))} años{' | '}
+                                  {appointment.patient.gender}
+                                </p>
                               </div>
                             </div>
                             <div className='border-t border-gray-200'>
