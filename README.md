@@ -29,6 +29,20 @@ The browser application is specifically for doctors.
 
 4. `npm start` - to start the app on [localhost:3000](http://localhost:3000)
 
+## Run with docker
+
+To build the docker image use the following command:
+
+```
+docker build -t boldo-web --build-arg sockets_address=http://localhost:8000 --build-arg app_server=http://localhost:8008 --build-arg app_frontend=http://localhost:3000 .
+```
+
+ After that you can test it running the following command:
+
+```bash
+docker run --rm -it -p 3000:3000 boldo-web
+```
+
 ## Contributing
 
 The project is currently under heavy development but contributors are welcome. For bugs or feature requests or eventual contributions, just open an issue. Contribution guidelines will be available shortly.
