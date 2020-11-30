@@ -144,11 +144,18 @@ const Settings = (props: Props) => {
 
     const load = async () => {
       try {
-        const res = await axios.get<Boldo.Doctor | null>('/profile/doctor')
+        const res = await axios.get('/profile/doctor') // used to be <Boldo.Doctor | null>
         const res2 = await axios.get<iHub.Specialization[]>('/specializations')
 
         if (mounted) {
-          if (res.data) dispatch({ type: 'initial', value: res.data })
+          if (res.data) {
+            const doctor = {
+              ...res.data,
+              languages: res.data.languages.map((l: any) => l.id),
+              specializations: res.data.specializations.map((l: any) => l.id),
+            }
+            dispatch({ type: 'initial', value: doctor })
+          }
           const specializations = res2.data.map(spec => {
             return { value: spec.id.toString(), name: spec.description }
           })
