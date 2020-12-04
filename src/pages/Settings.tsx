@@ -49,7 +49,7 @@ const weekDays = {
   sun: 'Sunday',
 }
 
-type DoctorForm = Omit<Boldo.Doctor, 'photoUrl' | 'id'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
+type DoctorForm = Omit<Boldo.Doctor, 'photoUrl' | 'id' | 'new'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
 
 const initialState: DoctorForm = {
   photoUrl: '',
@@ -222,6 +222,7 @@ const Settings = (props: Props) => {
           givenName: doctor.givenName,
           familyName: doctor.familyName,
           openHours: doctor.openHours,
+          new: false,
         })
       } catch (err) {
         setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')

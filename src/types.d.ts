@@ -7,6 +7,7 @@ export as namespace Boldo
 
 export interface Doctor extends iHub.Doctor {
   openHours: OpenHours
+  new: boolean
 }
 
 type Interval = { start: number; end: number }

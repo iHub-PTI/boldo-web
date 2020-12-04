@@ -117,7 +117,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false)
 
   const { user } = useContext(UserContext)
-  const { openHours } = user || {}
+  const { openHours, new: newUser } = user || {}
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
@@ -211,74 +211,106 @@ export default function Dashboard() {
   return (
     <>
       <Layout>
-        <div className='flex flex-col h-full text-cool-gray-700'>
-          <div className='flex items-center justify-between px-4 py-2 sm:px-6 lg:px-8'>
-            <div className='flex-1 min-w-0'>
-              <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate'>
-                Mi Horario
-              </h1>
-            </div>
-            <div className='flex mt-4 md:mt-0 md:ml-4'>
-              <span className='ml-3 rounded-md shadow-sm'>
-                <button
-                  type='button'
-                  className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-                  onClick={e => {
-                    e.stopPropagation()
-                    dispatch({ type: 'reset' })
-                    setError('')
-                    setShowEditModal(true)
-                  }}
-                >
-                  Add Event
-                </button>
-              </span>
+        {newUser ? (
+          <div className='flex flex-col h-full md:flex-row'>
+            <div className='flex items-center justify-center flex-grow'>
+              <div className='max-w-sm m-4'>
+                <img className='w-full h-full rounded' src='/img/welcome.svg' alt='Welcome' />
+                <div className='mt-3 text-center sm:mt-5'>
+                  <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+                    Bienvenido!
+                  </h3>
+                  <div className='mt-2'>
+                    <p className='text-sm text-gray-500'>
+                      Recuerda completar tu perfil, especialmente tu información profesional para que tu cuenta sea
+                      validada y puedas utilizar la plataforma.
+                      <br /> Please add Language, Speciality and Opening Hours!
+                    </p>
+                  </div>
+                  <div className='my-6'>
+                    <span className='rounded-md shadow-sm '>
+                      <Link
+                        to='/settings'
+                        className='inline-flex justify-center px-4 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out border border-transparent rounded-md shadow-sm bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700 sm:text-sm sm:leading-5'
+                      >
+                        Configure Profile
+                      </Link>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        ) : (
+          <div className='flex flex-col h-full text-cool-gray-700'>
+            <div className='flex items-center justify-between px-4 py-2 sm:px-6 lg:px-8'>
+              <div className='flex-1 min-w-0'>
+                <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate'>
+                  Mi Horario
+                </h1>
+              </div>
+              <div className='flex mt-4 md:mt-0 md:ml-4'>
+                <span className='ml-3 rounded-md shadow-sm'>
+                  <button
+                    type='button'
+                    className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                    onClick={e => {
+                      e.stopPropagation()
+                      dispatch({ type: 'reset' })
+                      setError('')
+                      setShowEditModal(true)
+                    }}
+                  >
+                    Add Event
+                  </button>
+                </span>
+              </div>
+            </div>
 
-          <FullCalendar
-            ref={calendar}
-            events={{ events: loadEvents, id: 'server' }}
-            eventClick={handleEventClick}
-            height='100%'
-            stickyHeaderDates={true}
-            plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
-            initialView='timeGridWeek'
-            nowIndicator={true}
-            locale={esLocale}
-            dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
-            dayHeaderContent={({ text, isToday }) => {
-              const [weekday, day] = text.split(' ')
-              return (
-                <div
-                  className={
-                    'flex flex-col font-medium leading-tight uppercase ' +
-                    (isToday ? 'text-primary-500' : 'text-gray-500')
-                  }
-                >
-                  <span className='hidden text-xs sm:inline'>{weekday}</span>
-                  <span className='text-3xl'>{day}</span>
-                </div>
-              )
-            }}
-            headerToolbar={{
-              start: 'prev,next today',
-              center: 'title',
-              end: 'dayGridMonth,timeGridWeek,timeGridThreeDay,listWeek',
-            }}
-            titleFormat={{ year: 'numeric', month: 'short' }}
-            views={{
-              timeGridThreeDay: {
-                type: 'timeGrid',
-                duration: { days: 3 },
-                buttonText: '3 day',
-              },
-            }}
-            expandRows={true}
-            allDaySlot={false}
-            slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
-          />
-        </div>
+            <FullCalendar
+              ref={calendar}
+              events={{ events: loadEvents, id: 'server' }}
+              eventClick={handleEventClick}
+              height='100%'
+              stickyHeaderDates={true}
+              plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
+              initialView='timeGridWeek'
+              nowIndicator={true}
+              locale={esLocale}
+              dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
+              dayHeaderContent={({ text, isToday }) => {
+                const [weekday, day] = text.split(' ')
+                return (
+                  <div
+                    className={
+                      'flex flex-col font-medium leading-tight uppercase ' +
+                      (isToday ? 'text-primary-500' : 'text-gray-500')
+                    }
+                  >
+                    <span className='hidden text-xs sm:inline'>{weekday}</span>
+                    <span className='text-3xl'>{day}</span>
+                  </div>
+                )
+              }}
+              headerToolbar={{
+                start: 'prev,next today',
+                center: 'title',
+                end: 'dayGridMonth,timeGridWeek,timeGridThreeDay,listWeek',
+              }}
+              titleFormat={{ year: 'numeric', month: 'short' }}
+              views={{
+                timeGridThreeDay: {
+                  type: 'timeGrid',
+                  duration: { days: 3 },
+                  buttonText: '3 day',
+                },
+              }}
+              expandRows={true}
+              allDaySlot={false}
+              slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+            />
+          </div>
+        )}
       </Layout>
       <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
         <form
