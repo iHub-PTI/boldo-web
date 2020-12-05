@@ -500,7 +500,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
 
   useEffect(() => {
     const load = async () => {
-      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments/openAppointments')
+      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments?status=open')
 
       // Ping for data
       setAppointments?.(res.data)

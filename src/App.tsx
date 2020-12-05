@@ -161,10 +161,11 @@ export const RoomsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!socket) return
 
-    socket?.emit(
-      'find patients',
-      appointments.map(e => e.id)
-    )
+    if (appointments.length)
+      socket?.emit(
+        'find patients',
+        appointments.map(e => e.id)
+      )
   }, [socket, appointments])
 
   const value = useMemo(() => ({ rooms, appointments, setAppointments }), [appointments, rooms])

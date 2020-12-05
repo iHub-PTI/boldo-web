@@ -182,7 +182,9 @@ export default function Dashboard() {
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     axios
-      .get<AppointmentWithPatient[]>('/profile/doctor/appointments')
+      .get<AppointmentWithPatient[]>(
+        `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
+      )
       .then(res => {
         const events = res.data.map(event => eventDataTransform(event))
 
@@ -217,11 +219,11 @@ export default function Dashboard() {
               <div className='max-w-sm m-4'>
                 <img className='w-full h-full rounded' src='/img/welcome.svg' alt='Welcome' />
                 <div className='mt-3 text-center sm:mt-5'>
-                  <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                    Bienvenido!
+                  <h3 className='text-2xl font-medium leading-6 text-gray-900' id='modal-headline'>
+                    ¡Bienvenido!
                   </h3>
                   <div className='mt-2'>
-                    <p className='text-sm text-gray-500'>
+                    <p className='text-gray-700'>
                       Recuerda completar tu perfil, especialmente tu información profesional para que tu cuenta sea
                       validada y puedas utilizar la plataforma.
                       <br /> Please add Language, Speciality and Opening Hours!
