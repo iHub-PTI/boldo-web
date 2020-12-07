@@ -6,7 +6,7 @@ import io from 'socket.io-client'
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
-import Error from './pages/Error'
+import Error from './components/Error'
 import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
