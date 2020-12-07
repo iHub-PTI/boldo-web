@@ -40,13 +40,13 @@ interface Interval {
 
 type weekDay = keyof typeof weekDays
 const weekDays = {
-  mon: 'Monday',
-  tue: 'Tuesday',
-  wed: 'Wednesday',
-  thu: 'Thursday',
-  fri: 'Friday',
-  sat: 'Saturday',
-  sun: 'Sunday',
+  mon: 'Lunes',
+  tue: 'Martes',
+  wed: 'Miércoles',
+  thu: 'Jueves',
+  fri: 'Viernes',
+  sat: 'Sábado',
+  sun: 'Domingo',
 }
 
 type DoctorForm = Omit<Boldo.Doctor, 'photoUrl' | 'id' | 'new'> & { photoUrl?: Boldo.Doctor['photoUrl'] | File | null }
@@ -165,7 +165,7 @@ const Settings = (props: Props) => {
       } catch (err) {
         console.log(err)
         if (mounted) {
-          setError('ERROR: Failed to load initial Data')
+          setError('ERROR: Fallo en la carga de datos iniciales')
           setShow(true)
         }
       }
@@ -187,22 +187,22 @@ const Settings = (props: Props) => {
 
     if (!validateDate(doctor.birthDate, 'past')) {
       validationError = true
-      setError('Fecha de nacimiento!')
+      setError('¡Fecha de nacimiento!')
     }
 
     if (doctor.languages.length === 0) {
       validationError = true
-      setError('Add at least one Language!')
+      setError('¡Añade al menos un idioma!')
     }
 
     if (doctor.specializations.length === 0) {
       validationError = true
-      setError('Add one specialization!')
+      setError('¡Añade una especialización!')
     }
 
     if (doctor.gender === 'unknown') {
       validationError = true
-      setError('Please select a Género!')
+      setError('¡Por favor seleccione un género!')
     }
 
     if (!validationError) {
@@ -290,9 +290,9 @@ const Settings = (props: Props) => {
                   <div className='shadow sm:rounded-md sm:overflow-hidden'>
                     <div className='px-4 py-5 bg-white sm:p-6'>
                       <div className=''>
-                        <label className='block text-sm font-medium leading-5 text-gray-700'>Photo</label>
+                        <label className='block text-sm font-medium leading-5 text-gray-700'>Foto</label>
                         <p className='mt-2 text-sm text-gray-500'>
-                          Upload a Profile picture. For best quality, choose a square picture with 512 px.
+                          Sube una foto de perfil. Para una mejor calidad, elige una foto cuadrada de 512 px.
                         </p>
                         <div className='flex items-center mt-2'>
                           <span className='inline-block w-12 h-12 overflow-hidden bg-gray-100 rounded-full'>
@@ -317,7 +317,7 @@ const Settings = (props: Props) => {
                               htmlFor='photoUrl'
                               className='px-3 py-2 text-sm font-medium leading-4 text-gray-700 transition duration-150 ease-in-out border border-gray-300 rounded-md cursor-pointer hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800'
                             >
-                              Change
+                              Cambiar
                             </label>
                             <input
                               type='file'
@@ -379,11 +379,11 @@ const Settings = (props: Props) => {
                         <div className='col-span-6 sm:col-span-3'>
                           <Listbox
                             data={[
-                              { value: 'male', name: 'Male' },
-                              { value: 'female', name: 'Female' },
-                              { value: 'other', name: 'Other' },
+                              { value: 'male', name: 'Masculino' },
+                              { value: 'female', name: 'Femenino' },
+                              { value: 'other', name: 'Otro' },
                               ...(doctor.gender === 'unknown'
-                                ? [{ value: 'unknown', name: 'Please select a Género' }]
+                                ? [{ value: 'unknown', name: 'Por favor seleccione un género' }]
                                 : []),
                             ]}
                             label='Género'
@@ -441,7 +441,7 @@ const Settings = (props: Props) => {
                 <div className='md:col-span-1'>
                   <div className='px-4 sm:px-0'>
                     <h3 className='text-lg font-medium leading-6 text-gray-900'>Datos de Contacto</h3>
-                    <p className='mt-1 text-sm leading-5 text-gray-600'>This information will be displayed publicly.</p>
+                    <p className='mt-1 text-sm leading-5 text-gray-600'>Esta información se mostrará públicamente.</p>
                   </div>
                 </div>
                 <div className='mt-5 md:mt-0 md:col-span-2'>
@@ -548,7 +548,7 @@ const Settings = (props: Props) => {
                 <div className='md:col-span-1'>
                   <div className='px-4 sm:px-0'>
                     <h3 className='text-lg font-medium leading-6 text-gray-900'>Profesional</h3>
-                    <p className='mt-1 text-sm leading-5 text-gray-600'>This information will be displayed publicly.</p>
+                    <p className='mt-1 text-sm leading-5 text-gray-600'>Esta información se mostrará públicamente.</p>
                   </div>
                 </div>
                 <div className='mt-5 md:mt-0 md:col-span-2'>
@@ -583,9 +583,9 @@ const Settings = (props: Props) => {
               <div className='md:grid md:grid-cols-3 md:gap-6'>
                 <div className='md:col-span-1'>
                   <div className='px-4 sm:px-0'>
-                    <h3 className='text-lg font-medium leading-6 text-gray-900'>Opening Hours</h3>
+                    <h3 className='text-lg font-medium leading-6 text-gray-900'>Horario de apertura</h3>
                     <p className='mt-1 text-sm leading-5 text-gray-600'>
-                      Configure when customers can book appointments through the app.
+                      Configura cuándo los clientes pueden reservar citas a través de la aplicación.
                     </p>
                   </div>
                 </div>
@@ -617,7 +617,7 @@ const Settings = (props: Props) => {
                             </button>
                           </div>
                           {doctor.openHours[day].length === 0
-                            ? 'closed'
+                            ? 'Cerrado'
                             : doctor.openHours[day].map((interval: Interval, index: number) => (
                                 <TimeInterval
                                   key={`${index}-${interval.start}-${interval.end}`}
@@ -711,7 +711,7 @@ const TimeInterval = (props: TimeIntervalProps) => {
               htmlFor={`${props.id}-start`}
               className='inline-flex items-center px-3 text-gray-500 border border-r-0 border-gray-300 rounded-l-md bg-gray-50 sm:text-sm'
             >
-              start
+              Inicio
             </label>
             <input
               id={`${props.id}-start`}
@@ -747,7 +747,7 @@ const TimeInterval = (props: TimeIntervalProps) => {
               htmlFor={`${props.id}-end`}
               className='inline-flex items-center px-3 text-gray-500 border border-r-0 border-gray-300 bg-gray-50 sm:text-sm'
             >
-              end
+              Fin
             </label>
             <input
               id={`${props.id}-end`}

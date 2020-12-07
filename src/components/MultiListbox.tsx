@@ -45,7 +45,7 @@ const MultiListboxComponent: React.FC<Props> = ({ data, label, value, onChange, 
                           {data.find(el => el.value === selectedValue)?.name || selectedValue}
                         </span>
                       ))
-                    : 'Select Value'}
+                    : 'Seleccione un valor'}
                 </div>
                 <span className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
                   <svg className='w-5 h-5 text-gray-400' viewBox='0 0 20 20' fill='none' stroke='currentColor'>

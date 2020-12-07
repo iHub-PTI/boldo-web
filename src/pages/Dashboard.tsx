@@ -133,13 +133,13 @@ export default function Dashboard() {
     // Validate Date. Because Safari does not have date input
     if (!validateDate(appointment.date)) {
       validationError = true
-      setError('Invalid Date!')
+      setError('¡Fecha inválida!')
     }
 
     // Validate Time. Because Safari does not have time input
     if (!validateTime(appointment.start) || !validateTime(appointment.end)) {
       validationError = true
-      setError('Invalid Start or End!')
+      setError('¡Inicio o final inválido!')
     }
 
     if (validationError) return setLoading(false)
@@ -157,8 +157,8 @@ export default function Dashboard() {
       dispatch({ type: 'reset' })
       addToast({
         type: 'success',
-        title: 'Appointment created',
-        text: 'Appointment successfully created!',
+        title: 'Cita creada',
+        text: '¡Se ha creado un cita con éxito!',
       })
     } catch (err) {
       setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
@@ -192,7 +192,7 @@ export default function Dashboard() {
       })
       .catch(err => {
         console.log(err)
-        addErrorToast(`Failed to load Appointments. Details: ${err}`)
+        addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
         failureCallback(err)
       })
   }
@@ -258,7 +258,7 @@ export default function Dashboard() {
                       setShowEditModal(true)
                     }}
                   >
-                    Add Event
+                    Agregar evento
                   </button>
                 </span>
               </div>
@@ -336,12 +336,12 @@ export default function Dashboard() {
               </div>
               <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
                 <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                  Private Event
+                  Evento Privado
                 </h3>
                 <div className='mt-2'>
                   <p className='text-sm leading-5 text-gray-500'>
-                    Add a new event. This event is only visible for you. It will block patients from booking into this
-                    timeslot.
+                    Agrega un nuevo evento. Este evento solo es visible para ti. Bloqueará a los pacientes para que no
+                    reserven en este intervalo de tiempo.
                   </p>
                 </div>
               </div>
@@ -387,7 +387,7 @@ export default function Dashboard() {
                         htmlFor='appointment_start'
                         className='inline-flex items-center px-3 text-gray-500 border border-r-0 border-gray-300 rounded-l-md bg-gray-50 sm:text-sm'
                       >
-                        start
+                        Inicio
                       </label>
                       <input
                         id='appointment_start'
@@ -404,7 +404,7 @@ export default function Dashboard() {
                         htmlFor='appointment_end'
                         className='inline-flex items-center px-3 text-gray-500 border border-r-0 border-gray-300 bg-gray-50 sm:text-sm'
                       >
-                        end
+                        Fin
                       </label>
                       <input
                         id='appointment_end'
@@ -525,7 +525,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
     let type = ''
     switch (appointment.type) {
       case 'PrivateEvent':
-        type = 'Private Event'
+        type = 'Evento Privado'
         break
 
       case 'CustomAppointment':
@@ -569,7 +569,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   }, [appointment])
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Está seguro que desea eliminar esta Event?')) return
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) return
     setLoading(true)
     setError('')
     try {
@@ -641,7 +641,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
               {appointment.description && (
                 <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                   <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
-                    Description
+                    Descripción
                   </dt>
                   <dd className='mt-1 overflow-auto text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
                     <p className='break-words'>{appointment.description}</p>
@@ -649,7 +649,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
                 </div>
               )}
               <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
-                <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Type</dt>
+                <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Tipo</dt>
                 <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{type}</dd>
               </div>
               {status && (
@@ -698,7 +698,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
                 setShow(false)
               }}
             >
-              Close
+              Cerrar
             </button>
           </span>
           <p></p>

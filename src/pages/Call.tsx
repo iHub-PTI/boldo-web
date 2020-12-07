@@ -42,7 +42,7 @@ const Gate = () => {
       } catch (err) {
         console.log(err)
         if (mounted) {
-          addErrorToast('Failed to load Appointment!')
+          addErrorToast('¡Fallo en la carga de la cita!')
           history.replace(`/`)
         }
       }
@@ -108,7 +108,7 @@ const Gate = () => {
   useEffect(() => {
     if (!socket) return
     socket.on('end call', () => {
-      addToast({ type: 'success', title: 'Call Ended', text: 'The Patient ended the call!' })
+      addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡El paciente ha terminado la llamada!' })
       updateStatus()
     })
     return () => {
@@ -134,7 +134,7 @@ const Gate = () => {
         case 'closed': {
           setCallStatus({ connecting: false })
           setInstance(0)
-          addToast({ type: 'warning', title: 'Lost connection', text: 'We lost connection with the patient!' })
+          addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
           socket?.emit('ready?', id)
           break
         }
@@ -200,7 +200,7 @@ const CallStatusMessage = ({ status, statusText }: { status: Status; statusText?
             </div>
             <div className='mt-3 text-center sm:mt-5'>
               <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                Meeting upcoming!
+                ¡Se aproxima una cita!
               </h3>
               <div className='mt-2'>
                 <p className='text-sm text-gray-500'>{statusText}</p>
@@ -227,12 +227,10 @@ const CallStatusMessage = ({ status, statusText }: { status: Status; statusText?
             </div>
             <div className='mt-3 text-center sm:mt-5'>
               <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                Waiting for Patient to join!
+                Esperando a que el paciente se una
               </h3>
               <div className='mt-2'>
-                <p className='text-sm text-gray-500'>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur amet labore.
-                </p>
+                <p className='text-sm text-gray-500'>Cuando el paciente se una desde la app estarás conectado.</p>
               </div>
             </div>
           </>
@@ -257,11 +255,12 @@ const CallStatusMessage = ({ status, statusText }: { status: Status; statusText?
             </div>
             <div className='mt-3 text-center sm:mt-5'>
               <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                Meeting Closed!
+                ¡Llamada Finalizada!
               </h3>
               <div className='mt-2'>
                 <p className='text-sm text-gray-500'>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur amet labore.
+                  El paciente ya no puede unirse. Si desea volver a conectarse con el paciente, por favor haga clic
+                  aquí.
                 </p>
               </div>
             </div>
@@ -327,13 +326,13 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
   const hangUp = async () => {
     if (socket) {
       socket.emit('end call', id)
-      addToast({ type: 'success', title: 'Call Ended', text: 'You have ended the call!' })
+      addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡Has terminado la llamada!' })
 
       try {
         await axios.post(`/profile/doctor/appointments/${id}`, { status: 'closed' })
       } catch (err) {
         console.log(err)
-        addErrorToast('Failed to update status of call to closed.')
+        addErrorToast('No se actualizó el estado de la llamada a cerrado.')
       }
       updateStatus({ status: 'closed' })
     }
@@ -368,7 +367,7 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
             </p>
             <button
               className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-              aria-label='Fullscreen'
+              aria-label='Pantalla completa'
               onClick={() => {
                 const elem = container.current as any
                 if (!elem) return
@@ -391,7 +390,7 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
             {(document as any).pictureInPictureEnabled && (
               <button
                 className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-                aria-label='Picture in Picture'
+                aria-label='Imagen en imagen'
                 onClick={() => {
                   if (!stream.current) return
 
@@ -619,16 +618,16 @@ const useUserMedia = () => {
       console.log(e)
       switch (e.name) {
         case 'NotFoundError':
-          addErrorToast('Unable to open your call because no camera and/or microphone were found.')
+          addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
           break
         case 'SecurityError':
-          addErrorToast('Security Error. Details: ' + e.message)
+          addErrorToast('Error de seguridad. Detalles: ' + e.message)
           break
         case 'PermissionDeniedError':
-          addErrorToast('Could not access Microhpone and Camera. Reason: ' + e.message)
+          addErrorToast('No se puede acceder al micrófono y a la cámara. Detalles: ' + e.message)
           break
         default:
-          addErrorToast('Error opening your camera and/or microphone: ' + e.message)
+          addErrorToast('Ha ocurrido un error al abrir la cámara y/o el micrófono: ' + e.message)
           break
       }
 
@@ -780,11 +779,11 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
       <header className='px-4 py-6 sm:px-6'>
         <div className='flex items-start justify-between space-x-3'>
-          <h2 className='text-lg font-medium leading-7 text-gray-900'>Profile</h2>
+          <h2 className='text-lg font-medium leading-7 text-gray-900'>Perfil</h2>
           {hideSidebar && (
             <div className='flex items-center h-7'>
               <button
-                aria-label='Close panel'
+                aria-label='Cerrar panel'
                 onClick={() => hideSidebar()}
                 className='text-gray-400 transition duration-150 ease-in-out hover:text-gray-500'
               >

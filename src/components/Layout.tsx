@@ -74,7 +74,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
             <div className='absolute top-0 right-0 p-1 -mr-14'>
               <button
                 className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
-                aria-label='Close sidebar'
+                aria-label='Cerrar la barra lateral'
                 onClick={() => setMobileOpen(false)}
               >
                 <svg className='w-6 h-6 text-white' stroke='currentColor' fill='none' viewBox='0 0 24 24'>
@@ -233,7 +233,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                           >
-                            Get patient app
+                            Descargar la app del paciente
                           </a>
                           <a
                             href='mailto:soporte@pti.org.py'
@@ -242,7 +242,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                           >
-                            Support
+                            Soporte
                           </a>
                         </div>
                         <div className='border-t border-gray-100' />
@@ -252,7 +252,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             role='menuitem'
                             href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
                           >
-                            Logout
+                            Cerrar Sesión
                           </a>
                         </div>
                       </div>
@@ -355,7 +355,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
           {/* Sidebar toggle, controls the 'sidebarOpen' sidebar state. */}
           <button
             className='px-4 text-gray-500 border-r border-gray-200 focus:outline-none focus:bg-gray-100 focus:text-gray-600 lg:hidden'
-            aria-label='Open sidebar'
+            aria-label='Abrir barra lateral'
             onClick={() => setMobileOpen(value => !value)}
           >
             <svg
@@ -375,7 +375,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
               <div className='relative flex-grow-0 mr-3 inline-box'>
                 <button
                   className='p-1 rounded-full inline-box text-cool-gray-400 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-                  aria-label='Waitingroom'
+                  aria-label='Sala de espera'
                   onClick={() => setWaitingroomOpen(true)}
                 >
                   <svg className='w-6 h-6' viewBox='0 0 24 25' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
@@ -448,7 +448,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                               className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                               role='menuitem'
                             >
-                              Get patient app
+                              Descargar la app del paciente
                             </a>
                             <a
                               href='mailto:soporte@pti.org.py'
@@ -457,7 +457,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                               className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                               role='menuitem'
                             >
-                              Support
+                              Soporte
                             </a>
                           </div>
                           <div className='border-t border-gray-100' />
@@ -467,7 +467,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                               role='menuitem'
                               href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
                             >
-                              Logout
+                              Cerrar Sesión
                             </a>
                           </div>
                         </div>
@@ -567,7 +567,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                       </div>
                       <div className='flex items-center h-7'>
                         <button
-                          aria-label='Close panel'
+                          aria-label='Cerrar panel'
                           className='text-gray-400 transition duration-150 ease-in-out hover:text-gray-500'
                           onClick={() => hideSidebar()}
                         >
@@ -645,7 +645,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                     <svg className='w-5 h-5 text-gray-400' viewBox='0 0 20 20' fill='currentColor'>
                                       <path d='M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z' />
                                     </svg>
-                                    <span className='ml-3'>Join Call</span>
+                                    <span className='ml-3'>Unirse a llamada</span>
                                   </Link>
                                 </div>
                               </div>
