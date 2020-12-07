@@ -6,6 +6,7 @@ import io from 'socket.io-client'
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
+import Error from './pages/Error'
 import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
@@ -25,6 +26,7 @@ export const UserContext = createContext<{
 
 const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     axios.interceptors.response.use(
@@ -46,6 +48,7 @@ const App = () => {
         setUser(res.data)
       } catch (err) {
         console.log(err)
+        setError(true)
       }
     }
 
@@ -56,6 +59,7 @@ const App = () => {
     setUser(user => (user ? { ...user, ...arg } : undefined))
   }
 
+  if (error) return <Error />
   if (!user) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
