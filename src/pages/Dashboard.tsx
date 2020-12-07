@@ -54,11 +54,6 @@ const calculateOpenHours = (openHours: Boldo.OpenHours, start: Date, end: Date) 
   })
 }
 
-const appointmentTypes = {
-  PrivateEvent: 'Private Event',
-  CustomAppointment: 'Patient Consultation',
-}
-
 type AppointmentForm = Omit<Boldo.Appointment, 'start' | 'end' | 'patientId' | 'doctorId'> & {
   // Form has date and time seperate
   start: string
@@ -322,45 +317,6 @@ export default function Dashboard() {
           }}
         >
           <div className='px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4'>
-            <div>
-              <div className='sm:hidden'>
-                <select
-                  aria-label='Selected tab'
-                  className='block w-full form-select'
-                  value={appointment.type}
-                  onChange={e =>
-                    dispatch({ type: 'default', value: { type: e.target.value as keyof typeof appointmentTypes } })
-                  }
-                >
-                  {(Object.keys(appointmentTypes) as Array<keyof typeof appointmentTypes>).map(appointmentType => (
-                    <option key={appointmentType} value={appointmentType}>
-                      {appointmentTypes[appointmentType]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className='hidden sm:block'>
-                <div className='border-b border-gray-200'>
-                  <nav className='flex -mb-px'>
-                    {(Object.keys(appointmentTypes) as Array<keyof typeof appointmentTypes>).map(appointmentType => (
-                      <button
-                        key={appointmentType}
-                        type='button'
-                        onClick={() => dispatch({ type: 'default', value: { type: appointmentType } })}
-                        className={`w-1/2 px-1 py-4 text-sm font-medium leading-5 text-center border-b-2 focus:outline-none ${
-                          appointment.type === appointmentType
-                            ? 'text-indigo-600 border-indigo-500 focus:text-indigo-800 focus:border-indigo-700'
-                            : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 focus:text-gray-700 focus:border-gray-300'
-                        }`}
-                      >
-                        {appointmentTypes[appointmentType]}
-                      </button>
-                    ))}
-                  </nav>
-                </div>
-              </div>
-            </div>
-
             <div className='mt-4 sm:flex sm:items-start'>
               <div className='flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto rounded-full bg-secondary-100 sm:mx-0 sm:h-10 sm:w-10'>
                 <svg

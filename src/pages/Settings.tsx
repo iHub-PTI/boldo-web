@@ -283,7 +283,7 @@ const Settings = (props: Props) => {
                 <div className='md:col-span-1'>
                   <div className='px-4 sm:px-0'>
                     <h3 className='text-lg font-medium leading-6 text-gray-900'>Perfil</h3>
-                    <p className='mt-1 text-sm leading-5 text-gray-600'>This information will be displayed publicly.</p>
+                    <p className='mt-1 text-sm leading-5 text-gray-600'>Esta información se mostrará públicamente.</p>
                   </div>
                 </div>
                 <div className='mt-5 md:mt-0 md:col-span-2'>
