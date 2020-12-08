@@ -205,6 +205,16 @@ export default function Dashboard() {
     setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
   }
 
+  const openHoursEmpty = useMemo(() => {
+    if (!openHours) return false
+
+    return (
+      (Object.keys(openHours) as Array<keyof typeof openHours>)
+        .map(x => openHours[x].length)
+        .reduce((a, b) => a + b) === 0
+    )
+  }, [openHours])
+
   return (
     <>
       <Layout>
@@ -221,7 +231,7 @@ export default function Dashboard() {
                     <p className='text-gray-700'>
                       Recuerda completar tu perfil, especialmente tu información profesional para que tu cuenta sea
                       validada y puedas utilizar la plataforma.
-                      <br /> Please add Language, Speciality and Opening Hours!
+                      <br /> Por favor, añada idioma, especialidad y horario de apertura.
                     </p>
                   </div>
                   <div className='my-6'>
@@ -230,7 +240,7 @@ export default function Dashboard() {
                         to='/settings'
                         className='inline-flex justify-center px-4 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out border border-transparent rounded-md shadow-sm bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700 sm:text-sm sm:leading-5'
                       >
-                        Configure Profile
+                        Configurar Perfil
                       </Link>
                     </span>
                   </div>
@@ -239,74 +249,91 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className='flex flex-col h-full text-cool-gray-700'>
-            <div className='flex items-center justify-between px-4 py-2 sm:px-6 lg:px-8'>
-              <div className='flex-1 min-w-0'>
-                <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate'>
-                  Mi Horario
-                </h1>
-              </div>
-              <div className='flex mt-4 md:mt-0 md:ml-4'>
-                <span className='ml-3 rounded-md shadow-sm'>
-                  <button
-                    type='button'
-                    className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-                    onClick={e => {
-                      e.stopPropagation()
-                      dispatch({ type: 'reset' })
-                      setError('')
-                      setShowEditModal(true)
-                    }}
-                  >
-                    Agregar evento
-                  </button>
-                </span>
-              </div>
-            </div>
-
-            <FullCalendar
-              ref={calendar}
-              events={{ events: loadEvents, id: 'server' }}
-              eventClick={handleEventClick}
-              height='100%'
-              stickyHeaderDates={true}
-              plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
-              initialView='timeGridWeek'
-              nowIndicator={true}
-              locale={esLocale}
-              dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
-              dayHeaderContent={({ text, isToday }) => {
-                const [weekday, day] = text.split(' ')
-                return (
-                  <div
-                    className={
-                      'flex flex-col font-medium leading-tight uppercase ' +
-                      (isToday ? 'text-primary-500' : 'text-gray-500')
-                    }
-                  >
-                    <span className='hidden text-xs sm:inline'>{weekday}</span>
-                    <span className='text-3xl'>{day}</span>
+          <>
+            <div className='flex flex-col h-full text-cool-gray-700'>
+              {openHoursEmpty && (
+                <div className='relative bg-secondary-500'>
+                  <div className='px-3 py-3 mx-auto max-w-7xl sm:px-6 lg:px-8'>
+                    <div className='pr-16 sm:text-center sm:px-16'>
+                      <p className='font-medium text-white'>
+                        <span>Aún no tienes configurado el horario de apertura.</span>
+                        <span className='block sm:ml-2 sm:inline-block'>
+                          <Link to='/settings' className='font-bold text-white underline'>
+                            {' '}
+                            Añade horarios de apertura <span aria-hidden='true'>→</span>
+                          </Link>
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                )
-              }}
-              headerToolbar={{
-                start: 'prev,next today',
-                center: 'title',
-                end: 'dayGridMonth,timeGridWeek,timeGridThreeDay,listWeek',
-              }}
-              titleFormat={{ year: 'numeric', month: 'short' }}
-              views={{
-                timeGridThreeDay: {
-                  type: 'timeGrid',
-                  duration: { days: 3 },
-                  buttonText: '3 day',
-                },
-              }}
-              expandRows={true}
-              allDaySlot={false}
-              slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
-            />
-          </div>
+                </div>
+              )}
+
+              <div className='flex items-center px-4 py-2 sm:px-6 lg:px-8'>
+                <div className='flex-1 min-w-0'>
+                  <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
+                </div>
+                <div className='flex mt-4 md:mt-0 md:ml-4'>
+                  <span className='ml-3 rounded-md shadow-sm'>
+                    <button
+                      type='button'
+                      className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                      onClick={e => {
+                        e.stopPropagation()
+                        dispatch({ type: 'reset' })
+                        setError('')
+                        setShowEditModal(true)
+                      }}
+                    >
+                      Agregar evento
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <FullCalendar
+                ref={calendar}
+                events={{ events: loadEvents, id: 'server' }}
+                eventClick={handleEventClick}
+                height='100%'
+                stickyHeaderDates={true}
+                plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
+                initialView='timeGridWeek'
+                nowIndicator={true}
+                locale={esLocale}
+                dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
+                dayHeaderContent={({ text, isToday }) => {
+                  const [weekday, day] = text.split(' ')
+                  return (
+                    <div
+                      className={
+                        'flex flex-col font-medium leading-tight uppercase ' +
+                        (isToday ? 'text-primary-500' : 'text-gray-500')
+                      }
+                    >
+                      <span className='hidden text-xs sm:inline'>{weekday}</span>
+                      <span className='text-3xl'>{day}</span>
+                    </div>
+                  )
+                }}
+                headerToolbar={{
+                  start: 'prev,next today',
+                  center: 'title',
+                  end: 'dayGridMonth,timeGridWeek,timeGridThreeDay,listWeek',
+                }}
+                titleFormat={{ year: 'numeric', month: 'short' }}
+                views={{
+                  timeGridThreeDay: {
+                    type: 'timeGrid',
+                    duration: { days: 3 },
+                    buttonText: '3 day',
+                  },
+                }}
+                expandRows={true}
+                allDaySlot={false}
+                slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+              />
+            </div>
+          </>
         )}
       </Layout>
       <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
