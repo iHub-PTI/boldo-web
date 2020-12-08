@@ -417,7 +417,7 @@ const Settings = (props: Props) => {
                             id='biography'
                             rows={3}
                             className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-                            placeholder='Recibido en la Universidad Nacional de Asunción con especialización en Dermatología Pediátrica. Miembro de la asicioción DERLA hace 6 años.'
+                            placeholder='Recibido en la Universidad Nacional de Asunción con especialización en Dermatología Pediátrica. Miembro de la asiciocion DERLA hace 6 años.'
                             onChange={e => dispatch({ type: 'default', value: { biography: e.target.value } })}
                             value={doctor.biography}
                           />
