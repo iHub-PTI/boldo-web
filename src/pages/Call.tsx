@@ -11,7 +11,7 @@ import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import { avatarPlaceholder } from '../util/helpers'
 
-type Status = '' | 'upcoming' | 'open' | 'closed'
+type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
 
@@ -27,6 +27,25 @@ const Gate = () => {
   const [appointment, setAppointment] = useState<AppointmentWithPatient>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
+
+  const updateStatus = useCallback(
+    async (status?: Status) => {
+      setInstance(0)
+      if (!status) return
+
+      try {
+        if (['closed', 'open'].includes(status)) await axios.post(`/profile/doctor/appointments/${id}`, { status })
+        setAppointment(appointment => {
+          if (!appointment || !status) return
+          return { ...appointment, status: status }
+        })
+      } catch (err) {
+        console.log(err)
+        addErrorToast('No se actualizó el estado de cita.')
+      }
+    },
+    [addErrorToast, id]
+  )
 
   useEffect(() => {
     let mounted = true
@@ -68,11 +87,11 @@ const Gate = () => {
         })
       } else if (minutes < 16) {
         const seconds = differenceInSeconds(parseISO(appointment.start as any), Date.now())
-        setStatusText(`opens in ${seconds + 1 - 60 * 15} seconds`)
+        setStatusText(`La sala de espera se abre en ${seconds + 1 - 60 * 15} segundos`)
       } else if (minutes < 60) {
-        setStatusText(`opens in ${minutes - 14} minutes`)
+        setStatusText(`La sala de espera se abre en ${minutes - 14} minutos`)
       } else {
-        setStatusText(`Will open 15 minutes before start`)
+        setStatusText(`La sala de espera se abrirá 15 minutos antes del inicio de la cita.`)
       }
     }
     calculate()
@@ -96,17 +115,9 @@ const Gate = () => {
     }
   }, [appointment, id, socket])
 
-  const updateStatus = useCallback((arg?: { status?: Boldo.Appointment['status'] }) => {
-    setInstance(0)
-    if (arg?.status)
-      setAppointment(appointment => {
-        if (!appointment || !arg?.status) return
-        return { ...appointment, status: arg.status }
-      })
-  }, [])
-
   useEffect(() => {
     if (!socket) return
+    if (appointment?.status !== 'open') return
     socket.on('end call', () => {
       addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡El paciente ha terminado la llamada!' })
       updateStatus()
@@ -114,11 +125,10 @@ const Gate = () => {
     return () => {
       socket.off('end call')
     }
-  }, [addToast, socket, updateStatus])
+  }, [addToast, appointment, socket, updateStatus])
 
   const onCallStateChange = useCallback(
     (callState: CallState) => {
-      console.log('xxx', callState)
       switch (callState) {
         case 'connecting': {
           break
@@ -151,11 +161,12 @@ const Gate = () => {
         <div className='h-1 fakeload-15 bg-primary-500' />
       </Layout>
     )
+
   return (
     <Layout>
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
-          <CallStatusMessage status={appointment.status} statusText={statusText} />
+          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
           <div className='md:max-w-xl'>
             <Sidebar appointment={appointment} />
           </div>
@@ -176,112 +187,17 @@ const Gate = () => {
 
 export default Gate
 
-const CallStatusMessage = ({ status, statusText }: { status: Status; statusText?: string }) => {
-  return (
-    <div className='flex items-center justify-center flex-grow'>
-      <div className='max-w-xs m-4'>
-        {status === 'upcoming' && (
-          <>
-            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full'>
-              {/* Heroicon name: clock */}
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                className='w-6 h-6 text-green-600'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-                />
-              </svg>
-            </div>
-            <div className='mt-3 text-center sm:mt-5'>
-              <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                ¡Se aproxima una cita!
-              </h3>
-              <div className='mt-2'>
-                <p className='text-sm text-gray-500'>{statusText}</p>
-              </div>
-            </div>
-          </>
-        )}
-        {status === 'open' && (
-          <>
-            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-              <svg
-                className='w-6 h-6 text-secondary-500 animate-spin'
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-              >
-                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-                <path
-                  className='opacity-75'
-                  fill='currentColor'
-                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                ></path>
-              </svg>
-            </div>
-            <div className='mt-3 text-center sm:mt-5'>
-              <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                Esperando a que el paciente se una
-              </h3>
-              <div className='mt-2'>
-                <p className='text-sm text-gray-500'>Cuando el paciente se una desde la app estarás conectado.</p>
-              </div>
-            </div>
-          </>
-        )}
-        {status === 'closed' && (
-          <>
-            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-              <svg
-                className='w-6 h-6 text-secondary-600'
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
-                />
-              </svg>
-            </div>
-            <div className='mt-3 text-center sm:mt-5'>
-              <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                ¡Llamada Finalizada!
-              </h3>
-              <div className='mt-2'>
-                <p className='text-sm text-gray-500'>
-                  El paciente ya no puede unirse. Si desea volver a conectarse con el paciente, por favor haga clic
-                  aquí.
-                </p>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
-
 interface CallProps {
   id: string
   instance: number
-  updateStatus: (arg?: { status?: Boldo.Appointment['status'] }) => void
+  updateStatus: (status?: Status) => Promise<void>
   appointment: AppointmentWithPatient
   onCallStateChange: (arg: CallState) => void
   callStatus: CallStatus
 }
 
 const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, callStatus }: CallProps) => {
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const socket = useContext(SocketContext)
   const mediaStream = useUserMedia()
 
@@ -315,7 +231,7 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
     })
   }
 
-  // FIXME: Mutes audio for development comfort
+  // NOTE: Mutes audio for development comfort
   // useEffect(() => {
   //   if (mediaStream) {
   //     mediaStream.getAudioTracks()[0].enabled = false
@@ -324,18 +240,9 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
   // }, [mediaStream])
 
   const hangUp = async () => {
-    if (socket) {
-      socket.emit('end call', id)
-      addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡Has terminado la llamada!' })
-
-      try {
-        await axios.post(`/profile/doctor/appointments/${id}`, { status: 'closed' })
-      } catch (err) {
-        console.log(err)
-        addErrorToast('No se actualizó el estado de la llamada a cerrado.')
-      }
-      updateStatus({ status: 'closed' })
-    }
+    socket?.emit('end call', id)
+    updateStatus('closed')
+    addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡Has terminado la llamada!' })
   }
 
   if (mediaStream && video.current && !video.current?.srcObject) {
@@ -886,6 +793,149 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
           </dl>
         </div>
       </div>
+    </div>
+  )
+}
+
+interface CallStatusMessageProps {
+  status: Status
+  statusText?: string
+  updateStatus: (status?: Status) => void
+}
+
+const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessageProps) => {
+  return (
+    <div className='flex items-center justify-center flex-grow'>
+      {status === 'upcoming' && (
+        <div className='max-w-xs m-4'>
+          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full'>
+            {/* Heroicon name: clock */}
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              className='w-6 h-6 text-green-600'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+              />
+            </svg>
+          </div>
+          <div className='mt-3 text-center sm:mt-5'>
+            <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+              ¡Se aproxima una cita!
+            </h3>
+            <div className='mt-2'>
+              <p className='text-sm text-gray-500'>{statusText}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {status === 'open' && (
+        <div className='max-w-xs m-4'>
+          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+            <svg
+              className='w-6 h-6 text-secondary-500 animate-spin'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+            >
+              <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+              <path
+                className='opacity-75'
+                fill='currentColor'
+                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              ></path>
+            </svg>
+          </div>
+          <div className='mt-3 text-center sm:mt-5'>
+            <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+              Esperando a que el paciente se una
+            </h3>
+            <div className='mt-2'>
+              <p className='text-sm text-gray-500'>Cuando el paciente se una desde la app estarás conectado.</p>
+            </div>
+          </div>
+          <div className='mt-2'>
+            <p className='text-sm text-center text-gray-500'>
+              Haga clic en "Cerrar Cita" para cerrar la sala de espera para el paciente.
+            </p>
+          </div>
+          <div className='mt-5 sm:mt-4'>
+            <button
+              onClick={() => updateStatus('closed')}
+              className='w-full px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm'
+            >
+              Cerrar Cita
+            </button>
+          </div>
+        </div>
+      )}
+
+      {status === 'closed' && (
+        <div className='max-w-xs m-4'>
+          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+            <svg
+              className='w-6 h-6 text-primary-500'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+            </svg>
+          </div>
+          <div className='mt-3 text-center sm:mt-5'>
+            <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+              ¡Cita Cerrada!
+            </h3>
+            <div className='mt-2'>
+              <p className='text-sm text-gray-500'>
+                El paciente ya no puede unirse. Si desea volver a conectarse con el paciente, por favor haga clic aquí.
+              </p>
+            </div>
+          </div>
+          <div className='mt-5 sm:mt-4'>
+            <button
+              onClick={() => updateStatus('open')}
+              className='w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm'
+            >
+              Abrir Cita
+            </button>
+          </div>
+        </div>
+      )}
+      {status === 'locked' && (
+        <div className='max-w-xs m-4'>
+          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+            <svg
+              className='w-6 h-6 text-secondary-600'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+              />
+            </svg>
+          </div>
+          <div className='mt-3 text-center sm:mt-5'>
+            <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+              ¡Cita Finalizada!
+            </h3>
+            <div className='mt-2'>
+              <p className='text-sm text-gray-500'>Esta cita está cerrada.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -25,5 +25,5 @@ interface OpenHours {
 export interface Appointment extends iHub.Appointment {
   name: string
   type: 'PrivateEvent' | 'CustomAppointment' | 'Appointment'
-  status: 'upcoming' | 'open' | 'closed'
+  status: 'upcoming' | 'open' | 'closed' | 'locked'
 }

@@ -37,8 +37,8 @@ const Modal: React.FC<Props> = props => {
       }
     }
 
-    window.addEventListener('click', handleOutsideClick)
-    return () => window.removeEventListener('click', handleOutsideClick)
+    window.addEventListener('click', handleOutsideClick, true)
+    return () => window.removeEventListener('click', handleOutsideClick, true)
   }, [show, setShow])
 
   useEffect(() => {
