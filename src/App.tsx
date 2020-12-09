@@ -48,7 +48,7 @@ const App = () => {
         setUser(res.data)
       } catch (err) {
         console.log(err)
-        setError(true)
+        if (err?.response?.status !== 401) setError(true)
       }
     }
 
