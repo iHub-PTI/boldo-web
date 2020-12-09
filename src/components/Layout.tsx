@@ -227,13 +227,22 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                       >
                         <div className='py-1'>
                           <a
-                            href='https://play.google.com/store'
+                            href='https://www.apple.com/app-store/'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                           >
-                            Descargar la app del paciente
+                            Descargar la app del paciente para iOS
+                          </a>
+                          <a
+                            href='https://play.google.com/store/apps/details?id=com.penguin.boldo'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Descargar la app del pacienten para Android
                           </a>
                           <a
                             href='mailto:soporte@pti.org.py'

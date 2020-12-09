@@ -78,7 +78,6 @@ class Doctor {
     firstName: string
     lastName: string
     gender: string
-    occupation: string
     dob: string // OR Date
     email: string
     phone: string
@@ -95,7 +94,7 @@ class Patient {
     firstName: string
     lastName: string
     gender: string
-    occupation: string
+    job: string
     dob: string // OR Date
     email: string
     phone: string

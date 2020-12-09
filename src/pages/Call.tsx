@@ -769,13 +769,13 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
                 Profesión
               </dt>
               <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.occupation || '-'}
+                {appointment.patient.job || '-'}
               </dd>
             </div>
             <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Gender</dt>
+              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
               <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.gender || '-'}
+                {lookupGender(appointment.patient.gender) || '-'}
               </dd>
             </div>
             <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
@@ -938,4 +938,17 @@ const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessa
       )}
     </div>
   )
+}
+
+const lookupGender = (gender: string) => {
+  switch (gender) {
+    case 'male':
+      return 'Masculino'
+    case 'female':
+      return 'Femenino'
+    case 'other':
+      return 'Otro'
+    default:
+      return ''
+  }
 }

@@ -325,7 +325,7 @@ export default function Dashboard() {
                   timeGridThreeDay: {
                     type: 'timeGrid',
                     duration: { days: 3 },
-                    buttonText: '3 day',
+                    buttonText: '3 Dias',
                   },
                 }}
                 expandRows={true}

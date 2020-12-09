@@ -34,7 +34,7 @@ export interface Patient {
   gender: string
   email: string
 
-  occupation: string
+  job: string
   phone: string
   street: string
   city: string
