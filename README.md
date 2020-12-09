@@ -16,11 +16,13 @@ The browser application is specifically for doctors.
 3. Create a `.env` file in the project's root folder and add these contents:
 
    ```
-   # ###################### Online ######################	
-   # REACT_APP_SOCKETS_ADDRESS = https://sockets.boldo.penguin.software	
-   # REACT_APP_SERVER_ADDRESS = https://api.boldo.penguin.software	
+   REACT_APP_SENTRY = PUBLIC SENTRY DSN
+
+   # ###################### Online ######################
+   # REACT_APP_SOCKETS_ADDRESS = https://sockets.boldo.penguin.software
+   # REACT_APP_SERVER_ADDRESS = https://api.boldo.penguin.software
    # REACT_APP_FRONTEND_ADDRESS = https://boldo.penguin.software
-   
+
    # ###################### Local ######################
    REACT_APP_SOCKETS_ADDRESS = http://localhost:8000
    REACT_APP_SERVER_ADDRESS = http://localhost:8008
@@ -37,11 +39,15 @@ To build the docker image use the following command:
 docker build -t boldo-web --build-arg sockets_address=http://localhost:8000 --build-arg app_server=http://localhost:8008 --build-arg app_frontend=http://localhost:3000 .
 ```
 
- After that you can test it running the following command:
+After that you can test it running the following command:
 
 ```bash
 docker run --rm -it -p 3000:3000 boldo-web
 ```
+
+## Run in production
+
+To run this project in production, make sure to have the environment variable `NODE_ENV` set to `production`.
 
 ## Contributing
 
