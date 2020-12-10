@@ -5,8 +5,6 @@ ARG sockets_address=http://localhost:8000
 ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
 ARG app_server=http://localhost:8008
 ENV REACT_APP_SERVER_ADDRESS=$app_server
-ARG app_frontend=http://localhost:3000
-ENV REACT_APP_FRONTEND_ADDRESS=$app_frontend 
 COPY . /usr/src/app/
 RUN npm i && npm run build
 
