@@ -32,7 +32,7 @@ const App = () => {
     axios.interceptors.response.use(
       response => response,
       async error => {
-        if (error.response.status === 401 && error.response?.data?.message) {
+        if (error.response?.status === 401 && error.response?.data?.message) {
           window.location.href = error.response.data.message
           delete error.response.data.message
         }
@@ -130,15 +130,11 @@ const SocketsProvider: React.FC = ({ children }) => {
 // ////////////////////////////////////////////////////////////////////////////
 //
 
-export const RoomsContext = createContext<{
-  rooms: string[]
-  setAppointments?: (appointments: AppointmentWithPatient[]) => void
-  appointments: AppointmentWithPatient[]
-}>({ rooms: [], appointments: [] })
+export const RoomsContext = createContext<{ rooms: AppointmentWithPatient[] }>({ rooms: [] })
 
 export const RoomsProvider: React.FC = ({ children }) => {
-  const [rooms, setRooms] = useState<string[]>([])
-  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([])
+  const [rooms, setRooms] = useState<AppointmentWithPatient[]>([])
+  const appointments = useRef<AppointmentWithPatient[]>()
   const socket = useContext(SocketContext)
 
   useEffect(() => {
@@ -146,13 +142,25 @@ export const RoomsProvider: React.FC = ({ children }) => {
 
     socket.on('patient ready', (appointmentId: string) => {
       setRooms(rooms => {
-        if (rooms.find(e => e === appointmentId)) return rooms
-        return [...(rooms || []), appointmentId]
+        if (rooms.find(e => e.id === appointmentId)) return rooms
+
+        if (!appointments.current) {
+          console.log(`'patient ready' for appointmentId: #{appointmentId}, but appointments are empty`)
+          return rooms
+        }
+
+        const appointment = appointments.current.find(appointment => appointment.id === appointmentId)
+        if (!appointment) {
+          console.log(`'patient ready' for appointmentId: #{appointmentId}, but no matching appointment`)
+          return rooms
+        }
+
+        return [...(rooms || []), appointment]
       })
     })
 
     socket.on('peer not ready', (appointmentId: string) => {
-      setRooms(rooms => rooms.filter(e => e !== appointmentId))
+      setRooms(rooms => rooms.filter(e => e.id !== appointmentId))
       socket.emit('find patients', [appointmentId])
     })
 
@@ -165,14 +173,24 @@ export const RoomsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!socket) return
 
-    if (appointments.length)
-      socket?.emit(
-        'find patients',
-        appointments.map(e => e.id)
-      )
-  }, [socket, appointments])
+    const load = async () => {
+      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments?status=open')
+      appointments.current = res.data
+      if (appointments.current?.length) {
+        socket?.emit(
+          'find patients',
+          appointments.current.map(e => e.id)
+        )
+      }
+    }
 
-  const value = useMemo(() => ({ rooms, appointments, setAppointments }), [appointments, rooms])
+    load()
+
+    const timer = setInterval(() => load(), 60800)
+    return () => clearInterval(timer)
+  }, [socket])
+
+  const value = useMemo(() => ({ rooms }), [rooms])
 
   return <RoomsContext.Provider value={value}>{children}</RoomsContext.Provider>
 }

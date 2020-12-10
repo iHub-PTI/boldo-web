@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Transition, Menu } from '@headlessui/react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import axios from 'axios'
 
 import { UserContext, RoomsContext } from '../App'
 import { avatarPlaceholder } from '../util/helpers'
@@ -505,24 +504,7 @@ interface WaitingRoomSidebarProps {
 
 const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSidebar }) => {
   const container = useRef<HTMLDivElement>(null)
-  const { rooms, setAppointments, appointments } = useContext(RoomsContext)
-
-  useEffect(() => {
-    const load = async () => {
-      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments?status=open')
-
-      // Ping for data
-      setAppointments?.(res.data)
-    }
-    load()
-    if (setAppointments) {
-      // FIXME: Would probably be better to not use setInterval here
-      const timer = setInterval(() => {
-        load()
-      }, 60 * 1000)
-      return () => clearInterval(timer)
-    }
-  }, [setAppointments])
+  const { rooms } = useContext(RoomsContext)
 
   // Allow for outside click
   useEffect(() => {
@@ -604,42 +586,33 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                     {/* Project name */}
                     <ul className='px-4 space-y-1 sm:px-6 sm:py-5'>
                       {rooms.map(room => {
-                        const appointment = appointments.find(appointment => appointment.id === room)
-
-                        if (!appointment) {
-                          console.log('Could not find appointment for room: ', room)
-                          return null
-                        }
-                        const start = appointment.start
+                        const start = room.start
                           ? new Intl.DateTimeFormat('default', {
                               hour: 'numeric',
                               minute: 'numeric',
-                            }).format(new Date(appointment.start))
+                            }).format(new Date(room.start))
                           : '00:00'
 
                         return (
-                          <li key={room} className='col-span-1 bg-white rounded-lg shadow'>
+                          <li key={room.id} className='col-span-1 bg-white rounded-lg shadow'>
                             <div className='flex items-center w-full p-6 space-x-6 justify-left'>
                               <img
                                 className='flex-shrink-0 w-20 h-20 bg-gray-300 rounded-lg'
-                                src={
-                                  appointment.patient.photoUrl ||
-                                  avatarPlaceholder('patient', appointment.patient.gender)
-                                }
+                                src={room.patient.photoUrl || avatarPlaceholder('patient', room.patient.gender)}
                                 alt=''
                               />
                               <div className='flex-1 truncate'>
                                 <div className='flex items-center justify-between space-x-3'>
                                   <h3 className='text-sm font-medium leading-5 text-gray-900 truncate'>
-                                    {`${appointment.patient.givenName} ${appointment.patient.familyName}` || room}
+                                    {room.patient.givenName} {room.patient.familyName}
                                   </h3>
                                   <span className='inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-gray-100 text-gray-800'>
                                     {start}
                                   </span>
                                 </div>
                                 <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
-                                  {differenceInYears(Date.now(), new Date(appointment.patient.birthDate))} años{' | '}
-                                  {appointment.patient.gender}
+                                  {differenceInYears(Date.now(), new Date(room.patient.birthDate))} años{' | '}
+                                  {room.patient.gender}
                                 </p>
                               </div>
                             </div>
@@ -647,7 +620,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                               <div className='flex -mt-px'>
                                 <div className='flex flex-1 w-0 -ml-px'>
                                   <Link
-                                    to={`/appointments/${room}/call`}
+                                    to={`/appointments/${room.id}/call`}
                                     className='relative inline-flex items-center justify-center flex-1 w-0 py-4 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out border border-transparent rounded-br-lg cursor-pointer hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10'
                                   >
                                     {/* Heroicon name: phone */}
