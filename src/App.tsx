@@ -135,6 +135,7 @@ export const RoomsContext = createContext<{ rooms: AppointmentWithPatient[] }>({
 export const RoomsProvider: React.FC = ({ children }) => {
   const [rooms, setRooms] = useState<AppointmentWithPatient[]>([])
   const appointments = useRef<AppointmentWithPatient[]>()
+  const token = useRef<string>()
   const socket = useContext(SocketContext)
 
   useEffect(() => {
@@ -161,7 +162,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
 
     socket.on('peer not ready', (appointmentId: string) => {
       setRooms(rooms => rooms.filter(e => e.id !== appointmentId))
-      socket.emit('find patients', [appointmentId])
+      socket.emit('find patients', { rooms: [appointmentId], token: token.current })
     })
 
     return () => {
@@ -174,13 +175,13 @@ export const RoomsProvider: React.FC = ({ children }) => {
     if (!socket) return
 
     const load = async () => {
-      const res = await axios.get<AppointmentWithPatient[]>('/profile/doctor/appointments?status=open')
-      appointments.current = res.data
+      const res = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        '/profile/doctor/appointments?status=open'
+      )
+      token.current = res.data.token
+      appointments.current = res.data.appointments
       if (appointments.current?.length) {
-        socket?.emit(
-          'find patients',
-          appointments.current.map(e => e.id)
-        )
+        socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
       }
     }
 

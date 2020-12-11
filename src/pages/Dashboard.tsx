@@ -177,11 +177,11 @@ export default function Dashboard() {
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     axios
-      .get<AppointmentWithPatient[]>(
+      .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
       )
       .then(res => {
-        const events = res.data.map(event => eventDataTransform(event))
+        const events = res.data.appointments.map(event => eventDataTransform(event))
 
         const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
