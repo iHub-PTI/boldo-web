@@ -24,9 +24,11 @@ const Gate = () => {
   const id = match?.params.id
 
   const [instance, setInstance] = useState(0)
-  const [appointment, setAppointment] = useState<AppointmentWithPatient>()
+  const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
+
+  const token = appointment?.token || ''
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -51,12 +53,8 @@ const Gate = () => {
     let mounted = true
 
     const load = async () => {
-      // FIXME: This should request a JWT from the server.
-      // Only continue to start call, once issued.
-      // This token contains the role and the appointment meeting and is signed
-      // Token has to be included in any request to WebRTC Server
       try {
-        const res = await axios.get<AppointmentWithPatient>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
@@ -76,15 +74,15 @@ const Gate = () => {
 
   useEffect(() => {
     if (appointment?.status !== 'upcoming') return
+    let mounted = true
 
-    const calculate = () => {
+    const calculate = async () => {
+      if (!mounted) return
       const minutes = differenceInMinutes(parseISO(appointment.start as any), Date.now())
       if (minutes < 15) {
-        setAppointment(appointment => {
-          if (!appointment) return
-          if (appointment.status !== 'upcoming') return appointment
-          return { ...appointment, status: 'open' }
-        })
+        clearInterval(timer)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        if (mounted) setAppointment(res.data)
       } else if (minutes < 16) {
         const seconds = differenceInSeconds(parseISO(appointment.start as any), Date.now())
         setStatusText(`La sala de espera se abre en ${seconds + 1 - 60 * 15} segundos`)
@@ -96,14 +94,17 @@ const Gate = () => {
     }
     calculate()
     const timer = setInterval(() => calculate(), 1000)
-    return () => clearInterval(timer)
-  }, [appointment])
+    return () => {
+      clearInterval(timer)
+      mounted = false
+    }
+  }, [appointment, id])
 
   useEffect(() => {
     if (!socket) return
-    if (appointment?.status !== 'open') return
+    if (appointment?.status !== 'open' || !token) return
 
-    socket.emit('ready?', id)
+    socket.emit('ready?', { room: id, token })
     socket.on('ready!', (roomId: string) => {
       console.log('READY!')
       if (roomId !== id) return
@@ -113,7 +114,7 @@ const Gate = () => {
     return () => {
       socket.off('ready!')
     }
-  }, [appointment, id, socket])
+  }, [appointment, id, socket, token])
 
   useEffect(() => {
     if (!socket) return
@@ -145,12 +146,12 @@ const Gate = () => {
           setCallStatus({ connecting: false })
           setInstance(0)
           addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
-          socket?.emit('ready?', id)
+          socket?.emit('ready?', { room: id, token })
           break
         }
       }
     },
-    [addToast, id, socket]
+    [addToast, token, id, socket]
   )
 
   if (!id) return null
@@ -175,6 +176,7 @@ const Gate = () => {
         <Call
           appointment={appointment}
           id={id}
+          token={token}
           instance={instance}
           updateStatus={updateStatus}
           onCallStateChange={onCallStateChange}
@@ -189,6 +191,7 @@ export default Gate
 
 interface CallProps {
   id: string
+  token: string
   instance: number
   updateStatus: (status?: Status) => Promise<void>
   appointment: AppointmentWithPatient
@@ -196,7 +199,7 @@ interface CallProps {
   callStatus: CallStatus
 }
 
-const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, callStatus }: CallProps) => {
+const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChange, callStatus }: CallProps) => {
   const { addToast } = useToasts()
   const socket = useContext(SocketContext)
   const mediaStream = useUserMedia()
@@ -240,7 +243,7 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
   // }, [mediaStream])
 
   const hangUp = async () => {
-    socket?.emit('end call', id)
+    socket?.emit('end call', { room: id, token })
     updateStatus('closed')
     addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡Has terminado la llamada!' })
   }
@@ -255,6 +258,7 @@ const Call = ({ id, instance, updateStatus, appointment, onCallStateChange, call
         <Stream
           ref={stream}
           room={id}
+          token={token}
           instance={instance}
           mediaStream={mediaStream}
           socket={socket}

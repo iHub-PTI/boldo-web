@@ -8,6 +8,7 @@ export type CallState = 'connecting' | 'connected' | 'disconnected' | 'closed'
 
 type Props = {
   room: string
+  token: string
   instance: number
   socket: SocketIOClient.Socket | undefined
   mediaStream: MediaStream | undefined
@@ -15,7 +16,7 @@ type Props = {
 }
 
 const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref) => {
-  const { room, instance, socket, mediaStream, onCallStateChange } = props
+  const { room, token, instance, socket, mediaStream, onCallStateChange } = props
 
   const remoteVideo = useRef<HTMLVideoElement>(null)
   useImperativeHandle(ref, () => remoteVideo.current || undefined)
@@ -23,7 +24,7 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
   const { sdpStats, iceStats, setDebugValue, active } = useWebRTCDebugger(false)
 
   useEffect(() => {
-    if (!mediaStream || !room || !socket) return
+    if (!mediaStream || !room || !socket || !token) return
 
     const setMediaStream = (stream: MediaStream) => {
       if (remoteVideo.current) remoteVideo.current.srcObject = stream
@@ -34,6 +35,7 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
       setMediaStream,
       socket,
       room,
+      token,
       setDebugValue,
       onCallStateChange,
     })
@@ -41,7 +43,7 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
     return () => {
       cleanup()
     }
-  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance])
+  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance, token])
 
   return (
     <>
@@ -58,12 +60,13 @@ interface createPeerConnectionProps {
   setMediaStream: (arg: MediaStream) => void
   socket: SocketIOClient.Socket
   room: string
+  token: string
   onCallStateChange: (arg: CallState) => void
   setDebugValue: SetDebugValueFn
 }
 
 const createPeerConection = (props: createPeerConnectionProps) => {
-  const { mediaStream, setMediaStream, socket, room, onCallStateChange, setDebugValue } = props
+  const { mediaStream, setMediaStream, socket, room, token, onCallStateChange, setDebugValue } = props
 
   const config = {
     iceServers: [{ urls: 'stun:stun.stunprotocol.org' }, { urls: 'stun:stun.l.google.com:19302' }],
@@ -100,7 +103,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const onnegotiationneeded = async () => {
     try {
       await pc.setLocalDescription(await pc.createOffer())
-      socket.emit('sdp offer', { room: room, sdp: pc.localDescription })
+      socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
     } catch (err) {
       console.error(err)
     }
@@ -118,7 +121,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
 
   // Handle outgoing candidates
   const onicecandidate = ({ candidate }: RTCPeerConnectionIceEvent) => {
-    socket.emit('ice candidate', { room: room, ice: candidate })
+    socket.emit('ice candidate', { room: room, ice: candidate, token })
   }
   // Handle incoming candidates
   type CandidateMessage = { ice: RTCIceCandidate; room: string; fingerprint: string }
