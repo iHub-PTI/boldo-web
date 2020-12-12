@@ -717,7 +717,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
               <div className='flex -m-1'>
                 <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
                   <img
-                    className='flex-shrink-0 w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
+                    className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
                     src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
                     alt=''
                   />
