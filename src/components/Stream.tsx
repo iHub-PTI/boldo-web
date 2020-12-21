@@ -180,10 +180,23 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     handleConnectionState()
   }
 
+  // Set up a |signalingstatechange| event handler. This will detect when
+  // the signaling connection is closed.
+  //
+  // NOTE: This will actually move to the new RTCPeerConnectionState enum
+  // returned in the property RTCPeerConnection.connectionState when
+  // browsers catch up with the latest version of the specification!
+
+  setDebugValue({ sdpState: pc.signalingState })
+  const handleSignalingStateChangeEvent = (event: Event) => {
+    setDebugValue({ sdpState: pc.signalingState })
+  }
+
   pc.ontrack = ontrack // 1
   pc.onnegotiationneeded = onnegotiationneeded // 2
   pc.onicecandidate = onicecandidate // 3
   pc.oniceconnectionstatechange = handleICEConnectionStateChangeEvent // 4
+  pc.onsignalingstatechange = handleSignalingStateChangeEvent // 4
 
   // FIXME: Probably should handle if track gets removed.
 
@@ -195,6 +208,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     pc.onnegotiationneeded = null
     pc.onicecandidate = null
     pc.oniceconnectionstatechange = null
+    pc.onsignalingstatechange = null
 
     // FIXME: Probably should remove track in cleanup.
 
