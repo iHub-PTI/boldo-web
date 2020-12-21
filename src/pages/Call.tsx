@@ -92,8 +92,8 @@ const Gate = () => {
         setStatusText(`La sala de espera se abrirá 15 minutos antes del inicio de la cita.`)
       }
     }
-    calculate()
     const timer = setInterval(() => calculate(), 1000)
+    calculate()
     return () => {
       clearInterval(timer)
       mounted = false
