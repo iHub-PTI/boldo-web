@@ -80,7 +80,6 @@ const createPeerConection = (props: createPeerConnectionProps) => {
         username: 'coturn',
         credential: 'VHJ1cGVyMjB4MjB4Lgo',
       },
-      { urls: 'stun:stun.l.google.com:19302' },
     ],
   }
 
