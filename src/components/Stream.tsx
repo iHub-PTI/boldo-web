@@ -69,7 +69,19 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const { mediaStream, setMediaStream, socket, room, token, onCallStateChange, setDebugValue } = props
 
   const config = {
-    iceServers: [{ urls: 'stun:stun.stunprotocol.org' }, { urls: 'stun:stun.l.google.com:19302' }],
+    iceServers: [
+      {
+        urls: 'turn:coturn.pti.org.py:3478',
+        username: 'coturn',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo',
+      },
+      {
+        urls: 'stun:coturn.pti.org.py:3478',
+        username: 'coturn',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo',
+      },
+      { urls: 'stun:stun.l.google.com:19302' },
+    ],
   }
 
   const pc = new RTCPeerConnection(config)
