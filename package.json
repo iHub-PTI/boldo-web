@@ -23,6 +23,7 @@
     "axios": "^0.20.0",
     "chokidar-cli": "^2.1.0",
     "date-fns": "^2.16.1",
+    "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.1.7",
     "postcss-cli": "^8.2.0",
@@ -63,5 +64,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/lodash.debounce": "^4.0.6"
+  }
 }

@@ -7,10 +7,10 @@ const sizes = {
   md: 'sm:max-w-md',
   lg: 'sm:max-w-lg',
   xl: 'sm:max-w-xl',
-  xl2: 'sm:max-w-xl2',
-  xl3: 'sm:max-w-xl3',
-  xl4: 'sm:max-w-xl4',
-  xl5: 'sm:max-w-xl5',
+  xl2: 'sm:max-w-2xl',
+  xl3: 'sm:max-w-3xl',
+  xl4: 'sm:max-w-4xl',
+  xl5: 'sm:max-w-5xl',
   full: 'max-w-full',
 }
 
