@@ -7,15 +7,17 @@ export default function MedicationsModal({
   showEditModal,
   setShowEditModal,
   setDataCallback,
+  selectedMedicaitonsState,
 }: {
   showEditModal: boolean
   setShowEditModal: any
   setDataCallback: any
+  selectedMedicaitonsState: any
 }) {
   const [searchValue, setSeachValue] = useState<any>('')
   const [medicationItems, setMedicationsItems] = useState<any>([])
   const [medicationsLoading, setMedicationsLoading] = useState<boolean>(true)
-  const [selectedMedications, setSelectedMedications] = useState<any[]>([])
+  const [selectedMedications, setSelectedMedications] = useState<any[]>(selectedMedicaitonsState)
   const [showError, setShowError] = useState<boolean>(false)
 
   const debounce = useCallback(
@@ -29,6 +31,7 @@ export default function MedicationsModal({
   useEffect(() => {
     if (showEditModal) {
       fetchData('')
+      setSelectedMedications(selectedMedicaitonsState)
     } else {
       setSeachValue('')
       setMedicationsItems([])
@@ -57,7 +60,7 @@ export default function MedicationsModal({
   }
 
   return (
-    <Modal show={showEditModal} setShow={setShowEditModal} size='xl4'>
+    <Modal show={showEditModal} setShow={setShowEditModal} size='xl5'>
       <div className='col-span-6 mb-6 sm:col-span-3'>
         <label htmlFor='search' className='block text-sm font-medium leading-5 text-gray-700'>
           Find Medicine
@@ -109,6 +112,12 @@ export default function MedicationsModal({
                       >
                         Manufacturer
                       </th>
+                      <th
+                        scope='col'
+                        className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
+                      >
+                        Code
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -121,6 +130,7 @@ export default function MedicationsModal({
                               aria-describedby='medication-description'
                               name='medication'
                               type='checkbox'
+                              checked={selectedMedications.some(e => e.medicationId == medication.id)}
                               onClick={() => {
                                 let medicationAlreadyExists = selectedMedications.find(
                                   (e: any) => e.medicationId === medication.id
@@ -149,6 +159,9 @@ export default function MedicationsModal({
                         </td>
                         <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
                           {medication.manufacturer}
+                        </td>
+                        <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
+                          {medication.code}
                         </td>
                       </tr>
                     ))}

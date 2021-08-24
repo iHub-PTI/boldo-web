@@ -783,7 +783,7 @@ function MedicalData() {
   }, [])
   if (initialLoad)
     return (
-      <div className='flex items-center justify-center w-full h-full'>
+      <div className='flex items-center justify-center w-full h-full py-64'>
         <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
           <svg
             className='w-6 h-6 text-secondary-500 animate-spin'
@@ -912,7 +912,7 @@ function MedicalData() {
             )}
           </div>
 
-          <div className='flex w-full jusitfy-end'>
+          <div className='flex w-full mb-12 jusitfy-end'>
             <div className='mt-3 ml-auto sm:flex'>
               <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
                 <button
@@ -951,6 +951,7 @@ function MedicalData() {
       </div>
 
       <MedicationsModal
+        selectedMedicaitonsState={selectedMedication}
         showEditModal={showEditModal}
         setShowEditModal={setShowEditModal}
         setDataCallback={(elem: any) => {
