@@ -123,18 +123,21 @@ export default function MedicationsModal({
                               type='checkbox'
                               onClick={() => {
                                 let medicationAlreadyExists = selectedMedications.find(
-                                  (e: any) => e.id === medication.id
+                                  (e: any) => e.medicationId === medication.id
                                 )
                                 if (medicationAlreadyExists) {
                                   //remove medications
                                   let medicationsCopy = [...selectedMedications]
-                                  medicationsCopy = medicationsCopy.filter((e: any) => e.id != medication.id)
+                                  medicationsCopy = medicationsCopy.filter((e: any) => e.medicationId != medication.id)
 
                                   setSelectedMedications(medicationsCopy)
                                 } else {
                                   //add medication
 
-                                  setSelectedMedications([...selectedMedications, medication])
+                                  setSelectedMedications([
+                                    ...selectedMedications,
+                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' },
+                                  ])
                                 }
                               }}
                               className='w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'

@@ -753,11 +753,54 @@ function MedicalData() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
   const [diagnose, setDiagnose] = useState<string>('')
-  const [indications, setIndications] = useState<string>('')
+  const [instructions, setInstructions] = useState<string>('')
+  const [initialLoad, setInitialLoad] = useState(true)
+
+  const [success, setSuccess] = useState('')
+  const [error, setError] = useState('')
+  const [loadingSubmit, setLoadingSubmit] = useState(false)
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+
+        setDiagnose(res.data.encounter.diagnosis)
+        setInstructions(res.data.encounter.instructions)
+
+        setSelectedMedication(res.data.encounter.prescriptions)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setInitialLoad(false)
+      }
+    }
+
+    load()
+  }, [])
+  if (initialLoad)
+    return (
+      <div className='flex items-center justify-center w-full h-full'>
+        <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+          <svg
+            className='w-6 h-6 text-secondary-500 animate-spin'
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+            <path
+              className='opacity-75'
+              fill='currentColor'
+              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+            ></path>
+          </svg>
+        </div>
+      </div>
+    )
   return (
     <div className='w-full px-8 md:max-w-xl'>
       <div className='mt-6 '>
@@ -787,33 +830,34 @@ function MedicalData() {
             rows={3}
             className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
             placeholder=''
-            onChange={e => setIndications(e.target.value)}
-            value={indications}
+            onChange={e => setInstructions(e.target.value)}
+            value={instructions}
           />
         </div>
       </div>
       <div className='mt-6'>
         <p className='block text-sm font-medium leading-5 text-gray-700'>Medicine</p>
         <div className='h-px mt-2 mb-4 bg-gray-200'></div>
-        {selectedMedication.map((e: any) => (
-          <MedicineItem
-            medicine={e}
-            deleteMedicineCallback={() => {
-              const selectedMedicationsCopy: any[] = [...selectedMedication]
-              const filteredItems = selectedMedicationsCopy.filter(el => el.id != e.id)
+        {selectedMedication &&
+          selectedMedication.map((e: any) => (
+            <MedicineItem
+              medicine={e}
+              deleteMedicineCallback={() => {
+                const selectedMedicationsCopy: any[] = [...selectedMedication]
+                const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
 
-              setSelectedMedication(filteredItems)
-            }}
-            changeDescriptionCallback={(indications: String) => {
-              const selectedMedicationsCopy: any[] = [...selectedMedication]
-              const myElemIndex = selectedMedicationsCopy.findIndex(el => el.id == e.id)
-              if (myElemIndex != -1) {
-                selectedMedicationsCopy[myElemIndex].indications = indications
-                setSelectedMedication(selectedMedicationsCopy)
-              }
-            }}
-          />
-        ))}
+                setSelectedMedication(filteredItems)
+              }}
+              changeDescriptionCallback={(instructions: String) => {
+                const selectedMedicationsCopy: any[] = [...selectedMedication]
+                const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
+                if (myElemIndex != -1) {
+                  selectedMedicationsCopy[myElemIndex].instructions = instructions
+                  setSelectedMedication(selectedMedicationsCopy)
+                }
+              }}
+            />
+          ))}
         <button
           onClick={() => {
             setShowEditModal(true)
@@ -836,27 +880,68 @@ function MedicalData() {
           onSubmit={async e => {
             e.preventDefault()
             try {
-              const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
+              setSuccess('')
+              setError('')
+              setLoadingSubmit(true)
+              await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
                 encounterData: {
                   diagnosis: diagnose,
-                  instructions: indications,
-                  prescriptions: selectedMedication.map(e => {
-                    return { instructions: e.indications, medicationId: e.id }
-                  }),
+                  instructions: instructions,
+                  prescriptions: selectedMedication,
                 },
               })
+              setSuccess('The medical data was set successfully.')
             } catch (err) {
+              setError('An error has occured. Please try again later.')
               console.log(err)
+            } finally {
+              setLoadingSubmit(false)
             }
           }}
         >
+          <div className='mt-3'>
+            {success && (
+              <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
+                The medical data was set successfully.
+              </span>
+            )}
+            {error && (
+              <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
+                An error has occured. Please try again later.
+              </span>
+            )}
+          </div>
+
           <div className='flex w-full jusitfy-end'>
-            <div className='mt-6 ml-auto sm:flex'>
+            <div className='mt-3 ml-auto sm:flex'>
               <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
                 <button
+                  disabled={loadingSubmit}
                   type='submit'
                   className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
                 >
+                  {loadingSubmit && (
+                    <svg
+                      className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                    >
+                      <circle
+                        className='opacity-25'
+                        cx='12'
+                        cy='12'
+                        r='10'
+                        stroke='currentColor'
+                        strokeWidth='4'
+                      ></circle>
+                      <path
+                        className='opacity-75'
+                        fill='currentColor'
+                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                      ></path>
+                    </svg>
+                  )}
                   Set Medical Data
                 </button>
               </span>
@@ -872,7 +957,7 @@ function MedicalData() {
           const itemsToAdd: any[] = []
           const selectedMedicationsCopy: any[] = [...selectedMedication]
           for (let el in elem) {
-            const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].id == e.id)
+            const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
 
             if (myElemIndex == -1) {
               itemsToAdd.push(elem[el])

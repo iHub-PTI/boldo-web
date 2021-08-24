@@ -12,20 +12,20 @@ export default function MedicineItem({
   return (
     <div className='flex justify-center w-full mt-3 mb-4'>
       <div className='flex flex-col w-full'>
-        <p className='block text-xs font-medium leading-5 text-gray-700'>{medicine.name}</p>
+        <p className='block text-xs font-medium leading-5 text-gray-700'>{medicine.medicationName}</p>
         <div className='w-full mt-1'>
-          <label htmlFor={`Indicationes${medicine.id}}`} className='block text-xs leading-5 text-gray-600'>
+          <label htmlFor={`Indicationes${medicine.medicationId}}`} className='block text-xs leading-5 text-gray-600'>
             Indicationes
           </label>
 
           <div className='w-full rounded-md shadow-sm'>
             <textarea
-              id={`Indicationes${medicine.id}}`}
+              id={`Indicationes${medicine.medicationId}}`}
               rows={2}
               className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-xs sm:leading-5'
               placeholder=''
               onChange={e => changeDescriptionCallback(e.target.value)}
-              value={medicine.indications ? medicine.indications : ''}
+              value={medicine.instructions ? medicine.instructions : ''}
             />
           </div>
         </div>
