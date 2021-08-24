@@ -3,10 +3,11 @@ import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
 import { Transition } from '@headlessui/react'
 import axios from 'axios'
-
+import MedicationsModal from '../components/MedicationsModal'
 import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
 import DateFormatted from '../components/DateFormatted'
+import MedicineItem from '../components/MedicineItem'
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import { avatarPlaceholder } from '../util/helpers'
@@ -168,7 +169,7 @@ const Gate = () => {
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
-          <div className='md:max-w-xl'>
+          <div className='w-full md:max-w-xl'>
             <Sidebar appointment={appointment} />
           </div>
         </div>
@@ -667,12 +668,21 @@ const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerPr
   )
 }
 
+const tabs = [
+  { name: 'Patient Profile', href: '#', current: false },
+  { name: 'Medical Data', href: '#', current: false },
+  { name: 'Team Members', href: '#', current: true },
+  { name: 'Billing', href: '#', current: false },
+]
+
 interface SidebarProps {
   hideSidebar?: () => void
   appointment: AppointmentWithPatient
 }
 
 const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
+  const [selectedTab, setSelectedTab] = useState(0)
+
   const birthDate = useMemo(() => {
     return new Intl.DateTimeFormat('default', {
       // weekday: 'long',
@@ -690,7 +700,27 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
       <header className='px-4 py-6 sm:px-6'>
         <div className='flex items-start justify-between space-x-3'>
-          <h2 className='text-lg font-medium leading-7 text-gray-900'>Perfil</h2>
+          <nav className='flex space-x-4' aria-label='Tabs'>
+            <button
+              className={`${selectedTab == 0 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
+                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
+              onClick={() => {
+                setSelectedTab(0)
+              }}
+            >
+              Patient Profile
+            </button>
+            <button
+              className={`${selectedTab == 1 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
+                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
+              onClick={() => {
+                setSelectedTab(1)
+              }}
+            >
+              Medical Data
+            </button>
+          </nav>
+
           {hideSidebar && (
             <div className='flex items-center h-7'>
               <button
@@ -713,32 +743,263 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
         </div>
       </header>
       {/* Main */}
-      <div className='divide-y divide-gray-200'>
-        <div className='pb-6'>
-          <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
-          <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
-            <div>
-              <div className='flex -m-1'>
-                <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
-                  <img
-                    className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
-                    src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
-                    alt=''
-                  />
-                </div>
+      {selectedTab === 0 && <PationProfile appointment={appointment} age={age} birthDate={birthDate} />}
+      {selectedTab === 1 && <MedicalData />}
+    </div>
+  )
+}
+
+function MedicalData() {
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+  const [diagnose, setDiagnose] = useState<string>('')
+  const [instructions, setInstructions] = useState<string>('')
+  const [initialLoad, setInitialLoad] = useState(true)
+
+  const [success, setSuccess] = useState('')
+  const [error, setError] = useState('')
+  const [loadingSubmit, setLoadingSubmit] = useState(false)
+
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
+  const id = match?.params.id
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+
+        setDiagnose(res.data.encounter.diagnosis)
+        setInstructions(res.data.encounter.instructions)
+
+        setSelectedMedication(res.data.encounter.prescriptions)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setInitialLoad(false)
+      }
+    }
+
+    load()
+  }, [])
+  if (initialLoad)
+    return (
+      <div className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+          <svg
+            className='w-6 h-6 text-secondary-500 animate-spin'
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+            <path
+              className='opacity-75'
+              fill='currentColor'
+              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+            ></path>
+          </svg>
+        </div>
+      </div>
+    )
+  return (
+    <div className='w-full px-8 md:max-w-xl'>
+      <div className='mt-6 '>
+        <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
+          Diagnostico
+        </label>
+
+        <div className='rounded-md shadow-sm'>
+          <textarea
+            id='Diagnostico'
+            rows={3}
+            className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+            placeholder=''
+            onChange={e => setDiagnose(e.target.value)}
+            value={diagnose}
+          />
+        </div>
+      </div>
+      <div className='mt-6'>
+        <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
+          Indicationes
+        </label>
+
+        <div className='rounded-md shadow-sm'>
+          <textarea
+            id='Indicationes'
+            rows={3}
+            className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+            placeholder=''
+            onChange={e => setInstructions(e.target.value)}
+            value={instructions}
+          />
+        </div>
+      </div>
+      <div className='mt-6'>
+        <p className='block text-sm font-medium leading-5 text-gray-700'>Medicine</p>
+        <div className='h-px mt-2 mb-4 bg-gray-200'></div>
+        {selectedMedication &&
+          selectedMedication.map((e: any) => (
+            <MedicineItem
+              medicine={e}
+              deleteMedicineCallback={() => {
+                const selectedMedicationsCopy: any[] = [...selectedMedication]
+                const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
+
+                setSelectedMedication(filteredItems)
+              }}
+              changeDescriptionCallback={(instructions: String) => {
+                const selectedMedicationsCopy: any[] = [...selectedMedication]
+                const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
+                if (myElemIndex != -1) {
+                  selectedMedicationsCopy[myElemIndex].instructions = instructions
+                  setSelectedMedication(selectedMedicationsCopy)
+                }
+              }}
+            />
+          ))}
+        <button
+          onClick={() => {
+            setShowEditModal(true)
+          }}
+          type='button'
+          className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
+        >
+          <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              fillRule='evenodd'
+              clipRule='evenodd'
+              d='M16 9C16.5523 9 17 9.44772 17 10V15H22C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17H17V22C17 22.5523 16.5523 23 16 23C15.4477 23 15 22.5523 15 22V17H10C9.44772 17 9 16.5523 9 16C9 15.4477 9.44772 15 10 15L15 15V10C15 9.44772 15.4477 9 16 9Z'
+              fill='#9CA3AF'
+            />
+            <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
+          </svg>
+          <span className='ml-4 text-indigo-600'>Add Medicine</span>
+        </button>
+        <form
+          onSubmit={async e => {
+            e.preventDefault()
+            try {
+              setSuccess('')
+              setError('')
+              setLoadingSubmit(true)
+              await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
+                encounterData: {
+                  diagnosis: diagnose,
+                  instructions: instructions,
+                  prescriptions: selectedMedication,
+                },
+              })
+              setSuccess('The medical data was set successfully.')
+            } catch (err) {
+              setError('An error has occured. Please try again later.')
+              console.log(err)
+            } finally {
+              setLoadingSubmit(false)
+            }
+          }}
+        >
+          <div className='mt-3'>
+            {success && (
+              <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
+                The medical data was set successfully.
+              </span>
+            )}
+            {error && (
+              <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
+                An error has occured. Please try again later.
+              </span>
+            )}
+          </div>
+
+          <div className='flex w-full mb-12 jusitfy-end'>
+            <div className='mt-3 ml-auto sm:flex'>
+              <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
+                <button
+                  disabled={loadingSubmit}
+                  type='submit'
+                  className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
+                >
+                  {loadingSubmit && (
+                    <svg
+                      className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                    >
+                      <circle
+                        className='opacity-25'
+                        cx='12'
+                        cy='12'
+                        r='10'
+                        stroke='currentColor'
+                        strokeWidth='4'
+                      ></circle>
+                      <path
+                        className='opacity-75'
+                        fill='currentColor'
+                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                      ></path>
+                    </svg>
+                  )}
+                  Set Medical Data
+                </button>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <MedicationsModal
+        selectedMedicaitonsState={selectedMedication}
+        showEditModal={showEditModal}
+        setShowEditModal={setShowEditModal}
+        setDataCallback={(elem: any) => {
+          const itemsToAdd: any[] = []
+          const selectedMedicationsCopy: any[] = [...selectedMedication]
+          for (let el in elem) {
+            const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
+
+            if (myElemIndex == -1) {
+              itemsToAdd.push(elem[el])
+            }
+          }
+          setSelectedMedication([...selectedMedication, ...itemsToAdd])
+          setShowEditModal(false)
+        }}
+      />
+    </div>
+  )
+}
+
+function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+  return (
+    <div className='divide-y divide-gray-200'>
+      <div className='pb-6'>
+        <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
+        <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
+          <div>
+            <div className='flex -m-1'>
+              <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
+                <img
+                  className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
+                  src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
+                  alt=''
+                />
               </div>
             </div>
-            <div className='space-y-5 sm:flex-1'>
-              <div>
-                <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
-                  {appointment.patient.givenName} {appointment.patient.familyName}
-                </h3>
+          </div>
+          <div className='space-y-5 sm:flex-1'>
+            <div>
+              <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
+                {appointment.patient.givenName} {appointment.patient.familyName}
+              </h3>
 
-                <p className='text-sm leading-5 text-gray-500'>
-                  <DateFormatted start={appointment.start} end={appointment.end} />
-                </p>
-              </div>
-              {/* <div className='flex flex-wrap'>
+              <p className='text-sm leading-5 text-gray-500'>
+                <DateFormatted start={appointment.start} end={appointment.end} />
+              </p>
+            </div>
+            {/* <div className='flex flex-wrap'>
                 <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
                   <button
                     type='button'
@@ -748,54 +1009,51 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
                   </button>
                 </span>
               </div> */}
-            </div>
           </div>
         </div>
-        <div className='px-4 py-5 sm:px-0 sm:py-0'>
-          <dl className='space-y-8 sm:space-y-0'>
-            <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {age}
-                <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
-                  ({birthDate})
-                </time>
-              </dd>
-            </div>
-            <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.city || '-'}
-              </dd>
-            </div>
-            <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
-                Profesión
-              </dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.job || '-'}
-              </dd>
-            </div>
-            <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {lookupGender(appointment.patient.gender) || '-'}
-              </dd>
-            </div>
-            <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.phone || '-'}
-              </dd>
-            </div>
-            <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-              <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
-              <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                {appointment.patient.email || '-'}
-              </dd>
-            </div>
-          </dl>
-        </div>
+      </div>
+      <div className='px-4 py-5 sm:px-0 sm:py-0'>
+        <dl className='space-y-8 sm:space-y-0'>
+          <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {age}
+              <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
+                ({birthDate})
+              </time>
+            </dd>
+          </div>
+          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {appointment.patient.city || '-'}
+            </dd>
+          </div>
+          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {appointment.patient.job || '-'}
+            </dd>
+          </div>
+          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {lookupGender(appointment.patient.gender) || '-'}
+            </dd>
+          </div>
+          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {appointment.patient.phone || '-'}
+            </dd>
+          </div>
+          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
+            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+              {appointment.patient.email || '-'}
+            </dd>
+          </div>
+        </dl>
       </div>
     </div>
   )
