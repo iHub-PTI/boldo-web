@@ -11,7 +11,18 @@ import MedicineItem from '../components/MedicineItem'
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import { avatarPlaceholder } from '../util/helpers'
-
+import { Grid } from '@material-ui/core'
+import MdAdd from '@material-ui/icons/MoreVert';
+import MdClose from '@material-ui/icons/Clear';
+import PersonIcon from '@material-ui/icons/Person';
+import { ReactComponent as SoepIcon } from '../util/soep.svg'
+import { ReactComponent as PillIcon } from '../util/pill.svg'
+import {
+  MainButton,
+  ChildButton,
+  FloatingMenu,
+  Directions,
+} from 'react-floating-button-menu';
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -28,9 +39,10 @@ const Gate = () => {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
-
+  const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
 
+ 
   const updateStatus = useCallback(
     async (status?: Status) => {
       setInstance(0)
@@ -163,14 +175,80 @@ const Gate = () => {
         <div className='h-1 fakeload-15 bg-primary-500' />
       </Layout>
     )
-
+    const controlSideBarState = () => {
+      switch (sideBarAction) {
+        case 0:
+         return <Sidebar appointment={appointment}/>
+    
+        case 1:
+          return <MedicalData/>
+        default:
+          return <Sidebar appointment={appointment}/>
+      }
+    };
+    const TogleMenu = () => {
+ 
+      const [isOpen, setIsOpen] = useState(false);
+      return (
+          <div>
+            <FloatingMenu
+              slideSpeed={500}
+              isOpen={isOpen}
+              spacing={8}
+              direction={Directions.Up}
+            >
+              <MainButton
+                isOpen={isOpen}
+                iconResting={<MdAdd style={{ fontSize: 20,color:'white' }} />}
+                iconActive={<MdClose style={{ fontSize: 20,color:'white' }} />}
+                background="gray"
+                onClick={() => {
+                  setIsOpen((prev) => !prev);
+                }}
+                size={50}
+              />
+              <ChildButton
+                icon={<PillIcon style={{ fontSize: 20,color:'white' }} />}
+               background="gray"
+                size={50}
+                onClick={() => setSideBarAction(1)}
+              />
+              <ChildButton
+                icon={<SoepIcon  />}
+               background="gray"
+                size={50}
+                onClick={() => setSideBarAction(1)}
+              />
+              <ChildButton
+                icon={<PersonIcon style={{ fontSize: 20,color:'white' }} />}
+               background="gray"
+                size={50}
+                onClick={() => setSideBarAction(0)}
+              />
+            </FloatingMenu>
+          </div>
+        );
+    }
   return (
+
     <Layout>
+         <Grid
+        style={{
+          position: 'fixed',
+          bottom: '0',
+          right:'40%'
+        }}
+      >
+        <Grid style={{marginBottom:'20px'}}>
+        <TogleMenu/>
+        </Grid>
+      </Grid>
+      
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
           <div className='w-full md:max-w-xl'>
-            <Sidebar appointment={appointment} />
+          {controlSideBarState()}
           </div>
         </div>
       ) : (
@@ -668,12 +746,12 @@ const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerPr
   )
 }
 
-const tabs = [
-  { name: 'Patient Profile', href: '#', current: false },
-  { name: 'Medical Data', href: '#', current: false },
-  { name: 'Team Members', href: '#', current: true },
-  { name: 'Billing', href: '#', current: false },
-]
+// const tabs = [
+//   { name: 'Patient Profile', href: '#', current: false },
+//   { name: 'Medical Data', href: '#', current: false },
+//   { name: 'Team Members', href: '#', current: true },
+//   { name: 'Billing', href: '#', current: false },
+// ]
 
 interface SidebarProps {
   hideSidebar?: () => void
@@ -681,7 +759,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
-  const [selectedTab, setSelectedTab] = useState(0)
+  // const [selectedTab, setSelectedTab] = useState(0)
 
   const birthDate = useMemo(() => {
     return new Intl.DateTimeFormat('default', {
@@ -698,53 +776,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <header className='px-4 py-6 sm:px-6'>
-        <div className='flex items-start justify-between space-x-3'>
-          <nav className='flex space-x-4' aria-label='Tabs'>
-            <button
-              className={`${selectedTab == 0 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
-                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
-              onClick={() => {
-                setSelectedTab(0)
-              }}
-            >
-              Patient Profile
-            </button>
-            <button
-              className={`${selectedTab == 1 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
-                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
-              onClick={() => {
-                setSelectedTab(1)
-              }}
-            >
-              Medical Data
-            </button>
-          </nav>
-
-          {hideSidebar && (
-            <div className='flex items-center h-7'>
-              <button
-                aria-label='Cerrar panel'
-                onClick={() => hideSidebar()}
-                className='text-gray-400 transition duration-150 ease-in-out hover:text-gray-500'
-              >
-                <svg
-                  className='w-6 h-6'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
-      {/* Main */}
-      {selectedTab === 0 && <PationProfile appointment={appointment} age={age} birthDate={birthDate} />}
-      {selectedTab === 1 && <MedicalData />}
+      <PationProfile appointment={appointment} age={age} birthDate={birthDate} />
     </div>
   )
 }
@@ -821,7 +853,7 @@ function MedicalData() {
       </div>
       <div className='mt-6'>
         <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
-          Indicationes
+          Indicaciones
         </label>
 
         <div className='rounded-md shadow-sm'>
