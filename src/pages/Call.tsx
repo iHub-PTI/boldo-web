@@ -1,17 +1,16 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-import { Transition } from '@headlessui/react'
+// import { Transition } from '@headlessui/react'
 import axios from 'axios'
 import MedicationsModal from '../components/MedicationsModal'
 import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
-import DateFormatted from '../components/DateFormatted'
+// import DateFormatted from '../components/DateFormatted'
 import MedicineItem from '../components/MedicineItem'
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
-import { avatarPlaceholder } from '../util/helpers'
-import { Grid } from '@material-ui/core'
+// import { avatarPlaceholder } from '../util/helpers'
 import MdAdd from '@material-ui/icons/MoreVert';
 import MdClose from '@material-ui/icons/Clear';
 import PersonIcon from '@material-ui/icons/Person';
@@ -23,6 +22,13 @@ import {
   FloatingMenu,
   Directions,
 } from 'react-floating-button-menu';
+import {
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  CardHeader,
+} from '@material-ui/core';
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -201,7 +207,7 @@ const Gate = () => {
                 isOpen={isOpen}
                 iconResting={<MdAdd style={{ fontSize: 20,color:'white' }} />}
                 iconActive={<MdClose style={{ fontSize: 20,color:'white' }} />}
-                background="gray"
+                background="#323030"
                 onClick={() => {
                   setIsOpen((prev) => !prev);
                 }}
@@ -209,19 +215,19 @@ const Gate = () => {
               />
               <ChildButton
                 icon={<PillIcon style={{ fontSize: 20,color:'white' }} />}
-               background="gray"
+               background="#323030"
                 size={50}
                 onClick={() => setSideBarAction(1)}
               />
               <ChildButton
                 icon={<SoepIcon  />}
-               background="gray"
+               background="#323030"
                 size={50}
                 onClick={() => setSideBarAction(1)}
               />
               <ChildButton
                 icon={<PersonIcon style={{ fontSize: 20,color:'white' }} />}
-               background="gray"
+               background="#323030"
                 size={50}
                 onClick={() => setSideBarAction(0)}
               />
@@ -236,7 +242,7 @@ const Gate = () => {
         style={{
           position: 'fixed',
           bottom: '0',
-          right:'40%'
+          right:'25%'
         }}
       >
         <Grid style={{marginBottom:'20px'}}>
@@ -247,9 +253,9 @@ const Gate = () => {
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
-          <div className='w-full md:max-w-xl'>
+          <Card className='w-3/12' >
           {controlSideBarState()}
-          </div>
+          </Card>
         </div>
       ) : (
         <Call
@@ -706,43 +712,45 @@ const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerPr
   }, [show, hideSidebar])
 
   return (
-    <>
-      <Transition show={show}>
-        <div className='fixed inset-0 overflow-hidden 2xl:hidden'>
-          <div className='absolute inset-0 overflow-hidden'>
-            <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 mt-16 sm:pl-16 lg:mt-0'>
-              {/* Slide-over panel, show/hide based on slide-over state. */}
-              <Transition.Child
-                enter='transform transition ease-in-out duration-500 sm:duration-700'
-                enterFrom='translate-x-full'
-                enterTo='translate-x-0'
-                leave='transform transition ease-in-out duration-500 sm:duration-700'
-                leaveFrom='translate-x-0'
-                leaveTo='translate-x-full'
-                className='w-screen max-w-xl'
-              >
-                <div ref={container} className='h-full'>
-                  <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
-                </div>
-              </Transition.Child>
-            </section>
-          </div>
-        </div>
-      </Transition>
+    <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    // <>
+    //   <Transition show={show}>
+    //     <div className='fixed inset-0 overflow-hidden 2xl:hidden'>
+    //       <div className='absolute inset-0 overflow-hidden'>
+    //         <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 mt-16 sm:pl-16 lg:mt-0'>
+    //           {/* Slide-over panel, show/hide based on slide-over state. */}
+    //           <Transition.Child
+    //             enter='transform transition ease-in-out duration-500 sm:duration-700'
+    //             enterFrom='translate-x-full'
+    //             enterTo='translate-x-0'
+    //             leave='transform transition ease-in-out duration-500 sm:duration-700'
+    //             leaveFrom='translate-x-0'
+    //             leaveTo='translate-x-full'
+    //             className='w-screen max-w-xl'
+    //           >
+    //             {/* <div ref={container} className='h-full'> */}
+    //               <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    //             {/* </div> */}
+    //           </Transition.Child>
+    //         </section>
+    //       </div>
+    //     </div>
+    //   </Transition>
 
-      <Transition
-        show={show}
-        enter='transform transition ease-in-out duration-500 sm:duration-700'
-        enterFrom='translate-x-full'
-        enterTo='translate-x-0'
-        leave='transform transition ease-in-out duration-500 sm:duration-700'
-        leaveFrom='translate-x-0'
-        leaveTo='translate-x-full'
-        className='hidden w-screen max-w-xl 2xl:block'
-      >
-        <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
-      </Transition>
-    </>
+    //   <Transition
+    //     show={show}
+    //     enter='transform transition ease-in-out duration-500 sm:duration-700'
+    //     enterFrom='translate-x-full'
+    //     enterTo='translate-x-0'
+    //     leave='transform transition ease-in-out duration-500 sm:duration-700'
+    //     leaveFrom='translate-x-0'
+    //     leaveTo='translate-x-full'
+    //     className='hidden w-screen max-w-xl 2xl:block'
+    //   >
+    //     <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    //   </Transition>
+    // </>
+  
   )
 }
 
@@ -775,9 +783,9 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   }, [appointment.patient.birthDate])
 
   return (
-    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+    // <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
       <PationProfile appointment={appointment} age={age} birthDate={birthDate} />
-    </div>
+    // </div>
   )
 }
 
@@ -1004,91 +1012,155 @@ function MedicalData() {
   )
 }
 
+// function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+//   return (
+//     <div className='divide-y divide-gray-200'>
+//       <div className='pb-6'>
+//         <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
+//         <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
+//           <div>
+//             <div className='flex -m-1'>
+//               <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
+//                 <img
+//                   className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
+//                   src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
+//                   alt=''
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//           <div className='space-y-5 sm:flex-1'>
+//             <div>
+//               <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
+//                 {appointment.patient.givenName} {appointment.patient.familyName}
+//               </h3>
+
+//               <p className='text-sm leading-5 text-gray-500'>
+//                 <DateFormatted start={appointment.start} end={appointment.end} />
+//               </p>
+//             </div>
+//             {/* <div className='flex flex-wrap'>
+//                 <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
+//                   <button
+//                     type='button'
+//                     className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+//                   >
+//                     Add Prescription
+//                   </button>
+//                 </span>
+//               </div> */}
+//           </div>
+//         </div>
+//       </div>
+//       <div className='px-4 py-5 sm:px-0 sm:py-0'>
+//         <dl className='space-y-8 sm:space-y-0'>
+//           <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {age}
+//               <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
+//                 ({birthDate})
+//               </time>
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.city || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.job || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {lookupGender(appointment.patient.gender) || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.phone || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.email || '-'}
+//             </dd>
+//           </div>
+//         </dl>
+//       </div>
+//     </div>
+//   )
+// }
+
+
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <div className='divide-y divide-gray-200'>
-      <div className='pb-6'>
-        <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
-        <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
-          <div>
-            <div className='flex -m-1'>
-              <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
-                <img
-                  className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
-                  src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
-                  alt=''
-                />
-              </div>
-            </div>
-          </div>
-          <div className='space-y-5 sm:flex-1'>
-            <div>
-              <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
-                {appointment.patient.givenName} {appointment.patient.familyName}
-              </h3>
+    <Grid >
+      <CardHeader title="Paciente"  titleTypographyProps={{variant:'h6'}}  style={{backgroundColor:'#27BEC2',color:'white'}} />
+      
+      <CardContent>
+        <Grid style={{paddingTop:'15px'}}>
 
-              <p className='text-sm leading-5 text-gray-500'>
-                <DateFormatted start={appointment.start} end={appointment.end} />
-              </p>
-            </div>
-            {/* <div className='flex flex-wrap'>
-                <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
-                  <button
-                    type='button'
-                    className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
-                  >
-                    Add Prescription
-                  </button>
-                </span>
-              </div> */}
-          </div>
-        </div>
-      </div>
-      <div className='px-4 py-5 sm:px-0 sm:py-0'>
-        <dl className='space-y-8 sm:space-y-0'>
-          <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {age}
-              <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
-                ({birthDate})
-              </time>
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.city || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.job || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {lookupGender(appointment.patient.gender) || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.phone || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.email || '-'}
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-  )
+          <Grid>
+            <Typography variant="h6" color="textPrimary">
+            {appointment.patient.givenName} {appointment.patient.familyName}
+            </Typography>
+            {/* <Typography variant="subtitle2" color="textSecondary">
+            <DateFormatted start={appointment.start} end={appointment.end} />
+            </Typography> */}
+            <Typography variant="subtitle1" color="textSecondary">
+              Ci:121212
+            </Typography>
+            
+          </Grid>
+
+          <Grid style={{paddingTop:'15px'}} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Edad
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+            {age} ({birthDate})
+            </Typography>
+          </Grid>
+
+          <Grid style={{paddingTop:'15px'}} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Profesión
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+            {appointment.patient.job || '-'}
+            </Typography>
+          </Grid>
+
+          <Grid style={{paddingTop:'15px'}} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Telefono
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+            {appointment.patient.phone || '-'}
+            </Typography>
+          </Grid>
+
+          <Grid style={{paddingTop:'15px'}} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Ciudad
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+            {appointment.patient.city || '-'}
+            </Typography>
+          </Grid>
+          
+        </Grid>
+      </CardContent>
+    </Grid>
+  );
 }
 
 interface CallStatusMessageProps {
