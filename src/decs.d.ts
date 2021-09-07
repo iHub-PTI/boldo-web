@@ -27,6 +27,7 @@ export interface Doctor {
 
 export interface Patient {
   id: string
+  identifier?:string
   photoUrl?: string
   givenName: string
   familyName: string
