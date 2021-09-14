@@ -1238,7 +1238,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabHeight: {
     '& .MuiTab-root': {
-      minHeight: '38px',
+      minHeight: '20px',
       textTransform: 'none'
     },
   },
@@ -1290,7 +1290,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             <DateFormatted start={appointment.start} end={appointment.end} />
             </Typography> */}
             <Typography variant="subtitle1" color="textSecondary">
-              Ci:121212
+              Ci: {appointment.patient.identifier}
             </Typography>
 
           </Grid>
