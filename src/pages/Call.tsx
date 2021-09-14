@@ -1,17 +1,49 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, {  useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-import { Transition } from '@headlessui/react'
+// import { Transition } from '@headlessui/react'
 import axios from 'axios'
 import MedicationsModal from '../components/MedicationsModal'
 import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
-import DateFormatted from '../components/DateFormatted'
+// import DateFormatted from '../components/DateFormatted'
 import MedicineItem from '../components/MedicineItem'
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
-import { avatarPlaceholder } from '../util/helpers'
+import MdAdd from '@material-ui/icons/MoreVert';
+import MdClose from '@material-ui/icons/Clear';
+import PersonIcon from '@material-ui/icons/Person';
+import { ReactComponent as SoepIcon } from '../assets/soep.svg'
+import { ReactComponent as PillIcon } from '../assets/pill.svg'
+import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
+import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
+import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
+import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
+import PropTypes from 'prop-types';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Tooltip from '@material-ui/core/Tooltip';
 
+import {
+  MainButton,
+  ChildButton,
+  FloatingMenu,
+  Directions,
+} from 'react-floating-button-menu';
+import {
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  CardHeader,
+  Tab,
+  Tabs,
+  TextField,
+  makeStyles,
+  withStyles
+} from '@material-ui/core';
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -28,9 +60,10 @@ const Gate = () => {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
-
+  const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
 
+ 
   const updateStatus = useCallback(
     async (status?: Status) => {
       setInstance(0)
@@ -163,15 +196,85 @@ const Gate = () => {
         <div className='h-1 fakeload-15 bg-primary-500' />
       </Layout>
     )
+  const controlSideBarState = () => {
+    switch (sideBarAction) {
+      case 0:
+        return <Sidebar appointment={appointment} />
 
+      case 1:
+        return <SOEP appointment={appointment} />
+
+      case 2:
+        return <MedicalData />
+
+      default:
+        return <Sidebar appointment={appointment} />
+    }
+  };
+  const TogleMenu = () => {
+
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <div>
+        <FloatingMenu
+          slideSpeed={500}
+          isOpen={isOpen}
+          spacing={8}
+          direction={Directions.Up}
+        >
+          <MainButton
+            isOpen={isOpen}
+            iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
+            iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            onClick={() => {
+              setIsOpen((prev) => !prev);
+            }}
+            size={50}
+          />
+          <ChildButton
+            icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(2)}
+          />
+          <ChildButton
+            icon={<SoepIcon />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(1)}
+          />
+          <ChildButton
+            icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(0)}
+          />
+        </FloatingMenu>
+      </div>
+    );
+  }
   return (
+
     <Layout>
+      <Grid
+        style={{
+          position: 'fixed',
+          bottom: '0',
+          right: '25%'
+        }}
+      >
+        <Grid style={{ marginBottom: '20px' }}>
+          <TogleMenu />
+        </Grid>
+      </Grid>
+
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
-          <div className='w-full md:max-w-xl'>
-            <Sidebar appointment={appointment} />
-          </div>
+          <Card className='w-3/12' >
+            {controlSideBarState()}
+          </Card>
         </div>
       ) : (
         <Call
@@ -628,52 +731,54 @@ const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerPr
   }, [show, hideSidebar])
 
   return (
-    <>
-      <Transition show={show}>
-        <div className='fixed inset-0 overflow-hidden 2xl:hidden'>
-          <div className='absolute inset-0 overflow-hidden'>
-            <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 mt-16 sm:pl-16 lg:mt-0'>
-              {/* Slide-over panel, show/hide based on slide-over state. */}
-              <Transition.Child
-                enter='transform transition ease-in-out duration-500 sm:duration-700'
-                enterFrom='translate-x-full'
-                enterTo='translate-x-0'
-                leave='transform transition ease-in-out duration-500 sm:duration-700'
-                leaveFrom='translate-x-0'
-                leaveTo='translate-x-full'
-                className='w-screen max-w-xl'
-              >
-                <div ref={container} className='h-full'>
-                  <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
-                </div>
-              </Transition.Child>
-            </section>
-          </div>
-        </div>
-      </Transition>
+    <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    // <>
+    //   <Transition show={show}>
+    //     <div className='fixed inset-0 overflow-hidden 2xl:hidden'>
+    //       <div className='absolute inset-0 overflow-hidden'>
+    //         <section className='absolute inset-y-0 right-0 flex max-w-full pl-10 mt-16 sm:pl-16 lg:mt-0'>
+    //           {/* Slide-over panel, show/hide based on slide-over state. */}
+    //           <Transition.Child
+    //             enter='transform transition ease-in-out duration-500 sm:duration-700'
+    //             enterFrom='translate-x-full'
+    //             enterTo='translate-x-0'
+    //             leave='transform transition ease-in-out duration-500 sm:duration-700'
+    //             leaveFrom='translate-x-0'
+    //             leaveTo='translate-x-full'
+    //             className='w-screen max-w-xl'
+    //           >
+    //             {/* <div ref={container} className='h-full'> */}
+    //               <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    //             {/* </div> */}
+    //           </Transition.Child>
+    //         </section>
+    //       </div>
+    //     </div>
+    //   </Transition>
 
-      <Transition
-        show={show}
-        enter='transform transition ease-in-out duration-500 sm:duration-700'
-        enterFrom='translate-x-full'
-        enterTo='translate-x-0'
-        leave='transform transition ease-in-out duration-500 sm:duration-700'
-        leaveFrom='translate-x-0'
-        leaveTo='translate-x-full'
-        className='hidden w-screen max-w-xl 2xl:block'
-      >
-        <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
-      </Transition>
-    </>
+    //   <Transition
+    //     show={show}
+    //     enter='transform transition ease-in-out duration-500 sm:duration-700'
+    //     enterFrom='translate-x-full'
+    //     enterTo='translate-x-0'
+    //     leave='transform transition ease-in-out duration-500 sm:duration-700'
+    //     leaveFrom='translate-x-0'
+    //     leaveTo='translate-x-full'
+    //     className='hidden w-screen max-w-xl 2xl:block'
+    //   >
+    //     <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    //   </Transition>
+    // </>
+  
   )
 }
 
-const tabs = [
-  { name: 'Patient Profile', href: '#', current: false },
-  { name: 'Medical Data', href: '#', current: false },
-  { name: 'Team Members', href: '#', current: true },
-  { name: 'Billing', href: '#', current: false },
-]
+// const tabs = [
+//   { name: 'Patient Profile', href: '#', current: false },
+//   { name: 'Medical Data', href: '#', current: false },
+//   { name: 'Team Members', href: '#', current: true },
+//   { name: 'Billing', href: '#', current: false },
+// ]
 
 interface SidebarProps {
   hideSidebar?: () => void
@@ -681,7 +786,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
-  const [selectedTab, setSelectedTab] = useState(0)
+  // const [selectedTab, setSelectedTab] = useState(0)
 
   const birthDate = useMemo(() => {
     return new Intl.DateTimeFormat('default', {
@@ -697,55 +802,9 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   }, [appointment.patient.birthDate])
 
   return (
-    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <header className='px-4 py-6 sm:px-6'>
-        <div className='flex items-start justify-between space-x-3'>
-          <nav className='flex space-x-4' aria-label='Tabs'>
-            <button
-              className={`${selectedTab == 0 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
-                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
-              onClick={() => {
-                setSelectedTab(0)
-              }}
-            >
-              Patient Profile
-            </button>
-            <button
-              className={`${selectedTab == 1 ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700'} 
-                px-3 py-2 font-medium text-sm rounded-md focus:outline-none`}
-              onClick={() => {
-                setSelectedTab(1)
-              }}
-            >
-              Medical Data
-            </button>
-          </nav>
-
-          {hideSidebar && (
-            <div className='flex items-center h-7'>
-              <button
-                aria-label='Cerrar panel'
-                onClick={() => hideSidebar()}
-                className='text-gray-400 transition duration-150 ease-in-out hover:text-gray-500'
-              >
-                <svg
-                  className='w-6 h-6'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
-      {/* Main */}
-      {selectedTab === 0 && <PationProfile appointment={appointment} age={age} birthDate={birthDate} />}
-      {selectedTab === 1 && <MedicalData />}
-    </div>
+    // <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+    <PationProfile appointment={appointment} age={age} birthDate={birthDate} />
+    // </div>
   )
 }
 
@@ -802,261 +861,627 @@ function MedicalData() {
       </div>
     )
   return (
-    <div className='w-full px-8 md:max-w-xl'>
-      <div className='mt-6 '>
-        <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
-          Diagnostico
-        </label>
+    <Grid >
+      <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
-        <div className='rounded-md shadow-sm'>
-          <textarea
-            id='Diagnostico'
-            rows={3}
-            className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-            placeholder=''
-            onChange={e => setDiagnose(e.target.value)}
-            value={diagnose}
-          />
-        </div>
-      </div>
-      <div className='mt-6'>
-        <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
-          Indicationes
-        </label>
+      <div className='w-full px-8 md:max-w-xl'>
+        <div className='mt-6 '>
+          <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
+            Diagnostico
+          </label>
 
-        <div className='rounded-md shadow-sm'>
-          <textarea
-            id='Indicationes'
-            rows={3}
-            className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-            placeholder=''
-            onChange={e => setInstructions(e.target.value)}
-            value={instructions}
-          />
-        </div>
-      </div>
-      <div className='mt-6'>
-        <p className='block text-sm font-medium leading-5 text-gray-700'>Medicine</p>
-        <div className='h-px mt-2 mb-4 bg-gray-200'></div>
-        {selectedMedication &&
-          selectedMedication.map((e: any) => (
-            <MedicineItem
-              medicine={e}
-              deleteMedicineCallback={() => {
-                const selectedMedicationsCopy: any[] = [...selectedMedication]
-                const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
-
-                setSelectedMedication(filteredItems)
-              }}
-              changeDescriptionCallback={(instructions: String) => {
-                const selectedMedicationsCopy: any[] = [...selectedMedication]
-                const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
-                if (myElemIndex != -1) {
-                  selectedMedicationsCopy[myElemIndex].instructions = instructions
-                  setSelectedMedication(selectedMedicationsCopy)
-                }
-              }}
+          <div className='rounded-md shadow-sm'>
+            <textarea
+              id='Diagnostico'
+              rows={3}
+              className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+              placeholder=''
+              onChange={e => setDiagnose(e.target.value)}
+              value={diagnose}
             />
-          ))}
-        <button
-          onClick={() => {
-            setShowEditModal(true)
-          }}
-          type='button'
-          className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
-        >
-          <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <path
-              fillRule='evenodd'
-              clipRule='evenodd'
-              d='M16 9C16.5523 9 17 9.44772 17 10V15H22C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17H17V22C17 22.5523 16.5523 23 16 23C15.4477 23 15 22.5523 15 22V17H10C9.44772 17 9 16.5523 9 16C9 15.4477 9.44772 15 10 15L15 15V10C15 9.44772 15.4477 9 16 9Z'
-              fill='#9CA3AF'
-            />
-            <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
-          </svg>
-          <span className='ml-4 text-indigo-600'>Add Medicine</span>
-        </button>
-        <form
-          onSubmit={async e => {
-            e.preventDefault()
-            try {
-              setSuccess('')
-              setError('')
-              setLoadingSubmit(true)
-              await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
-                encounterData: {
-                  diagnosis: diagnose,
-                  instructions: instructions,
-                  prescriptions: selectedMedication,
-                },
-              })
-              setSuccess('The medical data was set successfully.')
-            } catch (err) {
-              setError('An error has occured. Please try again later.')
-              console.log(err)
-            } finally {
-              setLoadingSubmit(false)
-            }
-          }}
-        >
-          <div className='mt-3'>
-            {success && (
-              <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
-                The medical data was set successfully.
-              </span>
-            )}
-            {error && (
-              <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
-                An error has occured. Please try again later.
-              </span>
-            )}
           </div>
+        </div>
+        <div className='mt-6'>
+          <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
+            Indicaciones
+          </label>
 
-          <div className='flex w-full mb-12 jusitfy-end'>
-            <div className='mt-3 ml-auto sm:flex'>
-              <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
-                <button
-                  disabled={loadingSubmit}
-                  type='submit'
-                  className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
-                >
-                  {loadingSubmit && (
-                    <svg
-                      className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
-                      xmlns='http://www.w3.org/2000/svg'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                    >
-                      <circle
-                        className='opacity-25'
-                        cx='12'
-                        cy='12'
-                        r='10'
-                        stroke='currentColor'
-                        strokeWidth='4'
-                      ></circle>
-                      <path
-                        className='opacity-75'
-                        fill='currentColor'
-                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                      ></path>
-                    </svg>
-                  )}
-                  Set Medical Data
-                </button>
-              </span>
+          <div className='rounded-md shadow-sm'>
+            <textarea
+              id='Indicationes'
+              rows={3}
+              className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+              placeholder=''
+              onChange={e => setInstructions(e.target.value)}
+              value={instructions}
+            />
+          </div>
+        </div>
+        <div className='mt-6'>
+          <p className='block text-sm font-medium leading-5 text-gray-700'>Medicine</p>
+          <div className='h-px mt-2 mb-4 bg-gray-200'></div>
+          {selectedMedication &&
+            selectedMedication.map((e: any) => (
+              <MedicineItem
+                medicine={e}
+                deleteMedicineCallback={() => {
+                  const selectedMedicationsCopy: any[] = [...selectedMedication]
+                  const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
+
+                  setSelectedMedication(filteredItems)
+                }}
+                changeDescriptionCallback={(instructions: String) => {
+                  const selectedMedicationsCopy: any[] = [...selectedMedication]
+                  const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
+                  if (myElemIndex != -1) {
+                    selectedMedicationsCopy[myElemIndex].instructions = instructions
+                    setSelectedMedication(selectedMedicationsCopy)
+                  }
+                }}
+              />
+            ))}
+          <button
+            onClick={() => {
+              setShowEditModal(true)
+            }}
+            type='button'
+            className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
+          >
+            <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+              <path
+                fillRule='evenodd'
+                clipRule='evenodd'
+                d='M16 9C16.5523 9 17 9.44772 17 10V15H22C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17H17V22C17 22.5523 16.5523 23 16 23C15.4477 23 15 22.5523 15 22V17H10C9.44772 17 9 16.5523 9 16C9 15.4477 9.44772 15 10 15L15 15V10C15 9.44772 15.4477 9 16 9Z'
+                fill='#9CA3AF'
+              />
+              <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
+            </svg>
+            <span className='ml-4 text-indigo-600'>Add Medicine</span>
+          </button>
+          <form
+            onSubmit={async e => {
+              e.preventDefault()
+              try {
+                setSuccess('')
+                setError('')
+                setLoadingSubmit(true)
+                await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
+                  encounterData: {
+                    diagnosis: diagnose,
+                    instructions: instructions,
+                    prescriptions: selectedMedication,
+                  },
+                })
+                setSuccess('The medical data was set successfully.')
+              } catch (err) {
+                setError('An error has occured. Please try again later.')
+                console.log(err)
+              } finally {
+                setLoadingSubmit(false)
+              }
+            }}
+          >
+            <div className='mt-3'>
+              {success && (
+                <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
+                  The medical data was set successfully.
+                </span>
+              )}
+              {error && (
+                <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
+                  An error has occured. Please try again later.
+                </span>
+              )}
             </div>
-          </div>
-        </form>
-      </div>
 
-      <MedicationsModal
-        selectedMedicaitonsState={selectedMedication}
-        showEditModal={showEditModal}
-        setShowEditModal={setShowEditModal}
-        setDataCallback={(elem: any) => {
-          const itemsToAdd: any[] = []
-          const selectedMedicationsCopy: any[] = [...selectedMedication]
-          for (let el in elem) {
-            const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
+            <div className='flex w-full mb-12 jusitfy-end'>
+              <div className='mt-3 ml-auto sm:flex'>
+                <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
+                  <button
+                    disabled={loadingSubmit}
+                    type='submit'
+                    className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
+                  >
+                    {loadingSubmit && (
+                      <svg
+                        className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                      >
+                        <circle
+                          className='opacity-25'
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          stroke='currentColor'
+                          strokeWidth='4'
+                        ></circle>
+                        <path
+                          className='opacity-75'
+                          fill='currentColor'
+                          d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                        ></path>
+                      </svg>
+                    )}
+                    Set Medical Data
+                  </button>
+                </span>
+              </div>
+            </div>
+          </form>
+        </div>
 
-            if (myElemIndex == -1) {
-              itemsToAdd.push(elem[el])
+        <MedicationsModal
+          selectedMedicaitonsState={selectedMedication}
+          showEditModal={showEditModal}
+          setShowEditModal={setShowEditModal}
+          setDataCallback={(elem: any) => {
+            const itemsToAdd: any[] = []
+            const selectedMedicationsCopy: any[] = [...selectedMedication]
+            for (let el in elem) {
+              const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
+
+              if (myElemIndex == -1) {
+                itemsToAdd.push(elem[el])
+              }
             }
-          }
-          setSelectedMedication([...selectedMedication, ...itemsToAdd])
-          setShowEditModal(false)
-        }}
-      />
-    </div>
+            setSelectedMedication([...selectedMedication, ...itemsToAdd])
+            setShowEditModal(false)
+          }}
+        />
+      </div>
+    </Grid>
   )
 }
 
+// function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+//   return (
+//     <div className='divide-y divide-gray-200'>
+//       <div className='pb-6'>
+//         <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
+//         <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
+//           <div>
+//             <div className='flex -m-1'>
+//               <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
+//                 <img
+//                   className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
+//                   src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
+//                   alt=''
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//           <div className='space-y-5 sm:flex-1'>
+//             <div>
+//               <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
+//                 {appointment.patient.givenName} {appointment.patient.familyName}
+//               </h3>
+
+//               <p className='text-sm leading-5 text-gray-500'>
+//                 <DateFormatted start={appointment.start} end={appointment.end} />
+//               </p>
+//             </div>
+//             {/* <div className='flex flex-wrap'>
+//                 <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
+//                   <button
+//                     type='button'
+//                     className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+//                   >
+//                     Add Prescription
+//                   </button>
+//                 </span>
+//               </div> */}
+//           </div>
+//         </div>
+//       </div>
+//       <div className='px-4 py-5 sm:px-0 sm:py-0'>
+//         <dl className='space-y-8 sm:space-y-0'>
+//           <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {age}
+//               <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
+//                 ({birthDate})
+//               </time>
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.city || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.job || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {lookupGender(appointment.patient.gender) || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.phone || '-'}
+//             </dd>
+//           </div>
+//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
+//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
+//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+//               {appointment.patient.email || '-'}
+//             </dd>
+//           </div>
+//         </dl>
+//       </div>
+//     </div>
+//   )
+// }
+
+
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <div className='divide-y divide-gray-200'>
-      <div className='pb-6'>
-        <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
-        <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
-          <div>
-            <div className='flex -m-1'>
-              <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
-                <img
-                  className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
-                  src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
-                  alt=''
-                />
-              </div>
-            </div>
-          </div>
-          <div className='space-y-5 sm:flex-1'>
-            <div>
-              <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
-                {appointment.patient.givenName} {appointment.patient.familyName}
-              </h3>
+    <Grid >
+      <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
-              <p className='text-sm leading-5 text-gray-500'>
-                <DateFormatted start={appointment.start} end={appointment.end} />
-              </p>
-            </div>
-            {/* <div className='flex flex-wrap'>
-                <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
-                  <button
-                    type='button'
-                    className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
-                  >
-                    Add Prescription
-                  </button>
-                </span>
-              </div> */}
-          </div>
-        </div>
-      </div>
-      <div className='px-4 py-5 sm:px-0 sm:py-0'>
-        <dl className='space-y-8 sm:space-y-0'>
-          <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {age}
-              <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
-                ({birthDate})
-              </time>
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.city || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+      <CardContent>
+        <Grid style={{ paddingTop: '20px' }}>
+
+          <Grid>
+            <Typography variant="h6" color="textPrimary">
+              {appointment.patient.givenName} {appointment.patient.familyName}
+            </Typography>
+    
+            <Typography variant="subtitle1" color="textSecondary">
+             {appointment.patient.identifier}
+            </Typography>
+
+          </Grid>
+
+          <Grid style={{ paddingTop: '20px' }} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Edad
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+              {age} ({birthDate})
+            </Typography>
+          </Grid>
+
+          <Grid style={{ paddingTop: '20px' }} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Profesión
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
               {appointment.patient.job || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {lookupGender(appointment.patient.gender) || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+            </Typography>
+          </Grid>
+
+          <Grid style={{ paddingTop: '20px' }} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Telefono
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
               {appointment.patient.phone || '-'}
-            </dd>
-          </div>
-          <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-            <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
-            <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-              {appointment.patient.email || '-'}
-            </dd>
-          </div>
-        </dl>
-      </div>
+            </Typography>
+          </Grid>
+
+          <Grid style={{ paddingTop: '20px' }} >
+            <Typography variant="subtitle1" color="textSecondary">
+              Ciudad
+            </Typography>
+            <Typography variant="subtitle2" color="textPrimary">
+              {appointment.patient.city || '-'}
+            </Typography>
+          </Grid>
+
+        </Grid>
+      </CardContent>
+    </Grid>
+  );
+}
+function TabPanel(props: { [x: string]: any; children: any; value: any; index: any }) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Typography>{children}</Typography>
+      )}
     </div>
-  )
+  );
+}
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+
+
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular
+  },
+  test: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular
+  },
+  MuiAccordionroot: {
+    "&.MuiAccordion-root:before": {
+      backgroundColor: "white"
+    }
+  },
+  tab: {
+    '& .MuiBox-root': {
+      padding: '0px',
+    },
+  },
+  tabHeight: {
+    '& .MuiTab-root': {
+      minHeight: '20px',
+      textTransform: 'none'
+    },
+  },
+
+}));
+
+function SOEP({ appointment }: { appointment: any; }) {
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
+    setValue(newValue);
+  };
+
+  const CustomToolTip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: '#EDF2F7',
+      color: 'black',
+      maxWidth: 220,
+      fontSize: theme.typography.pxToRem(12),
+    },
+  }))(Tooltip);
+
+  const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
+    return (<React.Fragment>
+      <Grid container>
+        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : <SecondSoepIcon  />}
+        <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >25/12/2020</Typography>
+      </Grid>
+      <Grid  >
+        <Typography style={{ color: '#27BEC2', fontSize: '18px' }} >{title}</Typography>
+        <Typography variant="subtitle1" color="textPrimary" >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sit nisi, felis, nascetur in adipiscing mi at suspendisse. Bibendum enim sed ullamcorper quis et quisque. </Typography>
+      </Grid>
+    </React.Fragment>)
+  }
+
+  const classes = useStyles();
+  return (
+    <Grid >
+      <CardHeader title="Nota SOEP" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+
+      <CardContent>
+        <Grid style={{ paddingTop: '25px' }}>
+
+          <Grid>
+            <Typography variant="h6" color="textPrimary">
+              {appointment.patient.givenName} {appointment.patient.familyName}
+            </Typography>
+            {/* <Typography variant="subtitle2" color="textSecondary">
+            <DateFormatted start={appointment.start} end={appointment.end} />
+            </Typography> */}
+            <Typography variant="subtitle1" color="textSecondary">
+              Ci: {appointment.patient.identifier}
+            </Typography>
+
+          </Grid>
+
+          <Grid style={{ marginTop: '25px' }} >
+            <Tabs classes={{
+              root: classes.tabHeight
+            }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
+              <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
+              <Tab label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
+            </Tabs>
+          </Grid>
+
+          <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
+            <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
+              Motivo principal de la visita
+            </Typography>
+
+            <TextField
+              fullWidth
+              InputProps={{
+                disableUnderline: true,
+              }}
+              placeholder={' Ej: Dolor de cabeza prolongado'}
+              style={{
+                background: '#FFFFFF',
+                border: '2px solid #e3e8ef',
+                boxSizing: 'border-box',
+                borderRadius: '4px',
+
+              }}
+              required
+            />
+            <Accordion classes={{
+              root: classes.MuiAccordionroot
+            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
+                <CustomToolTip
+
+                  title={toolTipData({ iconItem: 1, title: 'Subjetivo', body: '', date: '' })}
+                >
+                  <Grid style={{ paddingLeft: '10px' }}  >
+                    <FirstSoepLabel />
+                  </Grid>
+                </CustomToolTip>
+              </AccordionSummary>
+              <AccordionDetails  >
+                <TextField
+                  fullWidth
+                  multiline
+                  rows="9"
+                  InputProps={{
+                    disableUnderline: true,
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: '4px',
+                  }}
+                  required
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion classes={{
+              root: classes.MuiAccordionroot
+            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography style={{ color: '#177274' }} >Objetivo</Typography>
+
+                <CustomToolTip
+
+                  title={toolTipData({ iconItem: 1, title: 'Objetivo', body: '', date: '' })}
+                >
+                  <Grid style={{ paddingLeft: '10px' }}  >
+                    <FirstSoepLabel />
+                  </Grid>
+                </CustomToolTip>
+
+                <CustomToolTip
+
+                  title={toolTipData({ iconItem: 2, title: 'Objetivo', body: '', date: '' })}
+                >
+                  <Grid style={{ paddingLeft: '10px' }}  >
+                    <SecondSoepLabel />
+                  </Grid>
+                </CustomToolTip>
+              </AccordionSummary>
+              <AccordionDetails  >
+                <TextField
+                  fullWidth
+                  multiline
+                  rows="9"
+                  InputProps={{
+                    disableUnderline: true,
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    // border: '2px solid #AAAAAA',
+                    // boxSizing: 'border-box',
+                    borderRadius: '4px',
+                  }}
+                  required
+                // value={posologia.dosis}
+                // onChange={onChangeCampo('dosis')}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion classes={{
+              root: classes.MuiAccordionroot
+            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography style={{ color: '#177274' }} >Evaluación</Typography>
+              </AccordionSummary>
+              <AccordionDetails  >
+                <TextField
+                  fullWidth
+                  multiline
+                  rows="9"
+                  InputProps={{
+                    disableUnderline: true,
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    // border: '2px solid #AAAAAA',
+                    // boxSizing: 'border-box',
+                    borderRadius: '4px',
+                  }}
+                  required
+                // value={posologia.dosis}
+                // onChange={onChangeCampo('dosis')}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            <Accordion classes={{
+              root: classes.MuiAccordionroot
+            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography style={{ color: '#177274' }} >Plan</Typography>
+              </AccordionSummary>
+              <AccordionDetails  >
+                <TextField
+                  fullWidth
+                  multiline
+                  rows="9"
+                  InputProps={{
+                    disableUnderline: true,
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    // border: '2px solid #AAAAAA',
+                    // boxSizing: 'border-box',
+                    borderRadius: '4px',
+                  }}
+                  required
+                // value={posologia.dosis}
+                // onChange={onChangeCampo('dosis')}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            Item Two
+          </TabPanel>
+
+
+
+        </Grid>
+      </CardContent>
+    </Grid>
+  );
 }
 
 interface CallStatusMessageProps {
