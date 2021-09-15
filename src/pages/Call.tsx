@@ -257,7 +257,12 @@ const Gate = () => {
   return (
 
     <Layout>
-      <Grid
+      
+      
+      {instance === 0 ? (
+        <div className='flex flex-col h-full md:flex-row'>
+          <Grid
+      
         style={{
           position: 'fixed',
           bottom: '0',
@@ -268,9 +273,6 @@ const Gate = () => {
           <TogleMenu />
         </Grid>
       </Grid>
-
-      {instance === 0 ? (
-        <div className='flex flex-col h-full md:flex-row'>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
           <Card className='w-3/12' >
             {controlSideBarState()}
@@ -314,7 +316,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const [showCallMenu, setShowCallMenu] = useState(false)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
-
+  const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
 
@@ -337,7 +339,50 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       return newState
     })
   }
+  
+  const TogleMenu = () => {
 
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <div>
+        <FloatingMenu
+          slideSpeed={500}
+          isOpen={isOpen}
+          spacing={8}
+          direction={Directions.Up}
+        >
+          <MainButton
+            isOpen={isOpen}
+            iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
+            iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            onClick={() => {
+              setIsOpen((prev) => !prev);
+            }}
+            size={50}
+          />
+          <ChildButton
+            icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(2)}
+          />
+          <ChildButton
+            icon={<SoepIcon />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(1)}
+          />
+          <ChildButton
+            icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
+            background="#323030"
+            size={50}
+            onClick={() => setSideBarAction(0)}
+          />
+        </FloatingMenu>
+      </div>
+    );
+  }
   // NOTE: Mutes audio for development comfort
   // useEffect(() => {
   //   if (mediaStream) {
@@ -430,7 +475,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 </svg>
               </button>
             )}
-            <button
+            {/* <button
               className='p-2 text-white rounded-full inline-box bg-primary-500 hover:bg-primary-400 focus:outline-none focus:shadow-outline'
               onClick={() => setShowSidebarMenu(showSidebarMenu => !showSidebarMenu)}
             >
@@ -448,7 +493,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                   d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
                 />
               </svg>
-            </button>
+            </button> */}
           </div>
         </div>
         <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
@@ -487,6 +532,18 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               />
             </svg>
           </button>
+          <Grid
+      
+        style={{
+          position: 'fixed',
+          bottom: '0',
+          right: '25%'
+        }}
+      >
+        <Grid style={{ marginBottom: '20px' }}>
+          <TogleMenu />
+        </Grid>
+      </Grid>
           <div className='flex flex-col items-end space-y-4'>
             {showCallMenu && (
               <>
@@ -562,7 +619,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 </div>
               </>
             )}
-            <button
+            {/* <button
               className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
               onClick={() => {
                 setShowCallMenu(menuOpen => !menuOpen)
@@ -584,7 +641,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                   d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
                 />
               </svg>
-            </button>
+            </button> */}
           </div>
         </div>
         {callStatus.connecting && (
@@ -609,6 +666,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         )}
       </div>
       <SidebarContainer
+        sideBarAction={sideBarAction}
         appointment={appointment}
         show={showSidebarMenu}
         hideSidebar={() => setShowSidebarMenu(false)}
@@ -703,9 +761,10 @@ interface SidebarContainerProps {
   show: boolean
   hideSidebar: () => void
   appointment: AppointmentWithPatient
+  sideBarAction:Number
 }
 
-const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerProps) => {
+const SidebarContainer = ({ show, hideSidebar, appointment,sideBarAction }: SidebarContainerProps) => {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -730,8 +789,27 @@ const SidebarContainer = ({ show, hideSidebar, appointment }: SidebarContainerPr
     return () => document.removeEventListener('keyup', handleEscape)
   }, [show, hideSidebar])
 
+  const controlSideBarState = () => {
+    switch (sideBarAction) {
+      case 0:
+        return <Sidebar appointment={appointment} />
+
+      case 1:
+        return <SOEP appointment={appointment} />
+
+      case 2:
+        return <MedicalData />
+
+      default:
+        return <Sidebar appointment={appointment} />
+    }
+  };
   return (
-    <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
+    
+    <Card  className='w-3/12'>
+      {controlSideBarState()}
+      </Card>
+    // <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
     // <>
     //   <Transition show={show}>
     //     <div className='fixed inset-0 overflow-hidden 2xl:hidden'>
@@ -861,7 +939,8 @@ function MedicalData() {
       </div>
     )
   return (
-    <Grid >
+     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'> 
+    <Grid  >
       <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
       <div className='w-full px-8 md:max-w-xl'>
@@ -898,7 +977,7 @@ function MedicalData() {
           </div>
         </div>
         <div className='mt-6'>
-          <p className='block text-sm font-medium leading-5 text-gray-700'>Medicine</p>
+          <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
           <div className='h-px mt-2 mb-4 bg-gray-200'></div>
           {selectedMedication &&
             selectedMedication.map((e: any) => (
@@ -936,7 +1015,7 @@ function MedicalData() {
               />
               <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
             </svg>
-            <span className='ml-4 text-indigo-600'>Add Medicine</span>
+            <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
           </button>
           <form
             onSubmit={async e => {
@@ -964,7 +1043,7 @@ function MedicalData() {
             <div className='mt-3'>
               {success && (
                 <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
-                  The medical data was set successfully.
+                 Datos guardados correctamente.
                 </span>
               )}
               {error && (
@@ -1004,7 +1083,7 @@ function MedicalData() {
                         ></path>
                       </svg>
                     )}
-                    Set Medical Data
+                    Guardar
                   </button>
                 </span>
               </div>
@@ -1032,6 +1111,7 @@ function MedicalData() {
         />
       </div>
     </Grid>
+    </div>
   )
 }
 
@@ -1276,6 +1356,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
   const classes = useStyles();
   return (
+    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'> 
     <Grid >
       <CardHeader title="Nota SOEP" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
@@ -1473,7 +1554,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
           </TabPanel>
           <TabPanel value={value} index={1}>
-            Item Two
+           
           </TabPanel>
 
 
@@ -1481,6 +1562,7 @@ function SOEP({ appointment }: { appointment: any; }) {
         </Grid>
       </CardContent>
     </Grid>
+    </div>
   );
 }
 

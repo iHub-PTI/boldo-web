@@ -15,7 +15,7 @@ export default function MedicineItem({
         <p className='block text-xs font-medium leading-5 text-gray-700'>{medicine.medicationName}</p>
         <div className='w-full mt-1'>
           <label htmlFor={`Indicationes${medicine.medicationId}}`} className='block text-xs leading-5 text-gray-600'>
-            Indicationes
+            Indicaciones
           </label>
 
           <div className='w-full rounded-md shadow-sm'>
