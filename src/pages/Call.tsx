@@ -1220,11 +1220,13 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
       <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
       <CardContent>
-        <Grid style={{ paddingTop: '20px' }}>
+        <Grid style={{ paddingTop: '10px' }}>
 
-    
+        <div className='flex justify-center w-full  '>
+           <img className="rounded-full center" style={{width:'100px',height:'100px'}} src={appointment.patient.photoUrl} alt="user image" />
+       </div>
 
-          <Grid>
+          <Grid style={{ paddingTop: '10px' }}>
             <Typography variant="h6" color="textPrimary">
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
