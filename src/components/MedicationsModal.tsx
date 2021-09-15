@@ -63,7 +63,7 @@ export default function MedicationsModal({
     <Modal show={showEditModal} setShow={setShowEditModal} size='xl5'>
       <div className='col-span-6 mb-6 sm:col-span-3'>
         <label htmlFor='search' className='block text-sm font-medium leading-5 text-gray-700'>
-          Find Medicine
+          Buscar Medicamentos
         </label>
         <input
           id='search'
@@ -83,15 +83,15 @@ export default function MedicationsModal({
             <div className='overflow-hidden border-b border-gray-200 shadow sm:rounded-lg'>
               {medicationsLoading ? (
                 <div className='flex flex-col items-center justify-center h-full py-16'>
-                  <div>Loading...</div>
+                  <div>Cargando...</div>
                 </div>
               ) : medicationItems.length == 0 ? (
                 <div className='flex flex-col items-center justify-center h-full py-16'>
-                  <div>No medicaiton found.</div>
+                  <div>No se encontró ningun medicamento.</div>
                 </div>
               ) : showError ? (
                 <div className='flex flex-col items-center justify-center h-full py-16 text-red-700'>
-                  <div>Something went wrong, please try again later.</div>
+                  <div>Algo salió mal, vuelve a intentarlo mas tarde.</div>
                 </div>
               ) : (
                 <table className='min-w-full divide-y divide-gray-200'>
@@ -104,19 +104,19 @@ export default function MedicationsModal({
                         scope='col'
                         className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
                       >
-                        Name
+                        Nombre
                       </th>
                       <th
                         scope='col'
                         className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
                       >
-                        Manufacturer
+                        Laboratorio
                       </th>
                       <th
                         scope='col'
                         className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
                       >
-                        Code
+                        Presentación
                       </th>
                     </tr>
                   </thead>
@@ -191,7 +191,7 @@ export default function MedicationsModal({
                 type='submit'
                 className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
               >
-                Add Medicine
+                Guardar
               </button>
             </span>
           </div>
