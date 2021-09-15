@@ -1,4 +1,4 @@
-import React, {  useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
 // import { Transition } from '@headlessui/react'
@@ -63,7 +63,7 @@ const Gate = () => {
   const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
 
- 
+
   const updateStatus = useCallback(
     async (status?: Status) => {
       setInstance(0)
@@ -205,7 +205,7 @@ const Gate = () => {
         return <SOEP appointment={appointment} />
 
       case 2:
-        return <MedicalData />
+        return <MedicalData appointment={appointment} />
 
       default:
         return <Sidebar appointment={appointment} />
@@ -238,12 +238,12 @@ const Gate = () => {
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={<SoepIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
-          />
+          /> */}
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
             background="#323030"
@@ -257,22 +257,22 @@ const Gate = () => {
   return (
 
     <Layout>
-      
-      
+
+
       {instance === 0 ? (
         <div className='flex flex-col h-full md:flex-row'>
           <Grid
-      
-        style={{
-          position: 'fixed',
-          bottom: '0',
-          right: '25%'
-        }}
-      >
-        <Grid style={{ marginBottom: '20px' }}>
-          <TogleMenu />
-        </Grid>
-      </Grid>
+
+            style={{
+              position: 'fixed',
+              bottom: '0',
+              right: '25%'
+            }}
+          >
+            <Grid style={{ marginBottom: '20px' }}>
+              <TogleMenu />
+            </Grid>
+          </Grid>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
           <Card className='w-3/12' >
             {controlSideBarState()}
@@ -339,7 +339,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       return newState
     })
   }
-  
+
   const TogleMenu = () => {
 
     const [isOpen, setIsOpen] = useState(false);
@@ -367,12 +367,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={<SoepIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
-          />
+          /> */}
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
             background="#323030"
@@ -457,9 +457,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                   if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
                     try {
                       if ((document as any).pictureInPictureElement) {
-                        ;(document as any).exitPictureInPicture()
+                        ; (document as any).exitPictureInPicture()
                       }
-                      ;(stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+                      ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
                     } catch (err) {
                       console.error(err)
                     }
@@ -533,17 +533,17 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             </svg>
           </button>
           <Grid
-      
-        style={{
-          position: 'fixed',
-          bottom: '0',
-          right: '25%'
-        }}
-      >
-        <Grid style={{ marginBottom: '20px' }}>
-          <TogleMenu />
-        </Grid>
-      </Grid>
+
+            style={{
+              position: 'fixed',
+              bottom: '0',
+              right: '25%'
+            }}
+          >
+            <Grid style={{ marginBottom: '20px' }}>
+              <TogleMenu />
+            </Grid>
+          </Grid>
           <div className='flex flex-col items-end space-y-4'>
             {showCallMenu && (
               <>
@@ -761,10 +761,10 @@ interface SidebarContainerProps {
   show: boolean
   hideSidebar: () => void
   appointment: AppointmentWithPatient
-  sideBarAction:Number
+  sideBarAction: Number
 }
 
-const SidebarContainer = ({ show, hideSidebar, appointment,sideBarAction }: SidebarContainerProps) => {
+const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: SidebarContainerProps) => {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -798,17 +798,17 @@ const SidebarContainer = ({ show, hideSidebar, appointment,sideBarAction }: Side
         return <SOEP appointment={appointment} />
 
       case 2:
-        return <MedicalData />
+        return <MedicalData appointment={appointment} />
 
       default:
         return <Sidebar appointment={appointment} />
     }
   };
   return (
-    
-    <Card  className='w-3/12'>
+
+    <Card className='w-3/12'>
       {controlSideBarState()}
-      </Card>
+    </Card>
     // <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
     // <>
     //   <Transition show={show}>
@@ -847,7 +847,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment,sideBarAction }: Side
     //     <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
     //   </Transition>
     // </>
-  
+
   )
 }
 
@@ -886,7 +886,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   )
 }
 
-function MedicalData() {
+function MedicalData({ appointment }: { appointment: any; }) {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
   const [diagnose, setDiagnose] = useState<string>('')
@@ -939,178 +939,189 @@ function MedicalData() {
       </div>
     )
   return (
-     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'> 
-    <Grid  >
-      <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+      <Grid  >
+        <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+        <Grid style={{ padding: '20px' }}>
+          <Typography variant="h6" color="textPrimary">
+            {appointment.patient.givenName} {appointment.patient.familyName}
+          </Typography>
+          {/* <Typography variant="subtitle2" color="textSecondary">
+            <DateFormatted start={appointment.start} end={appointment.end} />
+            </Typography> */}
+          <Typography variant="subtitle1" color="textSecondary">
+            Ci: {appointment.patient.identifier}
+          </Typography>
 
-      <div className='w-full px-8 md:max-w-xl'>
-        <div className='mt-6 '>
-          <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
-            Diagnostico
-          </label>
+        </Grid>
+        <div className='w-full px-8 md:max-w-xl'>
+          <div className='mt-6 '>
+            <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
+              Diagnostico
+            </label>
 
-          <div className='rounded-md shadow-sm'>
-            <textarea
-              id='Diagnostico'
-              rows={3}
-              className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-              placeholder=''
-              onChange={e => setDiagnose(e.target.value)}
-              value={diagnose}
-            />
-          </div>
-        </div>
-        <div className='mt-6'>
-          <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
-            Indicaciones
-          </label>
-
-          <div className='rounded-md shadow-sm'>
-            <textarea
-              id='Indicationes'
-              rows={3}
-              className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-              placeholder=''
-              onChange={e => setInstructions(e.target.value)}
-              value={instructions}
-            />
-          </div>
-        </div>
-        <div className='mt-6'>
-          <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
-          <div className='h-px mt-2 mb-4 bg-gray-200'></div>
-          {selectedMedication &&
-            selectedMedication.map((e: any) => (
-              <MedicineItem
-                medicine={e}
-                deleteMedicineCallback={() => {
-                  const selectedMedicationsCopy: any[] = [...selectedMedication]
-                  const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
-
-                  setSelectedMedication(filteredItems)
-                }}
-                changeDescriptionCallback={(instructions: String) => {
-                  const selectedMedicationsCopy: any[] = [...selectedMedication]
-                  const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
-                  if (myElemIndex != -1) {
-                    selectedMedicationsCopy[myElemIndex].instructions = instructions
-                    setSelectedMedication(selectedMedicationsCopy)
-                  }
-                }}
+            <div className='rounded-md shadow-sm'>
+              <textarea
+                id='Diagnostico'
+                rows={3}
+                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+                placeholder=''
+                onChange={e => setDiagnose(e.target.value)}
+                value={diagnose}
               />
-            ))}
-          <button
-            onClick={() => {
-              setShowEditModal(true)
-            }}
-            type='button'
-            className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
-          >
-            <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path
-                fillRule='evenodd'
-                clipRule='evenodd'
-                d='M16 9C16.5523 9 17 9.44772 17 10V15H22C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17H17V22C17 22.5523 16.5523 23 16 23C15.4477 23 15 22.5523 15 22V17H10C9.44772 17 9 16.5523 9 16C9 15.4477 9.44772 15 10 15L15 15V10C15 9.44772 15.4477 9 16 9Z'
-                fill='#9CA3AF'
-              />
-              <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
-            </svg>
-            <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
-          </button>
-          <form
-            onSubmit={async e => {
-              e.preventDefault()
-              try {
-                setSuccess('')
-                setError('')
-                setLoadingSubmit(true)
-                await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
-                  encounterData: {
-                    diagnosis: diagnose,
-                    instructions: instructions,
-                    prescriptions: selectedMedication,
-                  },
-                })
-                setSuccess('The medical data was set successfully.')
-              } catch (err) {
-                setError('An error has occured. Please try again later.')
-                console.log(err)
-              } finally {
-                setLoadingSubmit(false)
-              }
-            }}
-          >
-            <div className='mt-3'>
-              {success && (
-                <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
-                 Datos guardados correctamente.
-                </span>
-              )}
-              {error && (
-                <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
-                  An error has occured. Please try again later.
-                </span>
-              )}
             </div>
+          </div>
+          <div className='mt-6'>
+            <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
+              Indicaciones
+            </label>
 
-            <div className='flex w-full mb-12 jusitfy-end'>
-              <div className='mt-3 ml-auto sm:flex'>
-                <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
-                  <button
-                    disabled={loadingSubmit}
-                    type='submit'
-                    className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
-                  >
-                    {loadingSubmit && (
-                      <svg
-                        className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
-                        xmlns='http://www.w3.org/2000/svg'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                      >
-                        <circle
-                          className='opacity-25'
-                          cx='12'
-                          cy='12'
-                          r='10'
-                          stroke='currentColor'
-                          strokeWidth='4'
-                        ></circle>
-                        <path
-                          className='opacity-75'
-                          fill='currentColor'
-                          d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                        ></path>
-                      </svg>
-                    )}
-                    Guardar
-                  </button>
-                </span>
+            <div className='rounded-md shadow-sm'>
+              <textarea
+                id='Indicationes'
+                rows={3}
+                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+                placeholder=''
+                onChange={e => setInstructions(e.target.value)}
+                value={instructions}
+              />
+            </div>
+          </div>
+          <div className='mt-6'>
+            <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
+            <div className='h-px mt-2 mb-4 bg-gray-200'></div>
+            {selectedMedication &&
+              selectedMedication.map((e: any) => (
+                <MedicineItem
+                  medicine={e}
+                  deleteMedicineCallback={() => {
+                    const selectedMedicationsCopy: any[] = [...selectedMedication]
+                    const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
+
+                    setSelectedMedication(filteredItems)
+                  }}
+                  changeDescriptionCallback={(instructions: String) => {
+                    const selectedMedicationsCopy: any[] = [...selectedMedication]
+                    const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
+                    if (myElemIndex != -1) {
+                      selectedMedicationsCopy[myElemIndex].instructions = instructions
+                      setSelectedMedication(selectedMedicationsCopy)
+                    }
+                  }}
+                />
+              ))}
+            <button
+              onClick={() => {
+                setShowEditModal(true)
+              }}
+              type='button'
+              className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
+            >
+              <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path
+                  fillRule='evenodd'
+                  clipRule='evenodd'
+                  d='M16 9C16.5523 9 17 9.44772 17 10V15H22C22.5523 15 23 15.4477 23 16C23 16.5523 22.5523 17 22 17H17V22C17 22.5523 16.5523 23 16 23C15.4477 23 15 22.5523 15 22V17H10C9.44772 17 9 16.5523 9 16C9 15.4477 9.44772 15 10 15L15 15V10C15 9.44772 15.4477 9 16 9Z'
+                  fill='#9CA3AF'
+                />
+                <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
+              </svg>
+              <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
+            </button>
+            <form
+              onSubmit={async e => {
+                e.preventDefault()
+                try {
+                  setSuccess('')
+                  setError('')
+                  setLoadingSubmit(true)
+                  await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
+                    encounterData: {
+                      diagnosis: diagnose,
+                      instructions: instructions,
+                      prescriptions: selectedMedication,
+                    },
+                  })
+                  setSuccess('The medical data was set successfully.')
+                } catch (err) {
+                  setError('An error has occured. Please try again later.')
+                  console.log(err)
+                } finally {
+                  setLoadingSubmit(false)
+                }
+              }}
+            >
+              <div className='mt-3'>
+                {success && (
+                  <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
+                    Datos guardados correctamente.
+                  </span>
+                )}
+                {error && (
+                  <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
+                    An error has occured. Please try again later.
+                  </span>
+                )}
               </div>
-            </div>
-          </form>
-        </div>
 
-        <MedicationsModal
-          selectedMedicaitonsState={selectedMedication}
-          showEditModal={showEditModal}
-          setShowEditModal={setShowEditModal}
-          setDataCallback={(elem: any) => {
-            const itemsToAdd: any[] = []
-            const selectedMedicationsCopy: any[] = [...selectedMedication]
-            for (let el in elem) {
-              const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
+              <div className='flex w-full mb-12 jusitfy-end'>
+                <div className='mt-3 ml-auto sm:flex'>
+                  <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
+                    <button
+                      disabled={loadingSubmit}
+                      type='submit'
+                      className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
+                    >
+                      {loadingSubmit && (
+                        <svg
+                          className='w-5 h-5 mr-3 -ml-1 text-indigo-700 animate-spin'
+                          xmlns='http://www.w3.org/2000/svg'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                        >
+                          <circle
+                            className='opacity-25'
+                            cx='12'
+                            cy='12'
+                            r='10'
+                            stroke='currentColor'
+                            strokeWidth='4'
+                          ></circle>
+                          <path
+                            className='opacity-75'
+                            fill='currentColor'
+                            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                          ></path>
+                        </svg>
+                      )}
+                      Guardar
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>
 
-              if (myElemIndex == -1) {
-                itemsToAdd.push(elem[el])
+          <MedicationsModal
+            selectedMedicaitonsState={selectedMedication}
+            showEditModal={showEditModal}
+            setShowEditModal={setShowEditModal}
+            setDataCallback={(elem: any) => {
+              const itemsToAdd: any[] = []
+              const selectedMedicationsCopy: any[] = [...selectedMedication]
+              for (let el in elem) {
+                const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
+
+                if (myElemIndex == -1) {
+                  itemsToAdd.push(elem[el])
+                }
               }
-            }
-            setSelectedMedication([...selectedMedication, ...itemsToAdd])
-            setShowEditModal(false)
-          }}
-        />
-      </div>
-    </Grid>
+              setSelectedMedication([...selectedMedication, ...itemsToAdd])
+              setShowEditModal(false)
+            }}
+          />
+        </div>
+      </Grid>
     </div>
   )
 }
@@ -1211,13 +1222,15 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
       <CardContent>
         <Grid style={{ paddingTop: '20px' }}>
 
+    
+
           <Grid>
             <Typography variant="h6" color="textPrimary">
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
-    
+
             <Typography variant="subtitle1" color="textSecondary">
-             {appointment.patient.identifier}
+              {appointment.patient.identifier}
             </Typography>
 
           </Grid>
@@ -1344,7 +1357,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
     return (<React.Fragment>
       <Grid container>
-        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : <SecondSoepIcon  />}
+        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : <SecondSoepIcon />}
         <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >25/12/2020</Typography>
       </Grid>
       <Grid  >
@@ -1356,212 +1369,212 @@ function SOEP({ appointment }: { appointment: any; }) {
 
   const classes = useStyles();
   return (
-    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'> 
-    <Grid >
-      <CardHeader title="Nota SOEP" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+      <Grid >
+        <CardHeader title="Nota SOEP" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
-      <CardContent>
-        <Grid style={{ paddingTop: '25px' }}>
+        <CardContent>
+          <Grid style={{ paddingTop: '25px' }}>
 
-          <Grid>
-            <Typography variant="h6" color="textPrimary">
-              {appointment.patient.givenName} {appointment.patient.familyName}
-            </Typography>
-            {/* <Typography variant="subtitle2" color="textSecondary">
+            <Grid>
+              <Typography variant="h6" color="textPrimary">
+                {appointment.patient.givenName} {appointment.patient.familyName}
+              </Typography>
+              {/* <Typography variant="subtitle2" color="textSecondary">
             <DateFormatted start={appointment.start} end={appointment.end} />
             </Typography> */}
-            <Typography variant="subtitle1" color="textSecondary">
-              Ci: {appointment.patient.identifier}
-            </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Ci: {appointment.patient.identifier}
+              </Typography>
+
+            </Grid>
+
+            <Grid style={{ marginTop: '25px' }} >
+              <Tabs classes={{
+                root: classes.tabHeight
+              }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
+                <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
+                <Tab label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
+              </Tabs>
+            </Grid>
+
+            <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
+              <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
+                Motivo principal de la visita
+              </Typography>
+
+              <TextField
+                fullWidth
+                InputProps={{
+                  disableUnderline: true,
+                }}
+                placeholder={' Ej: Dolor de cabeza prolongado'}
+                style={{
+                  background: '#FFFFFF',
+                  border: '2px solid #e3e8ef',
+                  boxSizing: 'border-box',
+                  borderRadius: '4px',
+
+                }}
+                required
+              />
+              <Accordion classes={{
+                root: classes.MuiAccordionroot
+              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
+                  <CustomToolTip
+
+                    title={toolTipData({ iconItem: 1, title: 'Subjetivo', body: '', date: '' })}
+                  >
+                    <Grid style={{ paddingLeft: '10px' }}  >
+                      <FirstSoepLabel />
+                    </Grid>
+                  </CustomToolTip>
+                </AccordionSummary>
+                <AccordionDetails  >
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows="9"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    style={{
+                      background: '#FFFFFF',
+                      borderRadius: '4px',
+                    }}
+                    required
+                  />
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion classes={{
+                root: classes.MuiAccordionroot
+              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography style={{ color: '#177274' }} >Objetivo</Typography>
+
+                  <CustomToolTip
+
+                    title={toolTipData({ iconItem: 1, title: 'Objetivo', body: '', date: '' })}
+                  >
+                    <Grid style={{ paddingLeft: '10px' }}  >
+                      <FirstSoepLabel />
+                    </Grid>
+                  </CustomToolTip>
+
+                  <CustomToolTip
+
+                    title={toolTipData({ iconItem: 2, title: 'Objetivo', body: '', date: '' })}
+                  >
+                    <Grid style={{ paddingLeft: '10px' }}  >
+                      <SecondSoepLabel />
+                    </Grid>
+                  </CustomToolTip>
+                </AccordionSummary>
+                <AccordionDetails  >
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows="9"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    style={{
+                      background: '#FFFFFF',
+                      // border: '2px solid #AAAAAA',
+                      // boxSizing: 'border-box',
+                      borderRadius: '4px',
+                    }}
+                    required
+                  // value={posologia.dosis}
+                  // onChange={onChangeCampo('dosis')}
+                  />
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion classes={{
+                root: classes.MuiAccordionroot
+              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography style={{ color: '#177274' }} >Evaluación</Typography>
+                </AccordionSummary>
+                <AccordionDetails  >
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows="9"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    style={{
+                      background: '#FFFFFF',
+                      // border: '2px solid #AAAAAA',
+                      // boxSizing: 'border-box',
+                      borderRadius: '4px',
+                    }}
+                    required
+                  // value={posologia.dosis}
+                  // onChange={onChangeCampo('dosis')}
+                  />
+                </AccordionDetails>
+              </Accordion>
+
+              <Accordion classes={{
+                root: classes.MuiAccordionroot
+              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography style={{ color: '#177274' }} >Plan</Typography>
+                </AccordionSummary>
+                <AccordionDetails  >
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows="9"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    style={{
+                      background: '#FFFFFF',
+                      // border: '2px solid #AAAAAA',
+                      // boxSizing: 'border-box',
+                      borderRadius: '4px',
+                    }}
+                    required
+                  // value={posologia.dosis}
+                  // onChange={onChangeCampo('dosis')}
+                  />
+                </AccordionDetails>
+              </Accordion>
+
+
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+
+            </TabPanel>
+
+
 
           </Grid>
-
-          <Grid style={{ marginTop: '25px' }} >
-            <Tabs classes={{
-              root: classes.tabHeight
-            }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
-              <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-              <Tab label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
-            </Tabs>
-          </Grid>
-
-          <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
-            <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
-              Motivo principal de la visita
-            </Typography>
-
-            <TextField
-              fullWidth
-              InputProps={{
-                disableUnderline: true,
-              }}
-              placeholder={' Ej: Dolor de cabeza prolongado'}
-              style={{
-                background: '#FFFFFF',
-                border: '2px solid #e3e8ef',
-                boxSizing: 'border-box',
-                borderRadius: '4px',
-
-              }}
-              required
-            />
-            <Accordion classes={{
-              root: classes.MuiAccordionroot
-            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                <CustomToolTip
-
-                  title={toolTipData({ iconItem: 1, title: 'Subjetivo', body: '', date: '' })}
-                >
-                  <Grid style={{ paddingLeft: '10px' }}  >
-                    <FirstSoepLabel />
-                  </Grid>
-                </CustomToolTip>
-              </AccordionSummary>
-              <AccordionDetails  >
-                <TextField
-                  fullWidth
-                  multiline
-                  rows="9"
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
-                  style={{
-                    background: '#FFFFFF',
-                    borderRadius: '4px',
-                  }}
-                  required
-                />
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion classes={{
-              root: classes.MuiAccordionroot
-            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-
-                <CustomToolTip
-
-                  title={toolTipData({ iconItem: 1, title: 'Objetivo', body: '', date: '' })}
-                >
-                  <Grid style={{ paddingLeft: '10px' }}  >
-                    <FirstSoepLabel />
-                  </Grid>
-                </CustomToolTip>
-
-                <CustomToolTip
-
-                  title={toolTipData({ iconItem: 2, title: 'Objetivo', body: '', date: '' })}
-                >
-                  <Grid style={{ paddingLeft: '10px' }}  >
-                    <SecondSoepLabel />
-                  </Grid>
-                </CustomToolTip>
-              </AccordionSummary>
-              <AccordionDetails  >
-                <TextField
-                  fullWidth
-                  multiline
-                  rows="9"
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
-                  style={{
-                    background: '#FFFFFF',
-                    // border: '2px solid #AAAAAA',
-                    // boxSizing: 'border-box',
-                    borderRadius: '4px',
-                  }}
-                  required
-                // value={posologia.dosis}
-                // onChange={onChangeCampo('dosis')}
-                />
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion classes={{
-              root: classes.MuiAccordionroot
-            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography style={{ color: '#177274' }} >Evaluación</Typography>
-              </AccordionSummary>
-              <AccordionDetails  >
-                <TextField
-                  fullWidth
-                  multiline
-                  rows="9"
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
-                  style={{
-                    background: '#FFFFFF',
-                    // border: '2px solid #AAAAAA',
-                    // boxSizing: 'border-box',
-                    borderRadius: '4px',
-                  }}
-                  required
-                // value={posologia.dosis}
-                // onChange={onChangeCampo('dosis')}
-                />
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion classes={{
-              root: classes.MuiAccordionroot
-            }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography style={{ color: '#177274' }} >Plan</Typography>
-              </AccordionSummary>
-              <AccordionDetails  >
-                <TextField
-                  fullWidth
-                  multiline
-                  rows="9"
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
-                  style={{
-                    background: '#FFFFFF',
-                    // border: '2px solid #AAAAAA',
-                    // boxSizing: 'border-box',
-                    borderRadius: '4px',
-                  }}
-                  required
-                // value={posologia.dosis}
-                // onChange={onChangeCampo('dosis')}
-                />
-              </AccordionDetails>
-            </Accordion>
-
-
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-           
-          </TabPanel>
-
-
-
-        </Grid>
-      </CardContent>
-    </Grid>
+        </CardContent>
+      </Grid>
     </div>
   );
 }
