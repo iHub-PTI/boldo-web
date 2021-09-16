@@ -872,7 +872,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    }).format(new Date(appointment.patient.birthDate))
+    }).format(new Date(appointment.patient.birthDate.replaceAll('-','/')))
   }, [appointment.patient.birthDate])
 
   const age = useMemo(() => {
@@ -950,14 +950,14 @@ function MedicalData({ appointment }: { appointment: any; }) {
             <DateFormatted start={appointment.start} end={appointment.end} />
             </Typography> */}
           <Typography variant="subtitle1" color="textSecondary">
-            Ci: {appointment.patient.identifier}
+            CI: {appointment.patient.identifier}
           </Typography>
 
         </Grid>
         <div className='w-full px-8 md:max-w-xl'>
           <div className='mt-6 '>
             <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
-              Diagnostico
+              Diagnóstico
             </label>
 
             <div className='rounded-md shadow-sm'>
