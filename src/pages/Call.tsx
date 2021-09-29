@@ -907,7 +907,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
 
         setDiagnose(res.data.encounter.diagnosis)
         setInstructions(res.data.encounter.instructions)
-
+      console.log(res.data.encounter.prescriptions)
         setSelectedMedication(res.data.encounter.prescriptions)
       } catch (err) {
         console.log(err)
@@ -1035,16 +1035,25 @@ function MedicalData({ appointment }: { appointment: any; }) {
                   setSuccess('')
                   setError('')
                   setLoadingSubmit(true)
+                  var result = selectedMedication.map(function(el) {
+                    var o = Object.assign({}, el);
+                    if(o.status !== 'completed'){
+                      o.status = 'active';
+                    }
+                    
+                    return o;
+                  })
+                  
                   await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
                     encounterData: {
                       diagnosis: diagnose,
                       instructions: instructions,
-                      prescriptions: selectedMedication,
+                      prescriptions: result,
                     },
                   })
                   setSuccess('The medical data was set successfully.')
                 } catch (err) {
-                  setError('An error has occured. Please try again later.')
+                  setError('Ocurrió un error. Intente nuevamente mas tarde')
                   console.log(err)
                 } finally {
                   setLoadingSubmit(false)
@@ -1724,7 +1733,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessa
   )
 }
 
-const lookupGender = (gender: string) => {
+export const lookupGender = (gender: string) => {
   switch (gender) {
     case 'male':
       return 'Masculino'

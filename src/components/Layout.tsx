@@ -5,6 +5,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { UserContext, RoomsContext } from '../App'
 import { avatarPlaceholder } from '../util/helpers'
 import { differenceInYears } from 'date-fns'
+import { lookupGender } from '../pages/Call'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 
@@ -612,7 +613,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                 </div>
                                 <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
                                   {differenceInYears(Date.now(), new Date(room.patient.birthDate))} años{' | '}
-                                  {room.patient.gender}
+                                   {lookupGender(room.patient.gender)} 
                                 </p>
                               </div>
                             </div>

@@ -146,7 +146,7 @@ export default function MedicationsModal({
 
                                   setSelectedMedications([
                                     ...selectedMedications,
-                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' },
+                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' , status:'active'},
                                   ])
                                 }
                               }}
