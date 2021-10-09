@@ -907,7 +907,6 @@ function MedicalData({ appointment }: { appointment: any; }) {
 
         setDiagnose(res.data.encounter.diagnosis)
         setInstructions(res.data.encounter.instructions)
-      console.log(res.data.encounter.prescriptions)
         setSelectedMedication(res.data.encounter.prescriptions)
       } catch (err) {
         console.log(err)
@@ -963,6 +962,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
             <div className='rounded-md shadow-sm'>
               <textarea
                 id='Diagnostico'
+                required
                 rows={3}
                 className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
                 placeholder=''
@@ -1031,32 +1031,37 @@ function MedicalData({ appointment }: { appointment: any; }) {
             <form
               onSubmit={async e => {
                 e.preventDefault()
-                try {
+                if (diagnose === '' || diagnose === undefined) {
+                  setError('Escriba un diagnóstico primero')
                   setSuccess('')
-                  setError('')
-                  setLoadingSubmit(true)
-                  var result = selectedMedication.map(function(el) {
-                    var o = Object.assign({}, el);
-                    if(o.status !== 'completed'){
-                      o.status = 'active';
-                    }
-                    
-                    return o;
-                  })
-                  
-                  await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
-                    encounterData: {
-                      diagnosis: diagnose,
-                      instructions: instructions,
-                      prescriptions: result,
-                    },
-                  })
-                  setSuccess('The medical data was set successfully.')
-                } catch (err) {
-                  setError('Ocurrió un error. Intente nuevamente mas tarde')
-                  console.log(err)
-                } finally {
-                  setLoadingSubmit(false)
+                } else {
+                  try {
+                    setSuccess('')
+                    setError('')
+                    setLoadingSubmit(true)
+                    var result = selectedMedication.map(function (el) {
+                      var o = Object.assign({}, el);
+                      if (o.status !== 'completed') {
+                        o.status = 'active';
+                      }
+
+                      return o;
+                    })
+
+                    await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
+                      encounterData: {
+                        diagnosis: diagnose,
+                        instructions: instructions,
+                        prescriptions: result,
+                      },
+                    })
+                    setSuccess('The medical data was set successfully.')
+                  } catch (err) {
+                    setError('Ocurrió un error. Intente nuevamente mas tarde')
+                    console.log(err)
+                  } finally {
+                    setLoadingSubmit(false)
+                  }
                 }
               }}
             >
@@ -1068,7 +1073,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                 )}
                 {error && (
                   <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
-                    An error has occured. Please try again later.
+                    {error}
                   </span>
                 )}
               </div>
@@ -1231,9 +1236,9 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
       <CardContent>
         <Grid style={{ paddingTop: '10px' }}>
 
-        <div className='flex justify-center w-full  '>
-           <img className="rounded-full center" style={{width:'100px',height:'100px'}} src={appointment.patient.photoUrl} alt="user image" />
-       </div>
+          <div className='flex justify-center w-full  '>
+            <img className="rounded-full center" style={{ width: '100px', height: '100px' }} src={appointment.patient.photoUrl} alt="user image" />
+          </div>
 
           <Grid style={{ paddingTop: '10px' }}>
             <Typography variant="h6" color="textPrimary">

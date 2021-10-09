@@ -20,6 +20,7 @@ export default function MedicineItem({
 
           <div className='w-full rounded-md shadow-sm'>
             <textarea
+              disabled={medicine.status === 'active' ? false : true}
               id={`Indicationes${medicine.medicationId}}`}
               rows={2}
               className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-xs sm:leading-5'
