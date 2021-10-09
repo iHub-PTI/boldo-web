@@ -60,7 +60,7 @@ export default function MedicationsModal({
   }
 
   return (
-    <Modal show={showEditModal} setShow={setShowEditModal} size='xl5'>
+    <Modal show={showEditModal} setShow={setShowEditModal} size='full'>
       <div className='col-span-6 mb-6 sm:col-span-3'>
         <label htmlFor='search' className='block text-sm font-medium leading-5 text-gray-700'>
           Buscar Medicamentos
@@ -94,7 +94,7 @@ export default function MedicationsModal({
                   <div>Algo salió mal, vuelve a intentarlo mas tarde.</div>
                 </div>
               ) : (
-                <table className='min-w-full divide-y divide-gray-200'>
+                <table className='break-normal md:break-all table-fixed '>
                   <thead className='bg-gray-50'>
                     <tr>
                       <th scope='col' className='relative px-6 py-3'>
@@ -104,7 +104,13 @@ export default function MedicationsModal({
                         scope='col'
                         className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
                       >
-                        Nombre
+                        Principio Activo
+                      </th>
+                      <th
+                        scope='col'
+                        className='px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase'
+                      >
+                        Nombre Comercial
                       </th>
                       <th
                         scope='col'
@@ -153,6 +159,9 @@ export default function MedicationsModal({
                               className='w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
                             />
                           </div>
+                        </td>
+                        <td  className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
+                          {medication.ingredients}
                         </td>
                         <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
                           {medication.name}
