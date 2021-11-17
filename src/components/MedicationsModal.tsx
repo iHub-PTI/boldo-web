@@ -132,11 +132,12 @@ export default function MedicationsModal({
                         <td className='px-6 py-4 text-sm font-medium text-right whitespace-nowrap'>
                           <div className='flex items-center h-5'>
                             <input
+                            onChange={e => {}}
                               id='medication'
                               aria-describedby='medication-description'
                               name='medication'
                               type='checkbox'
-                              checked={selectedMedications.some(e => e.medicationId == medication.id)}
+                              checked={selectedMedications.some(e => e.medicationId === medication.id)}
                               onClick={() => {
                                 let medicationAlreadyExists = selectedMedications.find(
                                   (e: any) => e.medicationId === medication.id
@@ -144,7 +145,7 @@ export default function MedicationsModal({
                                 if (medicationAlreadyExists) {
                                   //remove medications
                                   let medicationsCopy = [...selectedMedications]
-                                  medicationsCopy = medicationsCopy.filter((e: any) => e.medicationId != medication.id)
+                                  medicationsCopy = medicationsCopy.filter((e: any) => e.medicationId !== medication.id)
 
                                   setSelectedMedications(medicationsCopy)
                                 } else {
@@ -152,7 +153,7 @@ export default function MedicationsModal({
 
                                   setSelectedMedications([
                                     ...selectedMedications,
-                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' , status:'active'},
+                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' , status:'active',form: medication.form},
                                   ])
                                 }
                               }}
