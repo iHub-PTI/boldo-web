@@ -10,7 +10,7 @@ export default function MedicineItem({
   medicine: any
 }) {
   return (
-    <div className='flex justify-center w-full mt-3 mb-4'>
+    <div key={medicine.medicationId} className='flex justify-center w-full mt-3 mb-4'>
       <div className='flex flex-col w-full'>
         <p className='block text-xs font-medium leading-5 text-gray-700'>{medicine.medicationName}</p>
         <div className='w-full mt-1'>

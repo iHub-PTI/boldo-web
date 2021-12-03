@@ -6,6 +6,7 @@ import io from 'socket.io-client'
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
+import ValidatePatient from './pages/ValidatePatient'
 import Error from './components/Error'
 import { ToastProvider } from './components/Toast'
 
@@ -75,6 +76,10 @@ const App = () => {
 
                 <Route exact path='/settings'>
                   <Settings />
+                </Route>
+
+                <Route exact path='/validate'>
+                  <ValidatePatient />
                 </Route>
 
                 <Route exact path='/appointments/:id/call'>

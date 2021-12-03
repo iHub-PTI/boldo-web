@@ -989,7 +989,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
             </div>
           </div>
           <div className='mt-6'>
-            <Medication setDataCallback={(elem: any) => {
+            {/* <Medication setDataCallback={(elem: any) => {
 
               // const itemsToAdd: any[] = []
               // const selectedMedicationsCopy: any[] = [...selectedMedication]
@@ -1002,7 +1002,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
               // }
               setSelectedMedication([...selectedMedication, elem])
               // setShowEditModal(false)
-            }} />
+            }} /> */}
           </div>
           <div className='mt-6'>
             <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
@@ -1027,7 +1027,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                   }}
                 />
               ))}
-            {/* <button
+            <button
               onClick={() => {
                 setShowEditModal(true)
               }}
@@ -1044,7 +1044,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                 <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
               </svg>
               <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
-            </button> */}
+            </button>
             <form
               onSubmit={async e => {
                 e.preventDefault()

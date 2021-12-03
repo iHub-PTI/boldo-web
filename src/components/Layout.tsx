@@ -352,6 +352,22 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                   </svg>
                   Mi cuenta
                 </NavLink>
+                <NavLink
+                  exact
+                  activeClassName='text-gray-900 bg-gray-200 hover:bg-gray-200'
+                  to={`/validate`}
+                  className='flex items-center p-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:bg-gray-50'
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className='w-6 h-6 mr-3 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600'
+                    viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                  </svg>
+                  Registrar paciente
+
+                </NavLink>
               </div>
             </nav>
           </div>
@@ -589,9 +605,9 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                       {rooms.map(room => {
                         const start = room.start
                           ? new Intl.DateTimeFormat('default', {
-                              hour: 'numeric',
-                              minute: 'numeric',
-                            }).format(new Date(room.start))
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          }).format(new Date(room.start))
                           : '00:00'
 
                         return (
@@ -613,7 +629,7 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                 </div>
                                 <p className='mt-1 text-sm leading-5 text-gray-500 truncate'>
                                   {differenceInYears(Date.now(), new Date(room.patient.birthDate))} años{' | '}
-                                   {lookupGender(room.patient.gender)} 
+                                  {lookupGender(room.patient.gender)}
                                 </p>
                               </div>
                             </div>

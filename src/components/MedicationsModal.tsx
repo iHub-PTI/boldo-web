@@ -161,7 +161,7 @@ export default function MedicationsModal({
                             />
                           </div>
                         </td>
-                        <td  className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
+                        <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
                           {medication.ingredients}
                         </td>
                         <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
