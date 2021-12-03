@@ -873,7 +873,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    }).format(new Date(appointment.patient.birthDate.replaceAll('-','/')))
+    }).format(new Date(appointment.patient.birthDate.replaceAll('-', '/')))
   }, [appointment.patient.birthDate])
 
   const age = useMemo(() => {
@@ -1010,17 +1010,18 @@ function MedicalData({ appointment }: { appointment: any; }) {
             {selectedMedication &&
               selectedMedication.map((e: any) => (
                 <MedicineItem
+                  key={e.medicationId}
                   medicine={e}
                   deleteMedicineCallback={() => {
                     const selectedMedicationsCopy: any[] = [...selectedMedication]
-                    const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
+                    const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId !== e.medicationId)
 
                     setSelectedMedication(filteredItems)
                   }}
                   changeDescriptionCallback={(instructions: String) => {
                     const selectedMedicationsCopy: any[] = [...selectedMedication]
-                    const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
-                    if (myElemIndex != -1) {
+                    const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId === e.medicationId)
+                    if (myElemIndex !== -1) {
                       selectedMedicationsCopy[myElemIndex].instructions = instructions
                       setSelectedMedication(selectedMedicationsCopy)
                     }
@@ -1252,10 +1253,12 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
 
       <CardContent>
         <Grid style={{ paddingTop: '10px' }}>
-
-          <div className='flex justify-center w-full  '>
-            <img className="rounded-full center" style={{ width: '100px', height: '100px' }} src={appointment.patient.photoUrl} alt="user image" />
-          </div>
+          {
+            appointment.patient.photoUrl !== undefined &&
+            <div className='flex justify-center w-full  '>
+              <img className="rounded-full center" style={{ width: '100px', height: '100px' }} src={appointment.patient.photoUrl} alt="user image" />
+            </div>
+          }
 
           <Grid style={{ paddingTop: '10px' }}>
             <Typography variant="h6" color="textPrimary">

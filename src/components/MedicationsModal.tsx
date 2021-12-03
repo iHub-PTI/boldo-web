@@ -37,6 +37,7 @@ export default function MedicationsModal({
       setMedicationsItems([])
       setSelectedMedications([])
     }
+    // eslint-disable-next-line
   }, [showEditModal])
 
   async function fetchData(content: string) {
@@ -85,7 +86,7 @@ export default function MedicationsModal({
                 <div className='flex flex-col items-center justify-center h-full py-16'>
                   <div>Cargando...</div>
                 </div>
-              ) : medicationItems.length == 0 ? (
+              ) : medicationItems.length === 0 ? (
                 <div className='flex flex-col items-center justify-center h-full py-16'>
                   <div>No se encontró ningun medicamento.</div>
                 </div>

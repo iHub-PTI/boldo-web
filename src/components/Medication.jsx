@@ -3,11 +3,10 @@ import React, { useEffect, useState, useCallback } from 'react'
 // import { merge } from 'remeda';
 import { ReactComponent as Check } from '../assets/check.svg'
 import { ReactComponent as Close } from '../assets/close.svg'
-import { Card, Checkbox, Grid, Input, TextField, Typography } from '@material-ui/core'
-import { withStyles } from '@material-ui/styles'
+import { Card, Checkbox, Grid, TextField, Typography } from '@material-ui/core'
+
 import axios from 'axios'
-import _debounce from 'lodash.debounce'
-import { consoleSandbox } from '@sentry/utils'
+
 
 // import {
 //   mActualizarPosologia,
@@ -15,8 +14,8 @@ import { consoleSandbox } from '@sentry/utils'
 // } from '../../../redux/actions';
 // import { addMinutes } from 'date-fns';
 
-const makePosologia = posologia =>
-  `${posologia.dosis} cada ${posologia.cantidad} horas por ${posologia.frecuencia}  ${posologia.medidaFrecuencia}`
+// const makePosologia = posologia =>
+//   `${posologia.dosis} cada ${posologia.cantidad} horas por ${posologia.frecuencia}  ${posologia.medidaFrecuencia}`
 
 const posologiaInicial = {
   dosis: 1,
@@ -26,8 +25,8 @@ const posologiaInicial = {
 }
 
 export default props => {
-  const { medicine } = props
-  const { deleteMedicineCallback } = props
+  // const { medicine } = props
+  // const { deleteMedicineCallback } = props
   const { changeDescriptionCallback } = props
   const { setDataCallback } = props
   console.log(props)
