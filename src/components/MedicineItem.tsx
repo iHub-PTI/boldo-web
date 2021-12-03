@@ -10,7 +10,7 @@ export default function MedicineItem({
   medicine: any
 }) {
   return (
-    <div className='flex justify-center w-full mt-3 mb-4'>
+    <div key={medicine.medicationId} className='flex justify-center w-full mt-3 mb-4'>
       <div className='flex flex-col w-full'>
         <p className='block text-xs font-medium leading-5 text-gray-700'>{medicine.medicationName}</p>
         <div className='w-full mt-1'>
@@ -51,7 +51,7 @@ export default function MedicineItem({
       </svg>
       :
       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-700"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       }
       

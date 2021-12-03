@@ -993,17 +993,18 @@ function MedicalData({ appointment }: { appointment: any; }) {
             {selectedMedication &&
               selectedMedication.map((e: any) => (
                 <MedicineItem
+                  key={e.medicationId}
                   medicine={e}
                   deleteMedicineCallback={() => {
                     const selectedMedicationsCopy: any[] = [...selectedMedication]
-                    const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId != e.medicationId)
+                    const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId !== e.medicationId)
 
                     setSelectedMedication(filteredItems)
                   }}
                   changeDescriptionCallback={(instructions: String) => {
                     const selectedMedicationsCopy: any[] = [...selectedMedication]
-                    const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId == e.medicationId)
-                    if (myElemIndex != -1) {
+                    const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId === e.medicationId)
+                    if (myElemIndex !== -1) {
                       selectedMedicationsCopy[myElemIndex].instructions = instructions
                       setSelectedMedication(selectedMedicationsCopy)
                     }

@@ -136,7 +136,8 @@ export default function MedicationsModal({
                               aria-describedby='medication-description'
                               name='medication'
                               type='checkbox'
-                              checked={selectedMedications.some(e => e.medicationId == medication.id)}
+                              onChange={() => { }}
+                              checked={selectedMedications.some(e => e.medicationId === medication.id)}
                               onClick={() => {
                                 let medicationAlreadyExists = selectedMedications.find(
                                   (e: any) => e.medicationId === medication.id
@@ -152,7 +153,7 @@ export default function MedicationsModal({
 
                                   setSelectedMedications([
                                     ...selectedMedications,
-                                    { medicationId: medication.id, medicationName: medication.name, instructions: '' , status:'active'},
+                                    { medicationId: medication.id, medicationName: medication.name, instructions: '', status: 'active' },
                                   ])
                                 }
                               }}
@@ -160,7 +161,7 @@ export default function MedicationsModal({
                             />
                           </div>
                         </td>
-                        <td  className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
+                        <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
                           {medication.ingredients}
                         </td>
                         <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
