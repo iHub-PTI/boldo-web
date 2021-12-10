@@ -25,7 +25,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Tooltip from '@material-ui/core/Tooltip';
-
+import _ from 'lodash'
 import {
   MainButton,
   ChildButton,
@@ -239,12 +239,12 @@ const Gate = () => {
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          {/* <ChildButton
+          <ChildButton
             icon={<SoepIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
-          /> */}
+          />
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
             background="#323030"
@@ -905,7 +905,6 @@ function MedicalData({ appointment }: { appointment: any; }) {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-
         setDiagnose(res.data.encounter.diagnosis)
         setInstructions(res.data.encounter.instructions)
         setSelectedMedication(res.data.encounter.prescriptions)
@@ -1071,6 +1070,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                         diagnosis: diagnose,
                         instructions: instructions,
                         prescriptions: result,
+                        status: "in-progress"
                       },
                     })
                     setSuccess('The medical data was set successfully.')
@@ -1324,7 +1324,7 @@ function TabPanel(props: { [x: string]: any; children: any; value: any; index: a
       {...other}
     >
       {value === index && (
-        <Typography>{children}</Typography>
+        <div>{children}</div>
       )}
     </div>
   );
@@ -1375,11 +1375,85 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SOEP({ appointment }: { appointment: any; }) {
-  const [value, setValue] = React.useState(0);
+
+  const [value, setValue] = useState(0);
+  const [mainReason, setMainReason] = useState("");
+  const [subjective, setSubjective] = useState("");
+  const [objective, setObjective] = useState("");
+  const [evaluation, setEvaluation] = useState("");
+  const [plan, setPlan] = useState("");
+  const [selectedMedication, setSelectedMedication] = useState<any[]>([]);
+  const [diagnose, setDiagnose] = useState<string>('');
+  const [instructions, setInstructions] = useState<string>('');
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
+
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
+  const id = match?.params.id
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+
+        setDiagnose(diagnosis);
+        setInstructions(instructions);
+        setSelectedMedication(prescriptions);
+
+        mainReason !== undefined && setMainReason(mainReason);
+        if (res.data.encounter.soep !== undefined) {
+          const { subjective, objective, evaluation, plan } = res.data.encounter.soep;
+          objective !== undefined && setObjective(objective);
+          subjective !== undefined && setSubjective(subjective);
+          evaluation !== undefined && setEvaluation(evaluation);
+          plan !== undefined && setPlan(plan);
+        }
+        setInitialLoad(false)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    load()
+  }, [])
+
+  useEffect(() => {
+    if (initialLoad === false) {
+      debounce({
+        encounterData: {
+          diagnosis: diagnose,
+          instructions: instructions,
+          prescriptions: selectedMedication,
+          mainReason: mainReason,
+          status: "in-progress",
+          soep: {
+            subjective: subjective,
+            objective: objective,
+            evaluation: evaluation,
+            plan: plan
+          }
+        },
+
+      })
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainReason, objective, subjective, evaluation, plan])
+
+  const debounce = useCallback(
+    _.debounce(async (_encounter: object) => {
+      try {
+        await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+      } catch (error) {
+        console.log(error)
+      }
+    }, 1000),
+    []
+  )
 
   const CustomToolTip = withStyles((theme) => ({
     tooltip: {
@@ -1452,8 +1526,13 @@ function SOEP({ appointment }: { appointment: any; }) {
                   borderRadius: '4px',
 
                 }}
+                value={mainReason}
+                onChange={event => {
+                  setMainReason(event.target.value);
+                }}
                 required
               />
+
               <Accordion classes={{
                 root: classes.MuiAccordionroot
               }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
@@ -1483,6 +1562,10 @@ function SOEP({ appointment }: { appointment: any; }) {
                     style={{
                       background: '#FFFFFF',
                       borderRadius: '4px',
+                    }}
+                    value={subjective}
+                    onChange={event => {
+                      setSubjective(event.target.value);
                     }}
                     required
                   />
@@ -1532,8 +1615,10 @@ function SOEP({ appointment }: { appointment: any; }) {
                       borderRadius: '4px',
                     }}
                     required
-                  // value={posologia.dosis}
-                  // onChange={onChangeCampo('dosis')}
+                    value={objective}
+                    onChange={event => {
+                      setObjective(event.target.value);
+                    }}
                   />
                 </AccordionDetails>
               </Accordion>
@@ -1563,8 +1648,10 @@ function SOEP({ appointment }: { appointment: any; }) {
                       borderRadius: '4px',
                     }}
                     required
-                  // value={posologia.dosis}
-                  // onChange={onChangeCampo('dosis')}
+                    value={evaluation}
+                    onChange={event => {
+                      setEvaluation(event.target.value);
+                    }}
                   />
                 </AccordionDetails>
               </Accordion>
@@ -1594,8 +1681,10 @@ function SOEP({ appointment }: { appointment: any; }) {
                       borderRadius: '4px',
                     }}
                     required
-                  // value={posologia.dosis}
-                  // onChange={onChangeCampo('dosis')}
+                    value={plan}
+                    onChange={event => {
+                      setPlan(event.target.value);
+                    }}
                   />
                 </AccordionDetails>
               </Accordion>
