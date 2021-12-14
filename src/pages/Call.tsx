@@ -44,7 +44,9 @@ import {
   makeStyles,
   withStyles
 } from '@material-ui/core';
+import Modal from '../components/Modal'
 import Medication from '../components/Medication'
+import MaterialTable from 'material-table'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -275,7 +277,7 @@ const Gate = () => {
             </Grid>
           </Grid>
           <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
-          <Card className='w-3/12' >
+          <Card>
             {controlSideBarState()}
           </Card>
         </div>
@@ -807,7 +809,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
   };
   return (
 
-    <Card className='w-3/12'>
+    <Card >
       {controlSideBarState()}
     </Card>
     // <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
@@ -919,7 +921,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
   }, [])
   if (initialLoad)
     return (
-      <div className='flex items-center justify-center w-full h-full py-64'>
+      <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
         <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
           <svg
             className='w-6 h-6 text-secondary-500 animate-spin'
@@ -1375,7 +1377,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SOEP({ appointment }: { appointment: any; }) {
-
   const [value, setValue] = useState(0);
   const [mainReason, setMainReason] = useState("");
   const [subjective, setSubjective] = useState("");
@@ -1383,17 +1384,21 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [evaluation, setEvaluation] = useState("");
   const [plan, setPlan] = useState("");
   const [selectedMedication, setSelectedMedication] = useState<any[]>([]);
+  const [soepHistory, setSoepHistory] = useState<any[]>([]);
   const [diagnose, setDiagnose] = useState<string>('');
   const [instructions, setInstructions] = useState<string>('');
   const [initialLoad, setInitialLoad] = useState(true);
-
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [encounterId, setEncounterId] = useState('')
+  // const [rowSelected, setrowSelected] = useState('');
+  const [selectedRow, setSelectedRow] = useState({});
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
 
+
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -1403,7 +1408,7 @@ function SOEP({ appointment }: { appointment: any; }) {
         setDiagnose(diagnosis);
         setInstructions(instructions);
         setSelectedMedication(prescriptions);
-
+        setEncounterId(res.data.encounter.id);
         mainReason !== undefined && setMainReason(mainReason);
         if (res.data.encounter.soep !== undefined) {
           const { subjective, objective, evaluation, plan } = res.data.encounter.soep;
@@ -1415,6 +1420,7 @@ function SOEP({ appointment }: { appointment: any; }) {
         setInitialLoad(false)
       } catch (err) {
         console.log(err)
+        setInitialLoad(false)
       }
     }
 
@@ -1443,6 +1449,39 @@ function SOEP({ appointment }: { appointment: any; }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
+
+
+  useEffect(() => {
+    if (showEditModal === true) {
+      // get encounters list
+      const load = async () => {
+        try {
+         
+          const res = await axios.get(`/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`);
+          
+          if(res.data.encounter !== undefined){
+            var count = Object.keys(res.data.encounter).length
+            const tempArray = []
+            for (var i = 0; i < count; i++) {
+              const data = res.data.encounter[i][0]
+              tempArray.push(data)
+            }
+            setSoepHistory(tempArray);
+          }
+        } catch (error) {
+          console.log(error)
+        }
+
+      }
+      load();
+    }
+
+
+  }, [showEditModal, appointment,encounterId])
+
+  useEffect(() => {
+    console.log(selectedRow)
+  }, [selectedRow])
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
@@ -1478,6 +1517,26 @@ function SOEP({ appointment }: { appointment: any; }) {
   }
 
   const classes = useStyles();
+  if (initialLoad)
+    return (
+      <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+          <svg
+            className='w-6 h-6 text-secondary-500 animate-spin'
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+            <path
+              className='opacity-75'
+              fill='currentColor'
+              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+            ></path>
+          </svg>
+        </div>
+      </div>
+    )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
       <Grid >
@@ -1504,7 +1563,9 @@ function SOEP({ appointment }: { appointment: any; }) {
                 root: classes.tabHeight
               }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
                 <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-                <Tab label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
+                <Tab onClick={() => {
+                  setShowEditModal(true)
+                }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
               </Tabs>
             </Grid>
 
@@ -1524,7 +1585,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                   border: '2px solid #e3e8ef',
                   boxSizing: 'border-box',
                   borderRadius: '4px',
-
+                  paddingLeft: '10px'
                 }}
                 value={mainReason}
                 onChange={event => {
@@ -1692,7 +1753,54 @@ function SOEP({ appointment }: { appointment: any; }) {
 
             </TabPanel>
             <TabPanel value={value} index={1}>
+              <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
+                <Typography variant="body1" color="textSecondary">
+                  Paciente
+                </Typography>
+                <Typography variant="body1" color="textPrimary">
+                  {appointment.patient.givenName} {appointment.patient.familyName}
+                </Typography>
 
+                <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
+                  CI: {appointment.patient.identifier}
+                </Typography>
+
+                <MaterialTable
+                  columns={[
+                    {
+                      title: "Fecha",
+                      field: "startTimeDate",
+                    },
+                    {
+                      title: "motivo de visita",
+                      field: "mainReason"
+                    },
+                    {
+                      title: "Diagnóstico",
+                      field: "diagnosis"
+                    },
+
+                  ]}
+                  data={soepHistory}
+                  onRowClick={(evt, selectedRow) =>
+                    //@ts-ignore
+                    setSelectedRow(selectedRow)
+                  }
+                  options={{
+                    search: false,
+
+                    toolbar: false,
+                    paging: false,
+                    draggable: false,
+
+                    rowStyle: (rowData) => ({
+                      backgroundColor:
+                        // @ts-ignore
+                        selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+                    }),
+                  }}
+                />
+              </Modal>
             </TabPanel>
 
 
