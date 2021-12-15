@@ -1481,6 +1481,27 @@ function SOEP({ appointment }: { appointment: any; }) {
 
   useEffect(() => {
     console.log(selectedRow)
+    //send encounter selected to server
+    debounce({
+      encounterData: {
+        diagnosis: diagnose,
+        instructions: instructions,
+        prescriptions: selectedMedication,
+        mainReason: mainReason,
+        //@ts-ignore
+        partOfEncounterId: selectedRow.id ,
+        status: "in-progress",
+        soep: {
+          subjective: subjective,
+          objective: objective,
+          evaluation: evaluation,
+          plan: plan
+        }
+      },
+
+    })
+  
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
 
   const debounce = useCallback(
