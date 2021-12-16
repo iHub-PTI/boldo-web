@@ -26,6 +26,8 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Tooltip from '@material-ui/core/Tooltip';
 import _ from 'lodash'
+import moment from 'moment'
+
 import {
   MainButton,
   ChildButton,
@@ -892,7 +894,10 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 function MedicalData({ appointment }: { appointment: any; }) {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+  const [mainReason, setMainReason] = useState<any[]>([])
+  const [selectedSoep, setSelectedSoep] = useState()
   const [diagnose, setDiagnose] = useState<string>('')
+  const [encounterId, setEncounterId] = useState('')
   const [instructions, setInstructions] = useState<string>('')
   const [initialLoad, setInitialLoad] = useState(true)
 
@@ -907,9 +912,12 @@ function MedicalData({ appointment }: { appointment: any; }) {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        setDiagnose(res.data.encounter.diagnosis)
-        setInstructions(res.data.encounter.instructions)
-        setSelectedMedication(res.data.encounter.prescriptions)
+        setDiagnose(res.data.encounter.diagnosis);
+        setInstructions(res.data.encounter.instructions);
+        setSelectedMedication(res.data.encounter.prescriptions);
+        setMainReason(res.data.encounter.mainReason);
+        setEncounterId(res.data.encounter.partOfEncounterId)
+        setSelectedSoep(res.data.encounter.soep)
       } catch (err) {
         console.log(err)
       } finally {
@@ -1072,7 +1080,10 @@ function MedicalData({ appointment }: { appointment: any; }) {
                         diagnosis: diagnose,
                         instructions: instructions,
                         prescriptions: result,
-                        status: "in-progress"
+                        status: "in-progress",
+                        soep: selectedSoep,
+                        mainReason: mainReason,
+                        partOfEncounterId: encounterId,
                       },
                     })
                     setSuccess('The medical data was set successfully.')
@@ -1390,8 +1401,8 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [initialLoad, setInitialLoad] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false)
   const [encounterId, setEncounterId] = useState('')
-  // const [rowSelected, setrowSelected] = useState('');
-  const [selectedRow, setSelectedRow] = useState({});
+  const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
+  const [selectedRow, setSelectedRow] = useState();
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
@@ -1404,7 +1415,6 @@ function SOEP({ appointment }: { appointment: any; }) {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
         const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
-
         setDiagnose(diagnosis);
         setInstructions(instructions);
         setSelectedMedication(prescriptions);
@@ -1426,6 +1436,35 @@ function SOEP({ appointment }: { appointment: any; }) {
 
     load()
   }, [])
+
+  useEffect(() => {
+    if (encounterId !== '' && showEditModal === false) {
+      const load = async () => {
+        try {
+          //get related encounters records
+          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`);
+          if (res.data.encounter !== undefined) {
+            var count = Object.keys(res.data.encounter.items).length
+            const tempArray = []
+            for (var i = 0; i < count; i++) {
+
+              const data = res.data.encounter.items[i]
+              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
+              if (data.appointmentId !== appointment.id)
+                tempArray.push(data)
+            }
+            setEncounterHistory(tempArray);
+          }
+        } catch (err) {
+          console.log(err)
+          setInitialLoad(false)
+        }
+      }
+      load()
+    }
+
+  }, [encounterId, showEditModal, appointment])
+
 
   useEffect(() => {
     if (initialLoad === false) {
@@ -1456,14 +1495,13 @@ function SOEP({ appointment }: { appointment: any; }) {
       // get encounters list
       const load = async () => {
         try {
-         
           const res = await axios.get(`/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`);
-          
-          if(res.data.encounter !== undefined){
+          if (res.data.encounter !== undefined) {
             var count = Object.keys(res.data.encounter).length
             const tempArray = []
             for (var i = 0; i < count; i++) {
               const data = res.data.encounter[i][0]
+              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               tempArray.push(data)
             }
             setSoepHistory(tempArray);
@@ -1477,32 +1515,42 @@ function SOEP({ appointment }: { appointment: any; }) {
     }
 
 
-  }, [showEditModal, appointment,encounterId])
+  }, [showEditModal, appointment, encounterId])
 
   useEffect(() => {
-    console.log(selectedRow)
     //send encounter selected to server
-    debounce({
-      encounterData: {
-        diagnosis: diagnose,
-        instructions: instructions,
-        prescriptions: selectedMedication,
-        mainReason: mainReason,
-        //@ts-ignore
-        partOfEncounterId: selectedRow.id ,
-        status: "in-progress",
-        soep: {
-          subjective: subjective,
-          objective: objective,
-          evaluation: evaluation,
-          plan: plan
-        }
-      },
+    if (selectedRow) {
+      debounce({
+        encounterData: {
+          diagnosis: diagnose,
+          instructions: instructions,
+          prescriptions: selectedMedication,
+          mainReason: mainReason,
+          //@ts-ignore
+          partOfEncounterId: selectedRow.id,
+          status: "in-progress",
+          soep: {
+            subjective: subjective,
+            objective: objective,
+            evaluation: evaluation,
+            plan: plan
+          }
+        },
 
-    })
-  
-// eslint-disable-next-line react-hooks/exhaustive-deps
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
+
+
+
+
+  useEffect(() => {
+    if (showEditModal === false) {
+      //go to first tab 
+      setValue(0);
+    }
+  }, [showEditModal])
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
@@ -1525,18 +1573,90 @@ function SOEP({ appointment }: { appointment: any; }) {
   }))(Tooltip);
 
   const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
-    return (<React.Fragment>
+    return (<React.Fragment key={iconItem} >
       <Grid container>
         {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : <SecondSoepIcon />}
-        <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >25/12/2020</Typography>
+
+        <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >{date}</Typography>
       </Grid>
       <Grid  >
         <Typography style={{ color: '#27BEC2', fontSize: '18px' }} >{title}</Typography>
-        <Typography variant="subtitle1" color="textPrimary" >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sit nisi, felis, nascetur in adipiscing mi at suspendisse. Bibendum enim sed ullamcorper quis et quisque. </Typography>
+        <Typography variant="subtitle1" color="textPrimary" >{body} </Typography>
       </Grid>
     </React.Fragment>)
   }
 
+  const showSoepRecords = ({ title }: { title: String }) => {
+    const tempArray = [];
+    if (encounterHistory.length > 0) {
+      for (var i = 0; i < encounterHistory.length; i++) {
+        const { objective, subjective, evaluation, plan } = encounterHistory[i].soep;
+        const { startTimeDate, appointmentId } = encounterHistory[i];
+        switch (title) {
+          case 'Objetivo':
+            tempArray.push(<CustomToolTip
+              key={appointmentId}
+              title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
+            >
+              <Grid style={{ paddingLeft: '10px' }}  >
+                {
+                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                }
+
+              </Grid>
+            </CustomToolTip>)
+            break;
+
+          case 'Subjetivo':
+            tempArray.push(<CustomToolTip
+              key={appointmentId}
+              title={toolTipData({ iconItem: i + 1, title: title, body: subjective, date: startTimeDate })}
+            >
+              <Grid style={{ paddingLeft: '10px' }}  >
+                {
+                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                }
+
+              </Grid>
+            </CustomToolTip>)
+            break;
+
+          case 'Evaluacion':
+            tempArray.push(<CustomToolTip
+              key={appointmentId}
+              title={toolTipData({ iconItem: i + 1, title: 'Evaluación', body: evaluation, date: startTimeDate })}
+            >
+              <Grid style={{ paddingLeft: '10px' }}  >
+                {
+                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                }
+
+              </Grid>
+            </CustomToolTip>)
+            break;
+          case 'Plan':
+            tempArray.push(<CustomToolTip
+              key={appointmentId}
+              title={toolTipData({ iconItem: i + 1, title: title, body: plan, date: startTimeDate })}
+            >
+              <Grid style={{ paddingLeft: '10px' }}  >
+                {
+                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                }
+
+              </Grid>
+            </CustomToolTip>)
+            break;
+
+          default:
+            break;
+        }
+
+      }
+    }
+    return tempArray;
+
+  }
   const classes = useStyles();
   if (initialLoad)
     return (
@@ -1624,14 +1744,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                   id="panel1a-header"
                 >
                   <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                  <CustomToolTip
-
-                    title={toolTipData({ iconItem: 1, title: 'Subjetivo', body: '', date: '' })}
-                  >
-                    <Grid style={{ paddingLeft: '10px' }}  >
-                      <FirstSoepLabel />
-                    </Grid>
-                  </CustomToolTip>
+                  {showSoepRecords({ title: 'Subjetivo' })}
                 </AccordionSummary>
                 <AccordionDetails  >
                   <TextField
@@ -1663,24 +1776,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                   id="panel1a-header"
                 >
                   <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-
-                  <CustomToolTip
-
-                    title={toolTipData({ iconItem: 1, title: 'Objetivo', body: '', date: '' })}
-                  >
-                    <Grid style={{ paddingLeft: '10px' }}  >
-                      <FirstSoepLabel />
-                    </Grid>
-                  </CustomToolTip>
-
-                  <CustomToolTip
-
-                    title={toolTipData({ iconItem: 2, title: 'Objetivo', body: '', date: '' })}
-                  >
-                    <Grid style={{ paddingLeft: '10px' }}  >
-                      <SecondSoepLabel />
-                    </Grid>
-                  </CustomToolTip>
+                  {showSoepRecords({ title: 'Objetivo' })}
                 </AccordionSummary>
                 <AccordionDetails  >
                   <TextField
@@ -1714,6 +1810,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                   id="panel1a-header"
                 >
                   <Typography style={{ color: '#177274' }} >Evaluación</Typography>
+                  {showSoepRecords({ title: 'Evaluacion' })}
                 </AccordionSummary>
                 <AccordionDetails  >
                   <TextField
@@ -1747,6 +1844,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                   id="panel1a-header"
                 >
                   <Typography style={{ color: '#177274' }} >Plan</Typography>
+                  {showSoepRecords({ title: 'Plan' })}
                 </AccordionSummary>
                 <AccordionDetails  >
                   <TextField
@@ -1817,7 +1915,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     rowStyle: (rowData) => ({
                       backgroundColor:
                         // @ts-ignore
-                        selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+                        selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
                     }),
                   }}
                 />
