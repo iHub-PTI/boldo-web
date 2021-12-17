@@ -17,8 +17,10 @@ import { ReactComponent as SoepIcon } from '../assets/soep.svg'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
 import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
+import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
 import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
 import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
+import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -1390,6 +1392,7 @@ const useStyles = makeStyles((theme) => ({
 function SOEP({ appointment }: { appointment: any; }) {
   const [value, setValue] = useState(0);
   const [mainReason, setMainReason] = useState("");
+  const [disableMainReason, setDisableMainReason] = useState(false);
   const [subjective, setSubjective] = useState("");
   const [objective, setObjective] = useState("");
   const [evaluation, setEvaluation] = useState("");
@@ -1401,6 +1404,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [initialLoad, setInitialLoad] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false)
   const [encounterId, setEncounterId] = useState('')
+  const [partOfEncounterId, setPartOfEncounterId] = useState('')
   const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState();
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
@@ -1414,11 +1418,13 @@ function SOEP({ appointment }: { appointment: any; }) {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        console.log(res.data)
         const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis);
         setInstructions(instructions);
         setSelectedMedication(prescriptions);
         setEncounterId(res.data.encounter.id);
+        setPartOfEncounterId(res.data.encounter.partOfEncounterId)
         mainReason !== undefined && setMainReason(mainReason);
         if (res.data.encounter.soep !== undefined) {
           const { subjective, objective, evaluation, plan } = res.data.encounter.soep;
@@ -1447,7 +1453,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             var count = Object.keys(res.data.encounter.items).length
             const tempArray = []
             for (var i = 0; i < count; i++) {
-
               const data = res.data.encounter.items[i]
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               if (data.appointmentId !== appointment.id)
@@ -1468,22 +1473,44 @@ function SOEP({ appointment }: { appointment: any; }) {
 
   useEffect(() => {
     if (initialLoad === false) {
-      debounce({
-        encounterData: {
-          diagnosis: diagnose,
-          instructions: instructions,
-          prescriptions: selectedMedication,
-          mainReason: mainReason,
-          status: "in-progress",
-          soep: {
-            subjective: subjective,
-            objective: objective,
-            evaluation: evaluation,
-            plan: plan
-          }
-        },
+      if (partOfEncounterId !== '') {
+        debounce({
+          encounterData: {
+            diagnosis: diagnose,
+            instructions: instructions,
+            prescriptions: selectedMedication,
+            mainReason: mainReason,
+            status: "in-progress",
 
-      })
+            partOfEncounterId: partOfEncounterId,
+            soep: {
+              subjective: subjective,
+              objective: objective,
+              evaluation: evaluation,
+              plan: plan
+            }
+          },
+
+        })
+      } else {
+        debounce({
+          encounterData: {
+            diagnosis: diagnose,
+            instructions: instructions,
+            prescriptions: selectedMedication,
+            mainReason: mainReason,
+            status: "in-progress",
+            soep: {
+              subjective: subjective,
+              objective: objective,
+              evaluation: evaluation,
+              plan: plan
+            }
+          },
+
+        })
+      }
+
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1520,6 +1547,8 @@ function SOEP({ appointment }: { appointment: any; }) {
   useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
+      //@ts-ignore
+      setPartOfEncounterId(selectedRow.id)
       debounce({
         encounterData: {
           diagnosis: diagnose,
@@ -1542,9 +1571,6 @@ function SOEP({ appointment }: { appointment: any; }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
 
-
-
-
   useEffect(() => {
     if (showEditModal === false) {
       //go to first tab 
@@ -1552,10 +1578,20 @@ function SOEP({ appointment }: { appointment: any; }) {
     }
   }, [showEditModal])
 
+  useEffect(() => {
+    if (encounterHistory.length > 0) {
+      //disable mainReason and show first mainReason record
+
+      setDisableMainReason(true);
+      setMainReason(encounterHistory[0].mainReason);
+    }
+  }, [encounterHistory])
+
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       try {
-        await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter);
+        console.log('response', res.data)
       } catch (error) {
         console.log(error)
       }
@@ -1575,7 +1611,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
     return (<React.Fragment key={iconItem} >
       <Grid container>
-        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : <SecondSoepIcon />}
+        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> :iconItem === 2? <SecondSoepIcon />: <ThirdSoepIcon/>}
 
         <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >{date}</Typography>
       </Grid>
@@ -1589,7 +1625,10 @@ function SOEP({ appointment }: { appointment: any; }) {
   const showSoepRecords = ({ title }: { title: String }) => {
     const tempArray = [];
     if (encounterHistory.length > 0) {
-      for (var i = 0; i < encounterHistory.length; i++) {
+      //only show the last three record
+      const encounterCounter = encounterHistory.length > 3 ? 3: encounterHistory.length;
+      
+      for (var i = 0; i < encounterCounter; i++) {
         const { objective, subjective, evaluation, plan } = encounterHistory[i].soep;
         const { startTimeDate, appointmentId } = encounterHistory[i];
         switch (title) {
@@ -1600,7 +1639,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                  i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
                 }
 
               </Grid>
@@ -1614,7 +1653,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                   i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
                 }
 
               </Grid>
@@ -1628,7 +1667,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                   i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
                 }
 
               </Grid>
@@ -1641,7 +1680,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : <SecondSoepLabel />
+                  i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
                 }
 
               </Grid>
@@ -1651,7 +1690,7 @@ function SOEP({ appointment }: { appointment: any; }) {
           default:
             break;
         }
-
+        
       }
     }
     return tempArray;
@@ -1717,6 +1756,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
               <TextField
                 fullWidth
+                disabled={disableMainReason}
                 InputProps={{
                   disableUnderline: true,
                 }}
