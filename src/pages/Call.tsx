@@ -1733,7 +1733,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
         <CardContent>
           {
-            showPrivateCommentMenu === true ? <PrivateComments showPrivateComments={showPrivateCommentMenu} appointment={appointment} setDataCallback={(elem: any) => {
+            showPrivateCommentMenu === true ? <PrivateComments encounterId={encounterId} appointment={appointment} setDataCallback={(elem: any) => {
 
               setShowPrivateCommentMenu(false)
             }} /> :

@@ -8,18 +8,22 @@ import {
 import React, { useState } from 'react'
 import { ReactComponent as Check } from '../assets/check.svg'
 import { ReactComponent as Close } from '../assets/close.svg'
+import axios from 'axios';
+import { useToasts } from './Toast';
 
 export default function PrivateComments({
-    showPrivateComments,
+    encounterId,
     setDataCallback,
     appointment
 }: {
-    showPrivateComments: any,
+    encounterId: any,
     setDataCallback: any,
     appointment: any
 
 }) {
-    const [commentText, setCommnetText] = useState('')
+    const [commentText, setCommentText] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const { addErrorToast } = useToasts()
     const toolTipData = () => {
         return (<>
             <Grid container>
@@ -40,6 +44,30 @@ export default function PrivateComments({
 
         },
     }))(Tooltip);
+
+    const handleChange = async () => {
+        if(commentText === ''){
+            addErrorToast('Agregue un comentario primero, antes de enviar');
+            return 
+        }
+        setIsLoading(true);
+        try {
+            const payload = {
+                "idEncounter": encounterId,
+                "text": commentText
+            }
+
+            const res = await axios.post(`/profile/doctor/encounters/${encounterId}/privateComments`, payload)
+            console.log('respuesa', res.data)
+            setIsLoading(false);
+            setCommentText('')
+        } catch (err) {
+            console.log(err)
+            addErrorToast(err)
+            setIsLoading(false);
+
+        }
+    }
     return (
         <CardContent style={{ width: '300px' }} >
             <div className="grid grid-rows-1 grid-flow-col">
@@ -88,24 +116,38 @@ export default function PrivateComments({
                     placeholder=''
                     value={commentText}
                     style={{ fontSize: '14px', resize: 'none' }}
-                // onChange={e => setDiagnose(e.target.value)}
-                // value={diagnose}
+                    onChange={e => setCommentText(e.target.value)}
                 />
             </div>
 
             <Grid justifyContent='flex-end' spacing={2} container>
-                <Grid item>
-                    <button style={{outline: 'none' }} >
-                        <Close />
+                {isLoading === true ? <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+                    <svg
+                        className='w-6 h-6 text-secondary-500 animate-spin'
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                    >
+                        <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+                        <path
+                            className='opacity-75'
+                            fill='currentColor'
+                            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                        ></path>
+                    </svg>
+                </div> : <> <Grid item>
+                    <button style={{ outline: 'none' }} >
+                        <Close  onClick={() => setCommentText('')}/>
                     </button>
 
                 </Grid>
-                <Grid item>
-                    <button style={{outline: 'none' }} >
-                        <Check />
-                    </button>
+                    <Grid item>
+                        <button style={{ outline: 'none' }} >
+                            <Check onClick={() => handleChange()} />
+                        </button>
 
-                </Grid>
+                    </Grid></>}
+
             </Grid>
 
         </CardContent>
