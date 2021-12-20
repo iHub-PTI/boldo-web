@@ -21,6 +21,7 @@ import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg
 import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
 import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
 import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
+import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
 import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -46,11 +47,14 @@ import {
   Tabs,
   TextField,
   makeStyles,
-  withStyles
+  withStyles,
+  IconButton,
+  Button
 } from '@material-ui/core';
 import Modal from '../components/Modal'
 import Medication from '../components/Medication'
 import MaterialTable from 'material-table'
+import PrivateComments from '../components/PrivateCommnets'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -1000,7 +1004,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
             </div>
           </div>
           <div className='mt-6'>
-            {/* <Medication setDataCallback={(elem: any) => {
+            <Medication setDataCallback={(elem: any) => {
 
               // const itemsToAdd: any[] = []
               // const selectedMedicationsCopy: any[] = [...selectedMedication]
@@ -1013,7 +1017,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
               // }
               setSelectedMedication([...selectedMedication, elem])
               // setShowEditModal(false)
-            }} /> */}
+            }} />
           </div>
           <div className='mt-6'>
             <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
@@ -1403,6 +1407,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [instructions, setInstructions] = useState<string>('');
   const [initialLoad, setInitialLoad] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
   const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
@@ -1410,7 +1415,6 @@ function SOEP({ appointment }: { appointment: any; }) {
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
-
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -1611,7 +1615,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
     return (<React.Fragment key={iconItem} >
       <Grid container>
-        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> :iconItem === 2? <SecondSoepIcon />: <ThirdSoepIcon/>}
+        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : iconItem === 2 ? <SecondSoepIcon /> : <ThirdSoepIcon />}
 
         <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >{date}</Typography>
       </Grid>
@@ -1626,8 +1630,8 @@ function SOEP({ appointment }: { appointment: any; }) {
     const tempArray = [];
     if (encounterHistory.length > 0) {
       //only show the last three record
-      const encounterCounter = encounterHistory.length > 3 ? 3: encounterHistory.length;
-      
+      const encounterCounter = encounterHistory.length > 3 ? 3 : encounterHistory.length;
+
       for (var i = 0; i < encounterCounter; i++) {
         const { objective, subjective, evaluation, plan } = encounterHistory[i].soep;
         const { startTimeDate, appointmentId } = encounterHistory[i];
@@ -1639,7 +1643,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
+                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
 
               </Grid>
@@ -1653,7 +1657,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                   i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
+                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
 
               </Grid>
@@ -1667,7 +1671,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                   i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
+                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
 
               </Grid>
@@ -1680,7 +1684,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             >
               <Grid style={{ paddingLeft: '10px' }}  >
                 {
-                  i === 0 ? <FirstSoepLabel /> : i === 1? <SecondSoepLabel />: <ThirdSoepLabel/>
+                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
 
               </Grid>
@@ -1690,7 +1694,7 @@ function SOEP({ appointment }: { appointment: any; }) {
           default:
             break;
         }
-        
+
       }
     }
     return tempArray;
@@ -1720,18 +1724,26 @@ function SOEP({ appointment }: { appointment: any; }) {
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
       <Grid >
-        <CardHeader title="Nota SOEP" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+        <CardHeader
+          title="Nota SOEP"
+          titleTypographyProps={{ variant: 'h6' }}
+          style={{ backgroundColor: '#27BEC2', color: 'white' }}
+          action={<button  onClick={()=>setShowPrivateCommentMenu(true)} style={{padding:'10px',outline: 'none'}}  > <PrivateCommentIcon   /> </button>}
+        />
 
         <CardContent>
-          <Grid style={{ paddingTop: '25px' }}>
+          {
+            showPrivateCommentMenu === true ? <PrivateComments showPrivateComments={showPrivateCommentMenu} appointment={appointment} setDataCallback={(elem: any) => {
+
+              setShowPrivateCommentMenu(false)
+            }} /> :
+            <Grid style={{ paddingTop: '25px' }}>
 
             <Grid>
               <Typography variant="h6" color="textPrimary">
                 {appointment.patient.givenName} {appointment.patient.familyName}
               </Typography>
-              {/* <Typography variant="subtitle2" color="textSecondary">
-            <DateFormatted start={appointment.start} end={appointment.end} />
-            </Typography> */}
+          
               <Typography variant="subtitle1" color="textSecondary">
                 Ci: {appointment.patient.identifier}
               </Typography>
@@ -1965,6 +1977,8 @@ function SOEP({ appointment }: { appointment: any; }) {
 
 
           </Grid>
+          }
+          
         </CardContent>
       </Grid>
     </div>
