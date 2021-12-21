@@ -1,15 +1,17 @@
-import { CardContent, Grid, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip';
 import {
 
     withStyles,
 
 } from '@material-ui/core';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ReactComponent as Check } from '../assets/check.svg'
 import { ReactComponent as Close } from '../assets/close.svg'
 import axios from 'axios';
 import { useToasts } from './Toast';
+import moment from 'moment';
+
 
 export default function PrivateComments({
     encounterId,
@@ -23,6 +25,7 @@ export default function PrivateComments({
 }) {
     const [commentText, setCommentText] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
     const { addErrorToast } = useToasts()
     const toolTipData = () => {
         return (<>
@@ -46,9 +49,9 @@ export default function PrivateComments({
     }))(Tooltip);
 
     const handleChange = async () => {
-        if(commentText === ''){
+        if (commentText === '') {
             addErrorToast('Agregue un comentario primero, antes de enviar');
-            return 
+            return
         }
         setIsLoading(true);
         try {
@@ -57,10 +60,10 @@ export default function PrivateComments({
                 "text": commentText
             }
 
-            const res = await axios.post(`/profile/doctor/encounters/${encounterId}/privateComments`, payload)
-            console.log('respuesa', res.data)
+            await axios.post(`/profile/doctor/encounters/${encounterId}/privateComments`, payload)
             setIsLoading(false);
             setCommentText('')
+            getPrivateCommentsRecords()
         } catch (err) {
             console.log(err)
             addErrorToast(err)
@@ -68,6 +71,27 @@ export default function PrivateComments({
 
         }
     }
+
+    const getPrivateCommentsRecords = async () => {
+        setIsLoading(true);
+        try {
+            const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}/privateComments`)
+            setIsLoading(false);
+            let tempArray = res.data.encounter.items;
+            tempArray.reverse();
+            setPrivateCommentsRecords(tempArray)
+        } catch (err) {
+            console.log(err)
+            addErrorToast(err)
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        getPrivateCommentsRecords();
+        // eslint-disable-next-line
+    }, [])
+
     return (
         <CardContent style={{ width: '300px' }} >
             <div className="grid grid-rows-1 grid-flow-col">
@@ -137,7 +161,7 @@ export default function PrivateComments({
                     </svg>
                 </div> : <> <Grid item>
                     <button style={{ outline: 'none' }} >
-                        <Close  onClick={() => setCommentText('')}/>
+                        <Close onClick={() => setCommentText('')} />
                     </button>
 
                 </Grid>
@@ -149,6 +173,39 @@ export default function PrivateComments({
                     </Grid></>}
 
             </Grid>
+
+            {
+                privateCommentsRecord.length > 0 && isLoading === false &&
+                <div className='col-span-6 mb-6 sm:col-span-3 mt-5'>
+                    <Typography variant="subtitle2" color="textPrimary">
+                        Anteriores
+                    </Typography>
+                    <ul>
+                        {privateCommentsRecord.map(function (item: any) {
+                            const date = moment(item.dateTime).format('DD/MM/YYYY')
+                            return (
+                                <Card key={item.dateTime} elevation={0} style={{
+                                    marginTop: '10px', backgroundColor: '#fbfdfe', borderColor: '#e2e8f0',
+                                    borderWidth: '1px',
+                                    borderRadius: '10px'
+                                }} >
+                                    <CardContent>
+                                        <Typography variant="body2" color="textSecondary">
+                                            {date}
+                                        </Typography>
+                                        <Typography variant="subtitle1" color="textPrimary">
+                                            {item.text}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            )
+                        })}
+                    </ul>
+                </div>
+
+
+            }
+
 
         </CardContent>
     )
