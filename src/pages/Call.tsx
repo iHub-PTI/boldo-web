@@ -1004,7 +1004,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
             </div>
           </div>
           <div className='mt-6'>
-            <Medication setDataCallback={(elem: any) => {
+            {/* <Medication setDataCallback={(elem: any) => {
 
               // const itemsToAdd: any[] = []
               // const selectedMedicationsCopy: any[] = [...selectedMedication]
@@ -1017,7 +1017,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
               // }
               setSelectedMedication([...selectedMedication, elem])
               // setShowEditModal(false)
-            }} />
+            }} /> */}
           </div>
           <div className='mt-6'>
             <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
