@@ -378,12 +378,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          {/* <ChildButton
+          <ChildButton
             icon={<SoepIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
-          /> */}
+          />
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
             background="#323030"
