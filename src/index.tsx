@@ -15,10 +15,9 @@ if (process.env.NODE_ENV === 'production')
   })
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
+   <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
+  ,
   document.getElementById('root')
 )
