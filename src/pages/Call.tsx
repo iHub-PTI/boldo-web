@@ -22,6 +22,8 @@ import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
 import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
 import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
+import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
+import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
 import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -30,7 +32,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Tooltip from '@material-ui/core/Tooltip';
 import _ from 'lodash'
 import moment from 'moment'
-
+import loading from '../assets/loading.gif'
 import {
   MainButton,
   ChildButton,
@@ -54,7 +56,7 @@ import {
 import Modal from '../components/Modal'
 import Medication from '../components/Medication'
 import MaterialTable from 'material-table'
-import PrivateComments from '../components/PrivateCommnets'
+import PrivateComments from '../components/PrivateComments'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -378,12 +380,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          {/* <ChildButton
+          <ChildButton
             icon={<SoepIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
-          /> */}
+          />
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
             background="#323030"
@@ -1059,7 +1061,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                 />
                 <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
               </svg>
-              <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
+              <p className='ml-4 block text-sm font-medium leading-5 text-gray-700'>Agregar medicamentos</p>
             </button>
             <form
               onSubmit={async e => {
@@ -1387,6 +1389,7 @@ const useStyles = makeStyles((theme) => ({
   tabHeight: {
     '& .MuiTab-root': {
       minHeight: '20px',
+      minWidth:'50%',
       textTransform: 'none'
     },
   },
@@ -1412,10 +1415,12 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
   const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState();
+  const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
-
+  const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
   useEffect(() => {
@@ -1441,6 +1446,8 @@ function SOEP({ appointment }: { appointment: any; }) {
       } catch (err) {
         console.log(err)
         setInitialLoad(false)
+        //@ts-ignore
+        addErrorToast(err)
       }
     }
 
@@ -1467,11 +1474,13 @@ function SOEP({ appointment }: { appointment: any; }) {
         } catch (err) {
           console.log(err)
           setInitialLoad(false)
+          //@ts-ignore
+          addErrorToast(err)
         }
       }
       load()
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId, showEditModal, appointment])
 
 
@@ -1539,38 +1548,57 @@ function SOEP({ appointment }: { appointment: any; }) {
           }
         } catch (error) {
           console.log(error)
+          //@ts-ignore
+          addErrorToast(error)
         }
 
       }
       load();
     }
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showEditModal, appointment, encounterId])
 
   useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
+      setIsLoading(true)
       //@ts-ignore
       setPartOfEncounterId(selectedRow.id)
-      debounce({
-        encounterData: {
-          diagnosis: diagnose,
-          instructions: instructions,
-          prescriptions: selectedMedication,
-          mainReason: mainReason,
-          //@ts-ignore
-          partOfEncounterId: selectedRow.id,
-          status: "in-progress",
-          soep: {
-            subjective: subjective,
-            objective: objective,
-            evaluation: evaluation,
-            plan: plan
-          }
-        },
+      const send = async () => {
+        const encounter = {
+          encounterData: {
+            diagnosis: diagnose,
+            instructions: instructions,
+            prescriptions: selectedMedication,
+            mainReason: mainReason,
+            //@ts-ignore
+            partOfEncounterId: selectedRow.id,
+            status: "in-progress",
+            soep: {
+              subjective: subjective,
+              objective: objective,
+              evaluation: evaluation,
+              plan: plan
+            }
+          },
 
-      })
+        }
+        try {
+          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter);
+          console.log('response', res.data)
+          addToast({ type: 'success', title: 'Ficha médica asociada con exito', text: '' })
+          setIsLoading(false)
+        } catch (error) {
+          console.log(error)
+          //@ts-ignore
+          addErrorToast(error)
+          setIsLoading(false)
+        }
+
+
+      }
+      send()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
@@ -1594,14 +1622,39 @@ function SOEP({ appointment }: { appointment: any; }) {
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       try {
+        setIsLoading(true)
         const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter);
         console.log('response', res.data)
+        setIsLoading(false)
+        addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
       } catch (error) {
+        setIsLoading(false)
         console.log(error)
+        //@ts-ignore
+        addErrorToast(error)
       }
     }, 1000),
     []
   )
+
+
+  useEffect(() => {
+    const getPrivateCommentsRecords = async () => {
+
+      try {
+        const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}/privateComments`)
+        setPrivateCommentsRecords(res.data.encounter.items)
+      } catch (err) {
+        console.log(err)
+        //@ts-ignore
+        addErrorToast(error)
+      }
+    }
+    if (encounterId !== '')
+      getPrivateCommentsRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [encounterId])
+
 
   const CustomToolTip = withStyles((theme) => ({
     tooltip: {
@@ -1641,12 +1694,12 @@ function SOEP({ appointment }: { appointment: any; }) {
               key={appointmentId}
               title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
             >
-              <Grid style={{ paddingLeft: '10px' }}  >
+              <Grid  style={{ paddingLeft: '10px' }}  >
                 {
                   i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
-
               </Grid>
+             
             </CustomToolTip>)
             break;
 
@@ -1728,7 +1781,7 @@ function SOEP({ appointment }: { appointment: any; }) {
           title="Nota SOEP"
           titleTypographyProps={{ variant: 'h6' }}
           style={{ backgroundColor: '#27BEC2', color: 'white' }}
-          action={<button  onClick={()=>setShowPrivateCommentMenu(true)} style={{padding:'10px',outline: 'none'}}  > <PrivateCommentIcon   /> </button>}
+          action={<button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}  >  {privateCommentsRecord.length <= 0 ? <PrivateCommentIcon /> : privateCommentsRecord.length === 1 ? <PrivateCommentIconBadge /> : <PrivateCommentIconBadgesExtra />}  </button>}
         />
 
         <CardContent>
@@ -1737,248 +1790,264 @@ function SOEP({ appointment }: { appointment: any; }) {
 
               setShowPrivateCommentMenu(false)
             }} /> :
-            <Grid style={{ paddingTop: '25px' }}>
+              <Grid style={{ paddingTop: '25px' }}>
 
-            <Grid>
-              <Typography variant="h6" color="textPrimary">
-                {appointment.patient.givenName} {appointment.patient.familyName}
-              </Typography>
-          
-              <Typography variant="subtitle1" color="textSecondary">
-                Ci: {appointment.patient.identifier}
-              </Typography>
+                <Grid>
+                  <Typography variant="h6" color="textPrimary">
+                    {appointment.patient.givenName} {appointment.patient.familyName}
+                  </Typography>
 
-            </Grid>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Ci: {appointment.patient.identifier}
+                  </Typography>
 
-            <Grid style={{ marginTop: '25px' }} >
-              <Tabs classes={{
-                root: classes.tabHeight
-              }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
-                <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-                <Tab onClick={() => {
-                  setShowEditModal(true)
-                }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
-              </Tabs>
-            </Grid>
+                </Grid>
 
-            <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
-              <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
-                Motivo principal de la visita
-              </Typography>
+                <Grid style={{ marginTop: '25px' }} >
+                  <Tabs classes={{
+                    root: classes.tabHeight
+                  }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
+                    <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
+                    <Tab onClick={() => {
+                      setShowEditModal(true)
+                    }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
+                  </Tabs>
+                </Grid>
 
-              <TextField
-                fullWidth
-                disabled={disableMainReason}
-                InputProps={{
-                  disableUnderline: true,
-                }}
-                placeholder={' Ej: Dolor de cabeza prolongado'}
-                style={{
-                  background: '#FFFFFF',
-                  border: '2px solid #e3e8ef',
-                  boxSizing: 'border-box',
-                  borderRadius: '4px',
-                  paddingLeft: '10px'
-                }}
-                value={mainReason}
-                onChange={event => {
-                  setMainReason(event.target.value);
-                }}
-                required
-              />
+                <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
+                  <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
+                    Motivo principal de la visita
+                  </Typography>
 
-              <Accordion classes={{
-                root: classes.MuiAccordionroot
-              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                  {showSoepRecords({ title: 'Subjetivo' })}
-                </AccordionSummary>
-                <AccordionDetails  >
                   <TextField
                     fullWidth
-                    multiline
-                    rows="9"
+                    disabled={disableMainReason}
                     InputProps={{
                       disableUnderline: true,
                     }}
+                    placeholder={' Ej: Dolor de cabeza prolongado'}
                     style={{
                       background: '#FFFFFF',
+                      border: '2px solid #e3e8ef',
+                      boxSizing: 'border-box',
                       borderRadius: '4px',
+                      paddingLeft: '10px'
                     }}
-                    value={subjective}
+                    value={mainReason}
                     onChange={event => {
-                      setSubjective(event.target.value);
+                      setMainReason(event.target.value);
                     }}
                     required
                   />
-                </AccordionDetails>
-              </Accordion>
 
-              <Accordion classes={{
-                root: classes.MuiAccordionroot
-              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-                  {showSoepRecords({ title: 'Objetivo' })}
-                </AccordionSummary>
-                <AccordionDetails  >
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows="9"
-                    InputProps={{
-                      disableUnderline: true,
-                    }}
-                    style={{
-                      background: '#FFFFFF',
-                      // border: '2px solid #AAAAAA',
-                      // boxSizing: 'border-box',
-                      borderRadius: '4px',
-                    }}
-                    required
-                    value={objective}
-                    onChange={event => {
-                      setObjective(event.target.value);
-                    }}
-                  />
-                </AccordionDetails>
-              </Accordion>
+                  <Accordion classes={{
+                    root: classes.MuiAccordionroot
+                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
+                      {showSoepRecords({ title: 'Subjetivo' })}
+                    </AccordionSummary>
+                    <AccordionDetails  >
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows="9"
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        style={{
+                          background: '#FFFFFF',
+                          borderRadius: '4px',
+                        }}
+                        value={subjective}
+                        onChange={event => {
+                          setSubjective(event.target.value);
+                        }}
+                        required
+                      />
+                    </AccordionDetails>
+                  </Accordion>
 
-              <Accordion classes={{
-                root: classes.MuiAccordionroot
-              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography style={{ color: '#177274' }} >Evaluación</Typography>
-                  {showSoepRecords({ title: 'Evaluacion' })}
-                </AccordionSummary>
-                <AccordionDetails  >
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows="9"
-                    InputProps={{
-                      disableUnderline: true,
-                    }}
-                    style={{
-                      background: '#FFFFFF',
-                      // border: '2px solid #AAAAAA',
-                      // boxSizing: 'border-box',
-                      borderRadius: '4px',
-                    }}
-                    required
-                    value={evaluation}
-                    onChange={event => {
-                      setEvaluation(event.target.value);
-                    }}
-                  />
-                </AccordionDetails>
-              </Accordion>
+                  <Accordion classes={{
+                    root: classes.MuiAccordionroot
+                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography style={{ color: '#177274' }} >Objetivo</Typography>
+                      {showSoepRecords({ title: 'Objetivo' })}
+                    </AccordionSummary>
+                    <AccordionDetails  >
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows="9"
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        style={{
+                          background: '#FFFFFF',
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={objective}
+                        onChange={event => {
+                          setObjective(event.target.value);
+                        }}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
 
-              <Accordion classes={{
-                root: classes.MuiAccordionroot
-              }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography style={{ color: '#177274' }} >Plan</Typography>
-                  {showSoepRecords({ title: 'Plan' })}
-                </AccordionSummary>
-                <AccordionDetails  >
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows="9"
-                    InputProps={{
-                      disableUnderline: true,
-                    }}
-                    style={{
-                      background: '#FFFFFF',
-                      // border: '2px solid #AAAAAA',
-                      // boxSizing: 'border-box',
-                      borderRadius: '4px',
-                    }}
-                    required
-                    value={plan}
-                    onChange={event => {
-                      setPlan(event.target.value);
-                    }}
-                  />
-                </AccordionDetails>
-              </Accordion>
+                  <Accordion classes={{
+                    root: classes.MuiAccordionroot
+                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography style={{ color: '#177274' }} >Evaluación</Typography>
+                      {showSoepRecords({ title: 'Evaluacion' })}
+                    </AccordionSummary>
+                    <AccordionDetails  >
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows="9"
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        style={{
+                          background: '#FFFFFF',
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={evaluation}
+                        onChange={event => {
+                          setEvaluation(event.target.value);
+                        }}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
 
-
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
-                <Typography variant="body1" color="textSecondary">
-                  Paciente
-                </Typography>
-                <Typography variant="body1" color="textPrimary">
-                  {appointment.patient.givenName} {appointment.patient.familyName}
-                </Typography>
-
-                <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
-                  CI: {appointment.patient.identifier}
-                </Typography>
-
-                <MaterialTable
-                  columns={[
-                    {
-                      title: "Fecha",
-                      field: "startTimeDate",
-                    },
-                    {
-                      title: "motivo de visita",
-                      field: "mainReason"
-                    },
-                    {
-                      title: "Diagnóstico",
-                      field: "diagnosis"
-                    },
-
-                  ]}
-                  data={soepHistory}
-                  onRowClick={(evt, selectedRow) =>
-                    //@ts-ignore
-                    setSelectedRow(selectedRow)
-                  }
-                  options={{
-                    search: false,
-
-                    toolbar: false,
-                    paging: false,
-                    draggable: false,
-
-                    rowStyle: (rowData) => ({
-                      backgroundColor:
-                        // @ts-ignore
-                        selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
-                    }),
-                  }}
-                />
-              </Modal>
-            </TabPanel>
+                  <Accordion classes={{
+                    root: classes.MuiAccordionroot
+                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography style={{ color: '#177274' }} >Plan</Typography>
+                      {showSoepRecords({ title: 'Plan' })}
+                    </AccordionSummary>
+                    <AccordionDetails  >
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows="9"
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        style={{
+                          background: '#FFFFFF',
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={plan}
+                        onChange={event => {
+                          setPlan(event.target.value);
+                        }}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
 
 
+                </TabPanel>
+                <TabPanel value={value} index={1}>
+                  <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
+                    <Typography variant="body1" color="textSecondary">
+                      Paciente
+                    </Typography>
+                    <Typography variant="body1" color="textPrimary">
+                      {appointment.patient.givenName} {appointment.patient.familyName}
+                    </Typography>
 
-          </Grid>
+                    <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
+                      CI: {appointment.patient.identifier}
+                    </Typography>
+
+                    <MaterialTable
+                      columns={[
+                        {
+                          title: "Fecha",
+                          field: "startTimeDate",
+                        },
+                        {
+                          title: "motivo de visita",
+                          field: "mainReason"
+                        },
+                        // {
+                        //   title: "Diagnóstico",
+                        //   field: "diagnosis"
+                        // },
+                        {
+                          title: 'Diagnóstico',
+                          field: 'diagnosis',
+                          render: rowData => {
+                            //@ts-ignore
+                            return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
+                              <Grid style={{ width: '130px' }} container>
+                                <img src={loading} width='30px' alt='loading...' /> <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
+                              </Grid>
+                            ) : (
+                              <p>
+                                {rowData.diagnosis}
+                              </p>
+                            )
+                          },
+                        },
+
+                      ]}
+                      data={soepHistory}
+                      onRowClick={(evt, selectedRow) =>
+                        //@ts-ignore
+                        setSelectedRow(selectedRow)
+                      }
+                      options={{
+                        search: false,
+
+                        toolbar: false,
+                        paging: false,
+                        draggable: false,
+
+                        rowStyle: (rowData) => ({
+                          backgroundColor:
+                            // @ts-ignore
+                            selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+                        }),
+                      }}
+                    />
+                  </Modal>
+                </TabPanel>
+
+
+
+              </Grid>
           }
-          
+
         </CardContent>
       </Grid>
     </div>
