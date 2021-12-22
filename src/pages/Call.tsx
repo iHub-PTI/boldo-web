@@ -1389,6 +1389,7 @@ const useStyles = makeStyles((theme) => ({
   tabHeight: {
     '& .MuiTab-root': {
       minHeight: '20px',
+      minWidth:'50%',
       textTransform: 'none'
     },
   },
