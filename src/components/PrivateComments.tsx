@@ -1,9 +1,7 @@
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip';
 import {
-
     withStyles,
-
 } from '@material-ui/core';
 import React, { useState, useEffect } from 'react'
 import { ReactComponent as Check } from '../assets/check.svg'
@@ -71,7 +69,7 @@ export default function PrivateComments({
             } else {
                 // update comment
                 //@ts-ignore
-                const res = await axios.put(`/profile/doctor/encounters/${encounterId}/privateComments/${selectedCommnent.id}`, payload)
+                const res = await axios.put(`/profile/doctor/encounters/${selectedCommnent.idEncounter}/privateComments/${selectedCommnent.id}`, payload)
                 console.log('respuesta', res.data)
                 setIsLoading(false);
                 setCommentText('')
@@ -91,7 +89,7 @@ export default function PrivateComments({
         try {
             // delete comment
             //@ts-ignore
-            await axios.delete(`/profile/doctor/encounters/${encounterId}/privateComments/${item.id}`)
+           await axios.delete(`/profile/doctor/encounters/${item.idEncounter}/privateComments/${item.id}`);
             setIsLoading(false);
             setCommentText('')
             setSelectedCommnent(undefined)

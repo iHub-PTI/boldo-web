@@ -32,7 +32,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Tooltip from '@material-ui/core/Tooltip';
 import _ from 'lodash'
 import moment from 'moment'
-
+import loading from '../assets/loading.gif'
 import {
   MainButton,
   ChildButton,
@@ -1061,7 +1061,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                 />
                 <rect x='1' y='1' width='30' height='30' rx='15' stroke='#D1D5DB' strokeWidth='2' strokeDasharray='4 4' />
               </svg>
-              <span className='ml-4 text-indigo-600'>Agregar medicamentos</span>
+              <p className='ml-4 block text-sm font-medium leading-5 text-gray-700'>Agregar medicamentos</p>
             </button>
             <form
               onSubmit={async e => {
@@ -1415,10 +1415,11 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState();
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
-
+  const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
   useEffect(() => {
@@ -1444,6 +1445,8 @@ function SOEP({ appointment }: { appointment: any; }) {
       } catch (err) {
         console.log(err)
         setInitialLoad(false)
+        //@ts-ignore
+        addErrorToast(err)
       }
     }
 
@@ -1470,11 +1473,13 @@ function SOEP({ appointment }: { appointment: any; }) {
         } catch (err) {
           console.log(err)
           setInitialLoad(false)
+          //@ts-ignore
+          addErrorToast(err)
         }
       }
       load()
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId, showEditModal, appointment])
 
 
@@ -1542,38 +1547,57 @@ function SOEP({ appointment }: { appointment: any; }) {
           }
         } catch (error) {
           console.log(error)
+          //@ts-ignore
+          addErrorToast(error)
         }
 
       }
       load();
     }
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showEditModal, appointment, encounterId])
 
   useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
+      setIsLoading(true)
       //@ts-ignore
       setPartOfEncounterId(selectedRow.id)
-      debounce({
-        encounterData: {
-          diagnosis: diagnose,
-          instructions: instructions,
-          prescriptions: selectedMedication,
-          mainReason: mainReason,
-          //@ts-ignore
-          partOfEncounterId: selectedRow.id,
-          status: "in-progress",
-          soep: {
-            subjective: subjective,
-            objective: objective,
-            evaluation: evaluation,
-            plan: plan
-          }
-        },
+      const send = async () => {
+        const encounter = {
+          encounterData: {
+            diagnosis: diagnose,
+            instructions: instructions,
+            prescriptions: selectedMedication,
+            mainReason: mainReason,
+            //@ts-ignore
+            partOfEncounterId: selectedRow.id,
+            status: "in-progress",
+            soep: {
+              subjective: subjective,
+              objective: objective,
+              evaluation: evaluation,
+              plan: plan
+            }
+          },
 
-      })
+        }
+        try {
+          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter);
+          console.log('response', res.data)
+          addToast({ type: 'success', title: 'Ficha médica asociada con exito', text: '' })
+          setIsLoading(false)
+        } catch (error) {
+          console.log(error)
+          //@ts-ignore
+          addErrorToast(error)
+          setIsLoading(false)
+        }
+
+
+      }
+      send()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
@@ -1597,10 +1621,16 @@ function SOEP({ appointment }: { appointment: any; }) {
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       try {
+        setIsLoading(true)
         const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter);
         console.log('response', res.data)
+        setIsLoading(false)
+        addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
       } catch (error) {
+        setIsLoading(false)
         console.log(error)
+        //@ts-ignore
+        addErrorToast(error)
       }
     }, 1000),
     []
@@ -1615,11 +1645,13 @@ function SOEP({ appointment }: { appointment: any; }) {
         setPrivateCommentsRecords(res.data.encounter.items)
       } catch (err) {
         console.log(err)
+        //@ts-ignore
+        addErrorToast(error)
       }
     }
     if (encounterId !== '')
       getPrivateCommentsRecords();
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
 
@@ -1661,12 +1693,12 @@ function SOEP({ appointment }: { appointment: any; }) {
               key={appointmentId}
               title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
             >
-              <Grid style={{ paddingLeft: '10px' }}  >
+              <Grid  style={{ paddingLeft: '10px' }}  >
                 {
                   i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
-
               </Grid>
+             
             </CustomToolTip>)
             break;
 
@@ -1748,7 +1780,7 @@ function SOEP({ appointment }: { appointment: any; }) {
           title="Nota SOEP"
           titleTypographyProps={{ variant: 'h6' }}
           style={{ backgroundColor: '#27BEC2', color: 'white' }}
-          action={<button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}  >  {privateCommentsRecord.length <= 0 ? <PrivateCommentIcon /> : privateCommentsRecord.length === 1 ? <PrivateCommentIconBadge /> : <PrivateCommentIconBadgesExtra/>}  </button>}
+          action={<button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}  >  {privateCommentsRecord.length <= 0 ? <PrivateCommentIcon /> : privateCommentsRecord.length === 1 ? <PrivateCommentIconBadge /> : <PrivateCommentIconBadgesExtra />}  </button>}
         />
 
         <CardContent>
@@ -1966,9 +1998,25 @@ function SOEP({ appointment }: { appointment: any; }) {
                           title: "motivo de visita",
                           field: "mainReason"
                         },
+                        // {
+                        //   title: "Diagnóstico",
+                        //   field: "diagnosis"
+                        // },
                         {
-                          title: "Diagnóstico",
-                          field: "diagnosis"
+                          title: 'Diagnóstico',
+                          field: 'diagnosis',
+                          render: rowData => {
+                            //@ts-ignore
+                            return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
+                              <Grid style={{ width: '130px' }} container>
+                                <img src={loading} width='30px' alt='loading...' /> <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
+                              </Grid>
+                            ) : (
+                              <p>
+                                {rowData.diagnosis}
+                              </p>
+                            )
+                          },
                         },
 
                       ]}
