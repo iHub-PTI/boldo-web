@@ -24,6 +24,7 @@ import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
 import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
 import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
+import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
 import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -957,7 +958,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid  >
+      <Grid style={{minWidth:'350px'}} >
         <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
         <Grid style={{ padding: '20px' }}>
           <Typography variant="h6" color="textPrimary">
@@ -1269,7 +1270,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
 
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <Grid >
+    <Grid style={{minWidth:'350px'}} >
       <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
       <CardContent>
@@ -1389,7 +1390,7 @@ const useStyles = makeStyles((theme) => ({
   tabHeight: {
     '& .MuiTab-root': {
       minHeight: '20px',
-      minWidth:'50%',
+      minWidth: '50%',
       textTransform: 'none'
     },
   },
@@ -1694,12 +1695,12 @@ function SOEP({ appointment }: { appointment: any; }) {
               key={appointmentId}
               title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
             >
-              <Grid  style={{ paddingLeft: '10px' }}  >
+              <Grid style={{ paddingLeft: '10px' }}  >
                 {
                   i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
                 }
               </Grid>
-             
+
             </CustomToolTip>)
             break;
 
@@ -1776,9 +1777,9 @@ function SOEP({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid >
+      <Grid style={{minWidth:'350px'}}>
         <CardHeader
-          title="Nota SOEP"
+          title="Notas médicas"
           titleTypographyProps={{ variant: 'h6' }}
           style={{ backgroundColor: '#27BEC2', color: 'white' }}
           action={<button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}  >  {privateCommentsRecord.length <= 0 ? <PrivateCommentIcon /> : privateCommentsRecord.length === 1 ? <PrivateCommentIconBadge /> : <PrivateCommentIconBadgesExtra />}  </button>}
@@ -1849,7 +1850,16 @@ function SOEP({ appointment }: { appointment: any; }) {
                       id="panel1a-header"
                     >
                       <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                      {showSoepRecords({ title: 'Subjetivo' })}
+                      <HelpIcon height={24} width={24} style={{ marginLeft: '5px' }} />
+                      <Grid container justifyContent='flex-end' style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }} >{showSoepRecords({ title: 'Subjetivo' })} </Grid>
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
@@ -1881,7 +1891,16 @@ function SOEP({ appointment }: { appointment: any; }) {
                       id="panel1a-header"
                     >
                       <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-                      {showSoepRecords({ title: 'Objetivo' })}
+                      <HelpIcon  height={24} width={24} style={{marginLeft: '5px' }} />
+                      <Grid  container justifyContent='flex-end'style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }} >{showSoepRecords({ title: 'Objetivo' })} </Grid>
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
@@ -1915,7 +1934,16 @@ function SOEP({ appointment }: { appointment: any; }) {
                       id="panel1a-header"
                     >
                       <Typography style={{ color: '#177274' }} >Evaluación</Typography>
-                      {showSoepRecords({ title: 'Evaluacion' })}
+                      <HelpIcon height={24} width={24} style={{marginLeft: '5px' }} />
+                      <Grid container justifyContent='flex-end' style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }} >{showSoepRecords({ title: 'Evaluacion' })} </Grid>
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
@@ -1949,7 +1977,16 @@ function SOEP({ appointment }: { appointment: any; }) {
                       id="panel1a-header"
                     >
                       <Typography style={{ color: '#177274' }} >Plan</Typography>
-                      {showSoepRecords({ title: 'Plan' })}
+                      <HelpIcon height={20} width={20} style={{marginLeft: '5px' }} />
+                      <Grid container justifyContent='flex-end' style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }} >{showSoepRecords({ title: 'Plan' })} </Grid>
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
