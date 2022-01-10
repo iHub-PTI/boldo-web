@@ -13,7 +13,7 @@ import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert';
 import MdClose from '@material-ui/icons/Clear';
 import PersonIcon from '@material-ui/icons/Person';
-import { ReactComponent as SoepIcon } from '../assets/soep.svg'
+// import { ReactComponent as SoepIcon } from '../assets/soep.svg'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
 import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
@@ -24,6 +24,7 @@ import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
 import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
 import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
+import { ReactComponent as RecordIcon } from '../assets/record-table.svg'
 import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
 import PropTypes from 'prop-types';
 import Accordion from '@material-ui/core/Accordion';
@@ -253,7 +254,7 @@ const Gate = () => {
             onClick={() => setSideBarAction(2)}
           />
           <ChildButton
-            icon={<SoepIcon />}
+            icon={<RecordIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
@@ -382,7 +383,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             onClick={() => setSideBarAction(2)}
           />
           <ChildButton
-            icon={<SoepIcon />}
+            icon={<RecordIcon />}
             background="#323030"
             size={50}
             onClick={() => setSideBarAction(1)}
