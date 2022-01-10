@@ -958,7 +958,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid style={{minWidth:'350px'}} >
+      <Grid style={{ minWidth: '350px' }} >
         <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
         <Grid style={{ padding: '20px' }}>
           <Typography variant="h6" color="textPrimary">
@@ -1051,7 +1051,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                 setShowEditModal(true)
               }}
               type='button'
-              className='inline-flex items-center justify-center px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
+              className='inline-flex items-center justify-center pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out border-gray-300 rounded-md sm:text-sm sm:leading-5 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo'
             >
               <svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path
@@ -1270,7 +1270,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
 
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <Grid style={{minWidth:'350px'}} >
+    <Grid style={{ minWidth: '350px' }} >
       <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
       <CardContent>
@@ -1418,6 +1418,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [selectedRow, setSelectedRow] = useState();
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showHover, setShowHover] = useState('')
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
@@ -1666,6 +1667,17 @@ function SOEP({ appointment }: { appointment: any; }) {
     },
   }))(Tooltip);
 
+  const ToolTipSoepHelper = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: '#FFFF',
+      color: 'black',
+      maxWidth: 220,
+      fontSize: theme.typography.pxToRem(12),
+      borderWidth: '2px', borderColor: '#d0ebee',
+      borderStyle: 'solid', borderRadius: '10px'
+    },
+  }))(Tooltip);
+
   const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
     return (<React.Fragment key={iconItem} >
       <Grid container>
@@ -1679,7 +1691,38 @@ function SOEP({ appointment }: { appointment: any; }) {
       </Grid>
     </React.Fragment>)
   }
+  const showSoepHelper = ({ title }: { title: String }) => {
+    var description = "";
+    switch (title) {
+      case 'Subjetivo':
+        description = "Aquí se consignan los datos recogidos en el interrogatorio, conjuntamente con las impresiones subjetivas del médico y las expresadas por el paciente."
+        break;
+      case 'Objetivo':
+        description = "En este apartado se anotan los datos del examen físico y / o exámenes complementarios."
+        break;
+      case 'Evaluacion':
+        description = "En esta sección se registra la interpretación del problema identificado y su reevaluación"
+        break;
+      case 'Plan':
+        description = "Aquí se registra la planificación de las conductas que se tomarán. Existen cuatro tipos de planes: · Plan diagnóstico · Plan terapéutico · Plan de seguimiento · Plan de educación."
+        break;
 
+      default:
+        break;
+    }
+
+    return <ToolTipSoepHelper
+
+      title={description}
+    >
+      <Grid style={{ paddingLeft: '10px', paddingTop: '5px' }}  >
+        {
+          <HelpIcon />
+        }
+      </Grid>
+
+    </ToolTipSoepHelper>
+  }
   const showSoepRecords = ({ title }: { title: String }) => {
     const tempArray = [];
     if (encounterHistory.length > 0) {
@@ -1777,7 +1820,7 @@ function SOEP({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid style={{minWidth:'350px'}}>
+      <Grid style={{ minWidth: '350px' }}>
         <CardHeader
           title="Notas médicas"
           titleTypographyProps={{ variant: 'h6' }}
@@ -1848,9 +1891,11 @@ function SOEP({ appointment }: { appointment: any; }) {
                       expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
+                      onMouseEnter={() => setShowHover('Subjetivo')}
+                      onMouseLeave={() => setShowHover('')}
                     >
                       <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                      <HelpIcon height={24} width={24} style={{ marginLeft: '5px' }} />
+                      {showHover === 'Subjetivo' && showSoepHelper({ title: 'Subjetivo' })}
                       <Grid container justifyContent='flex-end' style={{
                         marginRight: '0',
                         marginLeft: 'auto',
@@ -1889,10 +1934,12 @@ function SOEP({ appointment }: { appointment: any; }) {
                       expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
+                      onMouseEnter={() => setShowHover('Objetivo')}
+                      onMouseLeave={() => setShowHover('')}
                     >
                       <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-                      <HelpIcon  height={24} width={24} style={{marginLeft: '5px' }} />
-                      <Grid  container justifyContent='flex-end'style={{
+                      {showHover === 'Objetivo' && showSoepHelper({ title: 'Objetivo' })}
+                      <Grid container justifyContent='flex-end' style={{
                         marginRight: '0',
                         marginLeft: 'auto',
                         marginBottom: 'auto',
@@ -1932,9 +1979,11 @@ function SOEP({ appointment }: { appointment: any; }) {
                       expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
+                      onMouseEnter={() => setShowHover('Evaluacion')}
+                      onMouseLeave={() => setShowHover('')}
                     >
                       <Typography style={{ color: '#177274' }} >Evaluación</Typography>
-                      <HelpIcon height={24} width={24} style={{marginLeft: '5px' }} />
+                      {showHover === 'Evaluacion' && showSoepHelper({ title: 'Evaluacion' })}
                       <Grid container justifyContent='flex-end' style={{
                         marginRight: '0',
                         marginLeft: 'auto',
@@ -1975,9 +2024,11 @@ function SOEP({ appointment }: { appointment: any; }) {
                       expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
+                      onMouseEnter={() => setShowHover('Plan')}
+                      onMouseLeave={() => setShowHover('')}
                     >
                       <Typography style={{ color: '#177274' }} >Plan</Typography>
-                      <HelpIcon height={20} width={20} style={{marginLeft: '5px' }} />
+                      {showHover === 'Plan' && showSoepHelper({ title: 'Plan' })}
                       <Grid container justifyContent='flex-end' style={{
                         marginRight: '0',
                         marginLeft: 'auto',
