@@ -391,6 +391,8 @@ export default () => {
   // }, [medicationFilter, medicamentos]);
   const { _, width: screenWidth } = useWindowDimensions()
   const [showHover, setShowHover] = useState('')
+  const [soepSelected, setSoepSelected] = useState('Subjetivo')
+  const [buttonColor, setButtonColor] = useState({ bgColor: '#F9FAFB', color: 'black' })
   return (
     <Grid>
       <Grid style={{ marginTop: '25px' }}>
@@ -419,127 +421,78 @@ export default () => {
 
       <Grid style={{ marginTop: '15px' }} container>
         <button
-          style={{ height: '35px' }}
+          style={{
+            height: '35',
+            backgroundColor: soepSelected === 'Subjetivo' ? '#27BEC2' : '#F9FAFB',
+            color: soepSelected === 'Subjetivo' ? 'white' : 'black',
+          }}
           type='button'
           className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
           onClick={e => {
-            // e.stopPropagation()
-            // dispatch({ type: 'reset' })
-            // setError('')
-            // setShowEditModal(true)
+            setSoepSelected('Subjetivo')
           }}
           onMouseEnter={() => setShowHover('Subjetivo')}
           onMouseLeave={() => setShowHover('')}
         >
           Subjetivo
-          {/* <svg
-                className='w-6 h-6 ml-3'
-                width='21'
-                height='20'
-                viewBox='0 0 21 20'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                  fill='white'
-                />
-              </svg> */}
+          {showHover === 'Subjetivo' &&
+            ShowSoepHelper({ title: 'Subjetivo', isBlackColor: soepSelected === 'Subjetivo' ? false : true })}
         </button>
         <button
-          style={{ height: '35px', backgroundColor: '#F9FAFB', color: 'black' }}
+          style={{
+            height: '35',
+            backgroundColor: soepSelected === 'Objetivo' ? '#27BEC2' : '#F9FAFB',
+            color: soepSelected === 'Objetivo' ? 'white' : 'black',
+          }}
           type='button'
           className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
           onClick={e => {
-            // e.stopPropagation()
-            // dispatch({ type: 'reset' })
-            // setError('')
-            // setShowEditModal(true)
+            setSoepSelected('Objetivo')
           }}
           onMouseEnter={() => setShowHover('Objetivo')}
           onMouseLeave={() => setShowHover('')}
         >
           Objetivo
-          {/* <svg
-                className='w-6 h-6 ml-3'
-                width='21'
-                height='20'
-                viewBox='0 0 21 20'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                  fill='white'
-                />
-              </svg> */}
-               {showHover === 'Objetivo' && ShowSoepHelper({ title: 'Objetivo' ,isBlackColor:true})}
+          {showHover === 'Objetivo' &&
+            ShowSoepHelper({ title: 'Objetivo', isBlackColor: soepSelected === 'Objetivo' ? false : true })}
         </button>
 
         <button
-          style={{ height: '35px' }}
+          style={{
+            height: '35',
+            backgroundColor: soepSelected === 'Evaluacion' ? '#27BEC2' : '#F9FAFB',
+            color: soepSelected === 'Evaluacion' ? 'white' : 'black',
+          }}
           type='button'
           className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
           onClick={e => {
-            // e.stopPropagation()
-            // dispatch({ type: 'reset' })
-            // setError('')
-            // setShowEditModal(true)
+            setSoepSelected('Evaluacion')
           }}
           onMouseEnter={() => setShowHover('Evaluacion')}
           onMouseLeave={() => setShowHover('')}
         >
           Evaluación
-          {/* <svg
-                className='w-6 h-6 ml-3'
-                width='21'
-                height='20'
-                viewBox='0 0 21 20'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                  fill='white'
-                />
-              </svg> */}
+          {showHover === 'Evaluacion' &&
+            ShowSoepHelper({ title: 'Evaluacion', isBlackColor: soepSelected === 'Evaluacion' ? false : true })}
         </button>
         <button
-          style={{ height: '35px' }}
+          style={{
+            height: '35',
+            backgroundColor: soepSelected === 'Plan' ? '#27BEC2' : '#F9FAFB',
+            color: soepSelected === 'Plan' ? 'white' : 'black',
+          }}
           type='button'
           className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
           onClick={e => {
-            // e.stopPropagation()
-            // dispatch({ type: 'reset' })
-            // setError('')
-            // setShowEditModal(true)
+            setSoepSelected('Plan')
           }}
           onMouseEnter={() => setShowHover('Plan')}
           // onMouseLeave={() => setShowHover('')}
         >
           Plan
-          {/* <svg
-                className='w-6 h-6 ml-3'
-                width='21'
-                height='20'
-                viewBox='0 0 21 20'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fill-rule='evenodd'
-                  clip-rule='evenodd'
-                  d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                  fill='white'
-                />
-              </svg> */}
-          {showHover === 'Plan' && ShowSoepHelper({ title: 'Plan' ,isBlackColor:false})}
+          {showHover === 'Plan' &&
+            ShowSoepHelper({ title: 'Evaluacion', isBlackColor: soepSelected === 'Plan' ? false : true })}
+         
         </button>
       </Grid>
     </Grid>
