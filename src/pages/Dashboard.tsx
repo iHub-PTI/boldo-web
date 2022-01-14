@@ -201,7 +201,8 @@ export default function Dashboard() {
     info.jsEvent.stopPropagation()
     if (info.event.display === 'background') return
     if (info.event.extendedProps.type === 'Appointment')
-      return history.push(`/appointments/${info.event.extendedProps.id}/call`)
+    //ToDo: implement dynamic route face-to-face or virtual
+      return history.push(`/appointments/${info.event.extendedProps.id}/facetoface`)
     setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
   }
 
