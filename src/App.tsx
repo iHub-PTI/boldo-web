@@ -11,7 +11,7 @@ import Error from './components/Error'
 import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
-import FaceToFaceAppoinment from './pages/facetoface/FaceToFaceAppoinment'
+import InPersonAppoinment from './pages/facetoface/InPersonAppoinment'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -87,8 +87,8 @@ const App = () => {
                   <Call />
                 </Route>
 
-                <Route exact path='/appointments/:id/facetoface'>
-                  <FaceToFaceAppoinment />
+                <Route exact path='/appointments/:id/inperson'>
+                  <InPersonAppoinment />
                 </Route>
 
                 <Route>

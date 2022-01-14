@@ -202,7 +202,7 @@ export default function Dashboard() {
     if (info.event.display === 'background') return
     if (info.event.extendedProps.type === 'Appointment')
     //ToDo: implement dynamic route face-to-face or virtual
-      return history.push(`/appointments/${info.event.extendedProps.id}/facetoface`)
+      return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
     setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
   }
 
