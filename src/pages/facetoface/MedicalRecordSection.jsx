@@ -58,11 +58,10 @@ export default () => {
   )
   const soepWithRecord = (
     <div className='flex  mt-6'>
-      <div>
+      <Grid xs={12} md={5}>
         <div className='flex'>
           <button
             style={{
-              width: '110px',
               height: '35px',
               fontSize: '12px',
               backgroundColor: recordSoepSelected === 0 ? '#4299E1' : '#EDF2F7',
@@ -90,7 +89,6 @@ export default () => {
 
           <button
             style={{
-              width: '110px',
               height: '35px',
               fontSize: '12px',
               marginLeft:'5px',
@@ -119,7 +117,6 @@ export default () => {
 
           <button
             style={{
-              width: '110px',
               height: '35px',
               fontSize: '12px',
               marginLeft:'5px',
@@ -147,6 +144,7 @@ export default () => {
           </button>
         </div>
         <TextField
+        fullWidth
           multiline
           rows='20'
           InputProps={{
@@ -154,15 +152,14 @@ export default () => {
           }}
           style={{
             marginTop: '20px',
-            minWidth: '40vh',
           }}
           variant='outlined'
           placeholder='Ingrese notas actualizadas'
           value={'tellus marine  is  fgoind amtooa  sfjfasklf  aksdfk  asfdsdf a jadfkaklfd'}
         />
-      </div>
+      </Grid>
 
-      <div className='ml-6'>
+      <Grid  xs={12} md={7} className='ml-6'>
         <Typography variant='h6' color='textPrimary'>
           Consulta Actual
         </Typography>
@@ -174,9 +171,8 @@ export default () => {
           }}
           style={{
             marginTop: '20px',
-            minWidth: '50vh',
           }}
-          // fullWidth
+          fullWidth
           variant='outlined'
           placeholder='Ingrese notas actualizadas'
           value={
@@ -190,7 +186,7 @@ export default () => {
           }
           onChange={onChangeSoepText}
         />
-      </div>
+      </Grid>
     </div>
   )
   const soepSection = (

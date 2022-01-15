@@ -22,8 +22,8 @@ export default function Dashboard() {
             <PatientSection />
           </Grid>
 
-          <Grid item xs={12} md={9}>
-            <MedicalRecordSection />
+          <Grid style={{ paddingRight:'30px'}} item xs={12} md={9}>
+            <MedicalRecordSection  />
           </Grid>
 
         </Grid>
