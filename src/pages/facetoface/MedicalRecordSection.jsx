@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 
-import {  Grid, TextField, Typography } from '@material-ui/core'
+import { Button, Grid, TextField, Typography } from '@material-ui/core'
 
 import useStyles from './style'
 import useWindowDimensions from '../../util/useWindowDimensions'
@@ -18,6 +18,7 @@ export default () => {
   const { width: screenWidth } = useWindowDimensions()
 
   const [mainReason, setmainReason] = useState('')
+  const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
 
@@ -25,7 +26,31 @@ export default () => {
     setmainReason(event.target.value)
   }, [])
 
+  const onChangeSoepText = useCallback(event => {
+    let copyStrings = [...soepText]
+    switch (soepSelected) {
+      case Soep.Subjetive:
+        copyStrings[0] = event.target.value
+        break
 
+      case Soep.Objective:
+        copyStrings[1] = event.target.value
+        break
+
+      case Soep.Evalutation:
+        copyStrings[2] = event.target.value
+        break
+
+      case Soep.Plan:
+        copyStrings[3] = event.target.value
+        break
+
+      default:
+        break
+    }
+    setSoepText(copyStrings)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soepSelected])
   return (
     <Grid>
       <Grid style={{ marginTop: '25px' }}>
@@ -45,7 +70,7 @@ export default () => {
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
         }}
-        placeholder='Sospecha de COVID-19'
+        placeholder='Ej. Dolor de Cabeza'
         variant='outlined'
         value={mainReason}
         onChange={onChangeFilter}
@@ -107,7 +132,7 @@ export default () => {
           {showHover === Soep.Evalutation &&
             ShowSoepHelper({ title: Soep.Evalutation, isBlackColor: soepSelected === Soep.Evalutation ? false : true })}
         </button>
-        
+
         <button
           style={{
             height: '35',
@@ -125,9 +150,71 @@ export default () => {
           Plan
           {showHover === Soep.Plan &&
             ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })}
-         
         </button>
       </Grid>
+
+      <TextField
+        // className="mt-5"
+        multiline
+        rows='20'
+        InputProps={{
+          disableUnderline: true,
+        }}
+        // classes={{
+        //   root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
+        // }}
+        style={{
+          marginTop: '20px',
+        }}
+        fullWidth
+        variant='outlined'
+        placeholder='Ingrese notas actualizadas'
+        // required
+        value={
+          soepSelected === Soep.Subjetive
+            ? soepText[0]
+            : soepSelected === Soep.Objective
+            ? soepText[1]
+            : soepSelected === Soep.Evalutation
+            ? soepText[2]
+            : soepText[3]
+        }
+        onChange={onChangeSoepText}
+      />
+
+      <div className='flex flex-row-reverse mt-6'>
+        <div className='ml-6'>
+          <Button
+            className={classes.muiButtonContained}
+            type='submit'
+            variant='contained'
+            endIcon={
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path
+                  d='M5 13L9 17L19 7'
+                  stroke='white'
+                  stroke-width='2'
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                />
+              </svg>
+            }
+            // onClick={handleClickOpen}
+          >
+            Finalizar Consulta
+          </Button>
+        </div>
+
+        <div>
+          <Button
+            className={classes.muiButtonOutlined}
+            variant='outlined'
+            // onClick={goBack}
+          >
+            Minimizar
+          </Button>
+        </div>
+      </div>
     </Grid>
   )
 }

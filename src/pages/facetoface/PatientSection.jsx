@@ -38,7 +38,7 @@ const PatientRecord = props => {
   }, [screenWidth])
   return (
     <Grid style={{ padding: '15px' }}>
-      <Typography variant='body1' color='textSecondary'>
+      <Typography variant='body1' color='textPrimary'>
         Paciente
       </Typography>
       <Avatar
