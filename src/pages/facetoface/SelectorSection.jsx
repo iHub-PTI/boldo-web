@@ -8,8 +8,8 @@ export default () => {
       <Card
         style={{
           backgroundColor: '#EDF2F7',
-          // borderTopRightRadius: '20px',
-          // borderBottomRightRadius: '20px',
+          borderTopLeftRadius:'0px',
+          borderBottomLeftRadius:'0px',
           height: '90vh',
         }}
       >

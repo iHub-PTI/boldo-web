@@ -1,13 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import {
-  Avatar,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-} from '@material-ui/core'
+import { Avatar, Card, CardContent, Grid, Typography } from '@material-ui/core'
 
 import useWindowDimensions from '../../util/useWindowDimensions'
+import SelectorSection from './SelectorSection'
 
 const mapSexo = gender => {
   switch ((gender || 'male').trim().toLowerCase()) {
@@ -26,14 +21,14 @@ const mapSexo = gender => {
 
 const PatientRecord = props => {
   const { _, width: screenWidth } = useWindowDimensions()
-  const [imgSize, setImgSize] = useState(200)
+  const [imgSize, setImgSize] = useState(180)
   useEffect(() => {
     if (screenWidth < 900) {
       setImgSize(120)
     } else if (screenWidth < 1350) {
       setImgSize(150)
     } else {
-      setImgSize(200)
+      setImgSize(180)
     }
   }, [screenWidth])
   return (
@@ -107,7 +102,14 @@ const PatientRecord = props => {
               }}
             >
               Seguimiento
-              <svg  className='w-6 h-6 ml-3' width='21' height='20' viewBox='0 0 21 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+              <svg
+                className='w-6 h-6 ml-3'
+                width='21'
+                height='20'
+                viewBox='0 0 21 20'
+                fill='none'
+                xmlns='http://www.w3.org/2000/svg'
+              >
                 <path
                   fill-rule='evenodd'
                   clip-rule='evenodd'
@@ -134,17 +136,18 @@ export default () => {
   //   return <Grid></Grid>;
   // }
   return (
-    <>
-      <Card
-        style={{
-          backgroundColor: '#F4F5F7',
-          // borderTopRightRadius: '20px',
-          // borderBottomRightRadius: '20px',
-          height: '90vh',
-        }}
-      >
-        <CardContent>
-          {/* <ResourceRender
+    <Grid container>
+      <Grid  xs={9}  item>
+        <Card
+          style={{
+            backgroundColor: '#F4F5F7',
+            borderTopRightRadius:'0px',
+            borderBottomRightRadius:'0px',
+            height: '90vh',
+          }}
+        >
+          <CardContent>
+            {/* <ResourceRender
             resource={paciente}
             Data={PatientRecord}
             Error={() => ''}
@@ -152,9 +155,13 @@ export default () => {
             Query={() => ''}
           />
         */}
-          <PatientRecord />
-        </CardContent>
-      </Card>
-    </>
+            <PatientRecord />
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid xs={3}  item >
+      <SelectorSection />
+      </Grid>
+    </Grid>
   )
 }
