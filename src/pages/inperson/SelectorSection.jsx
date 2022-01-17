@@ -14,8 +14,8 @@ export default () => {
         }}
       >
         <CardContent>
-          <div class='flex h-screen'>
-            <div class='m-auto'>
+          <div className='flex h-screen'>
+            <div className='m-auto'>
               <button
                 style={{ backgroundColor: 'gray' }}
                 className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
@@ -24,14 +24,14 @@ export default () => {
               >
                 <svg width='19' height='19' viewBox='0 0 19 19' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
-                    fill-rule='evenodd'
-                    clip-rule='evenodd'
+                    fillRule='evenodd'
+                    clipRule='evenodd'
                     d='M10.3379 4.32755L4.32749 10.338C3.39805 11.2674 3.39805 12.7743 4.32749 13.7038C5.25694 14.6332 6.76387 14.6332 7.69332 13.7038L13.7037 7.69338C14.6332 6.76393 14.6332 5.257 13.7037 4.32755C12.7743 3.3981 11.2673 3.3981 10.3379 4.32755ZM3.0052 9.01567C1.34548 10.6754 1.34548 13.3663 3.0052 15.0261C4.66493 16.6858 7.35588 16.6858 9.01561 15.0261L15.026 9.01567C16.6857 7.35594 16.6857 4.66499 15.026 3.00526C13.3663 1.34553 10.6753 1.34553 9.01561 3.00526L3.0052 9.01567Z'
                     fill='white'
                   />
                   <path
-                    fill-rule='evenodd'
-                    clip-rule='evenodd'
+                    fillRule='evenodd'
+                    clipRule='evenodd'
                     d='M9.26328 14.7784L12.1586 11.8831L8.5524 8.27682L2.54199 14.2872L2.61026 14.3555L9.26328 14.7784Z'
                     fill='white'
                   />

@@ -23,7 +23,6 @@ export default () => {
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
   const [recordSoepSelected, setRecordSoepSelected] = useState(0)
   const [isRecordSoepAvailable, setRecordSoepAvailable] = useState(true)
-
   const onChangeFilter = useCallback(event => {
     setmainReason(event.target.value)
   }, [])
@@ -147,9 +146,9 @@ export default () => {
         fullWidth
           multiline
           rows='20'
-          InputProps={{
-            disableUnderline: true,
-          }}
+          // InputProps={{
+          //   disablenderline: true,
+          // }}
           style={{
             marginTop: '20px',
           }}
@@ -329,9 +328,9 @@ export default () => {
                 <path
                   d='M5 13L9 17L19 7'
                   stroke='white'
-                  stroke-width='2'
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
                 />
               </svg>
             }
