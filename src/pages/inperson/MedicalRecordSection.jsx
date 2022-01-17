@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react'
-
+import React, { useState, useCallback, useEffect } from 'react'
+import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 
 import useStyles from './style'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import ShowSoepHelper from '../../components/TooltipSoep'
+import { useRouteMatch } from 'react-router-dom'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -23,6 +24,11 @@ export default () => {
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
   const [recordSoepSelected, setRecordSoepSelected] = useState(0)
   const [isRecordSoepAvailable, setRecordSoepAvailable] = useState(true)
+  let match = useRouteMatch("/appointments/:id/inperson");
+  const id = match?.params.id
+
+
+
   const onChangeFilter = useCallback(event => {
     setmainReason(event.target.value)
   }, [])
