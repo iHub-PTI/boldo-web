@@ -1,26 +1,26 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Avatar, Card, CardContent, Grid, Typography } from '@material-ui/core'
 
 import useWindowDimensions from '../../util/useWindowDimensions'
 import SelectorSection from './SelectorSection'
 
-const mapSexo = gender => {
-  switch ((gender || 'male').trim().toLowerCase()) {
-    case 'female':
-      return 'Femenino'
-    case 'f':
-      return 'Femenino'
-    case 'male':
-      return 'Masculino'
-    case 'm':
-      return 'Masculino'
-    default:
-      return gender
-  }
-}
+// const mapSexo = gender => {
+//   switch ((gender || 'male').trim().toLowerCase()) {
+//     case 'female':
+//       return 'Femenino'
+//     case 'f':
+//       return 'Femenino'
+//     case 'male':
+//       return 'Masculino'
+//     case 'm':
+//       return 'Masculino'
+//     default:
+//       return gender
+//   }
+// }
 
 const PatientRecord = props => {
-  const { _, width: screenWidth } = useWindowDimensions()
+  const {  width: screenWidth } = useWindowDimensions()
   const [imgSize, setImgSize] = useState(180)
   useEffect(() => {
     if (screenWidth < 900) {

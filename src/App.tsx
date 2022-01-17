@@ -11,7 +11,7 @@ import Error from './components/Error'
 import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
-import InPersonAppoinment from './pages/facetoface/InPersonAppoinment'
+import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
