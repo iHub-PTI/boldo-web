@@ -10,7 +10,7 @@ export interface Doctor extends iHub.Doctor {
   new: boolean
 }
 
-type Interval = { start: number; end: number }
+type Interval = { start: number; end: number,appointmentType:string }
 
 interface OpenHours {
   mon: Interval[]

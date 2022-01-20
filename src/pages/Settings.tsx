@@ -8,6 +8,8 @@ import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
 import { validateDate } from '../util/helpers'
 import { UserContext } from '../App'
+import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
+
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 
@@ -36,6 +38,7 @@ export const upload = async (file: File | string) => {
 interface Interval {
   start: number
   end: number
+  appointmentType?:string
 }
 
 type weekDay = keyof typeof weekDays
@@ -619,17 +622,21 @@ const Settings = (props: Props) => {
                           {doctor.openHours[day].length === 0
                             ? 'Cerrado'
                             : doctor.openHours[day].map((interval: Interval, index: number) => (
-                                <TimeInterval
-                                  key={`${index}-${interval.start}-${interval.end}`}
-                                  id={`${index}-${day}`}
-                                  start={interval.start}
-                                  end={interval.end}
-                                  onDelete={() => dispatch({ type: 'RemoveOpenHour', value: { day, index } })}
-                                  onChange={interval =>
-                                    dispatch({ type: 'ChangeOpenHour', value: { day, index, interval } })
-                                  }
-                                />
-                              ))}
+                              <TimeInterval
+                                key={`${index}-${interval.start}-${interval.end}`}
+                                id={`${index}-${day}`}
+                                start={interval.start}
+                                end={interval.end}
+                                onDelete={() => dispatch({ type: 'RemoveOpenHour', value: { day, index } })}
+                                onChange={interval =>
+                                  dispatch({ type: 'ChangeOpenHour', value: { day, index, interval } })
+                                }
+                                setModality={elem => {
+                                  interval.appointmentType = elem
+                                }}
+                                modality={interval.appointmentType}
+                              />
+                            ))}
                         </fieldset>
                       ))}
                     </div>
@@ -690,12 +697,14 @@ interface TimeIntervalProps {
   onDelete: () => void
   onChange: (arg0: Interval) => void
   id: number | string
+  setModality: any
+  modality:string
 }
 
 const TimeInterval = (props: TimeIntervalProps) => {
   const start = !props.start ? '00:00' : new Date(props.start * 1000 * 60).toISOString().substr(11, 5)
   const end = !props.end ? '00:00' : new Date(props.end * 1000 * 60).toISOString().substr(11, 5)
-
+  const { setModality , modality} = props
   const toMin = (val: string) => {
     if (!val) return 0
     const a = val.split(':')
@@ -737,7 +746,7 @@ const TimeInterval = (props: TimeIntervalProps) => {
                   props.onChange({ start: toMin('00:00'), end: props.end })
                   return
                 }
-                props.onChange({ start: toMin(value), end: props.end })
+                props.onChange({ start: toMin(value), end: props.end})
               }}
               required
             />
@@ -779,7 +788,7 @@ const TimeInterval = (props: TimeIntervalProps) => {
         </div>
       </div>
       <button
-        className='flex items-center justify-center w-8 h-8 ml-6 rounded-full focus:outline-none focus:bg-cool-gray-100'
+        className='flex items-center justify-center w-8 h-8 ml-2 rounded-full focus:outline-none focus:bg-cool-gray-100'
         onClick={() => props.onDelete()}
         type='button'
       >
@@ -792,6 +801,37 @@ const TimeInterval = (props: TimeIntervalProps) => {
           />
         </svg>
       </button>
+      <AppoinmentModality modality={modality} setDataCallback={elem => {
+        setModality(elem)
+      }} />
     </div>
   )
 }
+export function AppoinmentModality(props) {
+  const { setDataCallback,modality='V' } = props
+  const [selection, setSelection] = useState(modality);
+  const handleChange = (event) => {
+    setSelection(event.target.value as string);
+    setDataCallback(event.target.value);
+  };
+
+  return (
+    <Box style={{ marginTop: '-15px' }} sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel id="simple-select-label">Modalidad</InputLabel>
+        <Select
+          labelId="simple-select-label"
+          id="simple-select"
+          value={selection}
+          label="modalidad"
+          onChange={handleChange}
+        >
+          <MenuItem value={'V'}>Virtual</MenuItem>
+          <MenuItem value={'A'}>Presencial</MenuItem>
+          <MenuItem value={'AV'}>Ambos</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}
+
