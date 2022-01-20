@@ -18,19 +18,91 @@ export default () => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
 
-  const [mainReason, setmainReason] = useState('')
+  const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
   const [recordSoepSelected, setRecordSoepSelected] = useState(0)
-  const [isRecordSoepAvailable, setRecordSoepAvailable] = useState(true)
+  const [diagnose, setDiagnose] = useState('');
+  const [instructions, setInstructions] = useState('');
+  const [selectedMedication, setSelectedMedication] = useState([]);
+  const [isRecordSoepAvailable, setRecordSoepAvailable] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [initialLoad, setInitialLoad] = useState(true);
+  
   let match = useRouteMatch("/appointments/:id/inperson");
   const id = match?.params.id
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        // console.log(res.data)
+        const { diagnosis='', instructions='', prescriptions, mainReason='' } = res.data.encounter
+        setDiagnose(diagnosis);
+        setInstructions(instructions);
+        setSelectedMedication(prescriptions);
+        // setEncounterId(res.data.encounter.id);
+        // setPartOfEncounterId(res.data.encounter.partOfEncounterId)
+        mainReason !== undefined && setMainReason(mainReason);
+        if (res.data.encounter.soep !== undefined) {
+          const { subjective='', objective='', evaluation='', plan='' } = res.data.encounter.soep;
+          let copyStrings = [...soepText]
+          copyStrings[0] = subjective;
+          copyStrings[1] = objective;
+          copyStrings[2] = evaluation;
+          copyStrings[2] = plan; 
+          setSoepText(copyStrings);
+        }
+        setInitialLoad(false)
+      } catch (err) {
+        console.log(err)
+        setInitialLoad(false)
+        //@ts-ignore
+        // addErrorToast(err)
+      }
+    }
 
+    load()
+  }, [])
+
+  const saveConsultation = async () => {
+    try {
+      let copyStrings = [...soepText]
+      const encounter = {
+        encounterData: {
+          diagnosis: diagnose,
+          instructions: instructions,
+          prescriptions: selectedMedication,
+          mainReason: mainReason,
+          status: "in-progress",
+          encounterClass:'A',
+          soep: {
+            subjective: copyStrings[0],
+            objective: copyStrings[1],
+            evaluation: copyStrings[2],
+            plan: copyStrings[3]
+          }
+        },
+
+      }
+      console.log(encounter);
+      setIsLoading(true)
+      const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter);
+      console.log('response', res.data)
+      setIsLoading(false)
+      // addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
+    } catch (error) {
+      setIsLoading(false)
+      console.log(error)
+      //@ts-ignore
+      // addErrorToast(error)
+    }
+
+  }
 
   const onChangeFilter = useCallback(event => {
-    setmainReason(event.target.value)
+    setMainReason(event.target.value)
   }, [])
 
   const onChangeSoepText = useCallback(
@@ -219,6 +291,26 @@ export default () => {
       onChange={onChangeSoepText}
     />
   )
+  if (initialLoad)
+  return (
+    <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+      <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+        <svg
+          className='w-6 h-6 text-secondary-500 animate-spin'
+          xmlns='http://www.w3.org/2000/svg'
+          fill='none'
+          viewBox='0 0 24 24'
+        >
+          <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+          <path
+            className='opacity-75'
+            fill='currentColor'
+            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+          ></path>
+        </svg>
+      </div>
+    </div>
+  )
   return (
     <Grid>
       <Grid style={{ marginTop: '25px' }}>
@@ -243,7 +335,23 @@ export default () => {
         value={mainReason}
         onChange={onChangeFilter}
       />
-
+{initialLoad &&  <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+      <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+        <svg
+          className='w-6 h-6 text-secondary-500 animate-spin'
+          xmlns='http://www.w3.org/2000/svg'
+          fill='none'
+          viewBox='0 0 24 24'
+        >
+          <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+          <path
+            className='opacity-75'
+            fill='currentColor'
+            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+          ></path>
+        </svg>
+      </div>
+    </div>}
       <Grid style={{ marginTop: '15px' }} container>
         <button
           style={{
@@ -340,7 +448,7 @@ export default () => {
                 />
               </svg>
             }
-            // onClick={handleClickOpen}
+            onClick={saveConsultation}
           >
             Finalizar Consulta
           </Button>

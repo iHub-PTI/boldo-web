@@ -1091,6 +1091,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                         instructions: instructions,
                         prescriptions: result,
                         status: "in-progress",
+                        encounterClass:'V',
                         soep: selectedSoep,
                         mainReason: mainReason,
                         partOfEncounterId: encounterId,
@@ -1497,7 +1498,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
-
+            encounterClass:'V',
             partOfEncounterId: partOfEncounterId,
             soep: {
               subjective: subjective,
@@ -1516,6 +1517,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
+            encounterClass:'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -1578,6 +1580,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
             status: "in-progress",
+            encounterClass:'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -1649,8 +1652,7 @@ function SOEP({ appointment }: { appointment: any; }) {
         setPrivateCommentsRecords(res.data.encounter.items)
       } catch (err) {
         console.log(err)
-        //@ts-ignore
-        addErrorToast(error)
+        addErrorToast('Algo salió mal, vuelve a intentarlo')
       }
     }
     if (encounterId !== '')
