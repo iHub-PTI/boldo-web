@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Avatar, Card, CardContent, Grid, Typography } from '@material-ui/core'
+import axios from 'axios'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 
+import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import SelectorSection from './SelectorSection'
+import moment from 'moment'
+
 
 // const mapSexo = gender => {
 //   switch ((gender || 'male').trim().toLowerCase()) {
@@ -20,7 +25,10 @@ import SelectorSection from './SelectorSection'
 // }
 
 const PatientRecord = props => {
-  const {  width: screenWidth } = useWindowDimensions()
+
+  const { givenName, familyName, birthDate, identifier, city = '', phone = '' } = props.patient;
+
+  const { width: screenWidth } = useWindowDimensions()
   const [imgSize, setImgSize] = useState(180)
   useEffect(() => {
     if (screenWidth < 900) {
@@ -44,7 +52,7 @@ const PatientRecord = props => {
           borderRadius: '10px',
         }}
         variant='square'
-        src={'https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png'}
+        src={'/img/patient-m.svg'}
       >
         {/* <PatientIcon /> */}
       </Avatar>
@@ -54,10 +62,10 @@ const PatientRecord = props => {
 
       <Grid item style={{ marginTop: '20px' }}>
         <Typography variant='body1' color='textPrimary'>
-          Jaime Francisco Aguayo González
+          {givenName} {' '} {familyName}
         </Typography>
         <Typography variant='body1' color='textSecondary'>
-          CI 5414921
+          CI {identifier}
         </Typography>
       </Grid>
 
@@ -66,8 +74,8 @@ const PatientRecord = props => {
           Nacimiento
         </Typography>
         <Typography variant='body1' color='textPrimary'>
-          33 años
-          {/* {moment().diff(value.fechaNac, 'years')} años */}
+          {/* 33 años */}
+          {moment().diff(birthDate, 'years')} años
         </Typography>
       </Grid>
 
@@ -76,7 +84,7 @@ const PatientRecord = props => {
           Teléfono
         </Typography>
         <Typography variant='body1' color='textPrimary'>
-          0973 1435143
+          {phone}
         </Typography>
       </Grid>
 
@@ -85,7 +93,7 @@ const PatientRecord = props => {
           Ciudad
         </Typography>
         <Typography variant='body1' color='textPrimary'>
-          Caacupé
+          {city}
         </Typography>
       </Grid>
       <Grid item style={{ marginTop: '60px' }}>
@@ -124,43 +132,74 @@ const PatientRecord = props => {
     </Grid>
   )
 }
-export default () => {
-  // const paciente = useSelector(
-  //   (state) => state.admin.farmaceutico.paciente
-  // );
-  // const medicamentos = useSelector(
-  //   (state) => state.admin.farmaceutico.medicamentos
-  // );
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
-  // if (paciente.value === undefined) {
-  //   return <Grid></Grid>;
-  // }
+export default () => {
+  const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
+  const history = useHistory()
+  const { addErrorToast } = useToasts()
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
+  const id = match?.params.id
+  useEffect(() => {
+    let mounted = true
+
+    const load = async () => {
+      try {
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        if (mounted) setAppointment(res.data)
+      } catch (err) {
+        console.log(err)
+        if (mounted) {
+          addErrorToast('¡Fallo en la carga de la cita!')
+          history.replace(`/`)
+        }
+      }
+    }
+
+    load()
+
+    return () => {
+      mounted = false
+    }
+  }, [addErrorToast, id, history])
+
+
   return (
     <Grid container>
-      <Grid  xs={9}  item>
+      <Grid xs={9} item>
         <Card
           style={{
             backgroundColor: '#F4F5F7',
-            borderTopRightRadius:'0px',
-            borderBottomRightRadius:'0px',
+            borderTopRightRadius: '0px',
+            borderBottomRightRadius: '0px',
             height: '90vh',
           }}
         >
           <CardContent>
-            {/* <ResourceRender
-            resource={paciente}
-            Data={PatientRecord}
-            Error={() => ''}
-            Empty={() => ''}
-            Query={() => ''}
-          />
-        */}
-            <PatientRecord />
+
+            {appointment !== undefined ? <PatientRecord patient={appointment.patient} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+              <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
+                <svg
+                  className='w-6 h-6 text-secondary-500 animate-spin'
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                >
+                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+                  <path
+                    className='opacity-75'
+                    fill='currentColor'
+                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                  ></path>
+                </svg>
+              </div>
+            </div>}
+
           </CardContent>
         </Card>
       </Grid>
-      <Grid xs={3}  item >
-      <SelectorSection />
+      <Grid xs={3} item >
+        <SelectorSection />
       </Grid>
     </Grid>
   )
