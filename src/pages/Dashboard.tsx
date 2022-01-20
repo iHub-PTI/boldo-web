@@ -59,6 +59,7 @@ type AppointmentForm = Omit<Boldo.Appointment, 'start' | 'end' | 'patientId' | '
   start: string
   end: string
   date: string
+  appointmentType: string
 }
 
 const initialAppointment = {
@@ -69,6 +70,7 @@ const initialAppointment = {
   date: '',
   description: '',
   type: 'PrivateEvent',
+  appointmentType: ''
 } as AppointmentForm
 
 type Action =
@@ -104,7 +106,6 @@ export default function Dashboard() {
     refetch: false,
   })
   const [appointment, dispatch] = useReducer(reducer, initialAppointment)
-
   const calendar = useRef<FullCalendar>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithPatient | null>(null)
@@ -201,9 +202,15 @@ export default function Dashboard() {
     info.jsEvent.stopPropagation()
     if (info.event.display === 'background') return
     if (info.event.extendedProps.type === 'Appointment')
-    //ToDo: implement dynamic route face-to-face or virtual
-      return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
+
+
     setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
+
+    if (info.event.extendedProps.appointmentType === 'V') {
+      return history.push(`/appointments/${info.event.extendedProps.id}/call`)
+    } else {
+      return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
+    }
   }
 
   const openHoursEmpty = useMemo(() => {
