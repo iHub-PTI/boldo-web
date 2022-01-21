@@ -16,7 +16,7 @@ export default () => {
         <CardContent>
           <div className='flex h-screen'>
             <div className='m-auto'>
-              <button
+              {/* <button
                 style={{ backgroundColor: 'gray' }}
                 className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
 
@@ -36,7 +36,7 @@ export default () => {
                     fill='white'
                   />
                 </svg>
-              </button>
+              </button> */}
               <button
                 style={{ backgroundColor: 'gray' }}
                 className='flex items-center justify-center w-12 h-12 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
