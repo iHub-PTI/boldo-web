@@ -41,7 +41,6 @@ export default () => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        // console.log(res.data)
         const { diagnosis = '', instructions = '', prescriptions, mainReason = '' } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)

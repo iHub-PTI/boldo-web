@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Avatar, Card, CardContent, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useHistory, useRouteMatch } from 'react-router-dom'
+import MaterialTable from 'material-table'
+import moment from 'moment'
+
 
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import SelectorSection from './SelectorSection'
-import moment from 'moment'
-
+import Modal from '../../components/Modal'
+import loading from '../../assets/loading.gif'
 
 // const mapSexo = gender => {
 //   switch ((gender || 'male').trim().toLowerCase()) {
@@ -27,9 +30,16 @@ import moment from 'moment'
 const PatientRecord = props => {
 
   const { givenName, familyName, birthDate, identifier, city = '', phone = '' } = props.patient;
+const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainReason='',appointmentId } = props.encounter;
 
   const { width: screenWidth } = useWindowDimensions()
+  const { addErrorToast,addToast } = useToasts()
   const [imgSize, setImgSize] = useState(180)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [soepHistory, setSoepHistory] = useState<any[]>([]);
+  const [selectedRow, setSelectedRow] = useState();
+  const [isLoading, setIsLoading] = useState(false)
+  const history = useHistory()
   useEffect(() => {
     if (screenWidth < 900) {
       setImgSize(120)
@@ -39,6 +49,76 @@ const PatientRecord = props => {
       setImgSize(180)
     }
   }, [screenWidth])
+
+  useEffect(() => {
+    //send encounter selected to server
+    if (selectedRow) {
+      setIsLoading(true)
+      const send = async () => {
+        const encounter = {
+          encounterData: {
+            diagnosis: diagnose,
+            instructions: instructions,
+            prescriptions: prescriptions,
+            mainReason: mainReason,
+            //@ts-ignore
+            partOfEncounterId: selectedRow.id,
+            status: "in-progress",
+            encounterClass:'A',
+            soep: soep
+          },
+
+        }
+    
+        try {
+           await axios.put(`/profile/doctor/appointments/${props.id}/encounter`, encounter);
+          addToast({ type: 'success', title: 'Ficha médica asociada con éxito', text: '' })
+          setIsLoading(false)
+          history.go(0)
+        } catch (error) {
+          console.log(error)
+          //@ts-ignore
+          addErrorToast(error)
+          setIsLoading(false)
+        }
+
+
+      }
+      send()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRow])
+
+  useEffect(() => {
+    if (showEditModal === true) {
+      // get encounters list
+      const load = async () => {
+        try {
+          const res = await axios.get(`/profile/doctor/relatedEncounters/Patient/${identifier}/filterEncounterId/${encounterId}`);
+          if (res.data.encounter !== undefined) {
+            var count = Object.keys(res.data.encounter).length
+            const tempArray = []
+            for (var i = 0; i < count; i++) {
+              const data = res.data.encounter[i][0]
+              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
+              if (data.appointmentId !== appointmentId)
+              tempArray.push(data)
+            }
+            setSoepHistory(tempArray);
+          }
+        } catch (error) {
+          console.log(error)
+          // //@ts-ignore
+          // addErrorToast(error)
+        }
+
+      }
+      load();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showEditModal])
+
   return (
     <Grid style={{ padding: '15px' }}>
       <Typography variant='body1' color='textPrimary'>
@@ -103,10 +183,7 @@ const PatientRecord = props => {
               type='button'
               className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
               onClick={e => {
-                // e.stopPropagation()
-                // dispatch({ type: 'reset' })
-                // setError('')
-                // setShowEditModal(true)
+                setShowEditModal(true)
               }}
             >
               Seguimiento
@@ -128,6 +205,71 @@ const PatientRecord = props => {
             </button>
           </span>
         </div>
+
+        <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
+          <Typography variant="body1" color="textSecondary">
+            Paciente
+          </Typography>
+          <Typography variant="body1" color="textPrimary">
+            {givenName} {familyName}
+          </Typography>
+
+          <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
+            CI: {identifier}
+          </Typography>
+
+          <MaterialTable
+            columns={[
+              {
+                title: "Fecha",
+                field: "startTimeDate",
+              },
+              {
+                title: "motivo de visita",
+                field: "mainReason"
+              },
+              // {
+              //   title: "Diagnóstico",
+              //   field: "diagnosis"
+              // },
+              {
+                title: 'Diagnóstico',
+                field: 'diagnosis',
+                render: rowData => {
+                  //@ts-ignore
+                  return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
+                    <Grid style={{ width: '130px' }} container>
+                      <img src={loading} width='30px' alt='loading...' /> <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
+                    </Grid>
+                  ) : (
+                    <p>
+                      {rowData.diagnosis}
+                    </p>
+                  )
+                },
+              },
+
+            ]}
+            data={soepHistory}
+            onRowClick={(evt, selectedRow) =>
+              //@ts-ignore
+              setSelectedRow(selectedRow)
+            }
+            options={{
+              search: false,
+
+              toolbar: false,
+              paging: false,
+              draggable: false,
+
+              rowStyle: (rowData) => ({
+                backgroundColor:
+                  // @ts-ignore
+                  selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+              }),
+            }}
+          />
+        </Modal>
       </Grid>
     </Grid>
   )
@@ -138,8 +280,10 @@ export default () => {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const history = useHistory()
   const { addErrorToast } = useToasts()
+  const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
+
   useEffect(() => {
     let mounted = true
 
@@ -163,6 +307,24 @@ export default () => {
     }
   }, [addErrorToast, id, history])
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        setEncounter(res.data.encounter)
+        // setInitialLoad(false)
+      } catch (err) {
+        console.log(err)
+        // setInitialLoad(false)
+        //@ts-ignore
+        addErrorToast(err)
+      }
+    }
+
+    load()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Grid container>
@@ -177,7 +339,7 @@ export default () => {
         >
           <CardContent>
 
-            {appointment !== undefined ? <PatientRecord patient={appointment.patient} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+            {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id}/> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
               <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
                 <svg
                   className='w-6 h-6 text-secondary-500 animate-spin'
