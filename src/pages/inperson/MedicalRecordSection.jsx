@@ -1,11 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
+import { useRouteMatch,useHistory } from 'react-router-dom'
+
+
 
 import useStyles from './style'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import ShowSoepHelper from '../../components/TooltipSoep'
-import { useRouteMatch } from 'react-router-dom'
+import { useToasts } from '../../components/Toast'
+
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -17,42 +21,42 @@ const Soep = {
 export default () => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
-
+  const history = useHistory()
+  const { addErrorToast,addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
   const [recordSoepSelected, setRecordSoepSelected] = useState(0)
-  const [diagnose, setDiagnose] = useState('');
-  const [instructions, setInstructions] = useState('');
-  const [selectedMedication, setSelectedMedication] = useState([]);
+  const [diagnose, setDiagnose] = useState('')
+  const [instructions, setInstructions] = useState('')
+  const [selectedMedication, setSelectedMedication] = useState([])
   const [isRecordSoepAvailable, setRecordSoepAvailable] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [initialLoad, setInitialLoad] = useState(true);
-  
-  let match = useRouteMatch("/appointments/:id/inperson");
+  const [initialLoad, setInitialLoad] = useState(true)
+  let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
         // console.log(res.data)
-        const { diagnosis='', instructions='', prescriptions, mainReason='' } = res.data.encounter
-        setDiagnose(diagnosis);
-        setInstructions(instructions);
-        setSelectedMedication(prescriptions);
+        const { diagnosis = '', instructions = '', prescriptions, mainReason = '' } = res.data.encounter
+        setDiagnose(diagnosis)
+        setInstructions(instructions)
+        setSelectedMedication(prescriptions)
         // setEncounterId(res.data.encounter.id);
         // setPartOfEncounterId(res.data.encounter.partOfEncounterId)
-        mainReason !== undefined && setMainReason(mainReason);
+        mainReason !== undefined && setMainReason(mainReason)
         if (res.data.encounter.soep !== undefined) {
-          const { subjective='', objective='', evaluation='', plan='' } = res.data.encounter.soep;
+          const { subjective = '', objective = '', evaluation = '', plan = '' } = res.data.encounter.soep
           let copyStrings = [...soepText]
-          copyStrings[0] = subjective;
-          copyStrings[1] = objective;
-          copyStrings[2] = evaluation;
-          copyStrings[2] = plan; 
-          setSoepText(copyStrings);
+          copyStrings[0] = subjective
+          copyStrings[1] = objective
+          copyStrings[2] = evaluation
+          copyStrings[3] = plan
+          setSoepText(copyStrings)
         }
         setInitialLoad(false)
       } catch (err) {
@@ -75,30 +79,33 @@ export default () => {
           instructions: instructions,
           prescriptions: selectedMedication,
           mainReason: mainReason,
-          status: "in-progress",
-          encounterClass:'A',
+          status: 'in-progress',
+          encounterClass: 'A',
           soep: {
             subjective: copyStrings[0],
             objective: copyStrings[1],
             evaluation: copyStrings[2],
-            plan: copyStrings[3]
-          }
+            plan: copyStrings[3],
+          },
         },
-
       }
-      console.log(encounter);
+     
       setIsLoading(true)
-      const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter);
-      console.log('response', res.data)
+      const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
+      if(res.data === 'OK'){
+        addToast({ type: 'success', title: 'Datos guardados correctamente', text: '' })
+        history.replace(`/`)
+      }else{
+        addErrorToast('Algo salió mal vuelva a intentarlo más tarde');
+      }
+      
       setIsLoading(false)
-      // addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
+      
     } catch (error) {
       setIsLoading(false)
       console.log(error)
-      //@ts-ignore
-      // addErrorToast(error)
+      addErrorToast(error)
     }
-
   }
 
   const onChangeFilter = useCallback(event => {
@@ -168,7 +175,7 @@ export default () => {
             style={{
               height: '35px',
               fontSize: '12px',
-              marginLeft:'5px',
+              marginLeft: '5px',
               backgroundColor: recordSoepSelected === 1 ? '#4299E1' : '#EDF2F7',
               color: recordSoepSelected === 1 ? 'white' : 'black',
             }}
@@ -196,7 +203,7 @@ export default () => {
             style={{
               height: '35px',
               fontSize: '12px',
-              marginLeft:'5px',
+              marginLeft: '5px',
               backgroundColor: recordSoepSelected === 2 ? '#4299E1' : '#EDF2F7',
               color: recordSoepSelected === 2 ? 'white' : 'black',
             }}
@@ -221,7 +228,7 @@ export default () => {
           </button>
         </div>
         <TextField
-        fullWidth
+          fullWidth
           multiline
           rows='20'
           // InputProps={{
@@ -236,7 +243,7 @@ export default () => {
         />
       </Grid>
 
-      <Grid  xs={12} md={7} className='ml-6'>
+      <Grid xs={12} md={7} className='ml-6'>
         <Typography variant='h6' color='textPrimary'>
           Consulta Actual
         </Typography>
@@ -291,26 +298,7 @@ export default () => {
       onChange={onChangeSoepText}
     />
   )
-  if (initialLoad)
-  return (
-    <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
-      <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-        <svg
-          className='w-6 h-6 text-secondary-500 animate-spin'
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-        >
-          <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-          <path
-            className='opacity-75'
-            fill='currentColor'
-            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-          ></path>
-        </svg>
-      </div>
-    </div>
-  )
+  
   return (
     <Grid>
       <Grid style={{ marginTop: '25px' }}>
@@ -326,6 +314,7 @@ export default () => {
         Motivo Principal de la visita
       </Typography>
       <TextField
+         disabled={initialLoad}
         style={{ minWidth: '90vh' }}
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
@@ -335,23 +324,7 @@ export default () => {
         value={mainReason}
         onChange={onChangeFilter}
       />
-{initialLoad &&  <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
-      <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-        <svg
-          className='w-6 h-6 text-secondary-500 animate-spin'
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-        >
-          <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-          <path
-            className='opacity-75'
-            fill='currentColor'
-            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-          ></path>
-        </svg>
-      </div>
-    </div>}
+
       <Grid style={{ marginTop: '15px' }} container>
         <button
           style={{
@@ -429,24 +402,63 @@ export default () => {
         </button>
       </Grid>
 
-      {isRecordSoepAvailable ? soepWithRecord : soepSection}
+      {initialLoad ? (
+        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+            <svg
+              className='w-6 h-6 text-secondary-500 animate-spin'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+            >
+              <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+              <path
+                className='opacity-75'
+                fill='currentColor'
+                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              ></path>
+            </svg>
+          </div>
+        </div>
+      ) : isRecordSoepAvailable ? (
+        soepWithRecord
+      ) : (
+        soepSection
+      )}
 
       <div className='flex flex-row-reverse mt-6'>
         <div className='ml-6'>
           <Button
+            disabled={initialLoad}
             className={classes.muiButtonContained}
             type='submit'
             variant='contained'
             endIcon={
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  d='M5 13L9 17L19 7'
-                  stroke='white'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
+              isLoading ? (
+                <svg
+                  className='w-5 h-5 mr-3 ml-3 text-indigo-700 animate-spin'
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                >
+                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='white' strokeWidth='4'></circle>
+                  <path
+                    className='opacity-75'
+                    fill='white'
+                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                  ></path>
+                </svg>
+              ) : (
+                <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                  <path
+                    d='M5 13L9 17L19 7'
+                    stroke='white'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              )
             }
             onClick={saveConsultation}
           >
@@ -458,7 +470,7 @@ export default () => {
           <Button
             className={classes.muiButtonOutlined}
             variant='outlined'
-            // onClick={goBack}
+            onClick={ () => history.replace(`/`) }
           >
             Minimizar
           </Button>
