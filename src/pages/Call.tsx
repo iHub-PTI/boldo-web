@@ -288,7 +288,7 @@ const Gate = () => {
               <TogleMenu />
             </Grid>
           </Grid>
-          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
+          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
           <Card>
             {controlSideBarState()}
           </Card>
@@ -2149,9 +2149,11 @@ interface CallStatusMessageProps {
   status: Status
   statusText?: string
   updateStatus: (status?: Status) => void
+  appointmentId:string
 }
 
-const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessageProps) => {
+const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: CallStatusMessageProps) => {
+  const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='flex items-center justify-center flex-grow'>
       {status === 'upcoming' && (
@@ -2178,6 +2180,77 @@ const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessa
             </h3>
             <div className='mt-2'>
               <p className='text-sm text-gray-500'>{statusText}</p>
+            </div>
+
+            <div className='w-full px-3 mt-5'>
+              <span className='relative inline-flex w-full rounded-md shadow-sm'>
+                <button
+                  style={{
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  type='button'
+                  className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                  onClick={() => {
+                    setIsOpen(true)
+                  }}
+                >
+                  Cancelar Cita 
+                </button>
+              </span>
+              <>
+                <div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  <Modal show={isOpen}  setShow={setIsOpen} size='sm' >
+                    <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
+                      <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+                        Cancelar Cita
+                      </h3>
+                      <div className='mt-2'>
+                        <p className='text-sm leading-5 text-gray-500'>¿Estas seguro que quieres cancelar la cita?</p>
+                      </div>
+                      <div className='pt-5 pl-10 sm:flex'>
+                        <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto'>
+                          <button
+                            type='button'
+                            className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue sm:text-sm sm:leading-5'
+                            onClick={() => {
+                              setIsOpen(false)
+                            }}
+                          >
+                            volver
+                          </button>
+                        </span>
+                        <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
+                          <button
+                            type='button'
+                            onClick={async ()  => {
+                              try {
+                                const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentId}`)
+                                console.log("respuesta del server",res.data)
+                                if(res.data != null){
+                                  window.location.reload();
+                                }
+                              } catch (err) {
+                                console.log("Error al cancelar cita",err)
+                              }
+                              
+                            }}
+                            className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                            >
+                            Confirmar
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  </Modal>
+                </div>
+              </>
             </div>
           </div>
         </div>
