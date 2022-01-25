@@ -1,12 +1,12 @@
 FROM node:14.15.1 AS build
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-ARG sockets_address=http://localhost:8000
-ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
-ARG app_server=http://localhost:8008
-ENV REACT_APP_SERVER_ADDRESS=$app_server
-ARG app_sentry=""
-ENV REACT_APP_SENTRY=$app_sentry
+ARG sockets_address=https://boldo-dev.pti.org.py
+ENV REACT_APP_SOCKETS_ADDRESS=https://boldo-dev.pti.org.py
+ARG app_server=https://boldo-test.pti.org.py/api
+ENV REACT_APP_SERVER_ADDRESS=https://boldo-test.pti.org.py/api
+ARG app_sentry="https://sentry.pti.org.py"
+ENV REACT_APP_SENTRY=https://sentry.pti.org.py
 COPY . /usr/src/app/
 RUN npm i && NODE_ENV=production npm run build
 
