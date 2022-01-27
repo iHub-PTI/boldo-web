@@ -20,13 +20,14 @@ type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
-    if (eventType === 'Appointment') return 'event-appointment'
+    if (event.status === "cancelled") return 'event-cancel'
+    if (eventType === 'Appointment' && event.appointmentType === 'V') return 'event-online'
+    if (eventType === 'Appointment' && event.appointmentType === 'A') return 'event-inperson'
     if (eventType === 'PrivateEvent') return 'event-private'
     return 'event-other'
   }
-
   return {
-    title: event.name || `${event.patient.givenName} ${event.patient.familyName}`,
+    title: event.name || `${event.patient.givenName}`,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
@@ -189,6 +190,8 @@ export default function Dashboard() {
 
         setDateRange({ start, end, refetch: false })
         setAppointments([...events, ...openHourDatesTransformed])
+        console.log({ start, end, refetch: false })
+        console.log([...events, ...openHourDatesTransformed])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
       })
       .catch(err => {
@@ -204,13 +207,16 @@ export default function Dashboard() {
     if (info.event.extendedProps.type === 'Appointment')
 
 
-    setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
+      setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
 
-    if (info.event.extendedProps.appointmentType === 'V') {
-      return history.push(`/appointments/${info.event.extendedProps.id}/call`)
-    } else {
-      return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
-    }
+    if (info.event.extendedProps.status === 'cancelled') {
+
+    } else
+      if (info.event.extendedProps.appointmentType === 'V') {
+        return history.push(`/appointments/${info.event.extendedProps.id}/call`)
+      } else {
+        return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
+      }
   }
 
   const openHoursEmpty = useMemo(() => {
@@ -311,6 +317,7 @@ export default function Dashboard() {
                 dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
                 dayHeaderContent={({ text, isToday }) => {
                   const [weekday, day] = text.split(' ')
+
                   return (
                     <div
                       className={
@@ -555,7 +562,6 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-
   const type = useMemo(() => {
     let type = ''
     switch (appointment.type) {
@@ -628,9 +634,8 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
           <div className='pb-6'>
             <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
             <div
-              className={`flow-root px-4 space-y-6 sm:flex sm:items-end sm:px-6 sm:space-x-6 ${
-                hasPicture ? '-mt-12 lg:-mt-15 sm:-mt-8' : ''
-              }`}
+              className={`flow-root px-4 space-y-6 sm:flex sm:items-end sm:px-6 sm:space-x-6 ${hasPicture ? '-mt-12 lg:-mt-15 sm:-mt-8' : ''
+                }`}
             >
               {hasPicture && (
                 <div>
@@ -685,14 +690,14 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
               )}
               <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                 <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Tipo</dt>
-                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{type}</dd>
+                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.appointmentType === 'V'?'Consulta virtual':'Consulta Presencial'}</dd>
               </div>
               {status && (
                 <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                   <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
-                    Status
+                    Estado
                   </dt>
-                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{status}</dd>
+                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.status === 'cancelled' &&'Cancelado'}</dd>
                 </div>
               )}
               {/* <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>

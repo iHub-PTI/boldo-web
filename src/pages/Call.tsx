@@ -2154,6 +2154,8 @@ interface CallStatusMessageProps {
 
 const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: CallStatusMessageProps) => {
   const [isOpen, setIsOpen] = useState(false)
+  const history = useHistory();
+  const { addToast, addErrorToast } = useToasts()
   return (
     <div className='flex items-center justify-center flex-grow'>
       {status === 'upcoming' && (
@@ -2212,9 +2214,9 @@ const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: C
                         Cancelar Cita
                       </h3>
                       <div className='mt-2'>
-                        <p className='text-sm leading-5 text-gray-500'>¿Estas seguro que quieres cancelar la cita?</p>
+                        <p className='text leading-5 text-gray-500'>¿Estas seguro que quieres cancelar la cita?</p>
                       </div>
-                      <div className='pt-5 pl-10 sm:flex'>
+                      <div className='flex justify-end mt-5'>
                         <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto'>
                           <button
                             type='button'
@@ -2232,12 +2234,15 @@ const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: C
                             onClick={async ()  => {
                               try {
                                 const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentId}`)
-                                console.log("respuesta del server",res.data)
                                 if(res.data != null){
-                                  window.location.reload();
+                                  addToast({ type: 'success', title: 'Cita cancelada con éxito', })
+                                  history.replace(`/`)
                                 }
+                                
                               } catch (err) {
                                 console.log("Error al cancelar cita",err)
+                                addErrorToast('No se pudo borrar la cita, intente nuevamente.')
+
                               }
                               
                             }}
