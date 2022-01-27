@@ -51,14 +51,13 @@ import {
   Tabs,
   TextField,
   makeStyles,
-  withStyles,
-  IconButton,
-  Button
+  withStyles
 } from '@material-ui/core';
 import Modal from '../components/Modal'
 import Medication from '../components/Medication'
 import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
+import CancelAppointmentModal from '../components/CancelAppointmentModal'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -288,7 +287,7 @@ const Gate = () => {
               <TogleMenu />
             </Grid>
           </Grid>
-          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} />
+          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
           <Card>
             {controlSideBarState()}
           </Card>
@@ -1091,7 +1090,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                         instructions: instructions,
                         prescriptions: result,
                         status: "in-progress",
-                        encounterClass:'V',
+                        encounterClass: 'V',
                         soep: selectedSoep,
                         mainReason: mainReason,
                         partOfEncounterId: encounterId,
@@ -1498,7 +1497,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             partOfEncounterId: partOfEncounterId,
             soep: {
               subjective: subjective,
@@ -1517,7 +1516,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -1580,7 +1579,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -2149,9 +2148,11 @@ interface CallStatusMessageProps {
   status: Status
   statusText?: string
   updateStatus: (status?: Status) => void
+  appointmentId: string
 }
 
-const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessageProps) => {
+const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: CallStatusMessageProps) => {
+  const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='flex items-center justify-center flex-grow'>
       {status === 'upcoming' && (
@@ -2178,6 +2179,36 @@ const CallStatusMessage = ({ status, statusText, updateStatus }: CallStatusMessa
             </h3>
             <div className='mt-2'>
               <p className='text-sm text-gray-500'>{statusText}</p>
+            </div>
+
+            <div className='w-full px-3 mt-5'>
+              <span className='relative inline-flex w-full rounded-md shadow-sm'>
+                <button
+                  style={{
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  type='button'
+                  className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                  onClick={() => {
+                    setIsOpen(true)
+                  }}
+                >
+                  Cancelar Cita
+                </button>
+              </span>
+              <>
+                <div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={appointmentId} />
+
+                </div>
+              </>
             </div>
           </div>
         </div>
