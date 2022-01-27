@@ -51,14 +51,13 @@ import {
   Tabs,
   TextField,
   makeStyles,
-  withStyles,
-  IconButton,
-  Button
+  withStyles
 } from '@material-ui/core';
 import Modal from '../components/Modal'
 import Medication from '../components/Medication'
 import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
+import CancelAppointmentModal from '../components/CancelAppointmentModal'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -1091,7 +1090,7 @@ function MedicalData({ appointment }: { appointment: any; }) {
                         instructions: instructions,
                         prescriptions: result,
                         status: "in-progress",
-                        encounterClass:'V',
+                        encounterClass: 'V',
                         soep: selectedSoep,
                         mainReason: mainReason,
                         partOfEncounterId: encounterId,
@@ -1498,7 +1497,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             partOfEncounterId: partOfEncounterId,
             soep: {
               subjective: subjective,
@@ -1517,7 +1516,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -1580,7 +1579,7 @@ function SOEP({ appointment }: { appointment: any; }) {
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
             status: "in-progress",
-            encounterClass:'V',
+            encounterClass: 'V',
             soep: {
               subjective: subjective,
               objective: objective,
@@ -2149,13 +2148,11 @@ interface CallStatusMessageProps {
   status: Status
   statusText?: string
   updateStatus: (status?: Status) => void
-  appointmentId:string
+  appointmentId: string
 }
 
-const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: CallStatusMessageProps) => {
+const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: CallStatusMessageProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const history = useHistory();
-  const { addToast, addErrorToast } = useToasts()
   return (
     <div className='flex items-center justify-center flex-grow'>
       {status === 'upcoming' && (
@@ -2198,7 +2195,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: C
                     setIsOpen(true)
                   }}
                 >
-                  Cancelar Cita 
+                  Cancelar Cita
                 </button>
               </span>
               <>
@@ -2208,52 +2205,8 @@ const CallStatusMessage = ({ status, statusText, updateStatus ,appointmentId}: C
                     zIndex: 1,
                   }}
                 >
-                  <Modal show={isOpen}  setShow={setIsOpen} size='sm' >
-                    <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
-                      <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
-                        Cancelar Cita
-                      </h3>
-                      <div className='mt-2'>
-                        <p className='text leading-5 text-gray-500'>¿Estas seguro que quieres cancelar la cita?</p>
-                      </div>
-                      <div className='flex justify-end mt-5'>
-                        <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto'>
-                          <button
-                            type='button'
-                            className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue sm:text-sm sm:leading-5'
-                            onClick={() => {
-                              setIsOpen(false)
-                            }}
-                          >
-                            volver
-                          </button>
-                        </span>
-                        <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
-                          <button
-                            type='button'
-                            onClick={async ()  => {
-                              try {
-                                const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentId}`)
-                                if(res.data != null){
-                                  addToast({ type: 'success', title: 'Cita cancelada con éxito', })
-                                  history.replace(`/`)
-                                }
-                                
-                              } catch (err) {
-                                console.log("Error al cancelar cita",err)
-                                addErrorToast('No se pudo borrar la cita, intente nuevamente.')
+                  <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={appointmentId} />
 
-                              }
-                              
-                            }}
-                            className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-                            >
-                            Confirmar
-                          </button>
-                        </span>
-                      </div>
-                    </div>
-                  </Modal>
                 </div>
               </>
             </div>

@@ -661,18 +661,18 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
                     <DateFormatted start={appointment.start} end={appointment.end} />
                   </p>
                 </div>
-                {status === 'open' && (
-                  <div className='flex flex-wrap'>
-                    <span className='inline-flex flex-shrink-0 w-full rounded-md shadow-sm sm:flex-1'>
-                      <Link
-                        to={`/appointments/${appointment.id}/call`}
-                        className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700'
-                      >
-                        Start Call
-                      </Link>
-                    </span>
-                  </div>
-                )}
+                {/* {status === 'open' &&  (
+                  // <div className='flex flex-wrap'>
+                  //   <span className='inline-flex flex-shrink-0 w-full rounded-md shadow-sm sm:flex-1'>
+                  //     <Link
+                  //       to={`/appointments/${appointment.id}/call`}
+                  //       className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700'
+                  //     >
+                  //       Start Call
+                  //     </Link>
+                  //   </span>
+                  // </div>
+                )} */}
               </div>
             </div>
           </div>
