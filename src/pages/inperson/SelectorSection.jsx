@@ -1,10 +1,10 @@
 import React  from 'react'
-import {  Card, CardContent } from '@material-ui/core'
+import {  Card, CardContent,Grid} from '@material-ui/core'
 
 
 export default () => {
   return (
-    <>
+    <Grid>
       <Card
         style={{
           backgroundColor: '#EDF2F7',
@@ -57,6 +57,6 @@ export default () => {
           </div>
         </CardContent>
       </Card>
-    </>
+    </Grid>
   )
 }

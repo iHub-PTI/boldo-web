@@ -8,7 +8,6 @@ import moment from 'moment'
 
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
-import SelectorSection from './SelectorSection'
 import Modal from '../../components/Modal'
 import loading from '../../assets/loading.gif'
 
@@ -327,8 +326,8 @@ export default () => {
   }, [])
 
   return (
-    <Grid container>
-      <Grid xs={9} item>
+    <Grid >
+    
         <Card
           style={{
             backgroundColor: '#F4F5F7',
@@ -359,10 +358,8 @@ export default () => {
 
           </CardContent>
         </Card>
-      </Grid>
-      <Grid xs={3} item >
-        <SelectorSection />
-      </Grid>
+      
+     
     </Grid>
   )
 }
