@@ -5,6 +5,8 @@ import React from 'react'
 import Layout from '../../components/Layout'
 import PatientSection from './PatientSection'
 import MedicalRecordSection from './MedicalRecordSection'
+import { PrescriptionMenu } from '../../components/PrescriptionMenu'
+
 
 
 export default function Dashboard() {
@@ -20,10 +22,12 @@ export default function Dashboard() {
         <Grid container spacing={2}  >
           <Grid item xs={12} md={3}>
             <PatientSection />
+           
           </Grid>
 
           <Grid style={{ paddingRight:'30px'}} item xs={12} md={9}>
-            <MedicalRecordSection  />
+            {/* <MedicalRecordSection  /> */}
+            <PrescriptionMenu appointment={undefined} isFromInperson={true} />
           </Grid>
 
         </Grid>
