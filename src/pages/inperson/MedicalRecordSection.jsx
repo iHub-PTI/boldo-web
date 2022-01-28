@@ -449,8 +449,9 @@ export default () => {
   )
 
   return (
-    <Grid>
-      <Grid style={{ marginTop: '25px' }}>
+    
+    <Grid style={{ marginTop: '25px', marginLeft:'30px' }}>
+      <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas
         </Typography>
