@@ -3,8 +3,8 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 ARG sockets_address=https://boldo-dev.pti.org.py
 ENV REACT_APP_SOCKETS_ADDRESS=https://boldo-dev.pti.org.py
-ARG app_server=https://boldo-test.pti.org.py/api
-ENV REACT_APP_SERVER_ADDRESS=https://boldo-test.pti.org.py/api
+ARG app_server=https://boldo-dev.pti.org.py/api
+ENV REACT_APP_SERVER_ADDRESS=https://boldo-dev.pti.org.py/api
 ARG app_sentry="https://sentry.pti.org.py"
 ENV REACT_APP_SENTRY=https://sentry.pti.org.py
 COPY . /usr/src/app/
