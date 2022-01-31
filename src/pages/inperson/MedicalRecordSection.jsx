@@ -25,6 +25,7 @@ export default () => {
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
+  const [showPrescDetail, setPrescDetail] = useState(false)
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
   const [recordSoepSelected, setRecordSoepSelected] = useState(0)
   const [diagnose, setDiagnose] = useState('')
@@ -35,6 +36,7 @@ export default () => {
   const [initialLoad, setInitialLoad] = useState(true)
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
   const [soepRecordDesc, setSoepRecordDesc] = useState('')
+  const [prescriptionRecord, setPrescriptionRecord] = useState([])
   const [encounterId, setEncounterId] = useState('')
   const [encounterHistory, setEncounterHistory] = useState([])
   const [disableMainReason, setDisableMainReason] = useState(false)
@@ -102,7 +104,9 @@ export default () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSoepSelected, encounterHistory, soepSelected])
 
+
   const showSoepDataDynamic = counter => {
+    setPrescriptionRecord(encounterHistory[counter].prescriptions)
     switch (soepSelected) {
       case Soep.Subjetive:
         setSoepRecordDesc(encounterHistory[counter].soep.subjective)
@@ -148,7 +152,7 @@ export default () => {
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               if (data.appointmentId !== id) tempArray.push(data)
             }
-
+            console.log('este es', tempArray)
             if (tempArray.length > 0) {
               setEncounterHistory(tempArray)
               setRecordSoepAvailable(true)
@@ -380,9 +384,6 @@ export default () => {
           fullWidth
           multiline
           rows='20'
-          // InputProps={{
-          //   disablenderline: true,
-          // }}
           style={{
             marginTop: '20px',
           }}
@@ -390,6 +391,7 @@ export default () => {
           placeholder='Ingrese notas actualizadas'
           value={soepRecordDesc}
         />
+        {prescriptionRecord.length > 0 && showPrescriptionsRecord()}
       </Grid>
 
       <Grid xs={12} md={7} className='ml-6'>
@@ -448,9 +450,60 @@ export default () => {
     />
   )
 
+  function showPrescriptionsRecord() {
+    const tempArray = []
+    prescriptionRecord.forEach(element => {
+      if (element) {
+        tempArray.push(
+          `${element.medicationName.toLowerCase()} ${
+            showPrescDetail === true ? `${element.instructions != null ? element.instructions : ''}` : ''
+          } `
+        )
+        tempArray.push(<br />)
+      }
+    })
+    return (
+      <button
+        style={{
+          height: '35',
+          backgroundColor: '#EDF2F7',
+          color: 'grey',
+          textAlign: 'initial',
+          width: `${showPrescDetail === true ? '100%' : '150px'}`,
+          textOverflow: 'ellipsis',
+          whiteSpace: `${showPrescDetail === true ? 'nowrap' : 'none'}`,
+          overflow: 'hidden',
+        }}
+        type='button'
+        className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+        // onClick={e => {
+        //   setSoepSelected(Soep.Subjetive)
+        // }}
+        onMouseEnter={() => setPrescDetail(true)}
+        onMouseLeave={() => setPrescDetail(false)}
+      >
+        <svg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <path
+            fillRule='evenodd'
+            clipRule='evenodd'
+            d='M11.3379 5.32816L5.32749 11.3386C4.39805 12.268 4.39805 13.775 5.32749 14.7044C6.25694 15.6338 7.76387 15.6338 8.69332 14.7044L14.7037 8.69399C15.6332 7.76454 15.6332 6.25761 14.7037 5.32816C13.7743 4.39871 12.2673 4.39871 11.3379 5.32816ZM4.0052 10.0163C2.34548 11.676 2.34548 14.367 4.0052 16.0267C5.66493 17.6864 8.35588 17.6864 10.0156 16.0267L16.026 10.0163C17.6857 8.35655 17.6857 5.6656 16.026 4.00587C14.3663 2.34614 11.6753 2.34614 10.0156 4.00587L4.0052 10.0163Z'
+            fill='#364152'
+          />
+          <path
+            fillRule='evenodd'
+            clipRule='evenodd'
+            d='M10.2633 15.7783L13.1586 12.8829L9.5524 9.2767L3.54199 15.2871L3.61026 15.3554L10.2633 15.7783Z'
+            fill='#364152'
+          />
+        </svg>
+
+        {tempArray}
+      </button>
+    )
+  }
+
   return (
-    
-    <Grid style={{ marginTop: '25px', marginLeft:'30px' }}>
+    <Grid style={{ marginTop: '25px', marginLeft: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas
