@@ -17,7 +17,7 @@ import useStyles from '../pages/inperson/style'
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-    const [mainReason, setMainReason] = useState<any[]>([])
+    const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
     const [encounterId, setEncounterId] = useState('')

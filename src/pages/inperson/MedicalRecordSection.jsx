@@ -180,7 +180,7 @@ export default () => {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             partOfEncounterId: partOfEncounterId,
-            status: 'in-progress',
+            status: 'finished',
             encounterClass: 'A',
             soep: {
               subjective: copyStrings[0],
@@ -197,7 +197,7 @@ export default () => {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: 'in-progress',
+            status: 'finished',
             encounterClass: 'A',
             soep: {
               subjective: copyStrings[0],
