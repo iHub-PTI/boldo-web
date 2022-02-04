@@ -674,10 +674,10 @@ export default () => {
             }
             onClick={saveConsultation}
           >
-            Finalizar Consulta
+            Guardar Consulta
           </Button>
         </div>
-
+{/* 
         <div className='ml-6'>
           <Button
             className={classes.muiButtonOutlined}
@@ -704,13 +704,19 @@ export default () => {
           >
             Cancelar cita
           </Button>
-        </div>
+        </div> */}
+        
 
         <div className='ml-6'>
           <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
             Minimizar
           </Button>
         </div>
+      </div>
+      <div>
+      <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
+        La consulta se finaliza en 2 horas.
+      </Typography>
       </div>
     </Grid>
   )
