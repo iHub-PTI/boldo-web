@@ -8,6 +8,7 @@ import useStyles from './style'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
+import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -37,6 +38,7 @@ export default () => {
   const [encounterId, setEncounterId] = useState('')
   const [encounterHistory, setEncounterHistory] = useState([])
   const [disableMainReason, setDisableMainReason] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
 
@@ -207,7 +209,6 @@ export default () => {
         }
       }
 
-      
       setIsLoading(true)
       const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
       if (res.data === 'OK') {
@@ -448,8 +449,9 @@ export default () => {
   )
 
   return (
-    <Grid>
-      <Grid style={{ marginTop: '25px' }}>
+    
+    <Grid style={{ marginTop: '25px', marginLeft:'30px' }}>
+      <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas
         </Typography>
@@ -574,6 +576,15 @@ export default () => {
         soepSection
       )}
 
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={id} />
+      </div>
+
       <div className='flex flex-row-reverse mt-6'>
         <div className='ml-6'>
           <Button
@@ -614,7 +625,35 @@ export default () => {
           </Button>
         </div>
 
-        <div>
+        <div className='ml-6'>
+          <Button
+            className={classes.muiButtonOutlined}
+            variant='outlined'
+            onClick={() => {
+              setIsOpen(true)
+            }}
+            endIcon={
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                className='h-6 w-6'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                />
+              </svg>
+            }
+          >
+            Cancelar cita
+          </Button>
+        </div>
+
+        <div className='ml-6'>
           <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
             Minimizar
           </Button>

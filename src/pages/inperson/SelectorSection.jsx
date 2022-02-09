@@ -1,26 +1,30 @@
-import React  from 'react'
-import {  Card, CardContent } from '@material-ui/core'
+import React, { useState } from 'react'
+import { Card, CardContent, Grid } from '@material-ui/core'
 
+export default ({ setShowPrescriptionMenu }) => {
+  const [activeColor, setActiveColor] = useState('M')
 
-export default () => {
   return (
-    <>
+    <Grid>
       <Card
         style={{
           backgroundColor: '#EDF2F7',
-          borderTopLeftRadius:'0px',
-          borderBottomLeftRadius:'0px',
+          borderTopLeftRadius: '0px',
+          borderBottomLeftRadius: '0px',
           height: '90vh',
         }}
       >
         <CardContent>
           <div className='flex h-screen'>
             <div className='m-auto'>
-              {/* <button
-                style={{ backgroundColor: 'gray' }}
+              <button
+                style={{ backgroundColor: `${activeColor==='P'?'#667EEA':'grey'}` }}
                 className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
 
-                // onClick={() => setMobileOpen(false)}
+                onClick={() => {
+                  setShowPrescriptionMenu(true)
+                  setActiveColor('P');
+                }}
               >
                 <svg width='19' height='19' viewBox='0 0 19 19' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -36,11 +40,14 @@ export default () => {
                     fill='white'
                   />
                 </svg>
-              </button> */}
+              </button>
               <button
-                style={{ backgroundColor: 'gray' }}
+                 style={{ backgroundColor: `${activeColor==='M'?'#667EEA':'grey'}` }}
                 className='flex items-center justify-center w-12 h-12 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
-                // onClick={() => setMobileOpen(false)}
+                onClick={() => {
+                  setShowPrescriptionMenu(false)
+                  setActiveColor('M');
+                }}
               >
                 <svg width='16' height='20' viewBox='0 0 16 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -57,6 +64,6 @@ export default () => {
           </div>
         </CardContent>
       </Card>
-    </>
+    </Grid>
   )
 }

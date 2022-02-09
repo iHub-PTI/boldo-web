@@ -38,7 +38,7 @@ export const upload = async (file: File | string) => {
 interface Interval {
   start: number
   end: number
-  appointmentType?:string
+  appointmentType:string
 }
 
 type weekDay = keyof typeof weekDays
@@ -702,9 +702,18 @@ interface TimeIntervalProps {
 }
 
 const TimeInterval = (props: TimeIntervalProps) => {
+  const [localModality, setLocalModality] = useState(props.modality);
   const start = !props.start ? '00:00' : new Date(props.start * 1000 * 60).toISOString().substr(11, 5)
   const end = !props.end ? '00:00' : new Date(props.end * 1000 * 60).toISOString().substr(11, 5)
-  const { setModality , modality} = props
+  const { setModality, modality } = props
+
+  useEffect(() => {
+    if(modality === undefined){
+      setModality('V')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const toMin = (val: string) => {
     if (!val) return 0
     const a = val.split(':')
@@ -743,10 +752,10 @@ const TimeInterval = (props: TimeIntervalProps) => {
                   +match?.[3] > 59
                 ) {
                   e.target.value = ''
-                  props.onChange({ start: toMin('00:00'), end: props.end })
+                  props.onChange({ start: toMin('00:00'), end: props.end, appointmentType: localModality })
                   return
                 }
-                props.onChange({ start: toMin(value), end: props.end})
+                props.onChange({ start: toMin(value), end: props.end, appointmentType: localModality })
               }}
               required
             />
@@ -776,10 +785,10 @@ const TimeInterval = (props: TimeIntervalProps) => {
                   +match?.[3] > 59
                 ) {
                   e.target.value = ''
-                  props.onChange({ start: props.start, end: toMin('00:00') })
+                  props.onChange({ start: props.start, end: toMin('00:00'), appointmentType: localModality })
                   return
                 }
-                props.onChange({ start: props.start, end: toMin(value) })
+                props.onChange({ start: props.start, end: toMin(value), appointmentType: localModality })
               }}
               required
               min={start}
@@ -803,6 +812,7 @@ const TimeInterval = (props: TimeIntervalProps) => {
       </button>
       <AppoinmentModality modality={modality} setDataCallback={elem => {
         setModality(elem)
+        setLocalModality(elem)
       }} />
     </div>
   )
