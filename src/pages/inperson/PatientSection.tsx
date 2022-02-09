@@ -10,6 +10,7 @@ import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import Modal from '../../components/Modal'
 import loading from '../../assets/loading.gif'
+import { Patient } from '../../decs';
 
 // const mapSexo = gender => {
 //   switch ((gender || 'male').trim().toLowerCase()) {
@@ -28,7 +29,7 @@ import loading from '../../assets/loading.gif'
 
 const PatientRecord = props => {
 
-  const { givenName, familyName, birthDate, identifier, city = '', phone = '' } = props.patient;
+  const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl='' } = props.patient;
 const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainReason='',appointmentId } = props.encounter;
 
   const { width: screenWidth } = useWindowDimensions()
@@ -131,7 +132,7 @@ const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainRe
           borderRadius: '10px',
         }}
         variant='square'
-        src={'/img/patient-m.svg'}
+        src={photoUrl}
       >
         {/* <PatientIcon /> */}
       </Avatar>
