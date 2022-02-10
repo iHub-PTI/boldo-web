@@ -665,8 +665,8 @@ export default () => {
           </Button>
         </div> */}
       </div>
-      <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Culminada la cita, se cierra en 2 horas.
+      <Typography style={{ marginTop: '20px' }} variant='body2' color='textSecondary'>
+      Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
       </Typography>
     </Grid>
   )
