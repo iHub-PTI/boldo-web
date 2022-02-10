@@ -653,11 +653,11 @@ export default () => {
           </Button>
         </div>
 
-        <div className='ml-6'>
+        {/* <div className='ml-6'>
           <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
             Minimizar
           </Button>
-        </div>
+        </div> */}
       </div>
       <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
         Culminada la cita, se cierra en 2 horas.
