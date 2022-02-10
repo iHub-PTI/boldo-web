@@ -31,6 +31,12 @@ const ShowSoepHelper = ({ title, isBlackColor }: { title: String, isBlackColor: 
     case 'Plan':
       description = "Aquí se registra la planificación de las conductas que se tomarán. Existen cuatro tipos de planes: · Plan diagnóstico · Plan terapéutico · Plan de seguimiento · Plan de educación."
       break;
+    case 'Nota':
+      description = "Aquí se registran las notas medicas."
+      break;
+    case 'Receta':
+      description = "Aquí se registran las recetas medicas."
+      break;
 
     default:
       break;
