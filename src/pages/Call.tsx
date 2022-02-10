@@ -1140,18 +1140,24 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
+  const [isAppointmentEnabled, setAppointmentDisabled] = useState(true)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
+
   useEffect(() => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
-        console.log(res.data)
-        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+        const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
+        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+          setAppointmentDisabled(true);
+        } else {
+          setAppointmentDisabled(false);
+        }
         setDiagnose(diagnosis);
         setInstructions(instructions);
         setSelectedMedication(prescriptions);
@@ -1587,7 +1593,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
                   <TextField
                     fullWidth
-                    disabled={disableMainReason}
+                    disabled={disableMainReason || isAppointmentEnabled}
                     InputProps={{
                       disableUnderline: true,
                     }}
@@ -1631,6 +1637,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     <AccordionDetails  >
                       <TextField
                         fullWidth
+                        disabled={isAppointmentEnabled}
                         multiline
                         rows="9"
                         InputProps={{
@@ -1673,6 +1680,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentEnabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1718,6 +1726,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentEnabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1763,6 +1772,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentEnabled}
                         fullWidth
                         multiline
                         rows="9"
