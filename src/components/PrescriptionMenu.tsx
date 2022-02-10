@@ -169,6 +169,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
                                         setSelectedMedication(filteredItems)
                                     }}
+                                    isMedidicineEditionDisabled={isAppointmentDisabled}
                                     changeDescriptionCallback={(instructions: String) => {
                                         const selectedMedicationsCopy: any[] = [...selectedMedication]
                                         const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId === e.medicationId)
