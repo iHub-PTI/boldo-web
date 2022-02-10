@@ -1140,7 +1140,7 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
-  const [isAppointmentEnabled, setAppointmentDisabled] = useState(true)
+  const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
@@ -1593,7 +1593,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
                   <TextField
                     fullWidth
-                    disabled={disableMainReason || isAppointmentEnabled}
+                    disabled={disableMainReason || isAppointmentDisabled}
                     InputProps={{
                       disableUnderline: true,
                     }}
@@ -1637,7 +1637,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     <AccordionDetails  >
                       <TextField
                         fullWidth
-                        disabled={isAppointmentEnabled}
+                        disabled={isAppointmentDisabled}
                         multiline
                         rows="9"
                         InputProps={{
@@ -1680,7 +1680,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
-                        disabled={isAppointmentEnabled}
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1726,7 +1726,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
-                        disabled={isAppointmentEnabled}
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1772,7 +1772,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
-                        disabled={isAppointmentEnabled}
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"
