@@ -180,7 +180,6 @@ export default () => {
             prescriptions: selectedMedication,
             mainReason: mainReason,
             partOfEncounterId: partOfEncounterId,
-            status: 'in-progress',
             encounterClass: 'A',
             soep: {
               subjective: copyStrings[0],
@@ -197,7 +196,6 @@ export default () => {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: 'in-progress',
             encounterClass: 'A',
             soep: {
               subjective: copyStrings[0],
@@ -449,8 +447,7 @@ export default () => {
   )
 
   return (
-    
-    <Grid style={{ marginTop: '25px', marginLeft:'30px' }}>
+    <Grid style={{ marginTop: '25px', marginLeft: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas

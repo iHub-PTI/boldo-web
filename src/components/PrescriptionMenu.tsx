@@ -227,7 +227,6 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                                 diagnosis: diagnose,
                                                 instructions: instructions,
                                                 prescriptions: result,
-                                                status: "in-progress",
                                                 encounterClass: 'V',
                                                 soep: selectedSoep,
                                                 mainReason: mainReason,

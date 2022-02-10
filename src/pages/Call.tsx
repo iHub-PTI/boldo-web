@@ -1222,7 +1222,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: "in-progress",
             encounterClass: 'V',
             partOfEncounterId: partOfEncounterId,
             soep: {
@@ -1241,7 +1240,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: "in-progress",
             encounterClass: 'V',
             soep: {
               subjective: subjective,
@@ -1304,7 +1302,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             mainReason: mainReason,
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
-            status: "in-progress",
             encounterClass: 'V',
             soep: {
               subjective: subjective,
