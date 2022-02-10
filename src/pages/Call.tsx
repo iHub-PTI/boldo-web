@@ -1580,7 +1580,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     root: classes.tabHeight
                   }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
                     <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-                    <Tab onClick={() => {
+                    <Tab  disabled={isAppointmentDisabled} onClick={() => {
                       setShowEditModal(true)
                     }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
                   </Tabs>
