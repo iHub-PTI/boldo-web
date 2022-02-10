@@ -621,7 +621,7 @@ export default () => {
             }
             onClick={saveConsultation}
           >
-            Guardar Consulta
+            Finalizar Consulta
           </Button>
         </div>
 
@@ -659,9 +659,6 @@ export default () => {
           </Button>
         </div>
       </div>
-      <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Culminada la cita, se cierra en 2 horas.
-      </Typography>
     </Grid>
   )
 }
