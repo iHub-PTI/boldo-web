@@ -27,6 +27,7 @@
     "date-fns": "^2.16.1",
     "lodash": "^4.17.21",
     "material-table": "^1.69.3",
+    "moment": "^2.29.1",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.1.7",
     "postcss-cli": "^8.2.0",
@@ -71,6 +72,7 @@
     ]
   },
   "devDependencies": {
-    "@types/lodash.debounce": "^4.0.6"
+    "@types/lodash.debounce": "^4.0.6",
+    "@types/react-timeago": "^4.1.3"
   }
 }
