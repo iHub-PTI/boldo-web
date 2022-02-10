@@ -41,7 +41,7 @@ export default () => {
   const [isOpen, setIsOpen] = useState(false)
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
-
+  const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   useEffect(() => {
     const load = async () => {
       try {
@@ -52,7 +52,13 @@ export default () => {
           prescriptions,
           mainReason = '',
           partOfEncounterId = '',
+          status = '',
         } = res.data.encounter
+        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+          setAppointmentDisabled(true)
+        } else {
+          setAppointmentDisabled(false)
+        }
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
@@ -375,6 +381,7 @@ export default () => {
       <Grid xs={12} md={5}>
         <div className='flex'>{showSoepHeadersRecords()}</div>
         <TextField
+          disabled
           fullWidth
           multiline
           rows='20'
@@ -385,7 +392,6 @@ export default () => {
             marginTop: '20px',
           }}
           variant='outlined'
-          placeholder='Ingrese notas actualizadas'
           value={soepRecordDesc}
         />
       </Grid>
@@ -395,6 +401,7 @@ export default () => {
           Consulta Actual
         </Typography>
         <TextField
+          disabled={isAppointmentDisabled}
           multiline
           rows='20'
           InputProps={{
@@ -422,6 +429,7 @@ export default () => {
   )
   const soepSection = (
     <TextField
+      disabled={isAppointmentDisabled}
       multiline
       rows='20'
       InputProps={{
@@ -461,7 +469,7 @@ export default () => {
         Motivo Principal de la visita
       </Typography>
       <TextField
-        disabled={disableMainReason}
+        disabled={disableMainReason || isAppointmentDisabled}
         style={{ minWidth: '90vh' }}
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
@@ -585,7 +593,7 @@ export default () => {
       <div className='flex flex-row-reverse mt-6'>
         <div className='ml-6'>
           <Button
-            disabled={initialLoad}
+            disabled={initialLoad || isAppointmentDisabled}
             className={classes.muiButtonContained}
             type='submit'
             variant='contained'
@@ -624,6 +632,7 @@ export default () => {
 
         <div className='ml-6'>
           <Button
+            disabled={isAppointmentDisabled}
             className={classes.muiButtonOutlined}
             variant='outlined'
             onClick={() => {
