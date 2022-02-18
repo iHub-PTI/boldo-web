@@ -1140,18 +1140,24 @@ function SOEP({ appointment }: { appointment: any; }) {
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
+  const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue);
   };
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
+
   useEffect(() => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
-        console.log(res.data)
-        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+        const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
+        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+          setAppointmentDisabled(true);
+        } else {
+          setAppointmentDisabled(false);
+        }
         setDiagnose(diagnosis);
         setInstructions(instructions);
         setSelectedMedication(prescriptions);
@@ -1216,7 +1222,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: "in-progress",
             encounterClass: 'V',
             partOfEncounterId: partOfEncounterId,
             soep: {
@@ -1235,7 +1240,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             instructions: instructions,
             prescriptions: selectedMedication,
             mainReason: mainReason,
-            status: "in-progress",
             encounterClass: 'V',
             soep: {
               subjective: subjective,
@@ -1298,7 +1302,6 @@ function SOEP({ appointment }: { appointment: any; }) {
             mainReason: mainReason,
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
-            status: "in-progress",
             encounterClass: 'V',
             soep: {
               subjective: subjective,
@@ -1574,7 +1577,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     root: classes.tabHeight
                   }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
                     <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-                    <Tab onClick={() => {
+                    <Tab  disabled={isAppointmentDisabled} onClick={() => {
                       setShowEditModal(true)
                     }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
                   </Tabs>
@@ -1587,7 +1590,7 @@ function SOEP({ appointment }: { appointment: any; }) {
 
                   <TextField
                     fullWidth
-                    disabled={disableMainReason}
+                    disabled={disableMainReason || isAppointmentDisabled}
                     InputProps={{
                       disableUnderline: true,
                     }}
@@ -1631,6 +1634,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     <AccordionDetails  >
                       <TextField
                         fullWidth
+                        disabled={isAppointmentDisabled}
                         multiline
                         rows="9"
                         InputProps={{
@@ -1673,6 +1677,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1718,6 +1723,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"
@@ -1763,6 +1769,7 @@ function SOEP({ appointment }: { appointment: any; }) {
                     </AccordionSummary>
                     <AccordionDetails  >
                       <TextField
+                        disabled={isAppointmentDisabled}
                         fullWidth
                         multiline
                         rows="9"

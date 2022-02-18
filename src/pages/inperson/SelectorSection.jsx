@@ -53,7 +53,7 @@ export default ({ setShowPrescriptionMenu }) => {
                   />
                 </svg>
                 {showHover === Soep.Prescription &&
-                ShowSoepHelper({ title: Soep.Prescription, isBlackColor: soepSelected === Soep.Prescription ? false : true })}
+                ShowSoepHelper({ title: Soep.Prescription, isBlackColor: false })}
               </button>
               
               <button
@@ -78,7 +78,7 @@ export default ({ setShowPrescriptionMenu }) => {
                   />
                 </svg>
                 {showHover === Soep.Note &&
-                ShowSoepHelper({ title: Soep.Note, isBlackColor: soepSelected === Soep.Note ? false : true })}
+                ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
               </button>
             </div>
           </div>
