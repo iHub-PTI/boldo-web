@@ -20,11 +20,14 @@ export default ({ setShowPrescriptionMenu }) => {
           borderTopLeftRadius: '0px',
           borderBottomLeftRadius: '0px',
           height: '90vh',
+          border: 'none',
+          boxShadow: 'none',
         }}
       >
         <CardContent>
           <div className='flex h-screen'>
-            <div className='m-auto'>
+
+            <div style={{ marginTop: '700%' }}>
               <button
                 style={{ backgroundColor: `${activeColor==='P'?'#667EEA':'grey'}` }}
                 className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'

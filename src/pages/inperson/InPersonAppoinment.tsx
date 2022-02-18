@@ -15,21 +15,21 @@ export default function Dashboard() {
   return (
 
     <Layout>
-      <Grid style={{ padding: '30px' }}>
+      <Grid style={{ padding: '23px'}}>
         <Typography variant='h6' color='textPrimary'>
           Consulta presencial
         </Typography>
       </Grid>
-      <Grid container  >
-        <Grid item xs={8} md={3} >
+      <Grid container>
+        <Grid item xs={3} md={3} >
           <PatientSection />
         </Grid>
-        <Grid item  >
+        <Grid>
           <SelectorSection setShowPrescriptionMenu={(elem: any) => {
             setShowPrescriptionMenu(elem)
           }} />
         </Grid>
-        <Grid item xs={12} md={8} >
+        <Grid item xs={8} md={8} >
           {
             showPrescriptionMenu ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : <MedicalRecordSection />
           }
