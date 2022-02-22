@@ -29,7 +29,7 @@ export const upload = async (file: File | string) => {
       withCredentials: false,
       headers: { 'Content-Type': file.type, authentication: null },
     })
-    if (ress.status === 200) return res.data.location
+    if (ress.status === 201) return res.data.location
   } catch (err) {
     console.log(err)
   }

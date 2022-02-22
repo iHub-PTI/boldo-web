@@ -4,10 +4,12 @@ export default function MedicineItem({
   changeDescriptionCallback,
   medicine,
   deleteMedicineCallback,
+  isMedidicineEditionDisabled,
 }: {
   changeDescriptionCallback: any
   deleteMedicineCallback: any
   medicine: any
+  isMedidicineEditionDisabled:boolean
 }) {
   return (
     <div key={medicine.medicationId} className='flex justify-center w-full mt-3 mb-4'>
@@ -20,7 +22,7 @@ export default function MedicineItem({
 
           <div className='w-full rounded-md shadow-sm'>
             <textarea
-              disabled={medicine.status === 'active' ? false : true}
+              disabled={medicine.status === 'active' && isMedidicineEditionDisabled === false ? false : true}
               id={`Indicationes${medicine.medicationId}}`}
               rows={2}
               className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-xs sm:leading-5'
@@ -31,7 +33,7 @@ export default function MedicineItem({
           </div>
         </div>
       </div>
-      {medicine.status === 'active' ?
+      { isMedidicineEditionDisabled === true ? <></> :medicine.status === 'active'  ?
       <svg
         onClick={() => {
           deleteMedicineCallback()

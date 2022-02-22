@@ -1,9 +1,17 @@
 import React, { useState } from 'react'
 import { Card, CardContent, Grid } from '@material-ui/core'
+import ShowSoepHelper from '../../components/TooltipSoep'
 
 export default ({ setShowPrescriptionMenu }) => {
   const [activeColor, setActiveColor] = useState('M')
-
+  const [showHover, setShowHover] = useState('')
+  const Soep = {
+    Subjetive: 'Subjetivo',
+    Note: 'Nota',
+    Prescription: 'Receta'
+  }
+  const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
+  
   return (
     <Grid>
       <Card
@@ -23,9 +31,13 @@ export default ({ setShowPrescriptionMenu }) => {
 
                 onClick={() => {
                   setShowPrescriptionMenu(true)
+                  setSoepSelected(Soep.Prescription)
                   setActiveColor('P');
                 }}
+                onMouseEnter={() => setShowHover(Soep.Prescription)}
+                onMouseLeave={() => setShowHover('')}
               >
+                
                 <svg width='19' height='19' viewBox='0 0 19 19' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
                     fillRule='evenodd'
@@ -40,14 +52,20 @@ export default ({ setShowPrescriptionMenu }) => {
                     fill='white'
                   />
                 </svg>
+                {showHover === Soep.Prescription &&
+                ShowSoepHelper({ title: Soep.Prescription, isBlackColor: false })}
               </button>
+              
               <button
                  style={{ backgroundColor: `${activeColor==='M'?'#667EEA':'grey'}` }}
                 className='flex items-center justify-center w-12 h-12 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
                 onClick={() => {
                   setShowPrescriptionMenu(false)
+                  setSoepSelected(Soep.Note)
                   setActiveColor('M');
                 }}
+                onMouseEnter={() => setShowHover(Soep.Note)}
+                onMouseLeave={() => setShowHover('')}
               >
                 <svg width='16' height='20' viewBox='0 0 16 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -59,6 +77,8 @@ export default ({ setShowPrescriptionMenu }) => {
                     fill='white'
                   />
                 </svg>
+                {showHover === Soep.Note &&
+                ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
               </button>
             </div>
           </div>

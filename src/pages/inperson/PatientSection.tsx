@@ -10,6 +10,7 @@ import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import Modal from '../../components/Modal'
 import loading from '../../assets/loading.gif'
+import { Patient } from '../../decs';
 
 // const mapSexo = gender => {
 //   switch ((gender || 'male').trim().toLowerCase()) {
@@ -28,17 +29,28 @@ import loading from '../../assets/loading.gif'
 
 const PatientRecord = props => {
 
-  const { givenName, familyName, birthDate, identifier, city = '', phone = '' } = props.patient;
-const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainReason='',appointmentId } = props.encounter;
-
+  const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
+  const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
   const { width: screenWidth } = useWindowDimensions()
-  const { addErrorToast,addToast } = useToasts()
+  const { addErrorToast, addToast } = useToasts()
   const [imgSize, setImgSize] = useState(180)
   const [showEditModal, setShowEditModal] = useState(false)
   const [soepHistory, setSoepHistory] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState();
   const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
+  const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+
+  useEffect(() => {
+    if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+      setAppointmentDisabled(true);
+    } else {
+      setAppointmentDisabled(false);
+    }
+
+    // eslint-disable-next-line
+  }, [])
+
   useEffect(() => {
     if (screenWidth < 900) {
       setImgSize(120)
@@ -62,15 +74,14 @@ const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainRe
             mainReason: mainReason,
             //@ts-ignore
             partOfEncounterId: selectedRow.id,
-            status: "in-progress",
-            encounterClass:'A',
+            encounterClass: 'A',
             soep: soep
           },
 
         }
-    
+
         try {
-           await axios.put(`/profile/doctor/appointments/${props.id}/encounter`, encounter);
+          await axios.put(`/profile/doctor/appointments/${props.id}/encounter`, encounter);
           addToast({ type: 'success', title: 'Ficha médica asociada con éxito', text: '' })
           setIsLoading(false)
           history.go(0)
@@ -101,7 +112,7 @@ const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainRe
               const data = res.data.encounter[i][0]
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               if (data.appointmentId !== appointmentId)
-              tempArray.push(data)
+                tempArray.push(data)
             }
             setSoepHistory(tempArray);
           }
@@ -131,7 +142,7 @@ const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainRe
           borderRadius: '10px',
         }}
         variant='square'
-        src={'/img/patient-m.svg'}
+        src={photoUrl}
       >
         {/* <PatientIcon /> */}
       </Avatar>
@@ -179,6 +190,7 @@ const {encounterId, diagnose='',instructions='',prescriptions=[],soep={}, mainRe
         <div className='flex mt-4 md:mt-0 md:ml-4'>
           <span className='ml-3 rounded-md shadow-sm'>
             <button
+              disabled={isAppointmentDisabled}
               type='button'
               className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
               onClick={e => {
@@ -327,39 +339,39 @@ export default () => {
 
   return (
     <Grid >
-    
-        <Card
-          style={{
-            backgroundColor: '#F4F5F7',
-            borderTopRightRadius: '0px',
-            borderBottomRightRadius: '0px',
-            height: '90vh',
-          }}
-        >
-          <CardContent>
 
-            {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id}/> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
-              <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
-                <svg
-                  className='w-6 h-6 text-secondary-500 animate-spin'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-              </div>
-            </div>}
+      <Card
+        style={{
+          backgroundColor: '#F4F5F7',
+          borderTopRightRadius: '0px',
+          borderBottomRightRadius: '0px',
+          height: '90vh',
+        }}
+      >
+        <CardContent>
 
-          </CardContent>
-        </Card>
-      
-     
+          {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+            <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
+              <svg
+                className='w-6 h-6 text-secondary-500 animate-spin'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+              >
+                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                ></path>
+              </svg>
+            </div>
+          </div>}
+
+        </CardContent>
+      </Card>
+
+
     </Grid>
   )
 }
