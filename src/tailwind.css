@@ -157,9 +157,12 @@ Events
   color: theme('colors.gray.900');
 }
 .event-cancel {
-  background-color: #c2272f;
+  /* background-color: #c2272f;
   border-color: #c2272f;
-  color: #c2272f;
+  color: #c2272f; */
+  background-color: gray;
+  border-color: gray;
+  color: #354152;
 }
 
 .event-online {
@@ -170,7 +173,7 @@ Events
 .event-inperson {
   background-color: #3150db;
   border-color: #3150db;
-  color: #3150db;
+  color: #354152;
 }
 
 .event-other {
