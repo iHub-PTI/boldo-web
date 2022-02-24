@@ -658,7 +658,7 @@ export default () => {
             Cancelar cita
           </Button>
         </div>
-
+        
         {/* <div className='ml-6'>
           <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
             Minimizar
@@ -666,8 +666,8 @@ export default () => {
         </div> */}
       </div>
       <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
-      Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
-      </Typography>
+        Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
+        </Typography>
     </Grid>
   )
 }

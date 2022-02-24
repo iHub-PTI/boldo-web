@@ -357,9 +357,11 @@ export default () => {
       <Card
         style={{
           backgroundColor: '#F4F5F7',
-          borderTopRightRadius: '0px',
-          borderBottomRightRadius: '0px',
-          height: '90vh',
+          borderTopLeftRadius: '0px',
+          borderBottomLeftRadius: '0px',
+          height: '92vh',
+          border: 'none',
+          boxShadow: 'none',
         }}
       >
         <CardContent>
