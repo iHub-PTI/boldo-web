@@ -3,11 +3,11 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 #ARG sockets_address=http://socket:8000
-ENV REACT_APP_SOCKETS_ADDRESS
+ENV REACT_APP_SOCKETS_ADDRESS=http://socket:8000
 #ARG app_server=http://localhost:8008
-ENV REACT_APP_SERVER_ADDRESS
+ENV REACT_APP_SERVER_ADDRESS=http://localhost:8008
 #ARG app_sentry="https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906"
-ENV REACT_APP_SENTRY
+# ENV REACT_APP_SENTRY=
 
 COPY . /usr/src/app/
 RUN npm i && NODE_ENV=production npm run build
