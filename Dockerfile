@@ -2,11 +2,11 @@ FROM node:14.15.1 AS build
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-ARG sockets_address=http://socket:8000
+#ARG sockets_address=http://socket:8000
 ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
-ARG app_server=http://localhost:8008
+#ARG app_server=http://localhost:8008
 ENV REACT_APP_SERVER_ADDRESS=$app_server
-ARG app_sentry="https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906"
+#ARG app_sentry="https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906"
 ENV REACT_APP_SENTRY=$app_sentry
 
 COPY . /usr/src/app/
