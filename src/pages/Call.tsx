@@ -72,6 +72,7 @@ const Gate = () => {
   const [instance, setInstance] = useState(0)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
+  const [disabledCancelAppointment ,setdisabledCancelAppointment] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
@@ -128,10 +129,12 @@ const Gate = () => {
       const minutes = differenceInMinutes(parseISO(appointment.start as any), Date.now())
       if (minutes < 15) {
         clearInterval(timer)
+        setdisabledCancelAppointment(`true`)
         const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
         if (mounted) setAppointment(res.data)
       } else if (minutes < 16) {
         const seconds = differenceInSeconds(parseISO(appointment.start as any), Date.now())
+        setdisabledCancelAppointment(`true`)
         setStatusText(`La sala de espera se abre en ${seconds + 1 - 60 * 15} segundos`)
       } else if (minutes < 60) {
         setStatusText(`La sala de espera se abre en ${minutes - 14} minutos`)
@@ -286,7 +289,7 @@ const Gate = () => {
               <TogleMenu />
             </Grid>
           </Grid>
-          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
+          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} statuscancel={disabledCancelAppointment}/>
           <Card>
             {controlSideBarState()}
           </Card>
@@ -1876,9 +1879,10 @@ interface CallStatusMessageProps {
   statusText?: string
   updateStatus: (status?: Status) => void
   appointmentId: string
+  statuscancel?: string
 }
 
-const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: CallStatusMessageProps) => {
+const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId, statuscancel }: CallStatusMessageProps) => {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='flex items-center justify-center flex-grow'>
@@ -1917,6 +1921,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
                     alignItems: 'center',
                   }}
                   type='button'
+                  disabled = {statuscancel}
                   className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
                   onClick={() => {
                     setIsOpen(true)
