@@ -7,6 +7,7 @@ import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
 import ValidatePatient from './pages/ValidatePatient'
+import PrivacyPolicy from './components/PrivacyPolicy'
 import Error from './components/Error'
 import { ToastProvider } from './components/Toast'
 
@@ -89,6 +90,10 @@ const App = () => {
 
                 <Route exact path='/appointments/:id/inperson'>
                   <InPersonAppoinment />
+                </Route>
+
+                <Route exact path='/boldo-app-privacy-policy'>
+                  <PrivacyPolicy />
                 </Route>
 
                 <Route>
