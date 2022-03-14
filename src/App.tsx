@@ -32,16 +32,20 @@ const App = () => {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    axios.interceptors.response.use(
-      response => response,
-      async error => {
-        if (error.response?.status === 401 && error.response?.data?.message) {
-          window.location.href = error.response.data.message
-          delete error.response.data.message
+    if (window.location.pathname !== "/boldo-app-privacy-policy") {
+      axios.interceptors.response.use(
+        response => response,
+        async error => {
+          if (error.response?.status === 401 && error.response?.data?.message) {
+            window.location.href = error.response.data.message
+            delete error.response.data.message
+          }
+          return Promise.reject(error)
         }
-        return Promise.reject(error)
-      }
-    )
+      )
+    } else {
+      setError(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -54,8 +58,11 @@ const App = () => {
         if (err?.response?.status !== 401) setError(true)
       }
     }
-
-    effect()
+    if (window.location.pathname !== "/boldo-app-privacy-policy") {
+      effect()
+    } else {
+      setError(false)
+    }
   }, [])
 
   const updateUser = (arg: Partial<Boldo.Doctor>) => {
@@ -63,7 +70,7 @@ const App = () => {
   }
 
   if (error) return <Error />
-  if (!user) return <div className='h-1 fakeload-15 bg-primary-500' />
+  if (!user && window.location.pathname !== "/boldo-app-privacy-policy") return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <ToastProvider>
