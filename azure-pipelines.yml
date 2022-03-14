@@ -39,3 +39,39 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
+    - task: Kubernetes@1
+      displayName: Deploy to healthcore-dev
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'healthcore-dev'
+        namespace: 'healthcore-dev'
+        command: 'set'
+        arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+    
+    - task: Kubernetes@1
+      displayName: Deploy to healthcore-test
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'healthcore-test'
+        namespace: 'healthcore-test'
+        command: 'set'
+        arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+    
+    - task: Kubernetes@1
+      displayName: Deploy to healthcore-prod
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'heathcore-prod'
+        namespace: 'healthcore-prod'
+        command: 'set'
+        arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
