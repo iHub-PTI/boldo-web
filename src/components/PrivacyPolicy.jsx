@@ -20,7 +20,6 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundImage: "url(/assets/background.svg)",
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
@@ -46,7 +45,7 @@ export default function PrivacyPolicy() {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Container component="main" className={classes.main} maxWidth="sm">
+      <Container component="main" className={classes.main} maxWidth="md">
         <Typography variant="h2" component="h1" gutterBottom>
         POLITICA DE PRIVACIDAD
         </Typography>
