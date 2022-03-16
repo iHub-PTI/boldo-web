@@ -2,11 +2,11 @@ FROM node:14.15.1 AS build
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-#ARG sockets_address=http://socket:8000
+ARG sockets_address=$sockets_address
 #ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
-#ARG app_server=http://localhost:8008
+ARG app_server=$app_server
 #ENV REACT_APP_SERVER_ADDRESS=$app_server
-#ARG app_sentry="https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906"
+ARG app_sentry=$app_sentry
 #ENV REACT_APP_SENTRY=$app_sentry
 
 COPY . /usr/src/app/
@@ -14,7 +14,6 @@ RUN npm i && NODE_ENV=production npm run build
 
 FROM nginx:1.19.5-alpine AS base
 RUN mkdir /etc/nginx/cache
-
 
 FROM base AS final
 COPY --from=build  /usr/src/app/build /usr/share/nginx/html
