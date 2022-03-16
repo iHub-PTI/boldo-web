@@ -47,4 +47,4 @@ stages:
         repository: 'ihubptiboldoweb'
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: ' -e REACT_APP_SOCKETS_ADDRESS=$(devurl1) REACT_APP_SERVER_ADDRESS=$(devurl2) REACT_APP_SENTRY=$(devurl3)'
+        arguments: '--build-arg REACT_APP_SOCKETS_ADDRESS=$(devurl1) REACT_APP_SERVER_ADDRESS=$(devurl2) REACT_APP_SENTRY=$(devurl3)'
