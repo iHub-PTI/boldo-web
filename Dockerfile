@@ -12,18 +12,20 @@ ARG app_sentry=$app_sentry
 COPY . /usr/src/app/
 RUN npm i && NODE_ENV=production npm run build
 
-FROM nginx:1.19.5-alpine AS base
-RUN mkdir /etc/nginx/cache
+CMD [ "npm", "start" ]
 
-FROM base AS final
-COPY --from=build  /usr/src/app/build /usr/share/nginx/html
+#FROM nginx:1.19.5-alpine AS base
+#RUN mkdir /etc/nginx/cache
 
-COPY ./web-conf/default.conf /etc/nginx/conf.d/default.conf
-RUN chmod -R 775 /var/cache/nginx /var/run /var/log/nginx
-RUN chmod -R 775 /usr/share/nginx
-RUN chgrp -R root /var/cache/nginx
-RUN sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
-RUN addgroup nginx root
-USER nginx
+#FROM base AS final
+#COPY --from=build  /usr/src/app/build /usr/share/nginx/html
+
+#COPY ./web-conf/default.conf /etc/nginx/conf.d/default.conf
+#RUN chmod -R 775 /var/cache/nginx /var/run /var/log/nginx
+#RUN chmod -R 775 /usr/share/nginx
+#RUN chgrp -R root /var/cache/nginx
+#RUN sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
+#RUN addgroup nginx root
+#USER nginx
 
 EXPOSE 3000
