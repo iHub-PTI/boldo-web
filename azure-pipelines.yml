@@ -48,3 +48,9 @@ stages:
         command: 'build'
         Dockerfile: '**/Dockerfile'
         arguments: '--build-arg REACT_APP_SOCKETS_ADDRESS=$(sockets_address) --build-arg REACT_APP_SERVER_ADDRESS=$(app_server) --build-arg REACT_APP_SENTRY=$(app_sentry)'
+    
+    - task: Docker@2
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageRepository)
+        command: 'push'
