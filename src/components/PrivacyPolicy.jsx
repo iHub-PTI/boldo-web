@@ -8,9 +8,9 @@ import Link from '@material-ui/core/Link';
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary">
-      {'Copyright © '}
-      <Link color="inherit" href="https://boldo-test.pti.org.py/">
-        Boldo - Fundación Parque Tecnológico Itaipu
+      {'Copyright © Boldo - '}
+      <Link color="inherit" href="https://www.pti.org.py/">
+        Fundación Parque Tecnológico Itaipu
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -20,6 +20,11 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    backgroundImage: "url(https://sso-dev.pti.org.py/auth/resources/7ty9m/login/pti-health/img/background.svg)",
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundPosition: 'absolute',
+    backgroundAttachment: 'fixed',
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
