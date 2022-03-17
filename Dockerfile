@@ -3,29 +3,27 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 ARG sockets_address=$sockets_address
-#ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
+ENV REACT_APP_SOCKETS_ADDRESS=$sockets_address
 ARG app_server=$app_server
-#ENV REACT_APP_SERVER_ADDRESS=$app_server
+ENV REACT_APP_SERVER_ADDRESS=$app_server
 ARG app_sentry=$app_sentry
-#ENV REACT_APP_SENTRY=$app_sentry
+ENV REACT_APP_SENTRY=$app_sentry
 
 COPY . /usr/src/app/
 RUN npm i && NODE_ENV=production npm run build
 
-CMD [ "npm", "start" ]
+FROM nginx:1.19.5-alpine AS base
+RUN mkdir /etc/nginx/cache
 
-#FROM nginx:1.19.5-alpine AS base
-#RUN mkdir /etc/nginx/cache
+FROM base AS final
+COPY --from=build  /usr/src/app/build /usr/share/nginx/html
 
-#FROM base AS final
-#COPY --from=build  /usr/src/app/build /usr/share/nginx/html
-
-#COPY ./web-conf/default.conf /etc/nginx/conf.d/default.conf
-#RUN chmod -R 775 /var/cache/nginx /var/run /var/log/nginx
-#RUN chmod -R 775 /usr/share/nginx
-#RUN chgrp -R root /var/cache/nginx
-#RUN sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
-#RUN addgroup nginx root
-#USER nginx
+COPY ./web-conf/default.conf /etc/nginx/conf.d/default.conf
+RUN chmod -R 775 /var/cache/nginx /var/run /var/log/nginx
+RUN chmod -R 775 /usr/share/nginx
+RUN chgrp -R root /var/cache/nginx
+RUN sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
+RUN addgroup nginx root
+USER nginx
 
 EXPOSE 3000
