@@ -14,20 +14,22 @@ export default ({ setShowPrescriptionMenu }) => {
   
   return (
     <Grid>
-      <Card
+      <div 
         style={{
           backgroundColor: '#EDF2F7',
           borderTopLeftRadius: '0px',
           borderBottomLeftRadius: '0px',
-          height: '90vh',
+          height: '92vh',
+          border: 'none',
+          boxShadow: 'none',
         }}
       >
-        <CardContent>
-          <div className='flex h-screen'>
-            <div className='m-auto'>
+        <div>
+          <div className='flex items-center justify-center' style={{ height: '92vh' }}>
+            <div className='flex-wrap items-center justify-center'>
               <button
-                style={{ backgroundColor: `${activeColor==='P'?'#667EEA':'grey'}` }}
-                className='flex items-center justify-center w-12 h-12 rounded-full focus:outline-none focus:bg-gray-600'
+                style={{ backgroundColor: `${activeColor==='P'?'#667EEA':'grey'}`, height:'4rem', width: '4rem' }}
+                className='flex items-center justify-center rounded-full focus:outline-none focus:bg-gray-600'
 
                 onClick={() => {
                   setShowPrescriptionMenu(true)
@@ -57,8 +59,8 @@ export default ({ setShowPrescriptionMenu }) => {
               </button>
               
               <button
-                 style={{ backgroundColor: `${activeColor==='M'?'#667EEA':'grey'}` }}
-                className='flex items-center justify-center w-12 h-12 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
+                 style={{ backgroundColor: `${activeColor==='M'?'#667EEA':'grey'}`, height:'4rem', width: '4rem'  }}
+                className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
                 onClick={() => {
                   setShowPrescriptionMenu(false)
                   setSoepSelected(Soep.Note)
@@ -82,8 +84,8 @@ export default ({ setShowPrescriptionMenu }) => {
               </button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Grid>
   )
 }
