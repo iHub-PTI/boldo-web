@@ -17,7 +17,7 @@ export default function Dashboard() {
         </Typography>
       </Grid>
       <Grid container>
-        <Grid item xs={3} md={3} >
+        <Grid item lg={3} md={3} sm={3} xs={8}>
           <PatientSection />
         </Grid>
         <Grid item>
@@ -25,7 +25,7 @@ export default function Dashboard() {
             setShowPrescriptionMenu(elem)
           }} />
         </Grid>
-        <Grid item xs={8} md={8} >
+        <Grid item lg={8} md={8} sm={6} xs={12}>
           {
             showPrescriptionMenu ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : <MedicalRecordSection />
           }
