@@ -431,7 +431,7 @@ export default () => {
     <TextField
       disabled={isAppointmentDisabled}
       multiline
-      rows='20'
+      rows='16'
       InputProps={{
         disableUnderline: true,
       }}
@@ -470,7 +470,8 @@ export default () => {
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-        style={{ minWidth: '90vh' }}
+         style={{ minWidth: '100%' }}
+        
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
         }}

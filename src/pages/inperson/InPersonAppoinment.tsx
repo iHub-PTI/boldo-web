@@ -17,15 +17,17 @@ export default function Dashboard() {
         </Typography>
       </Grid>
       <Grid container>
-        <Grid item lg={3} md={3} sm={3} xs={8}>
+        <Grid item lg={3} md={3} sm={3} xs={9}>
           <PatientSection />
         </Grid>
-        <Grid item>
-          <SelectorSection setShowPrescriptionMenu={(elem: any) => {
-            setShowPrescriptionMenu(elem)
-          }} />
+        <Grid item lg={1} md={1} sm={1} xs={2}>
+          <Grid item>
+            <SelectorSection setShowPrescriptionMenu={(elem: any) => {
+              setShowPrescriptionMenu(elem)
+            }} />
+          </Grid>
         </Grid>
-        <Grid item lg={8} md={8} sm={6} xs={12}>
+        <Grid item lg={8} md={8} sm={8} xs={12}>
           {
             showPrescriptionMenu ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : <MedicalRecordSection />
           }
