@@ -162,18 +162,19 @@ Events
   color: #c2272f; */
   background-color: gray;
   border-color: gray;
-  color: #354152;
+  color: #FAFAFA;
 }
 
 .event-online {
   background-color: theme('colors.primary.600');
   border-color: theme('colors.primary.700');
+  color: #FAFAFA;
 }
 
 .event-inperson {
   background-color: #3150db;
   border-color: #3150db;
-  color: #354152;
+  color: #FAFAFA;
 }
 
 .event-other {
