@@ -80,7 +80,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         )
     return (
         <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-            <Grid style={{ minWidth: '350px' }} >
+            <Grid>
 
                 {!isFromInperson ?
                     <>
