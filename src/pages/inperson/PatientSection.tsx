@@ -131,26 +131,36 @@ const PatientRecord = props => {
 
   return (
     <Grid style={{ padding: '15px' }}>
-      <Typography variant='body1' color='textPrimary'>
+      <Typography variant='body1' color='textSecondary'>
         Paciente
       </Typography>
-      <Avatar
-        style={{
-          marginTop: '20px',
-          width: `${imgSize}px`,
-          height: `${imgSize}px`,
-          borderRadius: '10px',
-        }}
-        variant='square'
-        src={photoUrl}
+      <Grid container
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
       >
-        {/* <PatientIcon /> */}
-      </Avatar>
+        <Avatar
+          style={{
+            marginTop: '20px',
+            width: `${imgSize}px`,
+            height: `${imgSize}px`,
+            borderRadius: '100px',
+          }}
+          variant='square'
+          src={photoUrl}
+        >
+          {/* <PatientIcon /> */}
+        </Avatar>
+      </Grid>
       {/* <Grid item style={{ marginTop: '20px' }}>
         <PatientIcon />
       </Grid> */}
 
-      <Grid item style={{ marginTop: '20px' }}>
+      <Grid container
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        item style={{ marginTop: '20px' }}>
         <Typography variant='body1' color='textPrimary'>
           {givenName} {' '} {familyName}
         </Typography>
@@ -186,7 +196,11 @@ const PatientRecord = props => {
           {city}
         </Typography>
       </Grid>
-      <Grid item style={{ marginTop: '60px' }}>
+      <Grid container
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        item style={{ marginTop: '60px' }}>
         <div className='flex mt-4 md:mt-0 md:ml-4'>
           <span className='ml-3 rounded-md shadow-sm'>
             <button
@@ -343,9 +357,11 @@ export default () => {
       <Card
         style={{
           backgroundColor: '#F4F5F7',
-          borderTopRightRadius: '0px',
-          borderBottomRightRadius: '0px',
-          height: '90vh',
+          borderTopLeftRadius: '0px',
+          borderBottomLeftRadius: '0px',
+          height: '92vh',
+          border: 'none',
+          boxShadow: 'none',
         }}
       >
         <CardContent>

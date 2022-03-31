@@ -431,7 +431,7 @@ export default () => {
     <TextField
       disabled={isAppointmentDisabled}
       multiline
-      rows='20'
+      rows='16'
       InputProps={{
         disableUnderline: true,
       }}
@@ -470,7 +470,8 @@ export default () => {
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-        style={{ minWidth: '90vh' }}
+         style={{ minWidth: '100%' }}
+        
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
         }}
@@ -658,16 +659,16 @@ export default () => {
             Cancelar cita
           </Button>
         </div>
-
+        
         {/* <div className='ml-6'>
           <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
             Minimizar
           </Button>
         </div> */}
       </div>
-      <Typography style={{ marginTop: '20px' }} variant='body2' color='textSecondary'>
-      Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
-      </Typography>
+      <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
+        Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
+        </Typography>
     </Grid>
   )
 }

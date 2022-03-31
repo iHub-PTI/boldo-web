@@ -268,29 +268,34 @@ const Gate = () => {
     );
   }
   return (
-
     <Layout>
-
-
       {instance === 0 ? (
-        <div className='flex flex-col h-full md:flex-row'>
-          <Grid
-
-            style={{
-              position: 'fixed',
-              bottom: '0',
-              right: '25%'
-            }}
-          >
-            <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
+        // remote dating screen
+        // <div className='flex flex-col h-full md:flex-row'>
+          <Grid container className='flex  h-full flex-row'>
+            <Grid container item lg={9} md={9} sm={9} xs={12}>
+              {/* daiting screen here */}
+              <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
+              {/* Togle Menu */}
+              <Grid
+                style={{
+                  position: 'fixed',
+                  bottom: '0',
+                  right: '26%',
+                  marginBottom: '20px'
+                }}
+              >
+                <TogleMenu />
+              </Grid>
+            </Grid>
+            <Grid container item lg={3} md={3} sm={3} xs={12}>
+              {/* patient data screen */}
+              <Card >
+                {controlSideBarState()}
+              </Card>
             </Grid>
           </Grid>
-          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
-          <Card>
-            {controlSideBarState()}
-          </Card>
-        </div>
+        // </div>
       ) : (
         <Call
           appointment={appointment}
@@ -357,7 +362,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
     const [isOpen, setIsOpen] = useState(false);
     return (
-      <div>
+      <>
         <FloatingMenu
           slideSpeed={500}
           isOpen={isOpen}
@@ -393,7 +398,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             onClick={() => setSideBarAction(0)}
           />
         </FloatingMenu>
-      </div>
+      </>
     );
   }
   // NOTE: Mutes audio for development comfort
@@ -991,7 +996,7 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <Grid style={{ minWidth: '350px' }} >
+    <Grid>
       <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
 
       <CardContent>
@@ -1545,7 +1550,7 @@ function SOEP({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid style={{ minWidth: '350px' }}>
+      <Grid>
         <CardHeader
           title="Notas médicas"
           titleTypographyProps={{ variant: 'h6' }}
