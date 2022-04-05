@@ -21,7 +21,7 @@ export default function Dashboard() {
           <PatientSection />
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
-          <Grid item>
+          <Grid item className='h-full'>
             <SelectorSection setShowPrescriptionMenu={(elem: any) => {
               setShowPrescriptionMenu(elem)
             }} />
