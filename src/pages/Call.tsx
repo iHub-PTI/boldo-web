@@ -228,7 +228,8 @@ const Gate = () => {
 
     const [isOpen, setIsOpen] = useState(false);
     return (
-      <div>
+      <div className='flex h-full flex-row justify-start'>
+        <Grid className='flex h-full flex-row justify-start'>
         <FloatingMenu
           slideSpeed={500}
           isOpen={isOpen}
@@ -264,6 +265,7 @@ const Gate = () => {
             onClick={() => setSideBarAction(0)}
           />
         </FloatingMenu>
+        </Grid>
       </div>
     );
   }
@@ -272,25 +274,18 @@ const Gate = () => {
       {instance === 0 ? (
         // remote dating screen
         // <div className='flex flex-col h-full md:flex-row'>
-          <Grid container className='flex  h-full flex-row'>
+          <Grid container className='flex h-full flex-row'>
             <Grid container item lg={9} md={9} sm={9} xs={12}>
               {/* daiting screen here */}
               <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
               {/* Togle Menu */}
-              <Grid
-                style={{
-                  position: 'fixed',
-                  bottom: '0',
-                  right: '26%',
-                  marginBottom: '20px'
-                }}
-              >
+              <Grid>
                 <TogleMenu />
               </Grid>
             </Grid>
             <Grid container item lg={3} md={3} sm={3} xs={12}>
               {/* patient data screen */}
-              <Card >
+              <Card style={{ flex:'auto' }}>
                 {controlSideBarState()}
               </Card>
             </Grid>
@@ -362,7 +357,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
     const [isOpen, setIsOpen] = useState(false);
     return (
-      <>
+      <div className='h-full'>
         <FloatingMenu
           slideSpeed={500}
           isOpen={isOpen}
@@ -398,7 +393,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             onClick={() => setSideBarAction(0)}
           />
         </FloatingMenu>
-      </>
+      </div>
     );
   }
   // NOTE: Mutes audio for development comfort

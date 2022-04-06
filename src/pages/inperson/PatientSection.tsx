@@ -124,7 +124,7 @@ const PatientRecord = props => {
   return (
     <Grid item className='h-full' style={{ padding: '15px' }}>
       <Typography variant='body1' color='textSecondary'>
-        Pacientee
+        Paciente
       </Typography>
       <Grid container item
         direction="column"
