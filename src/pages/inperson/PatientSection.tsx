@@ -4,8 +4,6 @@ import axios from 'axios'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import MaterialTable from 'material-table'
 import moment from 'moment'
-
-
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import Modal from '../../components/Modal'
@@ -28,7 +26,6 @@ import { Patient } from '../../decs';
 // }
 
 const PatientRecord = props => {
-
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
   const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
   const { width: screenWidth } = useWindowDimensions()
@@ -47,7 +44,6 @@ const PatientRecord = props => {
     } else {
       setAppointmentDisabled(false);
     }
-
     // eslint-disable-next-line
   }, [])
 
@@ -77,9 +73,7 @@ const PatientRecord = props => {
             encounterClass: 'A',
             soep: soep
           },
-
         }
-
         try {
           await axios.put(`/profile/doctor/appointments/${props.id}/encounter`, encounter);
           addToast({ type: 'success', title: 'Ficha médica asociada con éxito', text: '' })
@@ -91,8 +85,6 @@ const PatientRecord = props => {
           addErrorToast(error)
           setIsLoading(false)
         }
-
-
       }
       send()
     }
@@ -130,11 +122,11 @@ const PatientRecord = props => {
   }, [showEditModal])
 
   return (
-    <Grid style={{ padding: '15px' }}>
+    <Grid item className='h-full' style={{ padding: '15px' }}>
       <Typography variant='body1' color='textSecondary'>
-        Paciente
+        Pacientee
       </Typography>
-      <Grid container
+      <Grid container item
         direction="column"
         justifyContent="center"
         alignItems="center"
@@ -273,7 +265,6 @@ const PatientRecord = props => {
                   )
                 },
               },
-
             ]}
             data={soepHistory}
             onRowClick={(evt, selectedRow) =>
@@ -282,11 +273,9 @@ const PatientRecord = props => {
             }
             options={{
               search: false,
-
               toolbar: false,
               paging: false,
               draggable: false,
-
               rowStyle: (rowData) => ({
                 backgroundColor:
                   // @ts-ignore
@@ -352,22 +341,20 @@ export default () => {
   }, [])
 
   return (
-    <Grid >
-
+    <Grid className='h-full'>
       <Card
         style={{
           backgroundColor: '#F4F5F7',
           borderTopLeftRadius: '0px',
           borderBottomLeftRadius: '0px',
-          height: '92vh',
+          height: '100%',
           border: 'none',
           boxShadow: 'none',
         }}
       >
         <CardContent>
-
           {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
-            <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
+            <div className='flex items-center justify-center mx-auto bg-gray-100 rounded-full h-full'>
               <svg
                 className='w-6 h-6 text-secondary-500 animate-spin'
                 xmlns='http://www.w3.org/2000/svg'
@@ -383,11 +370,8 @@ export default () => {
               </svg>
             </div>
           </div>}
-
         </CardContent>
       </Card>
-
-
     </Grid>
   )
 }
