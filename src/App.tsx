@@ -5,7 +5,9 @@ import io from 'socket.io-client'
 
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
+import Home from './pages/Home'
 import Settings from './pages/Settings'
+import SettingsNew from './pages/Settingsnew'
 import ValidatePatient from './pages/ValidatePatient'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import Error from './components/Error'
@@ -83,8 +85,16 @@ const App = () => {
                   <Dashboard />
                 </Route>
 
+                <Route exact path='/home'>
+                  <Home />
+                </Route>
+
                 <Route exact path='/settings'>
                   <Settings />
+                </Route>
+
+                <Route exact path='/settingsnew'>
+                  <SettingsNew />
                 </Route>
 
                 <Route exact path='/validate'>
