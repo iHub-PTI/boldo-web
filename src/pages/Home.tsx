@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -235,10 +235,57 @@ const useStyles = makeStyles(theme => ({
 
 
 
+export const useDate = () => {
+  const locale = 'en';
+  const [today, setDate] = React.useState(new Date()); // Save the current date to be able to trigger an update
 
+  React.useEffect(() => {
+      const timer = setInterval(() => { // Creates an interval which will update the current data every minute
+      // This will trigger a rerender every component that uses the useDate hook.
+      setDate(new Date());
+    }, 60 * 1000);
+    return () => {
+      clearInterval(timer); // Return a funtion to clear the timer so that it will stop being called on unmount
+    }
+  }, []);
+
+  const day = today.toLocaleDateString(locale, { weekday: 'long' });
+  const date = `${day}, ${today.getDate()} ${today.toLocaleDateString(locale, { month: 'long' })}\n\n`;
+
+  const hour = today.getHours();
+  const wish = `Good ${(hour < 12 && 'Morning') || (hour < 17 && 'Afternoon') || 'Evening'}, `;
+
+  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
+
+  return {
+    date,
+    time,
+    wish,
+  };
+};
 
 
 export default function Home() {
+//
+// ////////////////////////////////////////////////////////////////////////////
+//                              Hours and Date
+// ////////////////////////////////////////////////////////////////////////////
+//
+  const locale = 'en';
+  const [today, setDate] = React.useState(new Date())
+
+  React.useEffect(() => {
+      const timer = setInterval(() => {
+      setDate(new Date());
+    }, 60 * 1000);
+    return () => {
+      clearInterval(timer);
+    }
+  }, []);
+  const date = today.toLocaleDateString();
+  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
+
+
   const [open5, setOpen5] = React.useState(false);
   const handleOpen5 = () => {
     setOpen5(true);
@@ -406,7 +453,8 @@ export default function Home() {
             Agendamientos
           </Typography>
           <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'center', color: '#6B7280'  }}>
-            11:35 am
+          {time}
+        
           </Typography>
 
           <div className={classes.grow} />
@@ -509,7 +557,7 @@ export default function Home() {
             <Button>
               <ArrowBackIosIcon style={{color: '#27BEC2'}} /> 
             </Button> 
-            03/05/2022       
+            {date}       
             <Button>   
               <ArrowForwardIosIcon style={{color: '#27BEC2'}} />
             </Button>
