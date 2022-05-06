@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer, useContext } from 'react'
 import clsx from 'clsx'
 import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -21,8 +21,7 @@ import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 import AccountCircle from '@material-ui/icons/AccountCircle'
-// import MailIcon from '@material-ui/icons/Mail'
-
+import axios from 'axios'
 import MoreIcon from '@material-ui/icons/MoreVert'
 // Start | Import Material UI for DropDown
 
@@ -52,12 +51,15 @@ import Link from '@material-ui/core/Link';
 import Fade from '@material-ui/core/Fade';
 import Modal from '@material-ui/core/Modal';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-
-
+import { validateDate, validateTime } from '../util/helpers'
+import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
 import CardMedia from '@material-ui/core/CardMedia';
 import Backdrop from '@material-ui/core/Backdrop';
-
-
+import { useToasts } from '../components/Toast'
+import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
+import { UserContext } from '../App'
+import { render } from 'preact/compat'
+import LoadAppointments from '../components/LoadAppointments'
 
 const drawerWidth = 240
 
@@ -264,7 +266,6 @@ export const useDate = () => {
   };
 };
 
-
 export default function Home() {
 //
 // ////////////////////////////////////////////////////////////////////////////
@@ -331,17 +332,18 @@ export default function Home() {
   }
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
 
-  // Start ###################################################################################################################################
-
+//
+// ////////////////////////////////////////////////////////////////////////////
+//                   Render mobile and desktop Menu
+// ////////////////////////////////////////////////////////////////////////////
+//
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
-
   const handleProfileMenuOpen = event => {
     setAnchorEl(event.currentTarget)
   }
-
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null)
   }
@@ -349,7 +351,6 @@ export default function Home() {
     setAnchorEl(null)
     handleMobileMenuClose()
   }
-
   const handleMobileMenuOpen = event => {
     setMobileMoreAnchorEl(event.currentTarget)
   }
@@ -365,7 +366,7 @@ export default function Home() {
       onClose={handleMenuClose}
     >
       <MenuItem  onClick={handleMenuClose}>
-        <Link href="/settingsnew" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Mi cuenta </Link>
+        <Link href="/settings" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Mi cuenta </Link>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
       <Link href="/validate" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Registro de paciente </Link>
@@ -378,7 +379,6 @@ export default function Home() {
       <MenuItem onClick={handleMenuClose}>Cerrar sesión</MenuItem>
     </Menu>
   )
-
   const mobileMenuId = 'primary-search-account-menu-mobile'
   const renderMobileMenu = (
     <Menu
@@ -390,14 +390,6 @@ export default function Home() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      {/* <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem> */}
       <MenuItem>
         <IconButton aria-label='show 11 new notifications' color='inherit'>
           <Badge badgeContent={11} color='secondary'>
@@ -419,16 +411,16 @@ export default function Home() {
       </MenuItem>
     </Menu>
   )
-
-  // End #########################################################################
-
-  // Start | Dropdown for filter Daily - Mensual - Semanal
+//
+// ////////////////////////////////////////////////////////////////////////////
+//             Dropdown for filter Daily - Mensual - Semanal
+// ////////////////////////////////////////////////////////////////////////////
+//
   const [age, setAge] = React.useState('')
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setAge(event.target.value as string)
   }
-  // End | Dropdown for filter Daily - Mensual - Semanal
 
   return (
     <div className={classes.root}>
@@ -739,7 +731,7 @@ export default function Home() {
                   <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
                     07:00 am - 11:00 am
                   </Typography>
-
+                  {/* <LoadAppointments /> */}
                   {/* TODO: HORARIO INDISPONIBLE */}
                   {/* <div style={{ padding:'0.5rem' }}>
                     <Card variant="outlined" className={classes.appointmentUnavailable} style={{ borderRadius:'16px'}}>
