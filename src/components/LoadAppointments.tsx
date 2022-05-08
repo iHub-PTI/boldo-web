@@ -271,7 +271,11 @@ function calculateHours(hours){
   }else{
     return ' am'
   }
-  
+}
+function outputDate(){
+  const date = new Date();
+  const outputDate = date.getFullYear()+ '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String( date.getDate()).padStart(2, '0');
+  return outputDate
 }
 
 
@@ -280,20 +284,18 @@ export default class LoadAppointments extends React.Component {
  state = {
   appointment: []
  }
-//  const classes = useStyles();
 
 async componentDidMount() {
     await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
     // `/profile/doctor/appointments`)
-    `/profile/doctor/appointments?start=2022-05-07T04:00:00.000Z&end=2022-05-09T23:00:00.000Z`)
+    `/profile/doctor/appointments?start=`+outputDate()+`T04:00:00.000Z&end=`+outputDate()+`T23:30:00.000Z`)
  .then(res => {
     const response = res.data.appointments.map(event => eventDataTransform(event));
     this.setState({ appointment: response });
    })
    console.log('desde componente: ', this.state.appointment);
  }
-// console.log(this.state.appointment);
-  
+
  render() {
   return (
   <>
@@ -301,7 +303,6 @@ async componentDidMount() {
     <div style={{ padding:'0.5rem' }}>
     <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}> {/*className={classes.root}*/} 
       <CardMedia
-        // className={classes.cover}
         style={{ width: 110 }}
         image={post.extendedProps.patient.photoUrl}
         title="Live from space album cover"
