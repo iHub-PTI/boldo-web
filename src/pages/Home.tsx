@@ -731,7 +731,7 @@ export default function Home() {
                   <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
                     07:00 am - 11:00 am
                   </Typography>
-                  {/* <LoadAppointments /> */}
+                  <LoadAppointments />
                   {/* TODO: HORARIO INDISPONIBLE */}
                   {/* <div style={{ padding:'0.5rem' }}>
                     <Card variant="outlined" className={classes.appointmentUnavailable} style={{ borderRadius:'16px'}}>
@@ -746,7 +746,7 @@ export default function Home() {
                     </Card>
                   </div> */}
 
-                  <div style={{ padding:'0.5rem' }}>
+                  {/* <div style={{ padding:'0.5rem' }}>
                     <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
                      
                       <CardMedia
@@ -919,7 +919,7 @@ export default function Home() {
                         <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
                       </CardActions>
                     </Card>
-                  </div>
+                  </div> */}
 
                   <div style={{ padding:'0.5rem' }}>
                     <Card className={classes.noAppointment}>
