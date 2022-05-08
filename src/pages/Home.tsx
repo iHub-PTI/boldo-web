@@ -615,7 +615,6 @@ export default function Home() {
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
                                         <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        {/* <p id="transition-modal-description">Abril 2022</p> */}
                                         <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
                                         <Button id="transition-modal-description">03:30 pm</Button>
                                         <Button id="transition-modal-description">04:00 pm</Button>
@@ -921,7 +920,8 @@ export default function Home() {
                     </Card>
                   </div> */}
 
-                  <div style={{ padding:'0.5rem' }}>
+                  {/* SIN AGENDAMIENTOS */}
+                  {/* <div style={{ padding:'0.5rem' }}>
                     <Card className={classes.noAppointment}>
                       <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
                         <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
@@ -963,7 +963,6 @@ export default function Home() {
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
                                         <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        {/* <p id="transition-modal-description">Abril 2022</p> */}
                                         <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
                                         <Button id="transition-modal-description">03:30 pm</Button>
                                         <Button id="transition-modal-description">04:00 pm</Button>
@@ -977,14 +976,13 @@ export default function Home() {
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
                             </Menu>
                           </Link>
                         </Typography>
 
                       </CardContent>
                     </Card>
-                  </div>
+                  </div> */}
 
                 </Paper>
               </div>
@@ -1046,7 +1044,7 @@ export default function Home() {
                     </Card>
                   </div> */}
 
-                  <div style={{ padding:'0.5rem' }}>
+                  {/* <div style={{ padding:'0.5rem' }}>
                     <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
                       <CardMedia
                         className={classes.cover}
@@ -1068,7 +1066,7 @@ export default function Home() {
                         <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
                       </CardActions>
                     </Card>
-                  </div>
+                  </div> */}
                   
                   {/* <div style={{ padding:'0.5rem' }}>
                     <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
@@ -1196,7 +1194,7 @@ export default function Home() {
                     </Card>
                   </div> */}
 
-                  <div style={{ padding:'0.5rem' }}>
+                  {/* <div style={{ padding:'0.5rem' }}>
                     <Card className={classes.noAppointment}>
                       <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
                         <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
@@ -1238,14 +1236,14 @@ export default function Home() {
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
                                         <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        {/* <p id="transition-modal-description">Abril 2022</p> */}
+                                        
                                         <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
                                         <Button id="transition-modal-description">02:00 pm</Button>
                                         <Button id="transition-modal-description">02:30 pm</Button>
                                         <Button id="transition-modal-description">03:30 pm</Button>
                                         <Button id="transition-modal-description">04:00 pm</Button>
                                         <Button id="transition-modal-description">04:30 pm</Button>
-                                        {/* <Button id="transition-modal-description">05:00 pm</Button> */}
+                                 
                                         <Button id="transition-modal-description">05:30 pm</Button>
                                         <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
                                       </div>
@@ -1254,14 +1252,14 @@ export default function Home() {
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
+                               
                             </Menu>
                           </Link>
                         </Typography>
 
                       </CardContent>
                     </Card>
-                  </div>
+                  </div> */}
 
                 </Paper>
               </div>
@@ -1320,7 +1318,7 @@ export default function Home() {
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
                                         <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        {/* <p id="transition-modal-description">Abril 2022</p> */}
+                                        
                                         <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
                                         <Button id="transition-modal-description">03:30 pm</Button>
                                         <Button id="transition-modal-description">04:00 pm</Button>
@@ -1334,7 +1332,7 @@ export default function Home() {
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
+                                <MenuItem onClick={handleClose}>Cancelar</MenuItem>
                             </Menu>
                           </Link>
                         </Typography>
@@ -1397,7 +1395,7 @@ export default function Home() {
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
                                         <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        {/* <p id="transition-modal-description">Abril 2022</p> */}
+                                      
                                         <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
                                         <Button id="transition-modal-description">03:30 pm</Button>
                                         <Button id="transition-modal-description">04:00 pm</Button>
@@ -1411,7 +1409,7 @@ export default function Home() {
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
+                              
                             </Menu>
                           </Link>
                         </Typography>

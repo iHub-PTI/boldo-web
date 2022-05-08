@@ -277,7 +277,14 @@ function outputDate(){
   const outputDate = date.getFullYear()+ '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String( date.getDate()).padStart(2, '0');
   return outputDate
 }
+function appointmentType(appointmentType){
+  if(appointmentType === 'V'){
+    return 'remoto'
+  }else if(appointmentType === 'A'){
+    return 'presencial'
+  }
 
+}
 
 export default class LoadAppointments extends React.Component {
   
@@ -322,7 +329,7 @@ async componentDidMount() {
         </Typography>
       </CardContent>
       <CardActions style={{ alignItems: 'flex-start' }} >
-        <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={`appointments/`+ post.extendedProps.id +`/call`} variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto </Link> </Button>
+        <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={`appointments/`+ post.extendedProps.id +`/call`} variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />{appointmentType(post.extendedProps.appointmentType)} </Link> </Button>
       </CardActions>
     </Card>
   </div>
