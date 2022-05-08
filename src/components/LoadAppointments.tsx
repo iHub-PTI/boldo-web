@@ -294,7 +294,7 @@ async componentDidMount() {
       <CardMedia
         // className={classes.cover}
         style={{ width: 110 }}
-        image="/img/photo.jpeg"
+        image={post.extendedProps.patient.photoUrl}
         title="Live from space album cover"
       />
       <CardContent>
