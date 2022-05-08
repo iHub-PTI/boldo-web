@@ -265,6 +265,15 @@ function reducer(state: AppointmentForm, action: Action): AppointmentForm {
   }
 }
 
+function calculateHours(hours){
+ if(hours > 12){
+    return ' pm'
+  }else{
+    return ' am'
+  }
+  
+}
+
 
 export default class LoadAppointments extends React.Component {
   
@@ -276,7 +285,7 @@ export default class LoadAppointments extends React.Component {
 async componentDidMount() {
     await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
     // `/profile/doctor/appointments`)
-    `/profile/doctor/appointments?start=2022-05-07T04:00:00.000Z&end=2022-05-07T23:00:00.000Z`)
+    `/profile/doctor/appointments?start=2022-05-07T04:00:00.000Z&end=2022-05-09T23:00:00.000Z`)
  .then(res => {
     const response = res.data.appointments.map(event => eventDataTransform(event));
     this.setState({ appointment: response });
@@ -299,13 +308,16 @@ async componentDidMount() {
       />
       <CardContent>
          <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom> {/*className={classes.title} */} 
-          {post.start}
+          {/* { 'Fecha: ' + post.start.split('T')[0] + ' ' } */}
+          {/* { 'Hora: ' + post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] } */}
+          { post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] }
+          {calculateHours(post.start.split('T')[1].split('.')[0].split(':')[0])}
         </Typography>
         <Typography variant="body1">
-        {post.extendedProps.patient.givenName} {post.extendedProps.patient.familyName}<ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+        {post.extendedProps.patient.givenName} {post.extendedProps.patient.familyName} <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
         </Typography>
         <Typography style={{ marginBottom: 12 }} color="textSecondary">{/*className={classes.pos} */} 
-        Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i>
+        {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
         </Typography>
       </CardContent>
       <CardActions style={{ alignItems: 'flex-start' }} >
