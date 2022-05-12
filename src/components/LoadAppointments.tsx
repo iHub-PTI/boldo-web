@@ -604,6 +604,36 @@ export function AppointmentType( props ) {
          </Card>
        </div>
       )
+    }else if(appointmentStatus === 'upcoming'){
+      return(
+        <div style={{ padding:'0.5rem' }}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+            <CardMedia
+              style={{width: 110}}
+              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+              image={ patientPhoto }
+              title="Patient photo"
+            />
+            <CardContent>
+              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography variant="body1">
+                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
+              </Typography>
+            </CardContent>
+            <CardActions style={{ alignItems: 'flex-start' }} >
+              <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+              </Button>
+            </CardActions>
+          </Card>
+        </div>
+      )
     }else if(appointmentStatus === 'cancelled'){
       return(
         <div style={{ padding:'0.5rem' }}>
@@ -651,7 +681,10 @@ export function AppointmentType( props ) {
         </Card>
       </div> 
     )
-  }
+  } 
+  return(
+    <h2>SIN NADA</h2>
+  )
 }
 
 export function eventDataConvert(event){
@@ -700,6 +733,13 @@ export function IconStatus( Appointment ) {
   console.log('dentro del status: '+ status)
 }
 
+ export function doctorData(){
+  axios.get(`https://boldo-dev.pti.org.py/api/profile/doctor`)
+  .then(res => {
+    const persons = res.data;
+    this.setState({ persons });
+  })
+}
 export default class LoadAppointments extends React.Component {
   
  state = {
@@ -720,6 +760,7 @@ async componentDidMount() {
    console.log('desde componente: ', this.state.appointment);
    console.log(`fecha de inicio: `+outputDate())
  }
+
 
  render() {
   return (
