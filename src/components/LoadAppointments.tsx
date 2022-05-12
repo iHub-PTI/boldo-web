@@ -464,101 +464,101 @@ export function CancelAppointment(props) {
   };
   return(
     <>
-          <Link href="#" variant="body1"> 
-              <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#F08F77', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
-                editar
-              </Button>
-              <Menu
-                id="fade-menu"
-                anchorEl={anchorElC}
-                keepMounted
-                open={openCa}
-                onClose={handleClose}
-                TransitionComponent={Fade}
+      <Link href="#" variant="body1">
+        <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#F08F77', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+          editar
+        </Button>
+        <Menu
+          id="fade-menu"
+          anchorEl={anchorElC}
+          keepMounted
+          open={openCa}
+          onClose={handleClose}
+          TransitionComponent={Fade}
+        >
+          <MenuItem onClick={handleClose}>
+            <div>
+              <button type="button" onClick={handleOpenC}>
+                <EventRoundedIcon /> Remarcar
+              </button>
+              <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                open={openC}
+                onClose={handleCloseC}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                  timeout: 500,
+                }}
               >
-                <MenuItem onClick={handleClose}>
-                  <div>
-                    <button type="button" onClick={handleOpenC}>
-                      <EventRoundedIcon /> Remarcar
-                    </button>
-                    <Modal
-                      aria-labelledby="transition-modal-title"
-                      aria-describedby="transition-modal-description"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      open={openC}
-                      onClose={handleCloseC}
-                      closeAfterTransition
-                      BackdropComponent={Backdrop}
-                      BackdropProps={{
-                        timeout: 500,
-                      }}
-                    >
-                      <Fade in={openC}>
-                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
-                          <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                          <Button id="transition-modal-description">03:30 pm</Button>
-                          <Button id="transition-modal-description">04:00 pm</Button>
-                          <Button id="transition-modal-description">04:30 pm</Button>
-                          <Button id="transition-modal-description">05:00 pm</Button>
-                          <Button id="transition-modal-description">05:30 pm</Button>
-                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
-                        </div>
-                      </Fade>
-                    </Modal>
+                <Fade in={openC}>
+                  <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                    <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
+                    <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                    <Button id="transition-modal-description">03:30 pm</Button>
+                    <Button id="transition-modal-description">04:00 pm</Button>
+                    <Button id="transition-modal-description">04:30 pm</Button>
+                    <Button id="transition-modal-description">05:00 pm</Button>
+                    <Button id="transition-modal-description">05:30 pm</Button>
+                    <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
                   </div>
-                </MenuItem>
-                <MenuItem onClick={handleClose}> 
-                <div>
-                
-                {/* <button type="button" onClick={cancelPacientAppointment(post.extendedProps.id)}> */}
-                    <button type="button" onClick={async () => {
-                            try {
-                                const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentID}`);
-                                console.log('respuesta ', res)
-                                if (res.data != null) {
-                                    // addToast({ type: 'success', title: 'Cita cancelada con éxito', })
-                                    // history.replace(`/`)
-                                }
+                </Fade>
+              </Modal>
+            </div>
+          </MenuItem>
+          <MenuItem onClick={handleClose}> 
+          <div>
+          
+          {/* <button type="button" onClick={cancelPacientAppointment(post.extendedProps.id)}> */}
+              <button type="button" onClick={async () => {
+                      try {
+                          const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentID}`);
+                          console.log('respuesta ', res)
+                          if (res.data != null) {
+                              // addToast({ type: 'success', title: 'Cita cancelada con éxito', })
+                              // history.replace(`/`)
+                          }
 
-                            } catch (err) {
-                                console.log("Error al cancelar cita", err)
-                                // addErrorToast('No se pudo borrar la cita, intente nuevamente.')
+                      } catch (err) {
+                          console.log("Error al cancelar cita", err)
+                          // addErrorToast('No se pudo borrar la cita, intente nuevamente.')
 
-                            }
+                      }
 
-                        }}>
-                      <DeleteForeverRoundedIcon />  Cancelar
-                    </button>
-                    {/* <Modal
-                      aria-labelledby="transition-modal-title"
-                      aria-describedby="transition-modal-description"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      open={openC}
-                      onClose={handleCloseC}
-                      closeAfterTransition
-                      BackdropComponent={Backdrop}
-                      BackdropProps={{
-                        timeout: 500,
-                      }}
-                    >
-                      <Fade in={openC}>
-                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
-                          <h2 id="transition-modal-title">Paciente</h2>
-                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                          <Button id="transition-modal-description">03:30 pm</Button>
-                          <Button id="transition-modal-description">04:00 pm</Button>
-                          <Button id="transition-modal-description">04:30 pm</Button>
-                          <Button id="transition-modal-description">05:00 pm</Button>
-                          <Button id="transition-modal-description">05:30 pm</Button>
-                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
-                        </div>
-                      </Fade>
-                    </Modal> */}
+                  }}>
+                <DeleteForeverRoundedIcon />  Cancelar
+              </button>
+              {/* <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                open={openC}
+                onClose={handleCloseC}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                  timeout: 500,
+                }}
+              >
+                <Fade in={openC}>
+                  <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                    <h2 id="transition-modal-title">Paciente</h2>
+                    <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                    <Button id="transition-modal-description">03:30 pm</Button>
+                    <Button id="transition-modal-description">04:00 pm</Button>
+                    <Button id="transition-modal-description">04:30 pm</Button>
+                    <Button id="transition-modal-description">05:00 pm</Button>
+                    <Button id="transition-modal-description">05:30 pm</Button>
+                    <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
                   </div>
-                </MenuItem>
-              </Menu>
-            </Link>
+                </Fade>
+              </Modal> */}
+            </div>
+          </MenuItem>
+        </Menu>
+      </Link>
     </>
   )
 }
@@ -595,11 +595,11 @@ export function AppointmentType( props ) {
              { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
              </Typography>
              <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             Primera Consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
              </Typography>
            </CardContent>
            <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
            </CardActions>
          </Card>
        </div>
@@ -607,27 +607,53 @@ export function AppointmentType( props ) {
     }else if(appointmentStatus === 'upcoming'){
       return(
         <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+           <CardMedia
+             style={{ width: 110 }}
+             image={ patientPhoto }
+             title="Live from space album cover"
+           />
+           <CardContent>
+             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
+             </Typography>
+             <Typography variant="body1">
+             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+             </Typography>
+             <Typography style={{ marginBottom: 12 }} color="textSecondary">
+             Primera Consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             </Typography>
+           </CardContent>
+           <CardActions style={{ alignItems: 'flex-start' }} >
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
+           </CardActions>
+         </Card>
+       </div>
+      )
+    }
+    else if(appointmentStatus === 'closed'){
+      return(
+        <div style={{ padding:'0.5rem'}}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
             <CardMedia
-              style={{width: 110}}
-              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+              style= {{ width: 110 }}
               image={ patientPhoto }
-              title="Patient photo"
+              title="Live from space album cover"
             />
             <CardContent>
-              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
-                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                07:30 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
               </Typography>
               <Typography variant="body1">
-                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
               </Typography>
-              <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
+              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                Primera consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
               </Typography>
             </CardContent>
             <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+              <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
                 <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
               </Button>
             </CardActions>
@@ -653,7 +679,7 @@ export function AppointmentType( props ) {
                 { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
               </Typography>
               <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
+                Primera consulta {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
               </Typography>
             </CardContent>
             <CardActions style={{ alignItems: 'flex-start' }} >
@@ -683,7 +709,7 @@ export function AppointmentType( props ) {
     )
   } 
   return(
-    <h2>SIN NADA</h2>
+    <h2>Nuevo evento no definido</h2>
   )
 }
 
