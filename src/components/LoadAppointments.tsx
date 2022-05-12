@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
 import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
@@ -12,6 +12,21 @@ import VideocamRoundedIcon from '@material-ui/icons/VideocamRounded';
 import ContactPhoneRoundedIcon from '@material-ui/icons/ContactPhoneRounded';
 import Link from '@material-ui/core/Link'
 import Paper from '@material-ui/core/Paper'
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import Fade from '@material-ui/core/Fade';
+import Modal from '@material-ui/core/Modal';
+import Backdrop from '@material-ui/core/Backdrop';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import TimerOffRoundedIcon from '@material-ui/icons/TimerOffRounded';
+import CancelAppointmentModal from './CancelAppointmentModal';
+import EventRoundedIcon from '@material-ui/icons/EventRounded';
+import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import { Appointment } from '../types';
+import DirectionsRunRoundedIcon from '@material-ui/icons/DirectionsRunRounded';
+
 
 const drawerWidth = 240;
 const useStyles = makeStyles(theme => ({
@@ -272,12 +287,13 @@ function calculateHours(hours){
     return ' am'
   }
 }
+
 function outputDate(){
   const date = new Date();
   const outputDate = date.getFullYear()+ '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String( date.getDate()).padStart(2, '0');
   return outputDate
 }
-function appointmentType(appointmentType){
+function appointmentTransformType(appointmentType){
   if(appointmentType === 'V'){
     return 'remoto'
   }else if(appointmentType === 'A'){
@@ -310,9 +326,380 @@ function appointmentStatus(status) {
     return 'no disponible'
 }
 }
-export function iconStatus() {
 
+export function NoAppointments() {
+  const theme = useTheme();
+  const [open5, setOpen5] = React.useState(false);
+  const handleOpen5 = () => {
+    setOpen5(true);
+  };
+
+  const handleClose5 = () => {
+    setOpen5(false);
+  };
+  const [anchorEl2, setAnchorEl2] = React.useState(null);
+  const open2 = Boolean(anchorEl2);
+  const handleClick = (event) => {
+    setAnchorEl2(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl2(null);
+  };
+
+  return(
+    <div style={{ padding:'0.5rem' }}>
+      <Card style={{ display:'flex', backgroundColor:'#F9FAFB' }}> 
+        <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
+          <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
+        </CardMedia>
+        <CardContent>
+          <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+            sin agendamientos entre las 06:00 am y las 11:00 am 
+          </Typography>
+          <Typography variant="body1">
+            <Link href="#" variant="body1"> 
+              <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                agregar
+              </Button>
+              <Menu
+                id="fade-menu"
+                anchorEl={anchorEl2}
+                keepMounted
+                open={open2}
+                onClose={handleClose}
+                TransitionComponent={Fade}
+              >
+                <MenuItem onClick={handleClose}>
+                  <div>
+                    <button type="button" onClick={handleOpen5}>
+                      <TimerOffRoundedIcon /> Marcar indisponibilidad
+                    </button>
+                    <Modal
+                      aria-labelledby="transition-modal-title"
+                      aria-describedby="transition-modal-description"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      open={open5}
+                      onClose={handleClose5}
+                      closeAfterTransition
+                      BackdropComponent={Backdrop}
+                      BackdropProps={{
+                        timeout: 500,
+                      }}
+                    >
+                      <Fade in={open5}>
+                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                          <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
+                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                          <Button id="transition-modal-description">03:30 pm</Button>
+                          <Button id="transition-modal-description">04:00 pm</Button>
+                          <Button id="transition-modal-description">04:30 pm</Button>
+                          <Button id="transition-modal-description">05:00 pm</Button>
+                          <Button id="transition-modal-description">05:30 pm</Button>
+                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                        </div>
+                      </Fade>
+                    </Modal>
+                  </div>
+                </MenuItem>
+                <MenuItem onClick={handleClose}> 
+                <div>
+                    <button type="button" onClick={handleOpen5}>
+                      <PersonAddIcon />  Marcar cita para paciente
+                    </button>
+                    <Modal
+                      aria-labelledby="transition-modal-title"
+                      aria-describedby="transition-modal-description"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      open={open5}
+                      onClose={handleClose5}
+                      closeAfterTransition
+                      BackdropComponent={Backdrop}
+                      BackdropProps={{
+                        timeout: 500,
+                      }}
+                    >
+                      <Fade in={open5}>
+                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                          <h2 id="transition-modal-title">Paciente</h2>
+                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                          <Button id="transition-modal-description">03:30 pm</Button>
+                          <Button id="transition-modal-description">04:00 pm</Button>
+                          <Button id="transition-modal-description">04:30 pm</Button>
+                          <Button id="transition-modal-description">05:00 pm</Button>
+                          <Button id="transition-modal-description">05:30 pm</Button>
+                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                        </div>
+                      </Fade>
+                    </Modal>
+                  </div>
+                </MenuItem>
+              </Menu>
+            </Link>
+          </Typography>
+
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
+
+export function CancelAppointment(props) {
+  const appointmentID = props.appointmentID;
+  const theme = useTheme();
+  const [openC, setOpenC] = React.useState(false);
+  const handleOpenC = () => {
+    setOpenC(true);
+  };
+
+  const handleCloseC = () => {
+    setOpenC(false);
+  };
+  const [anchorElC, setAnchorElC] = React.useState(null);
+  const openCa = Boolean(anchorElC);
+  const handleClick = (event) => {
+    setAnchorElC(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorElC(null);
+  };
+  return(
+    <>
+          <Link href="#" variant="body1"> 
+              <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#F08F77', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                editar
+              </Button>
+              <Menu
+                id="fade-menu"
+                anchorEl={anchorElC}
+                keepMounted
+                open={openCa}
+                onClose={handleClose}
+                TransitionComponent={Fade}
+              >
+                <MenuItem onClick={handleClose}>
+                  <div>
+                    <button type="button" onClick={handleOpenC}>
+                      <EventRoundedIcon /> Remarcar
+                    </button>
+                    <Modal
+                      aria-labelledby="transition-modal-title"
+                      aria-describedby="transition-modal-description"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      open={openC}
+                      onClose={handleCloseC}
+                      closeAfterTransition
+                      BackdropComponent={Backdrop}
+                      BackdropProps={{
+                        timeout: 500,
+                      }}
+                    >
+                      <Fade in={openC}>
+                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                          <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
+                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                          <Button id="transition-modal-description">03:30 pm</Button>
+                          <Button id="transition-modal-description">04:00 pm</Button>
+                          <Button id="transition-modal-description">04:30 pm</Button>
+                          <Button id="transition-modal-description">05:00 pm</Button>
+                          <Button id="transition-modal-description">05:30 pm</Button>
+                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                        </div>
+                      </Fade>
+                    </Modal>
+                  </div>
+                </MenuItem>
+                <MenuItem onClick={handleClose}> 
+                <div>
+                
+                {/* <button type="button" onClick={cancelPacientAppointment(post.extendedProps.id)}> */}
+                    <button type="button" onClick={async () => {
+                            try {
+                                const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentID}`);
+                                console.log('respuesta ', res)
+                                if (res.data != null) {
+                                    // addToast({ type: 'success', title: 'Cita cancelada con éxito', })
+                                    // history.replace(`/`)
+                                }
+
+                            } catch (err) {
+                                console.log("Error al cancelar cita", err)
+                                // addErrorToast('No se pudo borrar la cita, intente nuevamente.')
+
+                            }
+
+                        }}>
+                      <DeleteForeverRoundedIcon />  Cancelar
+                    </button>
+                    {/* <Modal
+                      aria-labelledby="transition-modal-title"
+                      aria-describedby="transition-modal-description"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      open={openC}
+                      onClose={handleCloseC}
+                      closeAfterTransition
+                      BackdropComponent={Backdrop}
+                      BackdropProps={{
+                        timeout: 500,
+                      }}
+                    >
+                      <Fade in={openC}>
+                        <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
+                          <h2 id="transition-modal-title">Paciente</h2>
+                          <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
+                          <Button id="transition-modal-description">03:30 pm</Button>
+                          <Button id="transition-modal-description">04:00 pm</Button>
+                          <Button id="transition-modal-description">04:30 pm</Button>
+                          <Button id="transition-modal-description">05:00 pm</Button>
+                          <Button id="transition-modal-description">05:30 pm</Button>
+                          <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                        </div>
+                      </Fade>
+                    </Modal> */}
+                  </div>
+                </MenuItem>
+              </Menu>
+            </Link>
+    </>
+  )
+}
+
+export function AppointmentType( props ) {
+  const appointmenTitle = props.appointmentData.title;
+  const appointmentStart = props.appointmentData.start;
+  const appointmentEnd = props.appointmentData.end;
+  const appointmentType = props.appointmentData.extendedProps.appointmentType;
+  const appointmentEventType = props.appointmentData.extendedProps.type;
+  const appointmentId = props.appointmentData.extendedProps.id;
+  const appointmentStatus = props.appointmentData.extendedProps.status;
+
+  if(appointmentEventType === 'Appointment'){
+    const patientName = props.appointmentData.extendedProps.patient.givenName;
+    const patientLastName = props.appointmentData.extendedProps.patient.familyName;
+    const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
+
+    if(appointmentStatus === 'open'){
+      return(
+        <div style={{ padding:'0.5rem' }}>
+         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+           <CardMedia
+             style={{ width: 110 }}
+             image={ patientPhoto }
+             title="Live from space album cover"
+           />
+           <CardContent>
+             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
+             </Typography>
+             <Typography variant="body1">
+             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+             </Typography>
+             <Typography style={{ marginBottom: 12 }} color="textSecondary">
+             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             </Typography>
+           </CardContent>
+           <CardActions style={{ alignItems: 'flex-start' }} >
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
+           </CardActions>
+         </Card>
+       </div>
+      )
+    }else if(appointmentStatus === 'cancelled'){
+      return(
+        <div style={{ padding:'0.5rem' }}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+            <CardMedia
+              style={{width: 110}}
+              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+              image={ patientPhoto }
+              title="Patient photo"
+            />
+            <CardContent>
+              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography variant="body1">
+                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
+              </Typography>
+            </CardContent>
+            <CardActions style={{ alignItems: 'flex-start' }} >
+              <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+              </Button>
+            </CardActions>
+          </Card>
+        </div>
+      )
+    }
+  } else if(appointmentEventType === 'PrivateEvent'){
+    return(
+      <div style={{ padding:'0.5rem' }}>
+        <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
+          <CardContent>
+            <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
+              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
+              <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link>
+            </Typography>
+            <Typography variant="body1" style={{color: 'white'}}>
+              Horario indisponible
+            </Typography>
+          </CardContent>
+        </Card>
+      </div> 
+    )
+  }
+}
+
+export function eventDataConvert(event){
+  const eventData = () => {
+    if (event.type === 'appointment') {
+      return 'appointment'
+    } else if(event.extendedProps.type === 'PrivateEvent'){
+      return 'evento privado'
+    }else if(event.extendedProps.appointmentType === 'V'){
+      return 'remoto'
+    }else if(event.extendedProps.appointmentType === 'A'){
+      return 'presencial'
+    }
+  }
+  return {
+    title: event.name || `${event.extendedProps.patient.givenName}`,
+    start: event.start,
+    end: event.end,
+    // classNames: [eventData(event.type), 'boldo-event'],
+    extendedProps: event,
+  }
+}
+
+export function IconStatus( Appointment ) {
+  const status = Appointment.appointment.extendedProps.status
+  const appointmentId = Appointment.appointment.extendedProps.id
+  return(
+    <>
+      {status === 'open' && <><CancelAppointment appointmentID={ appointmentId } /></>}
+      {status === 'cancelled' && <> <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} /> </>}
+    </>
+  )
+  // if (appointmentStatus.appointmentStatus === 'open') {
+  //   return (
+  //     <div>
+  //       <CheckCircleRoundedIcon style={{ color: '#27BEC2' }} />
+  //     </div>
+  //   )
+  // }else if( appointmentStatus.appointmentStatus === 'cancelled'){
+  //   return (
+  //     <div>
+  //       <CheckCircleRoundedIcon style={{ color: '#27BEC2' }} />
+  //     </div>
+  //   )
+  // }
+  console.log('dentro del status: '+ status)
+}
+
 export default class LoadAppointments extends React.Component {
   
  state = {
@@ -322,7 +709,8 @@ export default class LoadAppointments extends React.Component {
 async componentDidMount() {
     await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
     // `/profile/doctor/appointments`)
-    `/profile/doctor/appointments?start=`+outputDate()+`T04:00:00.000Z&end=`+outputDate()+`T23:30:00.000Z`)
+    `/profile/doctor/appointments?start=`+outputDate()+`T07:00:00.000Z&end=`+outputDate()+`T23:30:00.000Z`)
+    // `/profile/doctor/appointments?start=2022-05-11T04:00:00.000Z&end=2022-05-11T23:30:00.000Z`)
  .then(res => {
     const response = res.data.appointments.map(event => eventDataTransform(event));
     console.log(response)
@@ -330,10 +718,8 @@ async componentDidMount() {
     this.setState({ appointment: response });
    })
    console.log('desde componente: ', this.state.appointment);
+   console.log(`fecha de inicio: `+outputDate())
  }
-
- 
-
 
  render() {
   return (
@@ -347,35 +733,40 @@ async componentDidMount() {
           07:00 am - 11:00 am
         </Typography>
         { this.state.appointment.map(post => 
-        
-        <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}> {/*className={classes.root}*/} 
-            <CardMedia
-              style={{ width: 110 }}
-              image={post.extendedProps.patient.photoUrl}
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom> {/*className={classes.title} */} 
-                {/* { 'Fecha: ' + post.start.split('T')[0] + ' ' } */}
-                {/* { 'Hora: ' + post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] } */}
-                { post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] }
-                {calculateHours(post.start.split('T')[1].split('.')[0].split(':')[0])}
-                {/* {appointmentStatus(post.extendedProps.status)} */}
+        <AppointmentType appointmentData={post} />
+        // <div style={{ padding:'0.5rem' }}>
+        //   <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}> {/*className={classes.root}*/} 
+        //     <CardMedia
+        //       style={{ width: 110 }}
+        //       image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || post.extendedProps.patient.photoUrl }
+        //       title="Live from space album cover"
+        //     />
+        //     <CardContent>
+        //       <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom> {/*className={classes.title} */} 
+        //         {/* {eventDataConvert(post)} */}
+        //         {/* { 'Fecha: ' + post.start.split('T')[0] + ' ' } */}
+        //         {/* { 'Hora: ' + post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] } */}
+        //         { post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] }
+        //         {calculateHours(post.start.split('T')[1].split('.')[0].split(':')[0])} <IconStatus appointment ={post} /> 
+        //         {/* {appointmentStatus(post.extendedProps.status)} */}
                 
-              </Typography>
-              <Typography variant="body1">
-              {post.extendedProps.patient.givenName} {post.extendedProps.patient.familyName} <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography style={{ marginBottom: 12 }} color="textSecondary">{/*className={classes.pos} */} 
-              {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={callLink( post.extendedProps.appointmentType, post.extendedProps.id )} variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />{appointmentType(post.extendedProps.appointmentType)} </Link> </Button>
-            </CardActions>
-          </Card>
-        </div>
+                
+        //       </Typography>
+        //       <Typography variant="body1">
+        //       {post.title || post.extendedProps.patient.givenName + ' ' + post.extendedProps.patient.familyName} <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+        //       </Typography>
+        //       <Typography style={{ marginBottom: 12 }} color="textSecondary">{/*className={classes.pos} */} 
+        //       {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+        //       </Typography>
+        //     </CardContent>
+        //     <CardActions style={{ alignItems: 'flex-start' }} >
+        //       <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={callLink( post.extendedProps.appointmentType, post.extendedProps.id )} variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />{appointmentType(post.extendedProps.appointmentType)} </Link> </Button>
+        //     </CardActions>
+        //   </Card>
+        // </div>
+
+
+
 
         // {/* TODO: HORARIO INDISPONIBLE */}
         // {/* <div style={{ padding:'0.5rem' }}>
@@ -640,7 +1031,7 @@ async componentDidMount() {
         <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280'  }}>
           1:00 pm - 06:00 pm
         </Typography>
-        
+        <NoAppointments />
         {/* <div style={{ padding:'0.5rem' }}>
           <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
             <CardMedia
