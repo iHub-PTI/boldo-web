@@ -26,7 +26,8 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import { Appointment } from '../types';
 import DirectionsRunRoundedIcon from '@material-ui/icons/DirectionsRunRounded';
-
+import CancelSharpIcon from '@material-ui/icons/CancelSharp';
+import PersonRoundedIcon from '@material-ui/icons/PersonRounded';
 
 const drawerWidth = 240;
 const useStyles = makeStyles(theme => ({
@@ -595,11 +596,11 @@ export function AppointmentType( props ) {
              { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
              </Typography>
              <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             Primera Consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
              </Typography>
            </CardContent>
            <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
            </CardActions>
          </Card>
        </div>
@@ -622,11 +623,11 @@ export function AppointmentType( props ) {
              { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
              </Typography>
              <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             Primera Consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
              </Typography>
            </CardContent>
            <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} /> { appointmentTransformType ( appointmentType ) } </Link> </Button>
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
            </CardActions>
          </Card>
        </div>
@@ -649,7 +650,7 @@ export function AppointmentType( props ) {
                 { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
               </Typography>
               <Typography style= {{ marginBottom: 12 }} color="textSecondary">
-                Primera consulta {/* <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
               </Typography>
             </CardContent>
             <CardActions style={{ alignItems: 'flex-start' }} >
@@ -661,6 +662,38 @@ export function AppointmentType( props ) {
         </div>
       )
     }else if(appointmentStatus === 'cancelled'){
+      const statusAuthor = props.appointmentData.extendedProps.statusAutor;
+      if(statusAuthor === 'Patient'){
+        return(
+          <div style={{ padding:'0.5rem' }}>
+            <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+              <CardMedia
+                style={{width: 110}}
+                //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                image={ patientPhoto }
+                title="Patient photo"
+              />
+              <CardContent>
+                <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                  { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                </Typography>
+                <Typography variant="body1">
+                  { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                </Typography>
+                <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                  {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                </Typography>
+              </CardContent>
+              <CardActions style={{ alignItems: 'flex-start' }} >
+                {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                  <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                </Button> */}
+              </CardActions>
+            </Card>
+          </div>
+        )
+      }
       return(
         <div style={{ padding:'0.5rem' }}>
           <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
@@ -673,19 +706,19 @@ export function AppointmentType( props ) {
             <CardContent>
               <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
                 { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
               </Typography>
               <Typography variant="body1">
                 { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
               </Typography>
               <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                Primera consulta {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
               </Typography>
             </CardContent>
             <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+              {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
                 <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-              </Button>
+              </Button> */}
             </CardActions>
           </Card>
         </div>
@@ -698,7 +731,7 @@ export function AppointmentType( props ) {
           <CardContent>
             <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
-              <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link>
+              {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
             </Typography>
             <Typography variant="body1" style={{color: 'white'}}>
               Horario indisponible

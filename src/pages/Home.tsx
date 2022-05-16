@@ -61,6 +61,7 @@ import { UserContext } from '../App'
 import { render } from 'preact/compat'
 import LoadAppointments from '../components/LoadAppointments'
 
+
 const drawerWidth = 240
 
 const useStyles = makeStyles(theme => ({
@@ -393,7 +394,7 @@ export default function Home() {
       <MenuItem>
         <IconButton aria-label='show 11 new notifications' color='inherit'>
           <Badge badgeContent={11} color='secondary'>
-            <NotificationsNoneIcon />
+            {/* <NotificationsNoneIcon /> */}
           </Badge>
         </IconButton>
         <p>Notifications</p>
@@ -476,11 +477,11 @@ export default function Home() {
                 <MailIcon />
               </Badge>
             </IconButton> */}
-            <IconButton aria-label='show 17 new notifications' color='inherit'>
+            {/*<IconButton aria-label='show 17 new notifications' color='inherit'>
               <Badge badgeContent={17} color='secondary'>
                 <NotificationsNoneIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
             <IconButton
               edge='end'
               aria-label='account of current user'
