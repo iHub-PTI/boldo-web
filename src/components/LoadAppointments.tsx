@@ -28,6 +28,7 @@ import { Appointment } from '../types';
 import DirectionsRunRoundedIcon from '@material-ui/icons/DirectionsRunRounded';
 import CancelSharpIcon from '@material-ui/icons/CancelSharp';
 import PersonRoundedIcon from '@material-ui/icons/PersonRounded';
+import { isAfter } from 'date-fns/esm';
 
 const drawerWidth = 240;
 const useStyles = makeStyles(theme => ({
@@ -288,6 +289,13 @@ function calculateHours(hours){
     return ' am'
   }
 }
+function checkHours(hours){
+  if(hours > 12){
+     return ' pm'
+   }else{
+     return ' am'
+   }
+ }
 
 function outputDate(){
   const date = new Date();
@@ -305,7 +313,7 @@ function appointmentTransformType(appointmentType){
 
 function ordersAppointments(array){
   const ordersAppointments = array.sort((a, b) => a.start > b.start);
-  console.log('entro a ordenar')
+  console.log('entro a ordenar', ordersAppointments)
   return ordersAppointments
 }
 function callLink(appointmentType, id){
@@ -563,6 +571,13 @@ export function CancelAppointment(props) {
     </>
   )
 }
+export function IsAmPm(props) {
+  return(
+    <>
+    </>
+  )
+
+}
 
 export function AppointmentType( props ) {
   const appointmenTitle = props.appointmentData.title;
@@ -572,12 +587,15 @@ export function AppointmentType( props ) {
   const appointmentEventType = props.appointmentData.extendedProps.type;
   const appointmentId = props.appointmentData.extendedProps.id;
   const appointmentStatus = props.appointmentData.extendedProps.status;
-
+  const inicio = props.appointmentData.start;
+  const fin = props.appointmentData.end;
+ console.log(`el doctor comienza: ` + inicio.split('T')[0] + ` y termina: ` + fin);
+ if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] < 12){
+   if(inicio.split('T')[0] === outputDate()){
   if(appointmentEventType === 'Appointment'){
     const patientName = props.appointmentData.extendedProps.patient.givenName;
     const patientLastName = props.appointmentData.extendedProps.patient.familyName;
     const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
-
     if(appointmentStatus === 'open'){
       return(
         <div style={{ padding:'0.5rem' }}>
@@ -724,6 +742,7 @@ export function AppointmentType( props ) {
         </div>
       )
     }
+  
   } else if(appointmentEventType === 'PrivateEvent'){
     return(
       <div style={{ padding:'0.5rem' }}>
@@ -744,6 +763,202 @@ export function AppointmentType( props ) {
   return(
     <h2>Nuevo evento no definido</h2>
   )
+ }
+ return( <>  </>)
+}
+return( <>  </>)
+}
+
+export function AppointmentTypeAfternoon( props ) {
+  const appointmenTitle = props.appointmentData.title;
+  const appointmentStart = props.appointmentData.start;
+  const appointmentEnd = props.appointmentData.end;
+  const appointmentType = props.appointmentData.extendedProps.appointmentType;
+  const appointmentEventType = props.appointmentData.extendedProps.type;
+  const appointmentId = props.appointmentData.extendedProps.id;
+  const appointmentStatus = props.appointmentData.extendedProps.status;
+  const inicio = props.appointmentData.start;
+  const fin = props.appointmentData.end;
+  const isMorning = props.appointmentData.start;
+  const isAfteroon = props.appointmentData.end;
+ if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] > 12){
+  if(inicio.split('T')[0] === outputDate()){
+  if(appointmentEventType === 'Appointment'){
+    
+    const patientName = props.appointmentData.extendedProps.patient.givenName;
+    const patientLastName = props.appointmentData.extendedProps.patient.familyName;
+    const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
+    if(appointmentStatus === 'open'){
+      return(
+        <div style={{ padding:'0.5rem' }}>
+         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+           <CardMedia
+             style={{ width: 110 }}
+             image={ patientPhoto }
+             title="Live from space album cover"
+           />
+           <CardContent>
+             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
+             </Typography>
+             <Typography variant="body1">
+             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+             </Typography>
+             <Typography style={{ marginBottom: 12 }} color="textSecondary">
+             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             </Typography>
+           </CardContent>
+           <CardActions style={{ alignItems: 'flex-start' }} >
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+           </CardActions>
+         </Card>
+       </div>
+      )
+    }else if(appointmentStatus === 'upcoming'){
+      return(
+        <div style={{ padding:'0.5rem' }}>
+         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+           <CardMedia
+             style={{ width: 110 }}
+             image={ patientPhoto }
+             title="Live from space album cover"
+           />
+           <CardContent>
+             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
+             </Typography>
+             <Typography variant="body1">
+             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+             </Typography>
+             <Typography style={{ marginBottom: 12 }} color="textSecondary">
+             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+             </Typography>
+           </CardContent>
+           <CardActions style={{ alignItems: 'flex-start' }} >
+             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+           </CardActions>
+         </Card>
+       </div>
+      )
+    }
+    else if(appointmentStatus === 'closed'){
+      return(
+        <div style={{ padding:'0.5rem'}}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
+            <CardMedia
+              style= {{ width: 110 }}
+              image={ patientPhoto }
+              title="Live from space album cover"
+            />
+            <CardContent>
+              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                07:30 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+              </Typography>
+              <Typography variant="body1">
+                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+              </Typography>
+              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+              </Typography>
+            </CardContent>
+            <CardActions style={{ alignItems: 'flex-start' }} >
+              <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
+                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+              </Button>
+            </CardActions>
+          </Card>
+        </div>
+      )
+    }else if(appointmentStatus === 'cancelled'){
+      const statusAuthor = props.appointmentData.extendedProps.statusAutor;
+      if(statusAuthor === 'Patient'){
+        return(
+          <div style={{ padding:'0.5rem' }}>
+            <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+              <CardMedia
+                style={{width: 110}}
+                //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                image={ patientPhoto }
+                title="Patient photo"
+              />
+              <CardContent>
+                <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                  { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                </Typography>
+                <Typography variant="body1">
+                  { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                </Typography>
+                <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                  {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                </Typography>
+              </CardContent>
+              <CardActions style={{ alignItems: 'flex-start' }} >
+                {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                  <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                </Button> */}
+              </CardActions>
+            </Card>
+          </div>
+        )
+      }
+      return(
+        <div style={{ padding:'0.5rem' }}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+            <CardMedia
+              style={{width: 110}}
+              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+              image={ patientPhoto }
+              title="Patient photo"
+            />
+            <CardContent>
+              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography variant="body1">
+                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+              </Typography>
+              <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+              </Typography>
+            </CardContent>
+            <CardActions style={{ alignItems: 'flex-start' }} >
+              {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+              </Button> */}
+            </CardActions>
+          </Card>
+        </div>
+      )
+    }
+  
+  } else if(appointmentEventType === 'PrivateEvent'){
+    return(
+      <div style={{ padding:'0.5rem' }}>
+        <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
+          <CardContent>
+            <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
+              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
+              {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
+            </Typography>
+            <Typography variant="body1" style={{color: 'white'}}>
+              Horario indisponible
+            </Typography>
+          </CardContent>
+        </Card>
+      </div> 
+    )
+  } 
+  return(
+    <h2>Nuevo evento no definido</h2>
+  )
+ }
+ return( <>  </>)
+}
+return( <>  </>)
 }
 
 export function eventDataConvert(event){
@@ -799,22 +1014,26 @@ export function IconStatus( Appointment ) {
     this.setState({ persons });
   })
 }
+
+
+
+
 export default class LoadAppointments extends React.Component {
   
  state = {
-  appointment: []
+  appointment: [],
  }
 
 async componentDidMount() {
     await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
     // `/profile/doctor/appointments`)
-    `/profile/doctor/appointments?start=`+outputDate()+`T07:00:00.000Z&end=`+outputDate()+`T23:30:00.000Z`)
+     //2022-05-18
+    `/profile/doctor/appointments?start=2022-05-19T04:00:00.000Z&end=2022-05-20T04:00:00.000Z`)
     // `/profile/doctor/appointments?start=2022-05-11T04:00:00.000Z&end=2022-05-11T23:30:00.000Z`)
  .then(res => {
     const response = res.data.appointments.map(event => eventDataTransform(event));
-    console.log(response)
     ordersAppointments(response)
-    this.setState({ appointment: response });
+    this.setState({ appointment: response })
    })
    console.log('desde componente: ', this.state.appointment);
    console.log(`fecha de inicio: `+outputDate())
@@ -834,292 +1053,7 @@ async componentDidMount() {
         </Typography>
         { this.state.appointment.map(post => 
         <AppointmentType appointmentData={post} />
-        // <div style={{ padding:'0.5rem' }}>
-        //   <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}> {/*className={classes.root}*/} 
-        //     <CardMedia
-        //       style={{ width: 110 }}
-        //       image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || post.extendedProps.patient.photoUrl }
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom> {/*className={classes.title} */} 
-        //         {/* {eventDataConvert(post)} */}
-        //         {/* { 'Fecha: ' + post.start.split('T')[0] + ' ' } */}
-        //         {/* { 'Hora: ' + post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] } */}
-        //         { post.start.split('T')[1].split('.')[0].split(':')[0] + ':' + post.start.split('T')[1].split('.')[0].split(':')[1] }
-        //         {calculateHours(post.start.split('T')[1].split('.')[0].split(':')[0])} <IconStatus appointment ={post} /> 
-        //         {/* {appointmentStatus(post.extendedProps.status)} */}
-                
-                
-        //       </Typography>
-        //       <Typography variant="body1">
-        //       {post.title || post.extendedProps.patient.givenName + ' ' + post.extendedProps.patient.familyName} <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography style={{ marginBottom: 12 }} color="textSecondary">{/*className={classes.pos} */} 
-        //       {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={callLink( post.extendedProps.appointmentType, post.extendedProps.id )} variant="body1" style={{textDecorationLine: 'none', color:'black'}}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />{appointmentType(post.extendedProps.appointmentType)} </Link> </Button>
-        //     </CardActions>
-        //   </Card>
-        // </div>
-
-
-
-
-        // {/* TODO: HORARIO INDISPONIBLE */}
-        // {/* <div style={{ padding:'0.5rem' }}>
-        //   <Card variant="outlined" className={classes.appointmentUnavailable} style={{ borderRadius:'16px'}}>
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom style={{ color: 'white' }}>
-        //         06:00 am - 07:00 am <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link>
-        //       </Typography>
-        //       <Typography variant="body1" style={{color: 'white'}}>
-        //         Horario indisponible
-        //       </Typography>
-        //     </CardContent>
-        //   </Card>
-        // </div> */}
-
-        // {/* <div style={{ padding:'0.5rem' }}>
-        //   <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
-          
-        //     <CardMedia
-        //         className={classes.cover}
-        //         image="/img/photo.jpeg"
-        //         title="Live from space album cover"
-        //       />
-        //     <CardContent>
-        //         <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //           07:00 am 
-        //           <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}>
-        //             Cancelaste esta cita 
-        //           </Link>
-        //           <CancelSharpIcon style={{ color:'#F08F77' }} />
-        //         </Typography>
-        //         <Typography variant="body1">
-        //           Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-        //         </Typography>
-        //         <Typography className={classes.pos} color="textSecondary">
-        //           Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
-        //           </Typography>
-        //       </CardContent>
-              
-        //       <CardActions style={{ alignItems: 'flex-start' }} >
-        //         <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //       </CardActions>
-              
-        //   </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem'}}>
-        //   <Card variant="outlined" className={classes.appointmentSucess} style={{ borderRadius:'16px' }}>
-        //     <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         07:30 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography className={classes.pos} color="textSecondary">
-        //         Primera consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i>
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        //   </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem'}}>
-        //   <Card variant="outlined" className={classes.appointmentSucess} style={{ borderRadius:'16px' }}>
-        //     <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         08:00 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography className={classes.pos} color="textSecondary">
-        //         Primera consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Fiebre</i>
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        //   </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem' }}>
-        //   <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
-        //   <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         10:00 am <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-        //       </Typography>
-        //       <Typography className={classes.pos} color="textSecondary">
-        //         Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        //   </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem' }}>
-        //   <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
-        //     <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         10:30 am  <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-        //       </Typography>
-        //       <Typography className={classes.pos} color="textSecondary">
-        //       Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        //   </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem' }}>
-        // <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
-        //   <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //   <CardContent>
-        //     <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //       10:30 am <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
-        //     </Typography>
-        //     <Typography variant="body1">
-        //       Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-        //     </Typography>
-        //     <Typography className={classes.pos} color="textSecondary">
-        //       Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
-        //       </Typography>
-        //   </CardContent>
-        //   <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        // </Card>
-        // </div>
-
-        // <div style={{ padding:'0.5rem'}}>
-        //   <Card variant="outlined" className={classes.appointmentSucess} style={{ borderRadius:'16px' }}>
-        //     <CardMedia
-        //       className={classes.cover}
-        //       image="/img/photo.jpeg"
-        //       title="Live from space album cover"
-        //     />
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         11:00 pm <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-        //       </Typography>
-        //       <Typography className={classes.pos} color="textSecondary">
-        //         Primera consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Fiebre</i>
-        //       </Typography>
-        //     </CardContent>
-        //     <CardActions style={{ alignItems: 'flex-start' }} >
-        //       <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-        //     </CardActions>
-        //   </Card>
-        // </div> */}
-
-        // {/* SIN AGENDAMIENTOS */}
-        // {/* <div style={{ padding:'0.5rem' }}>
-        //   <Card className={classes.noAppointment}>
-        //     <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-        //       <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
-        //     </CardMedia>
-        //     <CardContent>
-        //       <Typography className={classes.title} color="textSecondary" gutterBottom>
-        //         sin agendamientos entre las 11:00 am y las 11:30 am 
-        //       </Typography>
-        //       <Typography variant="body1">
-        //         <Link href="#" variant="body1"> 
-        //           <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
-        //             agregar
-        //           </Button>
-        //           <Menu
-        //             id="fade-menu"
-        //             anchorEl={anchorEl2}
-        //             keepMounted
-        //             open={open2}
-        //             onClose={handleClose}
-        //             TransitionComponent={Fade}
-        //           >
-        //             <MenuItem onClick={handleClose}>
-        //               <div>
-        //                 <button type="button" onClick={handleOpen5}>
-        //                   Marcar indisponibilidad
-        //                 </button>
-        //                 <Modal
-        //                   aria-labelledby="transition-modal-title"
-        //                   aria-describedby="transition-modal-description"
-        //                   className={classes.modal5}
-        //                   open={open5}
-        //                   onClose={handleClose5}
-        //                   closeAfterTransition
-        //                   BackdropComponent={Backdrop}
-        //                   BackdropProps={{
-        //                     timeout: 500,
-        //                   }}
-        //                 >
-        //                   <Fade in={open5}>
-        //                     <div className={classes.paper5}>
-        //                       <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-        //                       <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-        //                       <Button id="transition-modal-description">03:30 pm</Button>
-        //                       <Button id="transition-modal-description">04:00 pm</Button>
-        //                       <Button id="transition-modal-description">04:30 pm</Button>
-        //                       <Button id="transition-modal-description">05:00 pm</Button>
-        //                       <Button id="transition-modal-description">05:30 pm</Button>
-        //                       <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
-        //                     </div>
-        //                   </Fade>
-        //                 </Modal>
-        //               </div>
-        //             </MenuItem>
-        //             <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-        //           </Menu>
-        //         </Link>
-        //       </Typography>
-
-        //     </CardContent>
-        //   </Card>
-        // </div> */}
+        
 )}
       </Paper>
       </div>
@@ -1131,273 +1065,12 @@ async componentDidMount() {
         <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280'  }}>
           1:00 pm - 06:00 pm
         </Typography>
-        <NoAppointments />
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                01:00 pm
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolores</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
-            </CardActions>
-          </Card>
-        </div> */}
-        
-        {/* CANCELAR CITA POR EL PACIENTE */}
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.appointmenCancel} style={{ borderRadius:'16px' }}>
-            <CardMedia
-                className={classes.cover}
-                image="/img/photo.jpeg"
-                title="Live from space album cover"
-              />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-              01:00 pm <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-                Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link>
-                </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-                <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>reabrir</Button>
-              </CardActions>
-          </Card>
-        </div> */}
+        { this.state.appointment.map(post => 
 
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                05:00 pm
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Fiebre</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
-            </CardActions>
-          </Card>
-        </div> */}
-        
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                03:00 pm
-                <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#F08F77', textDecorationLine: 'underline'}} onClick={handleClick}>
-                  editar
-                </Button>
-                <Menu
-                  id="fade-menu"
-                  anchorEl={anchorEl2}
-                  keepMounted
-                  open={open2}
-                  onClose={handleClose}
-                  TransitionComponent={Fade}
-                >
-                  <MenuItem onClick={handleClose}>Remarcar</MenuItem>
-                  <MenuItem onClick={handleClose}>No compareció</MenuItem>
-                  <MenuItem onClick={handleClose}>Cancelar</MenuItem>
-                </Menu>
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Malestar Estomacal</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />iniciar</Button>
-            </CardActions>
-          </Card>
-        </div> */}
+        <AppointmentTypeAfternoon appointmentData={post} />
 
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                03:30 pm
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>COVID-19</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
-            </CardActions>
-          </Card>
-        </div>
-
-        <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                04:00 pm
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>COVID-19</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
-            </CardActions>
-          </Card>
-        </div> */}
-
-
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.appointmentUnavailable} style={{ borderRadius:'16px'}}>
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom style={{ color: 'white' }}>
-                03:30 am - 04:00 am <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link>
-              </Typography>
-              <Typography variant="body1" style={{color: 'white'}}>
-                Horario indisponible
-              </Typography>
-            </CardContent>
-          </Card>
-        </div> */}
-
-
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" className={classes.root} style={{ borderRadius:'16px' }}>
-            <CardMedia
-              className={classes.cover}
-              image="/img/photo.jpeg"
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                04:30 pm
-              </Typography>
-              <Typography variant="body1">
-                Francisco Mancuello Vazquez <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography className={classes.pos} color="textSecondary">
-              Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>COVID-19</i>
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <VideocamRoundedIcon style={{ color:'#F08F77' }} />remoto</Button>
-            </CardActions>
-          </Card>
-        </div> */}
-
-        {/* <div style={{ padding:'0.5rem' }}>
-          <Card className={classes.noAppointment}>
-            <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-              <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
-            </CardMedia>
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
-                sin agendamientos entre las 03:30 pm y las 06:00 pm 
-              </Typography>
-              <Typography variant="body1">
-                <Link href="#" variant="body1"> 
-                  <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
-                    agregar
-                  </Button>
-                  <Menu
-                    id="fade-menu"
-                    anchorEl={anchorEl2}
-                    keepMounted
-                    open={open2}
-                    onClose={handleClose}
-                    TransitionComponent={Fade}
-                  >
-                    <MenuItem onClick={handleClose}>
-                      <div>
-                        <button type="button" onClick={handleOpen5}>
-                          Marcar indisponibilidad
-                        </button>
-                        <Modal
-                          aria-labelledby="transition-modal-title"
-                          aria-describedby="transition-modal-description"
-                          className={classes.modal5}
-                          open={open5}
-                          onClose={handleClose5}
-                          closeAfterTransition
-                          BackdropComponent={Backdrop}
-                          BackdropProps={{
-                            timeout: 500,
-                          }}
-                        >
-                          <Fade in={open5}>
-                            <div className={classes.paper5}>
-                              <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                              
-                              <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                              <Button id="transition-modal-description">02:00 pm</Button>
-                              <Button id="transition-modal-description">02:30 pm</Button>
-                              <Button id="transition-modal-description">03:30 pm</Button>
-                              <Button id="transition-modal-description">04:00 pm</Button>
-                              <Button id="transition-modal-description">04:30 pm</Button>
-                      
-                              <Button id="transition-modal-description">05:30 pm</Button>
-                              <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
-                            </div>
-                          </Fade>
-                        </Modal>
-                      </div>
-                    </MenuItem>
-                    <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                    
-                  </Menu>
-                </Link>
-              </Typography>
-
-            </CardContent>
-          </Card>
-        </div> */}
-
+        )}
+      <NoAppointments />
       </Paper>
       </div>
       </>
