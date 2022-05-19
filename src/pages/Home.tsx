@@ -423,6 +423,31 @@ export default function Home() {
     setAge(event.target.value as string)
   }
 
+
+  //
+// ////////////////////////////////////////////////////////////////////////////
+//             Next and Previous Button for the Calendar
+// ////////////////////////////////////////////////////////////////////////////
+//
+
+const handleNext = () => {
+  const currentDate = new Date(date);
+  const nextDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+  setDate(nextDate);
+  return(
+    console.log(`se ha seleccionado siguiente dia: ${nextDate}`)
+  )
+  
+}
+const handlePrevious = () => {
+  const currentDate = new Date(date);
+  const previousDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
+  setDate(previousDate);
+  return(
+    console.log(`se ha seleccionado anterior dia: ${previousDate}`)
+  )
+}
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -548,11 +573,11 @@ export default function Home() {
         <div style={{ textAlign: 'center'}}>
           <div>
             <Button>
-              <ArrowBackIosIcon style={{color: '#27BEC2'}} /> 
+              <ArrowBackIosIcon onClick={handlePrevious} style={{color: '#27BEC2'}} /> 
             </Button> 
             {date}       
             <Button>   
-              <ArrowForwardIosIcon style={{color: '#27BEC2'}} />
+              <ArrowForwardIosIcon onClick={handleNext} style={{color: '#27BEC2'}} />
             </Button>
           </div>
           <div>
