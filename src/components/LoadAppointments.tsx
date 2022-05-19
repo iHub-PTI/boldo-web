@@ -679,6 +679,29 @@ export function AppointmentType( props ) {
           </Card>
         </div>
       )
+    }else if(appointmentStatus === 'locked'){
+      return(
+        <div style={{ padding:'0.5rem'}}>
+          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
+            <CardMedia
+              style= {{ width: 110 }}
+              image={ patientPhoto }
+              title="Live from space album cover"
+            />
+            <CardContent>
+              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                07:30 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+              </Typography>
+              <Typography variant="body1">
+                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+              </Typography>
+              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+              </Typography>
+            </CardContent>
+          </Card>
+        </div>
+      )
     }else if(appointmentStatus === 'cancelled'){
       const statusAuthor = props.appointmentData.extendedProps.statusAutor;
       if(statusAuthor === 'Patient'){
@@ -854,7 +877,8 @@ export function AppointmentTypeAfternoon( props ) {
             />
             <CardContent>
               <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-                07:30 am <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
               </Typography>
               <Typography variant="body1">
                 { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
