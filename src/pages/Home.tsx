@@ -3,49 +3,27 @@ import clsx from 'clsx'
 import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Drawer from '@material-ui/core/Drawer'
-// import Box from '@material-ui/core/Box'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-// import List from '@material-ui/core/List'
 import Typography from '@material-ui/core/Typography'
-// import Divider from '@material-ui/core/Divider'
 import IconButton from '@material-ui/core/IconButton'
 import Badge from '@material-ui/core/Badge'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-// import Link from '@material-ui/core/Link'
 import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 import AccountCircle from '@material-ui/icons/AccountCircle'
-import axios from 'axios'
 import MoreIcon from '@material-ui/icons/MoreVert'
-// Start | Import Material UI for DropDown
-
-// import { createStyles, Theme } from '@material-ui/core/styles'
-// import InputLabel from '@material-ui/core/InputLabel'
-// import FormHelperText from '@material-ui/core/FormHelperText'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-// End | Import Material UI for DropDown
-
-//Start | Simple card
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-//End | Simple card
-import ContactPhoneRoundedIcon from '@material-ui/icons/ContactPhoneRounded';
-import DirectionsRunRoundedIcon from '@material-ui/icons/DirectionsRunRounded';
-import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import CalendarTodayOutlinedIcon from '@material-ui/icons/CalendarTodayOutlined';
-import CancelSharpIcon from '@material-ui/icons/CancelSharp';
-import VideocamRoundedIcon from '@material-ui/icons/VideocamRounded';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Link from '@material-ui/core/Link';
 import Fade from '@material-ui/core/Fade';
@@ -55,10 +33,8 @@ import { validateDate, validateTime } from '../util/helpers'
 import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
 import CardMedia from '@material-ui/core/CardMedia';
 import Backdrop from '@material-ui/core/Backdrop';
-import { useToasts } from '../components/Toast'
+
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
-import { UserContext } from '../App'
-import { render } from 'preact/compat'
 import LoadAppointments from '../components/LoadAppointments'
 
 
@@ -235,31 +211,22 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2, 4, 3),
   },
 }))
-
-
-
 export const useDate = () => {
   const locale = 'en';
-  const [today, setDate] = React.useState(new Date()); // Save the current date to be able to trigger an update
-
+  const [today, setDate] = React.useState(new Date());
   React.useEffect(() => {
-      const timer = setInterval(() => { // Creates an interval which will update the current data every minute
-      // This will trigger a rerender every component that uses the useDate hook.
+      const timer = setInterval(() => {
       setDate(new Date());
     }, 60 * 1000);
     return () => {
-      clearInterval(timer); // Return a funtion to clear the timer so that it will stop being called on unmount
+      clearInterval(timer);
     }
   }, []);
-
   const day = today.toLocaleDateString(locale, { weekday: 'long' });
   const date = `${day}, ${today.getDate()} ${today.toLocaleDateString(locale, { month: 'long' })}\n\n`;
-
   const hour = today.getHours();
   const wish = `Good ${(hour < 12 && 'Morning') || (hour < 17 && 'Afternoon') || 'Evening'}, `;
-
   const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
-
   return {
     date,
     time,
@@ -422,8 +389,6 @@ export default function Home() {
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setAge(event.target.value as string)
   }
-
-
   //
 // ////////////////////////////////////////////////////////////////////////////
 //             Next and Previous Button for the Calendar
@@ -437,7 +402,6 @@ const handleNext = () => {
   return(
     console.log(`se ha seleccionado siguiente dia: ${nextDate}`)
   )
-  
 }
 const handlePrevious = () => {
   const currentDate = new Date(date);
@@ -466,15 +430,12 @@ const handlePrevious = () => {
           >
             <MenuIcon />
           </IconButton>
-
           <Typography className={classes.title} variant='h6' noWrap>
             Agendamientos
           </Typography>
           <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'center', color: '#6B7280'  }}>
-          {time}
-        
+            {time}
           </Typography>
-
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             {/* Start | Dropdown for filter Daily - Mensual - Semanal */}
@@ -589,7 +550,6 @@ const handlePrevious = () => {
           <Grid container spacing={3} style={{ flexWrap: 'nowrap' }}>
             {/* Dashboard calendar */}
             <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
-              
             <div>
                 <Paper variant="outlined" square className={classes.gris} style={{ borderRadius:'16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
@@ -598,7 +558,6 @@ const handlePrevious = () => {
                   <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
                     06:00 am - 11:00 am
                   </Typography>
-                  
                   <div style={{ padding:'0.5rem' }}>
                     <Card className={classes.noAppointment}>
                       <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
@@ -658,14 +617,11 @@ const handlePrevious = () => {
                             </Menu>
                           </Link>
                         </Typography>
-
                       </CardContent>
                     </Card>
                   </div>
-                  
                 </Paper>
               </div>
-
               <div style={{ paddingTop: '20px'}}>
                 <Paper className={classes.gris} style={{ borderRadius:'16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
@@ -674,7 +630,6 @@ const handlePrevious = () => {
                   <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280'  }}>
                     01:00 pm - 06:00 pm
                   </Typography>
-                  
                   <div style={{ padding:'0.5rem' }}>
                     <Card className={classes.noAppointment}>
                       <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
@@ -735,20 +690,16 @@ const handlePrevious = () => {
                             </Menu>
                           </Link>
                         </Typography>
-
                       </CardContent>
                     </Card>
                   </div>
-
                 </Paper>
               </div>
-
             </Grid>
-
             {/* Today */}
             <Grid item xs={9} md={6} lg={6} className={fixedHeightPaper}>
               
-            <LoadAppointments />
+             <LoadAppointments date={today}/>
             </Grid>
           
           <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>

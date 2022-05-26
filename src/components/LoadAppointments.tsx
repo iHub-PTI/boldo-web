@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
 import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
@@ -794,7 +794,6 @@ return( <>  </>)
 }
 
 export function AppointmentTypeAfternoon( props ) {
-  const appointmenTitle = props.appointmentData.title;
   const appointmentStart = props.appointmentData.start;
   const appointmentEnd = props.appointmentData.end;
   const appointmentType = props.appointmentData.extendedProps.appointmentType;
@@ -802,13 +801,9 @@ export function AppointmentTypeAfternoon( props ) {
   const appointmentId = props.appointmentData.extendedProps.id;
   const appointmentStatus = props.appointmentData.extendedProps.status;
   const inicio = props.appointmentData.start;
-  const fin = props.appointmentData.end;
-  const isMorning = props.appointmentData.start;
-  const isAfteroon = props.appointmentData.end;
  if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] > 12){
   if(inicio.split('T')[0] === outputDate()){
   if(appointmentEventType === 'Appointment'){
-    
     const patientName = props.appointmentData.extendedProps.patient.givenName;
     const patientLastName = props.appointmentData.extendedProps.patient.familyName;
     const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
@@ -897,6 +892,7 @@ export function AppointmentTypeAfternoon( props ) {
         </div>
       )
     }else if(appointmentStatus === 'locked'){
+      console.log(appointmentStatus)
       return(
         <div style={{ padding:'0.5rem'}}>
           <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
@@ -1030,7 +1026,6 @@ export function eventDataConvert(event){
     extendedProps: event,
   }
 }
-
 export function IconStatus( Appointment ) {
   const status = Appointment.appointment.extendedProps.status
   const appointmentId = Appointment.appointment.extendedProps.id
@@ -1040,91 +1035,74 @@ export function IconStatus( Appointment ) {
       {status === 'cancelled' && <> <Link variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} /> </>}
     </>
   )
-  // if (appointmentStatus.appointmentStatus === 'open') {
-  //   return (
-  //     <div>
-  //       <CheckCircleRoundedIcon style={{ color: '#27BEC2' }} />
-  //     </div>
-  //   )
-  // }else if( appointmentStatus.appointmentStatus === 'cancelled'){
-  //   return (
-  //     <div>
-  //       <CheckCircleRoundedIcon style={{ color: '#27BEC2' }} />
-  //     </div>
-  //   )
-  // }
   console.log('dentro del status: '+ status)
 }
-
- export function doctorData(){
+export function doctorData(){
   axios.get(`https://boldo-dev.pti.org.py/api/profile/doctor`)
   .then(res => {
     const persons = res.data;
     this.setState({ persons });
   })
 }
-
-
-
-
-export default class LoadAppointments extends React.Component {
-  
- state = {
-  appointment: [],
- }
-
-async componentDidMount() {
-    await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-    // `/profile/doctor/appointments`)
-     //2022-05-18
-    `/profile/doctor/appointments?start=2022-05-19T04:00:00.000Z&end=2022-05-20T04:00:00.000Z`)
-    // `/profile/doctor/appointments?start=2022-05-11T04:00:00.000Z&end=2022-05-11T23:30:00.000Z`)
- .then(res => {
-    const response = res.data.appointments.map(event => eventDataTransform(event));
-    ordersAppointments(response)
-    this.setState({ appointment: response })
-   })
-   console.log('desde componente: ', this.state.appointment);
-   console.log(`fecha de inicio: `+outputDate())
- }
-
-
- render() {
+export default function LoadAppointments(today) {
+  const day = today.date.getDate();
+  const month = '0' + (today.date.getMonth()+1);
+  const year = today.date.getFullYear();
+  const dateCalendar = `${year}-${month}-${day}`;
+  const [date, setDate] = React.useState(new Date(today.date));
+  const [appointments, setAppointments] = useState([]);
+  useEffect(() => {
+    const loadPost = async () => {
+      const response = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        "/profile/doctor/appointments?start=2022-05-24T04:00:00.000Z&end=" + dateCalendar + "T23:00:00.000Z")
+        .then(res => {
+          const response = res.data.appointments.map(event => eventDataTransform(event));
+          ordersAppointments( response )
+          setAppointments(response )
+        })
+    }
+  loadPost();
+  const intervalo=setInterval(()=>{ 
+    loadPost()
+     },10000) 
+      
+   return()=>clearInterval(intervalo)
+  }, []);
   return (
     <>
       <div>
         <Paper variant="outlined" square style={{ borderRadius:'16px', backgroundColor: '#F9FAFB', padding:'1rem' }}>
-        <Typography variant='h6' noWrap style={{ textAlign: 'left', flexGrow: 1 }}>
-          Turno mañana
-        </Typography>
-        <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280' }}>
-          07:00 am - 11:00 am
-        </Typography>
-        { this.state.appointment.map(post => 
-        <AppointmentType appointmentData={post} />
-        
-)}
-      </Paper>
+          <Typography variant='h6' noWrap style={{ textAlign: 'left', flexGrow: 1 }}>
+            Turno mañana
+          </Typography>
+          <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280' }}>
+            07:00 am - 11:00 am
+          </Typography>
+          { appointments && appointments.map( (Appointment) => {
+              return(
+                <AppointmentType appointmentData={Appointment} />
+              )
+            }
+          )}
+        </Paper>
       </div>
       <div style={{ paddingTop: '20px'}}>
-      <Paper style={{ backgroundColor: '#F9FAFB', padding:'1rem', borderRadius:'16px' }}>
-        <Typography variant='h6' noWrap style={{ flexGrow: 1, textAlign: 'left' }}>
-          Turno tarde
-        </Typography>
-        <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280'  }}>
-          1:00 pm - 06:00 pm
-        </Typography>
-        { this.state.appointment.map(post => 
-
-        <AppointmentTypeAfternoon appointmentData={post} />
-
-        )}
-      <NoAppointments />
-      </Paper>
+        <Paper style={{ backgroundColor: '#F9FAFB', padding:'1rem', borderRadius:'16px' }}>
+          <Typography variant='h6' noWrap style={{ flexGrow: 1, textAlign: 'left' }}>
+            Turno tarde
+          </Typography>
+          <Typography variant='subtitle1' noWrap style={{ flexGrow: 1, textAlign: 'left', color: '#6B7280'  }}>
+            1:00 pm - 06:00 pm
+          </Typography>
+          { appointments && appointments.map( (Appointment) => {
+              return(
+                <AppointmentTypeAfternoon appointmentData={Appointment} />
+              )
+            }
+          )}
+          <NoAppointments />
+        </Paper>
       </div>
-      </>
-    
-
+    </>
   )
- }
 }
