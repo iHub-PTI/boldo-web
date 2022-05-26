@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
-import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
+import { addDays, differenceInDays } from 'date-fns'
+import { useTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -20,7 +20,6 @@ import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import TimerOffRoundedIcon from '@material-ui/icons/TimerOffRounded';
-import CancelAppointmentModal from './CancelAppointmentModal';
 import EventRoundedIcon from '@material-ui/icons/EventRounded';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
@@ -28,180 +27,7 @@ import { Appointment } from '../types';
 import DirectionsRunRoundedIcon from '@material-ui/icons/DirectionsRunRounded';
 import CancelSharpIcon from '@material-ui/icons/CancelSharp';
 import PersonRoundedIcon from '@material-ui/icons/PersonRounded';
-import { isAfter } from 'date-fns/esm';
 
-const drawerWidth = 240;
-const useStyles = makeStyles(theme => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    flexGrow: 1,
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
-    backgroundColor: 'white',
-  },
-  styleCalendar: {
-    // paddingTop: theme.spacing(4),
-    // paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  fixedHeight: {
-    height: '100vh',
-  },
-
-  // Start CSS ###################################################################################################################################
-  grow: {
-    flexGrow: 1,
-  },
-  sectionDesktop: {
-    display: 'none',
-    [theme.breakpoints.up('md')]: {
-      display: 'flex',
-    },
-  },
-  sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  // End CSS ###################################################################################################################################
-
-  // Start | Dropdown for filter Daily - Mensual - Semanal
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-  // End | Dropdown for filter Daily - Mensual - Semanal
-//Start | Simple card
-  pos: {
-    marginBottom: 12,
-  },
-  //End | Simple card
-  appointmentSucess: {
-    display: 'flex',
-    backgroundColor: '#EDFAFA',
-  },
-  appointmenCancel: {
-    display: 'flex',
-    backgroundColor: '#FCE9E4',
-    justifyContent: 'flex-start',
-  },
-  appointmentUnavailable: {
-    display: 'flex',
-    backgroundColor: '#2C5282',
-  },
-  noAppointment: {
-    display: 'flex',
-    backgroundColor: '#F9FAFB',
-  },
-  logo: {
-    // with: '10px',
-    padding: '10px',
-    height: '60px',
-  }, gris: {
-    backgroundColor: '#F9FAFB',
-    padding:'1rem',
-  },
-  appoinmentText: {
-    color: '#6B7280',
-  },
-  foto:{
-    width: '70px',
-  },
-  details: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  cover: {
-    width: 110,
-  },
-  controls: {
-    display: 'flex',
-    alignItems: 'center',
-    paddingLeft: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  playIcon: {
-    height: 38,
-    width: 38,
-  },
-  modal5: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paper5: {
-    backgroundColor: theme.palette.background.paper,
-    border: 'none',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}))
 //
 // ////////////////////////////////////////////////////////////////////////////
 //                          Appointments call API
