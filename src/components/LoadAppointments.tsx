@@ -34,7 +34,6 @@ import PersonRoundedIcon from '@material-ui/icons/PersonRounded';
 // ////////////////////////////////////////////////////////////////////////////
 //
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
-
 const eventDataTransform = (event: AppointmentWithPatient) => {
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
     if (event.status === "cancelled") return 'event-cancel'
@@ -51,34 +50,27 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
     extendedProps: event,
   }
 }
-
 const calculateOpenHours = (openHours: Boldo.OpenHours, start: Date, end: Date) => {
-  // Create list of days
   const days = differenceInDays(end, start)
   const daysList = [...Array(days + 1).keys()].map(i => addDays(start, i))
-
   return daysList.flatMap(day => {
     const dayOfTheWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][day.getDay()] as keyof Boldo.OpenHours
     const openHoursOfDay = openHours[dayOfTheWeek]
-
     return openHoursOfDay.map(openHour => {
       const startDate = new Date(day)
       startDate.setHours(0, openHour.start, 0)
       const endDate = new Date(day)
       endDate.setHours(0, openHour.end, 0)
-
       return { start: startDate, end: endDate }
     })
   })
 }
-
 type AppointmentForm = Omit<Boldo.Appointment, 'start' | 'end' | 'patientId' | 'doctorId'> & {
   start: string
   end: string
   date: string
   appointmentType: string
 }
-
 const initialAppointment = {
   id: 'new',
   name: '',
@@ -89,12 +81,10 @@ const initialAppointment = {
   type: 'PrivateEvent',
   appointmentType: ''
 } as AppointmentForm
-
 type Action =
   | { type: 'reset' }
   | { type: 'initial'; value: AppointmentForm }
   | { type: 'default'; value: Partial<AppointmentForm> }
-
 function reducer(state: AppointmentForm, action: Action): AppointmentForm {
   switch (action.type) {
     case 'default':
@@ -107,7 +97,6 @@ function reducer(state: AppointmentForm, action: Action): AppointmentForm {
       throw new Error()
   }
 }
-
 function calculateHours(hours){
  if(hours > 12){
     return ' pm'
@@ -117,12 +106,11 @@ function calculateHours(hours){
 }
 function checkHours(hours){
   if(hours > 12){
-     return ' pm'
-   }else{
-     return ' am'
-   }
+    return ' pm'
+  }else{
+    return ' am'
+  }
  }
-
 function outputDate(){
   const date = new Date();
   const outputDate = date.getFullYear()+ '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String( date.getDate()).padStart(2, '0');
@@ -134,9 +122,7 @@ function appointmentTransformType(appointmentType){
   }else if(appointmentType === 'A'){
     return 'presencial'
   }
-
 }
-
 function ordersAppointments(array){
   const ordersAppointments = array.sort((a, b) => a.start > b.start);
   console.log('entro a ordenar', ordersAppointments)
@@ -149,7 +135,6 @@ function callLink(appointmentType, id){
     return   `appointments/`+ id +`/inperson`
 }
 }
-
 function appointmentStatus(status) {
   if (status === 'cancelled') {
     return 'cancelado'
@@ -161,14 +146,12 @@ function appointmentStatus(status) {
     return 'no disponible'
 }
 }
-
 export function NoAppointments() {
   const theme = useTheme();
   const [open5, setOpen5] = React.useState(false);
   const handleOpen5 = () => {
     setOpen5(true);
   };
-
   const handleClose5 = () => {
     setOpen5(false);
   };
@@ -180,7 +163,6 @@ export function NoAppointments() {
   const handleClose = () => {
     setAnchorEl2(null);
   };
-
   return(
     <div style={{ padding:'0.5rem' }}>
       <Card style={{ display:'flex', backgroundColor:'#F9FAFB' }}> 
@@ -271,13 +253,11 @@ export function NoAppointments() {
               </Menu>
             </Link>
           </Typography>
-
         </CardContent>
       </Card>
     </div>
   )
 }
-
 export function CancelAppointment(props) {
   const appointmentID = props.appointmentID;
   const theme = useTheme();
@@ -285,7 +265,6 @@ export function CancelAppointment(props) {
   const handleOpenC = () => {
     setOpenC(true);
   };
-
   const handleCloseC = () => {
     setOpenC(false);
   };
@@ -344,39 +323,35 @@ export function CancelAppointment(props) {
             </div>
           </MenuItem>
           <MenuItem onClick={handleClose}> 
-          <div>
-          
-          {/* <button type="button" onClick={cancelPacientAppointment(post.extendedProps.id)}> */}
+            <div>
+              {/* <button type="button" onClick={cancelPacientAppointment(post.extendedProps.id)}> */}
               <button type="button" onClick={async () => {
-                      try {
-                          const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentID}`);
-                          console.log('respuesta ', res)
-                          if (res.data != null) {
-                              // addToast({ type: 'success', title: 'Cita cancelada con éxito', })
-                              // history.replace(`/`)
-                          }
-
-                      } catch (err) {
-                          console.log("Error al cancelar cita", err)
-                          // addErrorToast('No se pudo borrar la cita, intente nuevamente.')
-
-                      }
-
-                  }}>
+                try {
+                  const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentID}`);
+                  console.log('respuesta ', res)
+                  if (res.data != null) {
+                      // addToast({ type: 'success', title: 'Cita cancelada con éxito', })
+                      // history.replace(`/`)
+                  }
+                } catch (err) {
+                  console.log("Error al cancelar cita", err)
+                  // addErrorToast('No se pudo borrar la cita, intente nuevamente.')
+                }
+              }}>
                 <DeleteForeverRoundedIcon />  Cancelar
               </button>
-              {/* <Modal
-                aria-labelledby="transition-modal-title"
-                aria-describedby="transition-modal-description"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                open={openC}
-                onClose={handleCloseC}
-                closeAfterTransition
-                BackdropComponent={Backdrop}
-                BackdropProps={{
-                  timeout: 500,
-                }}
-              >
+                {/* <Modal
+                  aria-labelledby="transition-modal-title"
+                  aria-describedby="transition-modal-description"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  open={openC}
+                  onClose={handleCloseC}
+                  closeAfterTransition
+                  BackdropComponent={Backdrop}
+                  BackdropProps={{
+                    timeout: 500,
+                  }}
+                >
                 <Fade in={openC}>
                   <div style={{ backgroundColor: theme.palette.background.paper, border: 'none', boxShadow: theme.shadows[5], padding: theme.spacing(2, 4, 3) }}>
                     <h2 id="transition-modal-title">Paciente</h2>
@@ -402,9 +377,7 @@ export function IsAmPm(props) {
     <>
     </>
   )
-
 }
-
 export function AppointmentType( props ) {
   const appointmenTitle = props.appointmentData.title;
   const appointmentStart = props.appointmentData.start;
@@ -415,210 +388,217 @@ export function AppointmentType( props ) {
   const appointmentStatus = props.appointmentData.extendedProps.status;
   const inicio = props.appointmentData.start;
   const fin = props.appointmentData.end;
- console.log(`el doctor comienza: ` + inicio.split('T')[0] + ` y termina: ` + fin);
- if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] < 12){
-   if(inicio.split('T')[0] === outputDate()){
-  if(appointmentEventType === 'Appointment'){
-    const patientName = props.appointmentData.extendedProps.patient.givenName;
-    const patientLastName = props.appointmentData.extendedProps.patient.familyName;
-    const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
-    if(appointmentStatus === 'open'){
-      return(
-        <div style={{ padding:'0.5rem' }}>
-         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
-           <CardMedia
-             style={{ width: 110 }}
-             image={ patientPhoto }
-             title="Live from space album cover"
-           />
-           <CardContent>
-             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
-             </Typography>
-             <Typography variant="body1">
-             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-             </Typography>
-             <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-             </Typography>
-           </CardContent>
-           <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
-           </CardActions>
-         </Card>
-       </div>
-      )
-    }else if(appointmentStatus === 'upcoming'){
-      return(
-        <div style={{ padding:'0.5rem' }}>
-         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
-           <CardMedia
-             style={{ width: 110 }}
-             image={ patientPhoto }
-             title="Live from space album cover"
-           />
-           <CardContent>
-             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
-             </Typography>
-             <Typography variant="body1">
-             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-             </Typography>
-             <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-             </Typography>
-           </CardContent>
-           <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
-           </CardActions>
-         </Card>
-       </div>
-      )
-    }else if(appointmentStatus === 'closed'){
-      return(
-        <div style={{ padding:'0.5rem'}}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
-            <CardMedia
-              style= {{ width: 110 }}
-              image={ patientPhoto }
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
-                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-              </Button>
-            </CardActions>
-          </Card>
-        </div>
-      )
-    }else if(appointmentStatus === 'locked'){
-      return(
-        <div style={{ padding:'0.5rem'}}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
-            <CardMedia
-              style= {{ width: 110 }}
-              image={ patientPhoto }
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
-              </Typography>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    }else if(appointmentStatus === 'cancelled'){
-      const statusAuthor = props.appointmentData.extendedProps.statusAutor;
-      if(statusAuthor === 'Patient'){
+  console.log(`el doctor comienza: ` + inicio.split('T')[0] + ` y termina: ` + fin);
+  if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] < 12){
+    if(inicio.split('T')[0] === outputDate()){
+      if(appointmentEventType === 'Appointment'){
+        const patientName = props.appointmentData.extendedProps.patient.givenName;
+        const patientLastName = props.appointmentData.extendedProps.patient.familyName;
+        const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
+        if(appointmentStatus === 'open'){
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px', justifyContent:'space-between' }}>
+                <div style={{ display: 'flex' }}>
+                  <CardMedia
+                    style={{ width: 110 }}
+                    image={ patientPhoto }
+                    title="Live from space album cover"
+                  />
+                  <CardContent>
+                    <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                      { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                      {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
+                    </Typography>
+                    <Typography variant="body1">
+                      { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                    </Typography>
+                    <Typography style={{ marginBottom: 12 }} color="textSecondary">
+                      {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+                    </Typography>
+                  </CardContent>
+                </div> 
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'upcoming'){
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px', justifyContent:'space-between' }}>
+                <div style={{ display: 'flex' }}>
+                  <CardMedia
+                    style={{ width: 110 }}
+                    image={ patientPhoto }
+                    title="Live from space album cover"
+                  />
+                  <CardContent>
+                    <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                      { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                      {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
+                    </Typography>
+                    <Typography variant="body1">
+                      { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                    </Typography>
+                    <Typography style={{ marginBottom: 12 }} color="textSecondary">
+                      {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+                    </Typography>
+                  </CardContent>
+                </div>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'closed'){
+          return(
+            <div style={{ padding:'0.5rem'}}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px', justifyContent:'space-between' }}>
+                <div style={{ display: 'flex' }}>
+                  <CardMedia
+                    style= {{ width: 110 }}
+                    image={ patientPhoto }
+                    title="Live from space album cover"
+                  />
+                  <CardContent>
+                    <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                      { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                      {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+                    </Typography>
+                    <Typography variant="body1">
+                      { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                    </Typography>
+                    <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                      {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+                    </Typography>
+                  </CardContent>
+                </div>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
+                    <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                  </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'locked'){
+          return(
+            <div style={{ padding:'0.5rem'}}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px', justifyContent:'space-between' }}>
+              <div style={{ display: 'flex' }}>
+                <CardMedia
+                  style= {{ width: 110 }}
+                  image={ patientPhoto }
+                  title="Live from space album cover"
+                />
+                <CardContent>
+                  <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                    {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+                  </Typography>
+                </CardContent>
+                </div>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'cancelled'){
+          const statusAuthor = props.appointmentData.extendedProps.statusAutor;
+          if(statusAuthor === 'Patient'){
+            return(
+              <div style={{ padding:'0.5rem' }}>
+                <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+                  <CardMedia
+                    style={{width: 110}}
+                    //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                    image={ patientPhoto }
+                    title="Patient photo"
+                  />
+                  <CardContent>
+                    <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                      { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                      { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                    </Typography>
+                    <Typography variant="body1">
+                      { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                    </Typography>
+                    <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                      {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                    </Typography>
+                  </CardContent>
+                  <CardActions style={{ alignItems: 'flex-start' }} >
+                    {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                      <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                    </Button> */}
+                  </CardActions>
+                </Card>
+              </div>
+            )
+          }
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+                <CardMedia
+                  style={{width: 110}}
+                  //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                  image={ patientPhoto }
+                  title="Patient photo"
+                />
+                <CardContent>
+                  <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                  </Typography>
+                  <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                    {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                  </Typography>
+                </CardContent>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                    <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                  </Button> */}
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }
+  
+      } else if(appointmentEventType === 'PrivateEvent'){
         return(
           <div style={{ padding:'0.5rem' }}>
-            <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
-              <CardMedia
-                style={{width: 110}}
-                //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
-                image={ patientPhoto }
-                title="Patient photo"
-              />
+            <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
               <CardContent>
-                <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
-                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                  { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
+                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
+                  {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
                 </Typography>
-                <Typography variant="body1">
-                  { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-                </Typography>
-                <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                  {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                <Typography variant="body1" style={{color: 'white'}}>
+                  Horario indisponible
                 </Typography>
               </CardContent>
-              <CardActions style={{ alignItems: 'flex-start' }} >
-                {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
-                  <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-                </Button> */}
-              </CardActions>
             </Card>
-          </div>
+          </div> 
         )
-      }
+      } 
       return(
-        <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
-            <CardMedia
-              style={{width: 110}}
-              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
-              image={ patientPhoto }
-              title="Patient photo"
-            />
-            <CardContent>
-              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
-                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
-                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-              </Button> */}
-            </CardActions>
-          </Card>
-        </div>
+        <h2>Nuevo evento no definido</h2>
       )
     }
-  
-  } else if(appointmentEventType === 'PrivateEvent'){
-    return(
-      <div style={{ padding:'0.5rem' }}>
-        <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
-          <CardContent>
-            <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
-              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
-              {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
-            </Typography>
-            <Typography variant="body1" style={{color: 'white'}}>
-              Horario indisponible
-            </Typography>
-          </CardContent>
-        </Card>
-      </div> 
-    )
-  } 
-  return(
-    <h2>Nuevo evento no definido</h2>
-  )
- }
- return( <>  </>)
+    return( <>  </>)
+  }
+  return( <>  </>)
 }
-return( <>  </>)
-}
-
 export function AppointmentTypeAfternoon( props ) {
   const appointmentStart = props.appointmentData.start;
   const appointmentEnd = props.appointmentData.end;
@@ -627,220 +607,217 @@ export function AppointmentTypeAfternoon( props ) {
   const appointmentId = props.appointmentData.extendedProps.id;
   const appointmentStatus = props.appointmentData.extendedProps.status;
   const inicio = props.appointmentData.start;
- if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] > 12){
-  if(inicio.split('T')[0] === outputDate()){
-  if(appointmentEventType === 'Appointment'){
-    const patientName = props.appointmentData.extendedProps.patient.givenName;
-    const patientLastName = props.appointmentData.extendedProps.patient.familyName;
-    const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
-    if(appointmentStatus === 'open'){
-      return(
-        <div style={{ padding:'0.5rem' }}>
-         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
-           <CardMedia
-             style={{ width: 110 }}
-             image={ patientPhoto }
-             title="Live from space album cover"
-           />
-           <CardContent>
-             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
-             </Typography>
-             <Typography variant="body1">
-             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-             </Typography>
-             <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-             </Typography>
-           </CardContent>
-           <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
-           </CardActions>
-         </Card>
-       </div>
-      )
-    }else if(appointmentStatus === 'upcoming'){
-      return(
-        <div style={{ padding:'0.5rem' }}>
-         <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
-           <CardMedia
-             style={{ width: 110 }}
-             image={ patientPhoto }
-             title="Live from space album cover"
-           />
-           <CardContent>
-             <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-               { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
-             </Typography>
-             <Typography variant="body1">
-             { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-             </Typography>
-             <Typography style={{ marginBottom: 12 }} color="textSecondary">
-             {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
-             </Typography>
-           </CardContent>
-           <CardActions style={{ alignItems: 'flex-start' }} >
-             <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
-           </CardActions>
-         </Card>
-       </div>
-      )
-    }
-    else if(appointmentStatus === 'closed'){
-      return(
-        <div style={{ padding:'0.5rem'}}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
-            <CardMedia
-              style= {{ width: 110 }}
-              image={ patientPhoto }
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
-                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-              </Button>
-            </CardActions>
-          </Card>
-        </div>
-      )
-    }else if(appointmentStatus === 'locked'){
-      console.log(appointmentStatus)
-      return(
-        <div style={{ padding:'0.5rem'}}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
-            <CardMedia
-              style= {{ width: 110 }}
-              image={ patientPhoto }
-              title="Live from space album cover"
-            />
-            <CardContent>
-              <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
-              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-               {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
-              </Typography>
-              <Typography style= {{ marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
-              </Typography>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    }else if(appointmentStatus === 'cancelled'){
-      const statusAuthor = props.appointmentData.extendedProps.statusAutor;
-      if(statusAuthor === 'Patient'){
+  if(appointmentStart.split('T')[1].split('.')[0].split(':')[0] > 12){
+    if(inicio.split('T')[0] === outputDate()){
+      if(appointmentEventType === 'Appointment'){
+        const patientName = props.appointmentData.extendedProps.patient.givenName;
+        const patientLastName = props.appointmentData.extendedProps.patient.familyName;
+        const patientPhoto = props.appointmentData.extendedProps.patient.photoUrl;
+        if(appointmentStatus === 'open'){
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+                <CardMedia
+                  style={{ width: 110 }}
+                  image={ patientPhoto }
+                  title="Live from space album cover"
+                />
+                <CardContent>
+                  <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}  <CancelAppointment appointmentID={ appointmentId } />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography style={{ marginBottom: 12 }} color="textSecondary">
+                    {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+                  </Typography>
+                </CardContent>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096' }}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'upcoming'){
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', borderRadius:'16px' }}>
+                <CardMedia
+                  style={{ width: 110 }}
+                  image={ patientPhoto }
+                  title="Live from space album cover"
+                />
+                <CardContent>
+                  <Typography style={{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <CancelAppointment appointmentID={ appointmentId } />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography style={{ marginBottom: 12 }} color="textSecondary">
+                    {/* Primera Consulta <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Ver historia clínica</i> */}
+                  </Typography>
+                </CardContent>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#E5E7EB', borderRadius:'50px', textTransform: 'lowercase' }}> <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{ textDecorationLine: 'none', color:'#718096'}}> { appointmentType === 'V' ?  <VideocamRoundedIcon style={{ color:'#F08F77' }} /> : null  } { appointmentType === 'A' ?  <PersonRoundedIcon style={{ color:'#27BEC2' }} /> : null } { appointmentTransformType ( appointmentType ) } </Link> </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'closed'){
+          return(
+            <div style={{ padding:'0.5rem'}}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
+                <CardMedia
+                  style= {{ width: 110 }}
+                  image={ patientPhoto }
+                  title="Live from space album cover"
+                />
+                <CardContent>
+                  <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                    {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+                  </Typography>
+                </CardContent>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  <Button size="large" style={{backgroundColor: '#BCF0DA', borderRadius:'50px', textTransform: 'lowercase' }}>
+                    <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                  </Button>
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'locked'){
+          console.log(appointmentStatus)
+          return(
+            <div style={{ padding:'0.5rem'}}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#EDFAFA', borderRadius:'16px' }}>
+                <CardMedia
+                  style= {{ width: 110 }}
+                  image={ patientPhoto }
+                  title="Live from space album cover"
+                />
+                <CardContent>
+                  <Typography style= {{ flexGrow: 1 }} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])} <Link variant="body1" style={{color: '#27BEC2', textDecorationLine: 'none'}}> Atendido </Link> <CheckCircleRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ' ' + patientLastName } <ContactPhoneRoundedIcon style={{color: '#27BEC2'}} />
+                  </Typography>
+                  <Typography style= {{ marginBottom: 12 }} color="textSecondary">
+                    {/* Primera consulta  <i style={{color: '#27BEC2', textDecorationLine: 'underline'}}>Dolor de cabeza</i> */}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </div>
+          )
+        }else if(appointmentStatus === 'cancelled'){
+          const statusAuthor = props.appointmentData.extendedProps.statusAutor;
+          if(statusAuthor === 'Patient'){
+            return(
+              <div style={{ padding:'0.5rem' }}>
+                <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+                  <CardMedia
+                    style={{width: 110}}
+                    //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                    image={ patientPhoto }
+                    title="Patient photo"
+                  />
+                  <CardContent>
+                    <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                      { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                      { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                    </Typography>
+                    <Typography variant="body1">
+                      { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                    </Typography>
+                    <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                      {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                    </Typography>
+                  </CardContent>
+                  <CardActions style={{ alignItems: 'flex-start' }} >
+                    {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                      <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                    </Button> */}
+                  </CardActions>
+                </Card>
+              </div>
+            )
+          }
+          return(
+            <div style={{ padding:'0.5rem' }}>
+              <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
+                <CardMedia
+                  style={{width: 110}}
+                  //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
+                  image={ patientPhoto }
+                  title="Patient photo"
+                />
+                <CardContent>
+                  <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
+                    { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
+                    { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
+                  </Typography>
+                  <Typography variant="body1">
+                    { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
+                  </Typography>
+                  <Typography style={{  marginBottom: 12 }} color="textSecondary">
+                    {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                  </Typography>
+                </CardContent>
+                <CardActions style={{ alignItems: 'flex-start' }} >
+                  {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
+                    <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
+                  </Button> */}
+                </CardActions>
+              </Card>
+            </div>
+          )
+        }
+      } else if(appointmentEventType === 'PrivateEvent'){
         return(
           <div style={{ padding:'0.5rem' }}>
-            <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
-              <CardMedia
-                style={{width: 110}}
-                //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
-                image={ patientPhoto }
-                title="Patient photo"
-              />
+            <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
               <CardContent>
-                <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
-                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                  { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelado por el paciente </Link> <DirectionsRunRoundedIcon style={{ color:'#F08F77' }} />
+                <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
+                  { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
+                  {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
                 </Typography>
-                <Typography variant="body1">
-                  { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-                </Typography>
-                <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                  {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
+                <Typography variant="body1" style={{color: 'white'}}>
+                  Horario indisponible
                 </Typography>
               </CardContent>
-              <CardActions style={{ alignItems: 'flex-start' }} >
-                {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
-                  <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-                </Button> */}
-              </CardActions>
             </Card>
-          </div>
+          </div> 
         )
-      }
+      } 
       return(
-        <div style={{ padding:'0.5rem' }}>
-          <Card variant="outlined" style={{ display: 'flex', backgroundColor: '#FCE9E4', justifyContent: 'flex-start', borderRadius:'16px' }}>
-            <CardMedia
-              style={{width: 110}}
-              //  image={ `https://thumbs.dreamstime.com/z/icono-de-l%C3%ADnea-perfil-usuario-s%C3%ADmbolo-empleado-avatar-web-y-dise%C3%B1o-ilustraci%C3%B3n-signo-aislado-en-fondo-blanco-192379539.jpg` || props.extendedProps.patient.photoUrl }
-              image={ patientPhoto }
-              title="Patient photo"
-            />
-            <CardContent>
-              <Typography style={{flexGrow: 1}} color="textSecondary" gutterBottom>
-                { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] }
-                { calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } <Link  variant="body1" style={{color: '#F08F77', textDecorationLine: 'none'}}> Cancelaste esta cita </Link> <CancelSharpIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography variant="body1">
-                { patientName + ` ` + patientLastName } <ContactPhoneRoundedIcon style={{ color:'#F08F77' }} />
-              </Typography>
-              <Typography style={{  marginBottom: 12 }} color="textSecondary">
-                {/* Primera consulta <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> Ver historia clínica </Link> */}
-              </Typography>
-            </CardContent>
-            <CardActions style={{ alignItems: 'flex-start' }} >
-              {/* <Button size="large" style={{backgroundColor: '#FCBEAF', borderRadius:'50px', textTransform: 'lowercase' }}>
-                <Link href={ callLink ( appointmentType , appointmentId ) } variant="body1" style={{textDecorationLine: 'none', color:'#718096'}}> reabrir </Link>
-              </Button> */}
-            </CardActions>
-          </Card>
-        </div>
+        <h2>Nuevo evento no definido</h2>
       )
     }
-  
-  } else if(appointmentEventType === 'PrivateEvent'){
-    return(
-      <div style={{ padding:'0.5rem' }}>
-        <Card variant="outlined" style={{ borderRadius:'16px', display: 'flex', backgroundColor: '#2C5282' }}>
-          <CardContent>
-            <Typography color="textSecondary" gutterBottom style={{ flexGrow: 1, color: 'white' }}>
-              { appointmentStart.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentStart.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) + ' - ' + appointmentEnd.split('T')[1].split('.')[0].split(':')[0] + ':' + appointmentEnd.split('T')[1].split('.')[0].split(':')[1] + calculateHours ( appointmentStart.split('T')[1].split('.')[0].split(':')[0] ) } 
-              {/* <Link href="#" variant="body1" style={{color: '#F08F77', textDecorationLine: 'underline'}}> editar </Link> */}
-            </Typography>
-            <Typography variant="body1" style={{color: 'white'}}>
-              Horario indisponible
-            </Typography>
-          </CardContent>
-        </Card>
-      </div> 
-    )
-  } 
-  return(
-    <h2>Nuevo evento no definido</h2>
-  )
- }
- return( <>  </>)
+    return( <>  </>)
+  }
+  return( <>  </>)
 }
-return( <>  </>)
-}
-
 export function eventDataConvert(event){
   const eventData = () => {
     if (event.type === 'appointment') {
       return 'appointment'
     } else if(event.extendedProps.type === 'PrivateEvent'){
       return 'evento privado'
-    }else if(event.extendedProps.appointmentType === 'V'){
+    } else if(event.extendedProps.appointmentType === 'V'){
       return 'remoto'
-    }else if(event.extendedProps.appointmentType === 'A'){
+    } else if(event.extendedProps.appointmentType === 'A'){
       return 'presencial'
     }
   }
@@ -891,7 +868,6 @@ export default function LoadAppointments(today) {
   const intervalo=setInterval(()=>{ 
     loadPost()
      },10000) 
-      
    return()=>clearInterval(intervalo)
   }, []);
   return (
