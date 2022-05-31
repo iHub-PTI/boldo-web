@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react'
+import React from 'react'
 import clsx from 'clsx'
-import { alpha, makeStyles, useTheme } from '@material-ui/core/styles'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Drawer from '@material-ui/core/Drawer'
 import AppBar from '@material-ui/core/AppBar'
@@ -18,28 +18,22 @@ import AccountCircle from '@material-ui/icons/AccountCircle'
 import MoreIcon from '@material-ui/icons/MoreVert'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import CalendarTodayOutlinedIcon from '@material-ui/icons/CalendarTodayOutlined';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Link from '@material-ui/core/Link';
-import Fade from '@material-ui/core/Fade';
-import Modal from '@material-ui/core/Modal';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { validateDate, validateTime } from '../util/helpers'
-import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
-import CardMedia from '@material-ui/core/CardMedia';
-import Backdrop from '@material-ui/core/Backdrop';
-
-import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Button from '@material-ui/core/Button'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import CalendarTodayOutlinedIcon from '@material-ui/icons/CalendarTodayOutlined'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import Link from '@material-ui/core/Link'
+import Fade from '@material-ui/core/Fade'
+import Modal from '@material-ui/core/Modal'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import CardMedia from '@material-ui/core/CardMedia'
+import Backdrop from '@material-ui/core/Backdrop'
 import LoadAppointments from '../components/LoadAppointments'
 
-
 const drawerWidth = 240
-
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
@@ -146,7 +140,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   // End | Dropdown for filter Daily - Mensual - Semanal
-//Start | Simple card
+  //Start | Simple card
   pos: {
     marginBottom: 12,
   },
@@ -172,14 +166,15 @@ const useStyles = makeStyles(theme => ({
     // with: '10px',
     padding: '10px',
     height: '60px',
-  }, gris: {
+  },
+  gris: {
     backgroundColor: '#F9FAFB',
-    padding:'1rem',
+    padding: '1rem',
   },
   appoinmentText: {
     color: '#6B7280',
   },
-  foto:{
+  foto: {
     width: '70px',
   },
   details: {
@@ -211,85 +206,73 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2, 4, 3),
   },
 }))
+
 export const useDate = () => {
-  const locale = 'en';
-  const [today, setDate] = React.useState(new Date());
+  const locale = 'en'
+  const [today, setDate] = React.useState(new Date())
   React.useEffect(() => {
-      const timer = setInterval(() => {
-      setDate(new Date());
-    }, 60 * 1000);
+    const timer = setInterval(() => {
+      setDate(new Date())
+    }, 60 * 1000)
     return () => {
-      clearInterval(timer);
+      clearInterval(timer)
     }
-  }, []);
-  const day = today.toLocaleDateString(locale, { weekday: 'long' });
-  const date = `${day}, ${today.getDate()} ${today.toLocaleDateString(locale, { month: 'long' })}\n\n`;
-  const hour = today.getHours();
-  const wish = `Good ${(hour < 12 && 'Morning') || (hour < 17 && 'Afternoon') || 'Evening'}, `;
-  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
+  }, [])
+  const day = today.toLocaleDateString(locale, { weekday: 'long' })
+  const date = `${day}, ${today.getDate()} ${today.toLocaleDateString(locale, { month: 'long' })}\n\n`
+  const hour = today.getHours()
+  const wish = `Good ${(hour < 12 && 'Morning') || (hour < 17 && 'Afternoon') || 'Evening'}, `
+  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' })
   return {
     date,
     time,
     wish,
-  };
-};
+  }
+}
 
 export default function Home() {
-//
-// ////////////////////////////////////////////////////////////////////////////
-//                              Hours and Date
-// ////////////////////////////////////////////////////////////////////////////
-//
-  const locale = 'en';
-  const [today, setDate] = React.useState(new Date())
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+  //                              Hours and Date
+  // ////////////////////////////////////////////////////////////////////////////
+  //
+  const locale = 'en'
+  const [today, setToday] = React.useState(new Date())
 
   React.useEffect(() => {
-      const timer = setInterval(() => {
-      setDate(new Date());
-    }, 60 * 1000);
+    const timer = setInterval(() => {
+      setToday(new Date())
+    }, 60 * 1000)
     return () => {
-      clearInterval(timer);
+      clearInterval(timer)
     }
-  }, []);
-  const date = today.toLocaleDateString();
-  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
-
-
-  const [open5, setOpen5] = React.useState(false);
+  }, [])
+  const date = today.toLocaleDateString()
+  const time = today.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' })
+  const [open5, setOpen5] = React.useState(false)
   const handleOpen5 = () => {
-    setOpen5(true);
-  };
-
+    setOpen5(true)
+  }
   const handleClose5 = () => {
-    setOpen5(false);
-  };
-
-  const [anchorEl2, setAnchorEl2] = React.useState(null);
-
-  const open2 = Boolean(anchorEl2);
-
-  const handleClick = (event) => {
-    setAnchorEl2(event.currentTarget);
-  };
-
+    setOpen5(false)
+  }
+  const [anchorEl2, setAnchorEl2] = React.useState(null)
+  const open2 = Boolean(anchorEl2)
+  const handleClick = event => {
+    setAnchorEl2(event.currentTarget)
+  }
   const handleClose = () => {
-    setAnchorEl2(null);
-  };
-
-  const [anchorEl3, setAnchorEl3] = React.useState(null);
-
-  const open3 = Boolean(anchorEl3);
-
-  const handleClick3 = (event) => {
-    setAnchorEl3(event.currentTarget);
-  };
-
+    setAnchorEl2(null)
+  }
+  const [anchorEl3, setAnchorEl3] = React.useState(null)
+  const open3 = Boolean(anchorEl3)
+  const handleClick3 = event => {
+    setAnchorEl3(event.currentTarget)
+  }
   const handleClose3 = () => {
-    setAnchorEl3(null);
-  };
-  const theme = useTheme();
-
-
+    setAnchorEl3(null)
+  }
+  const theme = useTheme()
   const classes = useStyles()
   const [open, setOpen] = React.useState(true)
   const handleDrawerOpen = () => {
@@ -300,11 +283,11 @@ export default function Home() {
   }
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
 
-//
-// ////////////////////////////////////////////////////////////////////////////
-//                   Render mobile and desktop Menu
-// ////////////////////////////////////////////////////////////////////////////
-//
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+  //                   Render mobile and desktop Menu
+  // ////////////////////////////////////////////////////////////////////////////
+  //
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
   const isMenuOpen = Boolean(anchorEl)
@@ -333,15 +316,25 @@ export default function Home() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem  onClick={handleMenuClose}>
-        <Link href="/settings" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Mi cuenta </Link>
+      <MenuItem onClick={handleMenuClose}>
+        <Link href='/settings' variant='body1' style={{ textDecorationLine: 'none', color: 'black' }}>
+          Mi cuenta
+        </Link>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
-      <Link href="/validate" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Registro de paciente </Link>
-        </MenuItem>
+        <Link href='/validate' variant='body1' style={{ textDecorationLine: 'none', color: 'black' }}>
+          Registro de paciente
+        </Link>
+      </MenuItem>
       <MenuItem onClick={handleMenuClose}>
-      <Link href="https://www.apple.com/app-store/" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Descargar la app del paciente para IOS </Link>
-        </MenuItem>
+        <Link
+          href='https://www.apple.com/app-store/'
+          variant='body1'
+          style={{ textDecorationLine: 'none', color: 'black' }}
+        >
+          Descargar la app del paciente para IOS
+        </Link>
+      </MenuItem>
       <MenuItem onClick={handleMenuClose}>Descargar la app del paciente para Andriod</MenuItem>
       <MenuItem onClick={handleMenuClose}>Soporte</MenuItem>
       <MenuItem onClick={handleMenuClose}>Cerrar sesión</MenuItem>
@@ -379,38 +372,34 @@ export default function Home() {
       </MenuItem>
     </Menu>
   )
-//
-// ////////////////////////////////////////////////////////////////////////////
-//             Dropdown for filter Daily - Mensual - Semanal
-// ////////////////////////////////////////////////////////////////////////////
-//
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+  //             Dropdown for filter Daily - Mensual - Semanal
+  // ////////////////////////////////////////////////////////////////////////////
+  //
   const [age, setAge] = React.useState('')
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setAge(event.target.value as string)
   }
   //
-// ////////////////////////////////////////////////////////////////////////////
-//             Next and Previous Button for the Calendar
-// ////////////////////////////////////////////////////////////////////////////
-//
+  // ////////////////////////////////////////////////////////////////////////////
+  //             Next and Previous Button for the Calendar
+  // ////////////////////////////////////////////////////////////////////////////
+  //
 
-const handleNext = () => {
-  const currentDate = new Date(date);
-  const nextDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
-  setDate(nextDate);
-  return(
-    console.log(`se ha seleccionado siguiente dia: ${nextDate}`)
-  )
-}
-const handlePrevious = () => {
-  const currentDate = new Date(date);
-  const previousDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
-  setDate(previousDate);
-  return(
-    console.log(`se ha seleccionado anterior dia: ${previousDate}`)
-  )
-}
+  const handleNext = () => {
+    const currentDate = new Date(date)
+    const nextDate = new Date(currentDate.setDate(currentDate.getDate() + 1))
+    setToday(nextDate)
+    return console.log(`se ha seleccionado siguiente dia: ${nextDate} anterior es: ${today}`)
+  }
+  const handlePrevious = () => {
+    const currentDate = new Date(date)
+    const previousDate = new Date(currentDate.setDate(currentDate.getDate() - 1))
+    setToday(previousDate)
+    return console.log(`se ha seleccionado anterior dia: ${previousDate} anterior es: ${today}`)
+  }
 
   return (
     <div className={classes.root}>
@@ -433,7 +422,7 @@ const handlePrevious = () => {
           <Typography className={classes.title} variant='h6' noWrap>
             Agendamientos
           </Typography>
-          <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'center', color: '#6B7280'  }}>
+          <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'center', color: '#6B7280' }}>
             {time}
           </Typography>
           <div className={classes.grow} />
@@ -449,8 +438,8 @@ const handlePrevious = () => {
                 label='Filtro'
               >
                 {/* <MenuItem value="">
-            <em>None</em>
-          </MenuItem> */}
+                  <em>None</em>
+                </MenuItem> */}
                 <MenuItem value={10}>Diario</MenuItem>
                 <MenuItem value={20}>Semanal</MenuItem>
                 <MenuItem value={30}>Mensual</MenuItem>
@@ -495,7 +484,7 @@ const handlePrevious = () => {
 
       {renderMobileMenu}
       {renderMenu}
-      
+
       {/* </Toolbar>
       </AppBar> */}
       <Drawer
@@ -510,7 +499,7 @@ const handlePrevious = () => {
           <img src='/img/logo.svg' alt='Boldo' className={classes.logo} />
         </div>
         {/*END - CONTENIDO DEL DRAWER IZQUIERDO */}
-        
+
         {/*START - Botones menu para barra izquierda */}
         {/* <div className={classes.toolbarIcon}>
           <IconButton onClick={handleDrawerClose}>
@@ -520,60 +509,74 @@ const handlePrevious = () => {
         {/*END - Botones menu para barra izquierda */}
 
         <MenuItem>
-        <IconButton aria-label='show 11 new notifications' color='inherit'>
-          <CalendarTodayOutlinedIcon />
-        </IconButton>
-        <Link href="/home" variant="body1" style={{textDecorationLine: 'none', color:'black'}}> Agendamientos </Link>
-      </MenuItem>
-
+          <IconButton aria-label='show 11 new notifications' color='inherit'>
+            <CalendarTodayOutlinedIcon />
+          </IconButton>
+          <Link href='/home' variant='body1' style={{ textDecorationLine: 'none', color: 'black' }}>
+            Agendamientos
+          </Link>
+        </MenuItem>
       </Drawer>
       {/* CONTENIDO DEL BODY */}
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container className={classes.styleCalendar} style={{ paddingTop: '8%', maxWidth:'100%',paddingLeft: '0px', paddingRight:'0px'}}>
-        <div style={{ textAlign: 'center'}}>
-          <div>
-            <Button>
-              <ArrowBackIosIcon onClick={handlePrevious} style={{color: '#27BEC2'}} /> 
-            </Button> 
-            {date}       
-            <Button>   
-              <ArrowForwardIosIcon onClick={handleNext} style={{color: '#27BEC2'}} />
-            </Button>
+        <Container
+          className={classes.styleCalendar}
+          style={{ paddingTop: '8%', maxWidth: '100%', paddingLeft: '0px', paddingRight: '0px' }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <div>
+              <Button>
+                <ArrowBackIosIcon onClick={handlePrevious} style={{ color: '#27BEC2' }} />
+              </Button>
+              {date}
+              <Button>
+                <ArrowForwardIosIcon onClick={handleNext} style={{ color: '#27BEC2' }} />
+              </Button>
+            </div>
+            <div>
+              <Button>{/* <h2 style={{ backgroundColor: '#27BEC2', color:'white'}}> Ir a Hoy</h2> */}</Button>
+            </div>
           </div>
-          <div>
-            <Button >
-            {/* <h2 style={{ backgroundColor: '#27BEC2', color:'white'}}> Ir a Hoy</h2> */}
-            </Button>
-          </div>
-        </div>
           <Grid container spacing={3} style={{ flexWrap: 'nowrap' }}>
             {/* Dashboard calendar */}
             <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
-            <div>
-                <Paper variant="outlined" square className={classes.gris} style={{ borderRadius:'16px' }}>
+              <div>
+                <Paper variant='outlined' square className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
                     Turno mañana
                   </Typography>
-                  <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                  <Typography
+                    className={classes.title}
+                    variant='subtitle1'
+                    noWrap
+                    style={{ textAlign: 'left', color: '#6B7280' }}
+                  >
                     06:00 am - 11:00 am
                   </Typography>
-                  <div style={{ padding:'0.5rem' }}>
+                  <div style={{ padding: '0.5rem' }}>
                     <Card className={classes.noAppointment}>
-                      <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-                        <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
+                      <CardMedia
+                        style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px', color: '#E2E8F0' }}
+                      >
+                        <MoreVertIcon fontSize={'large'} style={{ alignItems: 'center' }} />
                       </CardMedia>
                       <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          sin agendamientos entre las 06:00 am y las 11:00 am 
+                        <Typography className={classes.title} color='textSecondary' gutterBottom>
+                          sin agendamientos entre las 06:00 am y las 11:00 am
                         </Typography>
-                        <Typography variant="body1">
-                          <Link href="#" variant="body1"> 
-                            <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                        <Typography variant='body1'>
+                          <Link href='#' variant='body1'>
+                            <Button
+                              aria-controls='fade-menu'
+                              aria-haspopup='true'
+                              style={{ color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase' }}
+                              onClick={handleClick}
+                            >
                               agregar
                             </Button>
                             <Menu
-                              id="fade-menu"
+                              id='fade-menu'
                               anchorEl={anchorEl2}
                               keepMounted
                               open={open2}
@@ -582,12 +585,12 @@ const handlePrevious = () => {
                             >
                               <MenuItem onClick={handleClose}>
                                 <div>
-                                  <button type="button" onClick={handleOpen5}>
+                                  <button type='button' onClick={handleOpen5}>
                                     Marcar indisponibilidad
                                   </button>
                                   <Modal
-                                    aria-labelledby="transition-modal-title"
-                                    aria-describedby="transition-modal-description"
+                                    aria-labelledby='transition-modal-title'
+                                    aria-describedby='transition-modal-description'
                                     className={classes.modal5}
                                     open={open5}
                                     onClose={handleClose5}
@@ -599,21 +602,30 @@ const handlePrevious = () => {
                                   >
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
-                                        <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                                        <Button id="transition-modal-description">03:30 pm</Button>
-                                        <Button id="transition-modal-description">04:00 pm</Button>
-                                        <Button id="transition-modal-description">04:30 pm</Button>
-                                        <Button id="transition-modal-description">05:00 pm</Button>
-                                        <Button id="transition-modal-description">05:30 pm</Button>
-                                        <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                                        <h2 id='transition-modal-title'>Marcar indisponibilidad</h2>
+                                        <p id='transition-modal-description'>
+                                          Seleccione los horarios correspondientes
+                                        </p>
+                                        <Button id='transition-modal-description'>03:30 pm</Button>
+                                        <Button id='transition-modal-description'>04:00 pm</Button>
+                                        <Button id='transition-modal-description'>04:30 pm</Button>
+                                        <Button id='transition-modal-description'>05:00 pm</Button>
+                                        <Button id='transition-modal-description'>05:30 pm</Button>
+                                        <Button
+                                          style={{ backgroundColor: '#27BEC2', color: 'white' }}
+                                          id='transition-modal-description'
+                                        >
+                                          Confirmar
+                                        </Button>
                                       </div>
                                     </Fade>
                                   </Modal>
                                 </div>
                               </MenuItem>
-                              <MenuItem onClick={handleClose}> <PersonAddIcon /> Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
+                              <MenuItem onClick={handleClose}>
+                                <PersonAddIcon /> Marcar cita para paciente
+                              </MenuItem>
+                              {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
                             </Menu>
                           </Link>
                         </Typography>
@@ -622,30 +634,42 @@ const handlePrevious = () => {
                   </div>
                 </Paper>
               </div>
-              <div style={{ paddingTop: '20px'}}>
-                <Paper className={classes.gris} style={{ borderRadius:'16px' }}>
+              <div style={{ paddingTop: '20px' }}>
+                <Paper className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
                     Turno tarde
                   </Typography>
-                  <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280'  }}>
+                  <Typography
+                    className={classes.title}
+                    variant='subtitle1'
+                    noWrap
+                    style={{ textAlign: 'left', color: '#6B7280' }}
+                  >
                     01:00 pm - 06:00 pm
                   </Typography>
-                  <div style={{ padding:'0.5rem' }}>
+                  <div style={{ padding: '0.5rem' }}>
                     <Card className={classes.noAppointment}>
-                      <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-                        <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
+                      <CardMedia
+                        style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px', color: '#E2E8F0' }}
+                      >
+                        <MoreVertIcon fontSize={'large'} style={{ alignItems: 'center' }} />
                       </CardMedia>
                       <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          sin agendamientos entre las 01:00 pm y las 06:00 pm 
+                        <Typography className={classes.title} color='textSecondary' gutterBottom>
+                          sin agendamientos entre las 01:00 pm y las 06:00 pm
                         </Typography>
-                        <Typography variant="body1">
-                          <Link href="#" variant="body1"> 
-                            <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                        <Typography variant='body1'>
+                          <Link href='#' variant='body1'>
+                            <Button
+                              aria-controls='fade-menu'
+                              aria-haspopup='true'
+                              style={{ color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase' }}
+                              onClick={handleClick}
+                            >
                               agregar
                             </Button>
                             <Menu
-                              id="fade-menu"
+                              id='fade-menu'
                               anchorEl={anchorEl2}
                               keepMounted
                               open={open2}
@@ -654,12 +678,12 @@ const handlePrevious = () => {
                             >
                               <MenuItem onClick={handleClose}>
                                 <div>
-                                  <button type="button" onClick={handleOpen5}>
+                                  <button type='button' onClick={handleOpen5}>
                                     <PersonAddIcon /> Marcar indisponibilidad
                                   </button>
                                   <Modal
-                                    aria-labelledby="transition-modal-title"
-                                    aria-describedby="transition-modal-description"
+                                    aria-labelledby='transition-modal-title'
+                                    aria-describedby='transition-modal-description'
                                     className={classes.modal5}
                                     open={open5}
                                     onClose={handleClose5}
@@ -671,22 +695,29 @@ const handlePrevious = () => {
                                   >
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
-                                        <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
+                                        <h2 id='transition-modal-title'>Marcar indisponibilidad</h2>
                                         {/* <p id="transition-modal-description">Abril 2022</p> */}
-                                        <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                                        <Button id="transition-modal-description">03:30 pm</Button>
-                                        <Button id="transition-modal-description">04:00 pm</Button>
-                                        <Button id="transition-modal-description">04:30 pm</Button>
-                                        <Button id="transition-modal-description">05:00 pm</Button>
-                                        <Button id="transition-modal-description">05:30 pm</Button>
-                                        <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                                        <p id='transition-modal-description'>
+                                          Seleccione los horarios correspondientes
+                                        </p>
+                                        <Button id='transition-modal-description'>03:30 pm</Button>
+                                        <Button id='transition-modal-description'>04:00 pm</Button>
+                                        <Button id='transition-modal-description'>04:30 pm</Button>
+                                        <Button id='transition-modal-description'>05:00 pm</Button>
+                                        <Button id='transition-modal-description'>05:30 pm</Button>
+                                        <Button
+                                          style={{ backgroundColor: '#27BEC2', color: 'white' }}
+                                          id='transition-modal-description'
+                                        >
+                                          Confirmar
+                                        </Button>
                                       </div>
                                     </Fade>
                                   </Modal>
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
+                              {/* <MenuItem onClick={handleClose}>Cancelar</MenuItem> */}
                             </Menu>
                           </Link>
                         </Typography>
@@ -698,37 +729,47 @@ const handlePrevious = () => {
             </Grid>
             {/* Today */}
             <Grid item xs={9} md={6} lg={6} className={fixedHeightPaper}>
-              
-             <LoadAppointments date={today}/>
+              <LoadAppointments date={today} />
             </Grid>
-          
-          <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
 
-            <div>
-                <Paper variant="outlined" square className={classes.gris} style={{ borderRadius:'16px' }}>
+            <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
+              <div>
+                <Paper variant='outlined' square className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
                     Turno mañana
                   </Typography>
-                  <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                  <Typography
+                    className={classes.title}
+                    variant='subtitle1'
+                    noWrap
+                    style={{ textAlign: 'left', color: '#6B7280' }}
+                  >
                     06:00 am - 11:00 am
                   </Typography>
 
-                  <div style={{ padding:'0.5rem' }}>
+                  <div style={{ padding: '0.5rem' }}>
                     <Card className={classes.noAppointment}>
-                      <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-                        <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
+                      <CardMedia
+                        style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px', color: '#E2E8F0' }}
+                      >
+                        <MoreVertIcon fontSize={'large'} style={{ alignItems: 'center' }} />
                       </CardMedia>
                       <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          sin agendamientos entre las 06:00 am y las 11:00 am 
+                        <Typography className={classes.title} color='textSecondary' gutterBottom>
+                          sin agendamientos entre las 06:00 am y las 11:00 am
                         </Typography>
-                        <Typography variant="body1">
-                          <Link href="#" variant="body1"> 
-                            <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                        <Typography variant='body1'>
+                          <Link href='#' variant='body1'>
+                            <Button
+                              aria-controls='fade-menu'
+                              aria-haspopup='true'
+                              style={{ color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase' }}
+                              onClick={handleClick}
+                            >
                               agregar
                             </Button>
                             <Menu
-                              id="fade-menu"
+                              id='fade-menu'
                               anchorEl={anchorEl2}
                               keepMounted
                               open={open2}
@@ -737,12 +778,12 @@ const handlePrevious = () => {
                             >
                               <MenuItem onClick={handleClose}>
                                 <div>
-                                  <button type="button" onClick={handleOpen5}>
+                                  <button type='button' onClick={handleOpen5}>
                                     Marcar indisponibilidad
                                   </button>
                                   <Modal
-                                    aria-labelledby="transition-modal-title"
-                                    aria-describedby="transition-modal-description"
+                                    aria-labelledby='transition-modal-title'
+                                    aria-describedby='transition-modal-description'
                                     className={classes.modal5}
                                     open={open5}
                                     onClose={handleClose5}
@@ -754,58 +795,74 @@ const handlePrevious = () => {
                                   >
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
-                                        <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
-                                        
-                                        <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                                        <Button id="transition-modal-description">03:30 pm</Button>
-                                        <Button id="transition-modal-description">04:00 pm</Button>
-                                        <Button id="transition-modal-description">04:30 pm</Button>
-                                        <Button id="transition-modal-description">05:00 pm</Button>
-                                        <Button id="transition-modal-description">05:30 pm</Button>
-                                        <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                                        <h2 id='transition-modal-title'>Marcar indisponibilidad</h2>
+                                        <p id='transition-modal-description'>
+                                          Seleccione los horarios correspondientes
+                                        </p>
+                                        <Button id='transition-modal-description'>03:30 pm</Button>
+                                        <Button id='transition-modal-description'>04:00 pm</Button>
+                                        <Button id='transition-modal-description'>04:30 pm</Button>
+                                        <Button id='transition-modal-description'>05:00 pm</Button>
+                                        <Button id='transition-modal-description'>05:30 pm</Button>
+                                        <Button
+                                          style={{ backgroundColor: '#27BEC2', color: 'white' }}
+                                          id='transition-modal-description'
+                                        >
+                                          Confirmar
+                                        </Button>
                                       </div>
                                     </Fade>
                                   </Modal>
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                                <MenuItem onClick={handleClose}>Cancelar</MenuItem>
+                              <MenuItem onClick={handleClose}>Cancelar</MenuItem>
                             </Menu>
                           </Link>
                         </Typography>
-
                       </CardContent>
                     </Card>
                   </div>
-
                 </Paper>
               </div>
 
-              <div style={{ paddingTop: '20px'}}>
-                <Paper className={classes.gris} style={{ borderRadius:'16px' }}>
+              <div style={{ paddingTop: '20px' }}>
+                <Paper className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
                     Turno tarde
                   </Typography>
-                  <Typography className={classes.title} variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280'  }}>
+                  <Typography
+                    className={classes.title}
+                    variant='subtitle1'
+                    noWrap
+                    style={{ textAlign: 'left', color: '#6B7280' }}
+                  >
                     1:00 pm - 06:00 pm
                   </Typography>
-                  
-                  <div style={{ padding:'0.5rem' }}>
+
+                  <div style={{ padding: '0.5rem' }}>
                     <Card className={classes.noAppointment}>
-                      <CardMedia style={{display:'flex', alignItems: 'center', paddingLeft: '10px', color:'#E2E8F0'}}>
-                        <MoreVertIcon fontSize={'large'} style={{alignItems:'center'}} />
+                      <CardMedia
+                        style={{ display: 'flex', alignItems: 'center', paddingLeft: '10px', color: '#E2E8F0' }}
+                      >
+                        <MoreVertIcon fontSize={'large'} style={{ alignItems: 'center' }} />
                       </CardMedia>
                       <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          sin agendamientos entre las 01:00 pm y las 06:00 pm 
+                        <Typography className={classes.title} color='textSecondary' gutterBottom>
+                          sin agendamientos entre las 01:00 pm y las 06:00 pm
                         </Typography>
-                        <Typography variant="body1">
-                          <Link href="#" variant="body1"> 
-                            <Button aria-controls="fade-menu" aria-haspopup="true" style={{color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase'}} onClick={handleClick}>
+                        <Typography variant='body1'>
+                          <Link href='#' variant='body1'>
+                            <Button
+                              aria-controls='fade-menu'
+                              aria-haspopup='true'
+                              style={{ color: '#27BEC2', textDecorationLine: 'underline', textTransform: 'lowercase' }}
+                              onClick={handleClick}
+                            >
                               agregar
                             </Button>
                             <Menu
-                              id="fade-menu"
+                              id='fade-menu'
                               anchorEl={anchorEl2}
                               keepMounted
                               open={open2}
@@ -814,12 +871,12 @@ const handlePrevious = () => {
                             >
                               <MenuItem onClick={handleClose}>
                                 <div>
-                                  <button type="button" onClick={handleOpen5}>
+                                  <button type='button' onClick={handleOpen5}>
                                     Marcar indisponibilidad
                                   </button>
                                   <Modal
-                                    aria-labelledby="transition-modal-title"
-                                    aria-describedby="transition-modal-description"
+                                    aria-labelledby='transition-modal-title'
+                                    aria-describedby='transition-modal-description'
                                     className={classes.modal5}
                                     open={open5}
                                     onClose={handleClose5}
@@ -831,38 +888,37 @@ const handlePrevious = () => {
                                   >
                                     <Fade in={open5}>
                                       <div className={classes.paper5}>
-                                        <h2 id="transition-modal-title">Marcar indisponibilidad</h2>
+                                        <h2 id='transition-modal-title'>Marcar indisponibilidad</h2>
                                         {/* <p id="transition-modal-description">Abril 2022</p> */}
-                                        <p id="transition-modal-description">Seleccione los horarios correspondientes</p>
-                                        <Button id="transition-modal-description">03:30 pm</Button>
-                                        <Button id="transition-modal-description">04:00 pm</Button>
-                                        <Button id="transition-modal-description">04:30 pm</Button>
-                                        <Button id="transition-modal-description">05:00 pm</Button>
-                                        <Button id="transition-modal-description">05:30 pm</Button>
-                                        <Button style={{backgroundColor: '#27BEC2', color:'white'}} id="transition-modal-description">Confirmar</Button>
+                                        <p id='transition-modal-description'>
+                                          Seleccione los horarios correspondientes
+                                        </p>
+                                        <Button id='transition-modal-description'>03:30 pm</Button>
+                                        <Button id='transition-modal-description'>04:00 pm</Button>
+                                        <Button id='transition-modal-description'>04:30 pm</Button>
+                                        <Button id='transition-modal-description'>05:00 pm</Button>
+                                        <Button id='transition-modal-description'>05:30 pm</Button>
+                                        <Button
+                                          style={{ backgroundColor: '#27BEC2', color: 'white' }}
+                                          id='transition-modal-description'
+                                        >
+                                          Confirmar
+                                        </Button>
                                       </div>
                                     </Fade>
                                   </Modal>
                                 </div>
                               </MenuItem>
                               <MenuItem onClick={handleClose}>Marcar cita para paciente</MenuItem>
-                              
                             </Menu>
                           </Link>
                         </Typography>
-
                       </CardContent>
                     </Card>
                   </div>
-
-
                 </Paper>
               </div>
-            
             </Grid>
-
-
-
           </Grid>
         </Container>
       </main>
