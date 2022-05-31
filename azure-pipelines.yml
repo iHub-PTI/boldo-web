@@ -40,7 +40,7 @@ stages:
 #        tags: |
 #          $(tag)
     - task: Docker@2
-      displayName: Docker build
+      displayName: Docker build dev
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
       inputs:
         containerRegistry: $(dockerRegistryServiceConnection)
@@ -49,6 +49,26 @@ stages:
         Dockerfile: '**/Dockerfile'
         arguments: '--build-arg sockets_address=https://boldo-dev.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906'
     
+    - task: Docker@2
+      displayName: Docker build test
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageRepository)
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906'
+
+    - task: Docker@2
+      displayName: Docker build prod
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/prod'))
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageRepository)
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        arguments: '--build-arg sockets_address=https://bol.do --build-arg app_server=https://bol.do/api --build-arg app_sentry=https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906'
+
     - task: Docker@2
       displayName: Docker push
       inputs:
