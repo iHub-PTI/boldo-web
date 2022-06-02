@@ -276,7 +276,7 @@ const Gate = () => {
               <TogleMenu />
             </Grid>
           </Grid>
-          <Grid container item lg={3} md={3} sm={3} xs={12} style={{ display: 'block' }}>
+          <Grid container item lg={3} md={3} sm={3} xs={12} style={{ display: 'grid' }}>
             {/* patient data screen */}
             <Card>{controlSideBarState()}</Card>
           </Grid>
