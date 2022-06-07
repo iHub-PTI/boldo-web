@@ -61,7 +61,7 @@ stages:
 
     - task: Docker@2
       displayName: Docker build prod
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/prod'))
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       inputs:
         containerRegistry: $(dockerRegistryServiceConnection)
         repository: $(imageRepository)
