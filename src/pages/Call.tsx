@@ -529,7 +529,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             style={{
               position: 'fixed',
               bottom: '0',
-              right: '25%',
+              right: '27%',
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
@@ -657,12 +657,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           </div>
         )}
       </div>
+      <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
       <SidebarContainer
         sideBarAction={sideBarAction}
         appointment={appointment}
         show={showSidebarMenu}
         hideSidebar={() => setShowSidebarMenu(false)}
       />
+      </Grid>
     </div>
   )
 }
