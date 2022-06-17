@@ -256,7 +256,7 @@ const Gate = () => {
         // remote dating screen
         // <div className='flex flex-col h-full md:flex-row'>
         <Grid container className='flex  h-full flex-row'>
-          <Grid container item lg={9} md={9} sm={9} xs={12}>
+          <Grid container item lg={9} md={9} sm={8} xs={8}>
             {/* daiting screen here */}
             <CallStatusMessage
               status={appointment.status}
@@ -276,7 +276,7 @@ const Gate = () => {
               <TogleMenu />
             </Grid>
           </Grid>
-          <Grid container item lg={3} md={3} sm={3} xs={12} style={{ display: 'grid' }}>
+          <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
             {/* patient data screen */}
             <Card>{controlSideBarState()}</Card>
           </Grid>
