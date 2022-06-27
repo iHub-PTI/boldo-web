@@ -1,19 +1,22 @@
 import React, { useState } from 'react'
-import {Grid} from '@material-ui/core'
+import { Grid } from '@material-ui/core'
 import ShowSoepHelper from '../../components/TooltipSoep'
 
-export default ({ setShowPrescriptionMenu }) => {
+export default ({ setDynamicMenuSelector }) => {
   const [activeColor, setActiveColor] = useState('M')
   const [showHover, setShowHover] = useState('')
   const Soep = {
     Subjetive: 'Subjetivo',
     Note: 'Nota',
-    Prescription: 'Receta'
+    Prescription: 'Receta',
   }
   const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
-  
+
   return (
-    <Grid container Item className='h-full flex-wrap items-center justify-center'
+    <Grid
+      container
+      Item
+      className='h-full flex-wrap items-center justify-center'
       style={{
         backgroundColor: '#EDF2F7',
         borderTopLeftRadius: '0px',
@@ -24,12 +27,57 @@ export default ({ setShowPrescriptionMenu }) => {
       }}
     >
       <button
-        style={{ backgroundColor: `${activeColor==='P'?'#667EEA':'grey'}`, height:'4rem', width: '4rem' }}
-        className='flex items-center justify-center rounded-full focus:outline-none focus:bg-gray-600'
+        style={{ backgroundColor: `${activeColor === 'L' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
+        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
-          setShowPrescriptionMenu(true)
-          setSoepSelected(Soep.Prescription)
-          setActiveColor('P');
+          setDynamicMenuSelector('L')
+          // setSoepSelected(Soep.Note)
+          setActiveColor('L')
+        }}
+        onMouseEnter={() => setShowHover(Soep.Note)}
+        onMouseLeave={() => setShowHover('')}
+      >
+        <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <path
+            d='M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z'
+            fill='white'
+          />
+        </svg>
+
+        {showHover === Soep.Note && ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
+      </button>
+
+      <button
+        style={{ backgroundColor: `${activeColor === 'M' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
+        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
+        onClick={() => {
+          setDynamicMenuSelector('M')
+          // setSoepSelected(Soep.Note)
+          setActiveColor('M')
+        }}
+        onMouseEnter={() => setShowHover(Soep.Note)}
+        onMouseLeave={() => setShowHover('')}
+      >
+        <svg width='16' height='20' viewBox='0 0 16 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <path
+            d='M5.72461 1.60002C5.72461 1.28176 5.85104 0.97654 6.07608 0.751496C6.30113 0.526453 6.60635 0.400024 6.92461 0.400024H9.32461C9.64287 0.400024 9.94809 0.526453 10.1731 0.751496C10.3982 0.97654 10.5246 1.28176 10.5246 1.60002C10.5246 1.91828 10.3982 2.22351 10.1731 2.44855C9.94809 2.6736 9.64287 2.80002 9.32461 2.80002H6.92461C6.60635 2.80002 6.30113 2.6736 6.07608 2.44855C5.85104 2.22351 5.72461 1.91828 5.72461 1.60002Z'
+            fill='white'
+          />
+          <path
+            d='M3.3248 1.59998C2.68829 1.59998 2.07784 1.85283 1.62775 2.30292C1.17766 2.75301 0.924805 3.36346 0.924805 3.99998V17.2C0.924805 17.8365 1.17766 18.4469 1.62775 18.897C2.07784 19.3471 2.68829 19.6 3.3248 19.6H12.9248C13.5613 19.6 14.1718 19.3471 14.6219 18.897C15.0719 18.4469 15.3248 17.8365 15.3248 17.2V3.99998C15.3248 3.36346 15.0719 2.75301 14.6219 2.30292C14.1718 1.85283 13.5613 1.59998 12.9248 1.59998C12.9248 2.55475 12.5455 3.47043 11.8704 4.14556C11.1953 4.82069 10.2796 5.19998 9.32481 5.19998H6.9248C5.97003 5.19998 5.05435 4.82069 4.37922 4.14556C3.70409 3.47043 3.3248 2.55475 3.3248 1.59998V1.59998Z'
+            fill='white'
+          />
+        </svg>
+        {showHover === Soep.Note && ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
+      </button>
+
+      <button
+        style={{ backgroundColor: `${activeColor === 'P' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
+        className='flex items-center mt-3 justify-center rounded-full focus:outline-none focus:bg-gray-600'
+        onClick={() => {
+          setDynamicMenuSelector('P')
+          // setSoepSelected(Soep.Prescription)
+          setActiveColor('P')
         }}
         onMouseEnter={() => setShowHover(Soep.Prescription)}
         onMouseLeave={() => setShowHover('')}
@@ -48,32 +96,7 @@ export default ({ setShowPrescriptionMenu }) => {
             fill='white'
           />
         </svg>
-        {showHover === Soep.Prescription &&
-        ShowSoepHelper({ title: Soep.Prescription, isBlackColor: false })}
-      </button>
-      <button
-          style={{ backgroundColor: `${activeColor==='M'?'#667EEA':'grey'}`, height:'4rem', width: '4rem'  }}
-        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
-        onClick={() => {
-          setShowPrescriptionMenu(false)
-          setSoepSelected(Soep.Note)
-          setActiveColor('M');
-        }}
-        onMouseEnter={() => setShowHover(Soep.Note)}
-        onMouseLeave={() => setShowHover('')}
-      >
-        <svg width='16' height='20' viewBox='0 0 16 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-          <path
-            d='M5.72461 1.60002C5.72461 1.28176 5.85104 0.97654 6.07608 0.751496C6.30113 0.526453 6.60635 0.400024 6.92461 0.400024H9.32461C9.64287 0.400024 9.94809 0.526453 10.1731 0.751496C10.3982 0.97654 10.5246 1.28176 10.5246 1.60002C10.5246 1.91828 10.3982 2.22351 10.1731 2.44855C9.94809 2.6736 9.64287 2.80002 9.32461 2.80002H6.92461C6.60635 2.80002 6.30113 2.6736 6.07608 2.44855C5.85104 2.22351 5.72461 1.91828 5.72461 1.60002Z'
-            fill='white'
-          />
-          <path
-            d='M3.3248 1.59998C2.68829 1.59998 2.07784 1.85283 1.62775 2.30292C1.17766 2.75301 0.924805 3.36346 0.924805 3.99998V17.2C0.924805 17.8365 1.17766 18.4469 1.62775 18.897C2.07784 19.3471 2.68829 19.6 3.3248 19.6H12.9248C13.5613 19.6 14.1718 19.3471 14.6219 18.897C15.0719 18.4469 15.3248 17.8365 15.3248 17.2V3.99998C15.3248 3.36346 15.0719 2.75301 14.6219 2.30292C14.1718 1.85283 13.5613 1.59998 12.9248 1.59998C12.9248 2.55475 12.5455 3.47043 11.8704 4.14556C11.1953 4.82069 10.2796 5.19998 9.32481 5.19998H6.9248C5.97003 5.19998 5.05435 4.82069 4.37922 4.14556C3.70409 3.47043 3.3248 2.55475 3.3248 1.59998V1.59998Z'
-            fill='white'
-          />
-        </svg>
-        {showHover === Soep.Note &&
-        ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
+        {showHover === Soep.Prescription && ShowSoepHelper({ title: Soep.Prescription, isBlackColor: false })}
       </button>
     </Grid>
   )

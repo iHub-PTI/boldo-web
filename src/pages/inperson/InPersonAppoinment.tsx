@@ -6,9 +6,10 @@ import PatientSection from './PatientSection'
 import MedicalRecordSection from './MedicalRecordSection'
 import { PrescriptionMenu } from '../../components/PrescriptionMenu'
 import SelectorSection from './SelectorSection'
+import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 
 export default function Dashboard() {
-  const [showPrescriptionMenu, setShowPrescriptionMenu] = useState(false)
+  const [DynamicMenuSelector, setDynamicMenuSelector] = useState('M')
   return (
     <Layout>
       <Grid style={{padding:'23px'}}>
@@ -22,14 +23,14 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-            <SelectorSection setShowPrescriptionMenu={(elem: any) => {
-              setShowPrescriptionMenu(elem)
+            <SelectorSection setDynamicMenuSelector={(elem: any) => {
+              setDynamicMenuSelector(elem)
             }} />
           </Grid>
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12}>
           {
-            showPrescriptionMenu ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : <MedicalRecordSection />
+            DynamicMenuSelector === 'P' ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> :  DynamicMenuSelector === 'M' ? <MedicalRecordSection /> : <LaboratoryMenu appointment={undefined} isFromInperson={true} />
           }
         </Grid>
       </Grid>
