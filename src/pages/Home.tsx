@@ -540,7 +540,7 @@ export default function Home() {
           </div>
           <Grid container spacing={3} style={{ flexWrap: 'nowrap' }}>
             {/* Dashboard calendar */}
-            <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
+            <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper} style={{ opacity: '0.5' }}>
               <div>
                 <Paper variant='outlined' square className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
@@ -732,7 +732,7 @@ export default function Home() {
               <LoadAppointments date={today} />
             </Grid>
 
-            <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper}>
+            <Grid item xs={12} md={3} lg={3} className={fixedHeightPaper} style={{ opacity: '0.5' }}>
               <div>
                 <Paper variant='outlined' square className={classes.gris} style={{ borderRadius: '16px' }}>
                   <Typography className={classes.title} variant='h6' noWrap style={{ textAlign: 'left' }}>
