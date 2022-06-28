@@ -591,7 +591,7 @@ export function AppointmentType(props, date) {
                 }}
               >
                 <div style={{ display: 'flex' }}>
-                  <CardMedia style={{ width: 110 }} image={patientPhoto} title='Live from space album cover' />
+                  <CardMedia style={{ width: 110 }} image={patientPhoto} title='Patient Photo' />
                   <CardContent>
                     <Typography style={{ flexGrow: 1 }} color='textSecondary' gutterBottom>
                       {appointmentStart.split('T')[1].split('.')[0].split(':')[0] +
@@ -737,6 +737,7 @@ export function AppointmentType(props, date) {
   return <> </>
 }
 export function AppointmentTypeAfternoon(props) {
+  const [hidden, setHidden] = useState(false)
   const appointmentStart = props.appointmentData.start
   const appointmentEnd = props.appointmentData.end
   const appointmentType = props.appointmentData.extendedProps.appointmentType
@@ -792,7 +793,16 @@ export function AppointmentTypeAfternoon(props) {
         } else if (appointmentStatus === 'upcoming') {
           return (
             <div style={{ padding: '0.5rem' }}>
-              <Card variant='outlined' style={{ display: 'flex', borderRadius: '16px' }}>
+              <Card
+                variant='outlined'
+                style={{ display: 'flex', borderRadius: '16px' }}
+                onMouseEnter={() => {
+                  setHidden(s => !s)
+                }}
+                onMouseLeave={() => {
+                  setHidden(s => !s)
+                }}
+              >
                 <CardMedia style={{ width: 110 }} image={patientPhoto} title='Live from space album cover' />
                 <CardContent>
                   <Typography style={{ flexGrow: 1 }} color='textSecondary' gutterBottom>
@@ -800,7 +810,7 @@ export function AppointmentTypeAfternoon(props) {
                       ':' +
                       appointmentStart.split('T')[1].split('.')[0].split(':')[1]}
                     {calculateHours(appointmentStart.split('T')[1].split('.')[0].split(':')[0])}
-                    <CancelAppointment appointmentID={appointmentId} />
+                    {hidden ? <CancelAppointment appointmentID={appointmentId} /> : null}
                   </Typography>
                   <Typography variant='body1'>
                     {patientName + ' ' + patientLastName} <ContactPhoneRoundedIcon style={{ color: '#27BEC2' }} />
