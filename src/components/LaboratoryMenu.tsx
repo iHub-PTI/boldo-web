@@ -8,19 +8,19 @@ import {
 } from '@material-ui/core';
 import MaterialTable from "material-table";
 
-export function LaboratoryMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
-
+export function LaboratoryMenu(props) {
+    const { appointment } = props;
     const [initialLoad, setInitialLoad] = useState(true)
-
-    let match = useRouteMatch<{ id: string }>(`/appointments/:id/${!isFromInperson ? 'call' : 'inperson'}`)
-    const id = match?.params.id
-
     const [selectedRow, setSelectedRow] = useState()
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=15383`)
-                console.log("resultado:",res)
+
+                if (props.appointment.patientId !== null) {
+                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${props.appointment.patientId}`)
+                    console.log("resultado:", res)
+                }
+
 
             } catch (err) {
                 console.log(err)
@@ -31,7 +31,7 @@ export function LaboratoryMenu({ appointment, isFromInperson = false }: { appoin
 
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [appointment])
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>

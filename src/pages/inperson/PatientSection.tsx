@@ -299,38 +299,18 @@ const PatientRecord = props => {
     </Grid>
   )
 }
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
-export default () => {
-  const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
+
+export default (props) => {
+  
+  const { appointment} = props;
   const history = useHistory()
   const { addErrorToast } = useToasts()
   const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
 
-  useEffect(() => {
-    let mounted = true
 
-    const load = async () => {
-      try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
-        if (mounted) setAppointment(res.data)
-      } catch (err) {
-        console.log(err)
-        if (mounted) {
-          addErrorToast('¡Fallo en la carga de la cita!')
-          history.replace(`/`)
-        }
-      }
-    }
-
-    load()
-
-    return () => {
-      mounted = false
-    }
-  }, [addErrorToast, id, history])
 
   useEffect(() => {
     const load = async () => {
