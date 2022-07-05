@@ -9,7 +9,7 @@ import SelectorSection from './SelectorSection'
 import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 
 export default function Dashboard() {
-  const [DynamicMenuSelector, setDynamicMenuSelector] = useState('M')
+  const [DynamicMenuSelector, setDynamicMenuSelector] = useState('L')
   return (
     <Layout>
       <Grid style={{padding:'23px'}}>

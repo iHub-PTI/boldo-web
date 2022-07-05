@@ -5,49 +5,23 @@ import { useRouteMatch } from "react-router-dom"
 import {
     Grid,
     Typography,
-    CardHeader,
-    Button,
-
-
 } from '@material-ui/core';
+import MaterialTable from "material-table";
 
-import MedicineItem from "./MedicineItem"
-import MedicationsModal from "./MedicationsModal";
-import useStyles from '../pages/inperson/style'
 export function LaboratoryMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
-    const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-    const [mainReason, setMainReason] = useState<any[]>([])
-    const [selectedSoep, setSelectedSoep] = useState()
-    const [diagnose, setDiagnose] = useState<string>('')
-    const [encounterId, setEncounterId] = useState('')
-    const [instructions, setInstructions] = useState<string>('')
+
     const [initialLoad, setInitialLoad] = useState(true)
 
-    const [success, setSuccess] = useState('')
-    const [error, setError] = useState('')
-    const [loadingSubmit, setLoadingSubmit] = useState(false)
-    const classes = useStyles()
     let match = useRouteMatch<{ id: string }>(`/appointments/:id/${!isFromInperson ? 'call' : 'inperson'}`)
     const id = match?.params.id
-    const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
 
+    const [selectedRow, setSelectedRow] = useState()
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-                const { status = '' } = res.data.encounter
-                if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-                    setAppointmentDisabled(true);
-                } else {
-                    setAppointmentDisabled(false);
-                }
-                setDiagnose(res.data.encounter.diagnosis);
-                setInstructions(res.data.encounter.instructions);
-                setSelectedMedication(res.data.encounter.prescriptions);
-                setMainReason(res.data.encounter.mainReason);
-                setEncounterId(res.data.encounter.partOfEncounterId)
-                setSelectedSoep(res.data.encounter.soep)
+                const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=15383`)
+                console.log("resultado:",res)
+
             } catch (err) {
                 console.log(err)
             } finally {
@@ -82,238 +56,147 @@ export function LaboratoryMenu({ appointment, isFromInperson = false }: { appoin
         <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
             <Grid>
 
-                {!isFromInperson ?
-                    <>
-                        <CardHeader title="Receta" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
-                        <Grid style={{ padding: '20px' }}>
-                            <Typography variant="h6" color="textPrimary">
-                                {appointment.patient.givenName} {appointment.patient.familyName}
-                            </Typography>
-                            <Typography variant="subtitle1" color="textSecondary">
-                                CI: {appointment.patient.identifier}
-                            </Typography>
-
-                        </Grid>
-                    </>
-                    :
-                    <Grid className='w-full px-8 mt-10'>
+                <Grid className='w-full px-8 mt-10'>
+                    <Grid>
                         <Typography variant='h5' color='textPrimary'>
                             Resultados de estudios
                         </Typography>
+                        <Typography variant='body2' color='textSecondary'>
+                            Archivos subidos por el paciente
+                        </Typography>
+                    </Grid>
+
+
+                    <Grid className="mt-10">
+                        <MaterialTable
+                            columns={[
+
+                                // {
+                                //     title: "Cagtegoria",
+                                //     field: "mainReason"
+                                // },
+                                {
+                                    title: 'Categoria',
+                                    field: 'mainReason',
+                                    render: rowData => {
+                                        // console.log(rowData.diagnosis)
+                                        //@ts-ignore
+                                        return (
+                                            <Grid container>
+                                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 0C0.671575 0 0 0.671575 0 1.5V16.5C0 17.3285 0.671575 18 1.5 18H16.5C17.3285 18 18 17.3285 18 16.5V1.5C18 0.671575 17.3285 0 16.5 0H1.5ZM7.4 5L11.1 5.0001V5.50005C11.1 5.64275 11.2113 5.86065 11.4246 6.10185C11.5197 6.20935 11.6162 6.30055 11.6896 6.3651C11.7259 6.39705 11.7557 6.4217 11.7755 6.43775C11.7854 6.44575 11.7928 6.45155 11.7972 6.45495L11.8012 6.45805L12 6.60795V7.5H11V7.0901C10.9084 7.008 10.7926 6.89675 10.6755 6.76425C10.5165 6.58455 10.3117 6.31795 10.1942 6L8.27235 6.00005C8.2465 6.05495 8.21945 6.10535 8.19405 6.15C8.0917 6.33005 7.96165 6.50825 7.84125 6.6596C7.71925 6.8129 7.5985 6.94935 7.5089 7.0469L7.5 7.0566V12.75C7.5 13.7165 8.2835 14.5 9.25 14.5C9.9481 14.5 10.5508 14.0913 10.8316 13.5H11.8965C11.57 14.6543 10.5088 15.5 9.25 15.5C7.7312 15.5 6.5 14.2688 6.5 12.75V6.65085L6.64535 6.50475L6.6467 6.50335L6.6527 6.4972C6.6583 6.4915 6.6669 6.4827 6.67805 6.47105C6.70045 6.44775 6.733 6.4134 6.77235 6.37055C6.8515 6.28435 6.95575 6.16635 7.05875 6.0369C7.1633 5.9055 7.2583 5.77265 7.3247 5.65585C7.3762 5.5652 7.3925 5.5151 7.39765 5.4993C7.39885 5.4955 7.39945 5.4937 7.39975 5.49375C7.3998 5.49375 7.3997 5.4936 7.39975 5.49375C7.39975 5.49385 7.39995 5.4943 7.39995 5.4945L7.4 5.4966V5ZM13 11.0455C13 11.8488 12.3285 12.5 11.5 12.5C10.6715 12.5 10 11.8488 10 11.0455C10 9.77275 11.5 8.5 11.5 8.5C11.5 8.5 13 9.77275 13 11.0455ZM11.5 2H7V4H11.5V2Z" fill="#364152" />
+                                                </svg> <p style={{ marginLeft: '10px' }}> </p> {rowData.mainReason !== null && rowData.mainReason}
+                                            </Grid>
+                                        )
+
+                                    },
+                                },
+
+                                {
+                                    title: "Fecha",
+                                    field: "startTimeDate",
+                                    width: "10%"
+                                },
+                                // {
+                                //   title: "Diagnóstico",
+                                //   field: "diagnosis"
+                                // },
+                                {
+                                    title: 'Descripción',
+                                    field: 'diagnosis',
+                                    render: rowData => {
+                                        // console.log(rowData.diagnosis)
+                                        //@ts-ignore
+                                        return (
+                                            <Grid container>
+                                                <p style={{ marginTop: '3px' }}></p> {rowData.diagnosis !== null && rowData.diagnosis} <img src={"https://s3-alpha-sig.figma.com/img/b169/bf3c/235ebca03b877ae8884706fb6a1385d8?Expires=1657497600&Signature=bae3SBcdgXL3P9t9gnDeOKuUuXQDc57mW70QOM-f1tc7XXkPV8BZsyFZtEQdOeAKuTfWgy~rW-PIXpKOckKPensRGhv05QAkNTnhyfQ1in~N6IiKhTRUAQa-gWh6rxnYWhzgxo7xXOD~XOOgL~Ml4JB0Ik2t1PnOmV5W1CIqEcIvj0aOj7Jy-4SNjEFhR4oMr8LMHMgXvGJUXLn6AOG~z-dI8k5D3ABNJkzEuC6iIJQV4GD5SGiucORHGvEZDwiDsoWnAyFdueSJfpH7B~PFJOloq2kFyYrgB3znBJTbtR5pSi3G-vScIE3hR0hwb8DHaDBJm44hkhU3TpsNeeFEdw__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA"} width='30px' alt='loading...' />
+                                            </Grid>
+                                        )
+                                    },
+                                },
+
+                            ]}
+                            data={[
+                                {
+                                    "id": "1",
+                                    "startTimeDate": "27/06/2022",
+                                    "mainReason": "Laboratorio",
+                                    "diagnosis": "Hemograma completo + Orina",
+
+                                },
+                                {
+                                    "id": "2",
+                                    "mainReason": "Imágenes ",
+                                    "startTimeDate": "15/06/2022",
+                                    "diagnosis": "Radiografía de torax con contraste",
+
+                                },
+                                {
+                                    "id": "3",
+                                    "mainReason": "Cardiológico",
+                                    "startTimeDate": "04/05/2022",
+                                    "diagnosis": "Ecocardiograma",
+
+                                },
+                                {
+                                    "id": "4",
+                                    "mainReason": "Cardiológico",
+                                    "startTimeDate": "04/05/2022",
+                                    "diagnosis": "Ecocardiograma",
+
+                                },
+                                {
+                                    "id": "5",
+                                    "startTimeDate": "27/06/2022",
+                                    "mainReason": "Laboratorio",
+                                    "diagnosis": "Hemograma completo + Orina",
+
+                                },
+                                {
+                                    "id": "6",
+                                    "mainReason": "Imágenes ",
+                                    "startTimeDate": "15/06/2022",
+                                    "diagnosis": "Radiografía de torax con contraste",
+
+                                },
+                                {
+                                    "id": "7",
+                                    "mainReason": "Cardiológico",
+                                    "startTimeDate": "04/05/2022",
+                                    "diagnosis": "Ecocardiograma",
+
+                                },
+                                {
+                                    "id": "8",
+                                    "mainReason": "Cardiológico",
+                                    "startTimeDate": "04/05/2022",
+                                    "diagnosis": "Ecocardiograma",
+
+                                },
+                            ]}
+                            onRowClick={(evt, selectedRow) =>
+                                //@ts-ignore
+                                setSelectedRow(selectedRow)
+                            }
+                            options={{
+                                search: false,
+
+                                toolbar: false,
+                                paging: false,
+                                draggable: false,
+
+                                rowStyle: (rowData) => ({
+                                    backgroundColor:
+                                        // @ts-ignore
+                                        selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+                                }),
+                            }}
+                        />
 
                     </Grid>
-                }
-                <div className='w-full px-8'>
-                    <div className='mt-6 '>
-                        <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
-                            Diagnóstico
-                        </label>
-
-                        <div className='rounded-md shadow-sm'>
-                            <textarea
-                                id='Diagnostico'
-                                disabled={isAppointmentDisabled}
-                                required
-                                rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-                                placeholder=''
-                                onChange={e => setDiagnose(e.target.value)}
-                                value={diagnose}
-                            />
-                        </div>
-                    </div>
-                    <div className='mt-6'>
-                        <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
-                            Indicaciones
-                        </label>
-
-                        <div className='rounded-md shadow-sm'>
-                            <textarea
-                                id='Indicationes'
-                                disabled={isAppointmentDisabled}
-                                rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-                                placeholder=''
-                                onChange={e => setInstructions(e.target.value)}
-                                value={instructions}
-                            />
-                        </div>
-                    </div>
-                    <div className='mt-6'>
-                        {/* <Medication setDataCallback={(elem: any) => {
-  
-                // const itemsToAdd: any[] = []
-                // const selectedMedicationsCopy: any[] = [...selectedMedication]
-                // for (let el in elem) {
-                //   const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId == e.medicationId)
-  
-                //   if (myElemIndex == -1) {
-                //     itemsToAdd.push(elem[el])
-                //   }
-                // }
-                setSelectedMedication([...selectedMedication, elem])
-                // setShowEditModal(false)
-              }} /> */}
-                    </div>
-                    <div className='mt-6'>
-                        <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
-                        <div className='h-px mt-2 mb-4 bg-gray-200'></div>
-                        {selectedMedication &&
-                            selectedMedication.map((e: any) => (
-                                <MedicineItem
-                                    key={e.medicationId}
-                                    medicine={e}
-                                    deleteMedicineCallback={() => {
-                                        const selectedMedicationsCopy: any[] = [...selectedMedication]
-                                        const filteredItems = selectedMedicationsCopy.filter(el => el.medicationId !== e.medicationId)
-
-                                        setSelectedMedication(filteredItems)
-                                    }}
-                                    isMedidicineEditionDisabled={isAppointmentDisabled}
-                                    changeDescriptionCallback={(instructions: String) => {
-                                        const selectedMedicationsCopy: any[] = [...selectedMedication]
-                                        const myElemIndex = selectedMedicationsCopy.findIndex(el => el.medicationId === e.medicationId)
-                                        if (myElemIndex !== -1) {
-                                            selectedMedicationsCopy[myElemIndex].instructions = instructions
-                                            setSelectedMedication(selectedMedicationsCopy)
-                                        }
-                                    }}
-                                />
-                            ))}
-                        <span className='rounded-md shadow-sm'>
-                            {isAppointmentDisabled === false ? <button
-                                type='button'
-                                className=' mt-5 inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-                                onClick={e => {
-                                    setShowEditModal(true)
-                                }}
-                            >
-                                agregar medicamento
-                                <svg className='ml-3' width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 7.5H7.5V8V13C7.5 13.2739 7.27386 13.5 7 13.5C6.72614 13.5 6.5 13.2739 6.5 13V8V7.5H6H1C0.726142 7.5 0.5 7.27386 0.5 7C0.5 6.72614 0.726142 6.5 1 6.5H6H6.5V6V1C6.5 0.726142 6.72614 0.5 7 0.5C7.27386 0.5 7.5 0.726142 7.5 1V6V6.5H8H13C13.2739 6.5 13.5 6.72614 13.5 7C13.5 7.27386 13.2739 7.5 13 7.5H8Z" fill="white" stroke="white" />
-                                </svg>
-
-                            </button> : <Button disabled
-                                className={classes.muiButtonOutlined} variant='outlined'>
-                                {'agregar medicamento'}
-                                <svg className='ml-3' width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 7.5H7.5V8V13C7.5 13.2739 7.27386 13.5 7 13.5C6.72614 13.5 6.5 13.2739 6.5 13V8V7.5H6H1C0.726142 7.5 0.5 7.27386 0.5 7C0.5 6.72614 0.726142 6.5 1 6.5H6H6.5V6V1C6.5 0.726142 6.72614 0.5 7 0.5C7.27386 0.5 7.5 0.726142 7.5 1V6V6.5H8H13C13.2739 6.5 13.5 6.72614 13.5 7C13.5 7.27386 13.2739 7.5 13 7.5H8Z" fill="white" stroke="white" />
-                                </svg>
-
-                            </Button>}
-                        </span>
-                        <form
-                            onSubmit={async e => {
-                                e.preventDefault()
-                                if (diagnose === '' || diagnose === undefined) {
-                                    setError('Escriba un diagnóstico primero')
-                                    setSuccess('')
-                                } else {
-                                    try {
-                                        setSuccess('')
-                                        setError('')
-                                        setLoadingSubmit(true)
-                                        var result = selectedMedication.map(function (el) {
-                                            var o = Object.assign({}, el);
-                                            if (o.status !== 'completed') {
-                                                o.status = 'active';
-                                            }
-
-                                            return o;
-                                        })
-
-                                        await axios.put(`/profile/doctor/appointments/${id}/encounter`, {
-                                            encounterData: {
-                                                diagnosis: diagnose,
-                                                instructions: instructions,
-                                                prescriptions: result,
-                                                encounterClass: 'V',
-                                                soep: selectedSoep,
-                                                mainReason: mainReason,
-                                                partOfEncounterId: encounterId,
-                                            },
-                                        })
-                                        setSuccess('The medical data was set successfully.')
-                                    } catch (err) {
-                                        setError('Ocurrió un error. Intente nuevamente mas tarde')
-                                        console.log(err)
-                                    } finally {
-                                        setLoadingSubmit(false)
-                                    }
-                                }
-                            }}
-                        >
-                            <div className='mt-3'>
-                                {success && (
-                                    <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
-                                        Datos guardados correctamente.
-                                    </span>
-                                )}
-                                {error && (
-                                    <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
-                                        {error}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className='flex w-full mt-5 mb-12 jusitfy-end'>
-                                <div className='mt-3 ml-auto sm:flex'>
-                                    <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
-
-                                        <Button disabled={loadingSubmit || isAppointmentDisabled}
-                                            type='submit' className={classes.muiButtonOutlined} variant='outlined'>
-                                            {!isFromInperson ? 'Guardar' : 'Listo'}
-                                            {loadingSubmit && (
-                                                <svg
-                                                    className='w-5 h-5 mr-3 ml-3 text-indigo-700 animate-spin'
-                                                    xmlns='http://www.w3.org/2000/svg'
-                                                    fill='none'
-                                                    viewBox='0 0 24 24'
-                                                >
-                                                    <circle
-                                                        className='opacity-25'
-                                                        cx='12'
-                                                        cy='12'
-                                                        r='10'
-                                                        stroke='currentColor'
-                                                        strokeWidth='4'
-                                                    ></circle>
-                                                    <path
-                                                        className='opacity-75'
-                                                        fill='currentColor'
-                                                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                                                    ></path>
-                                                </svg>
-                                            )}
-                                        </Button>
-                                    </span>
-                                </div>
-                            </div>
-
-
-                        </form>
-                    </div>
-
-                    <MedicationsModal
-                        selectedMedicaitonsState={selectedMedication}
-                        showEditModal={showEditModal}
-                        setShowEditModal={setShowEditModal}
-                        setDataCallback={(elem: any) => {
-                            const itemsToAdd: any[] = []
-                            const selectedMedicationsCopy: any[] = [...selectedMedication]
-                            for (let el in elem) {
-                                const myElemIndex = selectedMedicationsCopy.findIndex(e => elem[el].medicationId === e.medicationId)
-
-                                if (myElemIndex === -1) {
-                                    itemsToAdd.push(elem[el])
-                                }
-                            }
-                            setSelectedMedication([...selectedMedication, ...itemsToAdd])
-                            setShowEditModal(false)
-                        }}
-                    />
-                </div>
+                </Grid>
             </Grid>
+
         </div>
     )
 }

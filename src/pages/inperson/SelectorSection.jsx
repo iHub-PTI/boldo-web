@@ -3,7 +3,7 @@ import { Grid } from '@material-ui/core'
 import ShowSoepHelper from '../../components/TooltipSoep'
 
 export default ({ setDynamicMenuSelector }) => {
-  const [activeColor, setActiveColor] = useState('M')
+  const [activeColor, setActiveColor] = useState('L')
   const [showHover, setShowHover] = useState('')
   const Soep = {
     Subjetive: 'Subjetivo',

@@ -1243,6 +1243,7 @@ function SOEP({ appointment }: { appointment: any }) {
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               tempArray.push(data)
             }
+            console.log("a ver ", tempArray)
             setSoepHistory(tempArray)
           }
         } catch (error) {
