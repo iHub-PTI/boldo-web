@@ -44,7 +44,7 @@ export default ({ setDynamicMenuSelector }) => {
           />
         </svg>
 
-        {showHover === Soep.Note && ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
+        {showHover === Soep.Note && ShowSoepHelper({ title: 'Estudios', isBlackColor: false })}
       </button>
 
       <button
