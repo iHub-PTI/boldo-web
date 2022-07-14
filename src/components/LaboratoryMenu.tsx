@@ -11,14 +11,17 @@ import {
 import MaterialTable from "material-table";
 import moment from 'moment'
 import { useToasts } from './Toast';
+import Modal from "./Modal";
 
 export function LaboratoryMenu(props) {
+    const { addErrorToast } = useToasts()
     const { appointment } = props;
     const [initialLoad, setInitialLoad] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState([])
     const [studyDetail, setStudyDetail] = useState()
-    const { addErrorToast } = useToasts()
+    const [showEditModal, setShowEditModal] = useState(false)
+    const [showPreview, setShowPreview] = useState({})
     useEffect(() => {
         const load = async () => {
             try {
@@ -228,8 +231,8 @@ export function LaboratoryMenu(props) {
             const currentDate = moment(new Date());
             //@ts-ignore
             const returnDate = moment(studyDetail.effectiveDate);
-             days_diff = currentDate.diff(returnDate, 'days');
-          
+            days_diff = currentDate.diff(returnDate, 'days');
+
         }
 
         return <div>
@@ -326,7 +329,7 @@ export function LaboratoryMenu(props) {
                                     <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
 
                                         hace {
-                                            days_diff       
+                                            days_diff
 
                                         } días
                                     </Typography>
@@ -410,252 +413,65 @@ export function LaboratoryMenu(props) {
                         </Typography>
                     </Grid>
                     <div className="p-3 flex overflow-x-auto space-x-8 w-100">
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
+                        {
+                            //@ts-ignore
+                            studyDetail.attachmentUrls.map((book, idx) => {
+                                const { contentType, url } = book;
+                                return (
+                                    <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
+                                        <Grid className="p-2" container>
+                                            {
+                                                contentType.includes("pdf") ? <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
+                                                </svg> : <svg className="mt-2" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M9 9.25C10.24 9.25 11.25 8.24 11.25 7C11.25 5.76 10.24 4.75 9 4.75C7.76 4.75 6.75 5.76 6.75 7C6.75 8.24 7.76 9.25 9 9.25ZM13.5 13.25C13.5 11.75 10.5 11 9 11C7.5 11 4.5 11.75 4.5 13.25V14H13.5V13.25ZM16 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H16C17.1 18 18 17.1 18 16V2C18 0.9 17.1 0 16 0ZM15 16H3C2.45 16 2 15.55 2 15V3C2 2.45 2.45 2 3 2H15C15.55 2 16 2.45 16 3V15C16 15.55 15.55 16 15 16Z" fill="#3182CE" />
+                                                </svg>}
 
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                            <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
+                                                estudio-{idx + 1}
+                                            </Typography>
+                                            <button
 
-
-
-                                </button>
-
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
-
-                                </button>
-                            </Grid>
-                        </section>
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
-
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                                style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
+                                                className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
+                                                onClick={() => {
+                                                    setShowEditModal(true);
+                                                    setShowPreview({contentType:contentType,url:url})
+                                                }}
+                                            >
+                                                <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
 
 
 
-                                </button>
+                                            </button>
 
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
+                                            <button
+                                                style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
+                                                className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
+                                                onClick={() => {
+                                                    setShowEditModal(true);
+                                                }}
+                                            >
+                                                <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
+                                                </svg>
 
-                                </button>
-                            </Grid>
-                        </section>
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
-
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                            </button>
+                                        </Grid>
+                                    </section>
+                                    //   <li key={idx}>
+                                    //     <h3>{contentType}</h3>
+                                    //     <p>{url}</p>
+                                    //   </li>
+                                );
+                            })
 
 
 
-                                </button>
-
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
-
-                                </button>
-                            </Grid>
-                        </section>
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
-
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-
-
-
-                                </button>
-
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
-
-                                </button>
-                            </Grid>
-                        </section>
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
-
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-
-
-
-                                </button>
-
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
-
-                                </button>
-                            </Grid>
-                        </section>
-                        <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full ">
-                            {/* <span><img src="download.jfif" className="bg-purple-200 h-14 w-14 rounded-full border-2 border-purple-300" alt="" /></span>
-                        <span>John</span> */}
-                            <Grid className="p-2" container>
-                                <svg className="mt-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM9.5 7.5C9.5 8.33 8.83 9 8 9H7V10.25C7 10.66 6.66 11 6.25 11C5.84 11 5.5 10.66 5.5 10.25V6C5.5 5.45 5.95 5 6.5 5H8C8.83 5 9.5 5.67 9.5 6.5V7.5ZM14.5 9.5C14.5 10.33 13.83 11 13 11H11C10.72 11 10.5 10.78 10.5 10.5V5.5C10.5 5.22 10.72 5 11 5H13C13.83 5 14.5 5.67 14.5 6.5V9.5ZM18.5 5.75C18.5 6.16 18.16 6.5 17.75 6.5H17V7.5H17.75C18.16 7.5 18.5 7.84 18.5 8.25C18.5 8.66 18.16 9 17.75 9H17V10.25C17 10.66 16.66 11 16.25 11C15.84 11 15.5 10.66 15.5 10.25V6C15.5 5.45 15.95 5 16.5 5H17.75C18.16 5 18.5 5.34 18.5 5.75ZM7 7.5H8V6.5H7V7.5ZM1 4C0.45 4 0 4.45 0 5V18C0 19.1 0.9 20 2 20H15C15.55 20 16 19.55 16 19C16 18.45 15.55 18 15 18H3C2.45 18 2 17.55 2 17V5C2 4.45 1.55 4 1 4ZM12 9.5H13V6.5H12V9.5Z" fill="#E53E3E" />
-                                </svg>
-                                <Typography variant='subtitle1' noWrap style={{ paddingTop: '2px', paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
-                                    estudio.pdf
-                                </Typography>
-                                <button
-
-                                    style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-
-
-
-                                </button>
-
-                                <button
-                                    style={{ backgroundColor: '#EDF2F7', height: '35px', width: '35px' }}
-                                    className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
-                                    onClick={() => {
-                                        setSelectedRow(undefined);
-                                    }}
-                                >
-                                    <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
-                                    </svg>
-
-                                </button>
-                            </Grid>
-                        </section>
+                        }
 
                     </div>
 
@@ -663,7 +479,11 @@ export function LaboratoryMenu(props) {
 
             </Grid>
 
+            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'  >
+                <img  src={showPreview['url']}  alt="img"/>
 
+
+            </Modal>
 
 
         </div>
