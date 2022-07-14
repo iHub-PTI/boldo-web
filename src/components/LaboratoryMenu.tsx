@@ -9,6 +9,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import MaterialTable from "material-table";
+import moment from 'moment'
 import { useToasts } from './Toast';
 
 export function LaboratoryMenu(props) {
@@ -199,6 +200,9 @@ export function LaboratoryMenu(props) {
     )
 
     function laboratoryDetail() {
+
+        var days_diff = -1;
+
         if (studyDetail === undefined)
             return (
                 <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -219,6 +223,15 @@ export function LaboratoryMenu(props) {
                     </div>
                 </div>
             )
+
+        if (studyDetail !== undefined) {
+            const currentDate = moment(new Date());
+            //@ts-ignore
+            const returnDate = moment(studyDetail.effectiveDate);
+             days_diff = currentDate.diff(returnDate, 'days');
+          
+        }
+
         return <div>
 
 
@@ -239,7 +252,7 @@ export function LaboratoryMenu(props) {
 
                     </button>
                     <Typography style={{ padding: '20px' }} variant='h5' color='textPrimary'>
-                        
+
                         { //@ts-ignore
                             studyDetail.description}
                     </Typography>
@@ -306,11 +319,16 @@ export function LaboratoryMenu(props) {
 
                                 <Grid>
                                     <Typography variant='body2' color='textSecondary'>
-                                    { //@ts-ignore
-                            studyDetail.effectiveDate}
+                                        { //@ts-ignore
+                                            moment(studyDetail.effectiveDate).format('DD/MM/YYYY')
+                                        }
                                     </Typography>
                                     <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-                                        hace 20 dias
+
+                                        hace {
+                                            days_diff       
+
+                                        } días
                                     </Typography>
                                 </Grid>
 
