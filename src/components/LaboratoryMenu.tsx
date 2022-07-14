@@ -9,13 +9,15 @@ import {
     Typography,
 } from '@material-ui/core';
 import MaterialTable from "material-table";
-
+import { useToasts } from './Toast';
 
 export function LaboratoryMenu(props) {
     const { appointment } = props;
     const [initialLoad, setInitialLoad] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState([])
+    const [studyDetail, setStudyDetail] = useState()
+    const { addErrorToast } = useToasts()
     useEffect(() => {
         const load = async () => {
             try {
@@ -36,9 +38,28 @@ export function LaboratoryMenu(props) {
     }, [appointment])
 
     useEffect(() => {
-        console.log("selecte", selectedRow);
+        const load = async () => {
+            try {
+
+                if (selectedRow !== undefined) {
+                    //@ts-ignore
+                    const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+                    console.log("get from api", res.data)
+                    setStudyDetail(res.data)
+                }
+            } catch (err) {
+                console.log(err)
+                addErrorToast(err)
+                setSelectedRow(undefined)
+            } finally {
+                setInitialLoad(false)
+            }
+        }
+        selectedRow !== undefined &&
+            load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
+
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -74,7 +95,7 @@ export function LaboratoryMenu(props) {
                             Resultados de estudios
                         </Typography>
                         <Typography variant='body2' color='textSecondary'>
-                            Archivos clinicos subidos
+                            Archivos clínicos subidos
                         </Typography>
                     </Grid>
 
@@ -178,8 +199,26 @@ export function LaboratoryMenu(props) {
     )
 
     function laboratoryDetail() {
-
-
+        if (studyDetail === undefined)
+            return (
+                <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+                    <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+                        <svg
+                            className='w-6 h-6 text-secondary-500 animate-spin'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                        >
+                            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+                            <path
+                                className='opacity-75'
+                                fill='currentColor'
+                                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                            ></path>
+                        </svg>
+                    </div>
+                </div>
+            )
         return <div>
 
 
@@ -200,7 +239,9 @@ export function LaboratoryMenu(props) {
 
                     </button>
                     <Typography style={{ padding: '20px' }} variant='h5' color='textPrimary'>
-                        Hemograma completo + Orina
+                        
+                        { //@ts-ignore
+                            studyDetail.description}
                     </Typography>
                 </Grid>
 
@@ -265,7 +306,8 @@ export function LaboratoryMenu(props) {
 
                                 <Grid>
                                     <Typography variant='body2' color='textSecondary'>
-                                        01/01/1999
+                                    { //@ts-ignore
+                            studyDetail.effectiveDate}
                                     </Typography>
                                     <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                                         hace 20 dias
