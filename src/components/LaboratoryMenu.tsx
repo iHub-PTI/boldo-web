@@ -113,7 +113,7 @@ export function LaboratoryMenu(props) {
                             Resultados de estudios
                         </Typography>
                         <Typography variant='body2' color='textSecondary'>
-                            Archivos clínicos subidos
+                            archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography>
                     </Grid>
 
@@ -238,10 +238,9 @@ export function LaboratoryMenu(props) {
                                     draggable: false,
 
                                     rowStyle: (rowData) => ({
-
-                                        backgroundColor:
-                                            // @ts-ignore
-                                            selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
+                                        borderTop: '10px solid white',
+                                        borderRadius:'10px',
+                                        backgroundColor: "#F7FAFC",
                                     }),
                                 }}
                             />
