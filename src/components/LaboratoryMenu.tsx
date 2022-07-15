@@ -40,6 +40,36 @@ export function LaboratoryMenu(props) {
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+    const downloadBlob = (url, contentType, download) => {
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", url, true);
+        oReq.responseType = "blob";
+        oReq.onload = function () {
+            const file = new Blob([oReq.response], { type: contentType });
+            const fileURL = URL.createObjectURL(file);
+            console.log('file', fileURL)
+            if (download === true) {
+                const a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = fileURL;
+                a.download = 'estudio';
+                a.click();
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 0)
+
+            } else {
+                //showPreview
+                setShowEditModal(true)
+                setShowPreview({ contentType: contentType, url: fileURL })
+            }
+
+        };
+
+        oReq.send();
+
+    }
 
     useEffect(() => {
         const load = async () => {
@@ -48,7 +78,6 @@ export function LaboratoryMenu(props) {
                 if (selectedRow !== undefined) {
                     //@ts-ignore
                     const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-                    console.log("get from api", res.data)
                     setStudyDetail(res.data)
                 }
             } catch (err) {
@@ -435,8 +464,7 @@ export function LaboratoryMenu(props) {
                                                 style={{ backgroundColor: '#FBFDFE', height: '35px', width: '35px' }}
                                                 className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
                                                 onClick={() => {
-                                                    setShowEditModal(true);
-                                                    setShowPreview({contentType:contentType,url:url})
+                                                    downloadBlob(url, contentType, true)
                                                 }}
                                             >
                                                 <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -452,6 +480,14 @@ export function LaboratoryMenu(props) {
                                                 className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
                                                 onClick={() => {
                                                     setShowEditModal(true);
+
+                                                    if (contentType.includes("pdf")) {
+                                                        downloadBlob(url, contentType, false)
+
+                                                    } else {
+                                                        setShowPreview({ contentType: contentType, url: url })
+                                                    }
+
                                                 }}
                                             >
                                                 <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -460,12 +496,10 @@ export function LaboratoryMenu(props) {
                                                 </svg>
 
                                             </button>
+
                                         </Grid>
                                     </section>
-                                    //   <li key={idx}>
-                                    //     <h3>{contentType}</h3>
-                                    //     <p>{url}</p>
-                                    //   </li>
+
                                 );
                             })
 
@@ -480,8 +514,10 @@ export function LaboratoryMenu(props) {
             </Grid>
 
             <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'  >
-                <img  src={showPreview['url']}  alt="img"/>
 
+                {
+                    showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />
+                }
 
             </Modal>
 
