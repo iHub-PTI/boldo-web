@@ -43,12 +43,14 @@ export default function Dashboard() {
   }, [id])
   return (
     <Layout>
-      <Grid style={{ padding: '23px' }}>
+      <Grid style={{ padding: '23px', }}>
         <Typography variant='h6' color='textPrimary'>
           Consulta presencial
         </Typography>
       </Grid>
-      <Grid container>
+      <Grid 
+       className='h-full'
+       container>
         <Grid item lg={3} md={3} sm={3} xs={9}>
         {appointment !== null &&
           <PatientSection appointment = {appointment}/>}
