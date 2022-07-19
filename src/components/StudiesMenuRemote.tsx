@@ -102,10 +102,7 @@ export function StudiesMenuRemote(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-    useEffect(() => {
-        console.log(studiesData)
 
-    }, [studiesData])
 
 
 
