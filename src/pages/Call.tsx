@@ -52,6 +52,7 @@ import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
+import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -214,6 +215,9 @@ const Gate = () => {
       case 2:
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
+      case 3:
+        return <StudiesMenuRemote appointment={appointment} isFromInperson={true} /> 
+
       default:
         return <Sidebar appointment={appointment} />
     }
@@ -245,6 +249,15 @@ const Gate = () => {
             background='#323030'
             size={50}
             onClick={() => setSideBarAction(0)}
+          />
+          <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
           />
         </FloatingMenu>
       </div>
@@ -372,6 +385,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
             onClick={() => setSideBarAction(0)}
           />
+          <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
+          />
         </FloatingMenu>
       </>
     )
@@ -450,9 +472,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                   if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
                     try {
                       if ((document as any).pictureInPictureElement) {
-                        ;(document as any).exitPictureInPicture()
+                        ; (document as any).exitPictureInPicture()
                       }
-                      ;(stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+                      ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
                     } catch (err) {
                       console.error(err)
                     }
@@ -658,12 +680,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         )}
       </div>
       <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
-      <SidebarContainer
-        sideBarAction={sideBarAction}
-        appointment={appointment}
-        show={showSidebarMenu}
-        hideSidebar={() => setShowSidebarMenu(false)}
-      />
+        <SidebarContainer
+          sideBarAction={sideBarAction}
+          appointment={appointment}
+          show={showSidebarMenu}
+          hideSidebar={() => setShowSidebarMenu(false)}
+        />
       </Grid>
     </div>
   )
@@ -793,6 +815,9 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
 
       case 2:
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
+
+        case 3:
+          return <StudiesMenuRemote appointment={appointment} isFromInperson={true} /> 
 
       default:
         return <Sidebar appointment={appointment} />
