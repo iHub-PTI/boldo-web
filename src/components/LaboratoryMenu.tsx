@@ -103,7 +103,7 @@ export function LaboratoryMenu(props) {
         return laboratoryDetail()
 
     return (
-        <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+        <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid>
 
                 <Grid className='w-full px-8 mt-10'>
