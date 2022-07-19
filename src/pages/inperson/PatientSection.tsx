@@ -299,38 +299,18 @@ const PatientRecord = props => {
     </Grid>
   )
 }
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
-export default () => {
-  const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
+
+export default (props) => {
+
+  const { appointment } = props;
   const history = useHistory()
   const { addErrorToast } = useToasts()
   const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
 
-  useEffect(() => {
-    let mounted = true
 
-    const load = async () => {
-      try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
-        if (mounted) setAppointment(res.data)
-      } catch (err) {
-        console.log(err)
-        if (mounted) {
-          addErrorToast('¡Fallo en la carga de la cita!')
-          history.replace(`/`)
-        }
-      }
-    }
-
-    load()
-
-    return () => {
-      mounted = false
-    }
-  }, [addErrorToast, id, history])
 
   useEffect(() => {
     const load = async () => {
@@ -352,42 +332,35 @@ export default () => {
   }, [])
 
   return (
-    <Grid >
-
-      <Card
-        style={{
-          backgroundColor: '#F4F5F7',
-          borderTopLeftRadius: '0px',
-          borderBottomLeftRadius: '0px',
-          height: '92vh',
-          border: 'none',
-          boxShadow: 'none',
-        }}
-      >
-        <CardContent>
-
-          {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
-            <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
-              <svg
-                className='w-6 h-6 text-secondary-500 animate-spin'
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-              >
-                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-                <path
-                  className='opacity-75'
-                  fill='currentColor'
-                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                ></path>
-              </svg>
-            </div>
-          </div>}
-
-        </CardContent>
-      </Card>
-
-
+    <Grid
+      className='h-full flex-wrap items-center justify-center'
+      style={{
+        backgroundColor: '#F4F5F7',
+        borderTopLeftRadius: '0px',
+        borderBottomLeftRadius: '0px',
+        alignContent: 'center',
+        border: 'none',
+        boxShadow: 'none',
+      }}
+    >
+      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+        <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
+          <svg
+            className='w-6 h-6 text-secondary-500 animate-spin'
+            xmlns='http://www.w3.org/2000/svg'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+            <path
+              className='opacity-75'
+              fill='currentColor'
+              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+            ></path>
+          </svg>
+        </div>
+      </div>}
     </Grid>
   )
+
 }
