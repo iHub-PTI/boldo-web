@@ -24,6 +24,7 @@ export default ({ setDynamicMenuSelector }) => {
         alignContent: 'center',
         border: 'none',
         boxShadow: 'none',
+        display:'grid'
       }}
     >
       <button
