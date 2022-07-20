@@ -3,33 +3,28 @@ import axios from "axios"
 import React, { useState, useEffect } from 'react'
 
 import {
+    Avatar,
     Card,
     Divider,
     Grid,
     Typography,
+    CardHeader
 } from '@material-ui/core';
-import { forwardRef } from 'react';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import MaterialTable from "material-table";
-import { Icons } from 'material-table';
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
 
-export function LaboratoryMenu(props) {
+export function StudiesMenuRemote(props) {
     const { addErrorToast } = useToasts()
     const { appointment } = props;
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
-    const [studiesData, setStudiesData] = useState()
+    const [studiesData, setStudiesData] = useState(undefined)
     const [studyDetail, setStudyDetail] = useState()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
 
-    const tableIcons: Icons = {
-        SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
-    }
-    
     useEffect(() => {
         const load = async () => {
             try {
@@ -37,6 +32,7 @@ export function LaboratoryMenu(props) {
 
                 if (appointment !== undefined) {
                     const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
+                    // if(res.data.items > 0)
                     setStudiesData(res.data.items)
                     setLoading(false)
                 }
@@ -50,6 +46,7 @@ export function LaboratoryMenu(props) {
         }
         if (appointment)
             load()
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
     const downloadBlob = (url, contentType, download) => {
@@ -107,27 +104,63 @@ export function LaboratoryMenu(props) {
 
 
 
-    if (selectedRow)
-        return laboratoryDetail()
+
+
+    // if (selectedRow)
+    //     return laboratoryDetail()
 
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
-            <Grid>
+            <Grid >
+                <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
+                    <button
+                        style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
+                        className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
+                        onClick={() => {
+                            setSelectedRow(undefined);
+                        }}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
+                        </svg>
 
-                <Grid className='w-full px-8 mt-10'>
 
-                    <Grid>
-                        <Typography variant='h5' color='textPrimary'>
-                            Resultados de estudios
-                        </Typography>
-                        <Typography variant='body2' color='textSecondary'>
+                    </button>
+                    <Typography variant='h6'>Resultados de estudios</Typography>
+
+
+                </Grid>
+                <Grid className='w-full px-4 mt-8'>
+
+                    <Grid container>
+                        <Avatar
+                            style={{
+                                width: `60px`,
+                                height: `60px`,
+                                borderRadius: '100px',
+                            }}
+                            variant='square'
+                            src={appointment && appointment.patient.photoUrl}
+                        >
+                            {/* <PatientIcon /> */}
+                        </Avatar>
+                        <Grid className='p-3 '>
+                            <Typography variant='body1' color='textPrimary'>
+                                {appointment && appointment.patient.givenName}  {appointment && appointment.patient.familyName}
+                            </Typography>
+                            <Typography variant='body2' color='textSecondary'>
+                                Ci:   {appointment && appointment.patient.identifier}
+                            </Typography>
+
+                        </Grid>
+                        {/* <Typography variant='body2' color='textSecondary'>
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
-                        </Typography>
+                        </Typography> */}
                     </Grid>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3.00028 171.398C10.6163 189.983 23.0343 193.852 31.7651 189.983C48.6502 182.502 92.5118 174.143 137.559 193.791C197.222 219.814 209.916 180.552 190.875 140.838C171.834 101.123 165.38 60.9609 187.331 38.8338C209.282 16.7066 180.557 -17.9082 129.544 18.1234C96.5774 41.4084 72.3839 36.2235 59.392 29.6409C47.1476 23.4371 33.5304 16.9513 20.7723 22.0154C5.2918 28.1604 -0.807998 41.4831 22.7449 71.2461C56.1213 113.423 -14.072 129.741 3.00028 171.398Z" fill="#65CFD3" fill-opacity="0.25" />
+                            <path d="M3.00028 171.398C10.6163 189.983 23.0343 193.852 31.7651 189.983C48.6502 182.502 92.5118 174.143 137.559 193.791C197.222 219.814 209.916 180.552 190.875 140.838C171.834 101.123 165.38 60.9609 187.331 38.8338C209.282 16.7066 180.557 -17.9082 129.544 18.1234C96.5774 41.4084 72.3839 36.2235 59.392 29.6409C47.1476 23.4371 33.5304 16.9513 20.7723 22.0154C5.2918 28.1604 -0.807998 41.4831 22.7449 71.2461C56.1213 113.423 -14.072 129.741 3.00028 171.398Z" fill="#65CFD3" fillOpacity="0.25" />
                             <path d="M34.0103 80.8633H152.538V172.019C152.538 172.204 152.465 172.382 152.333 172.514C152.202 172.645 152.024 172.719 151.838 172.719H34.7103C34.5246 172.719 34.3465 172.645 34.2153 172.514C34.084 172.382 34.0103 172.204 34.0103 172.019V80.8633Z" fill="#2FC1B0" />
                             <path d="M122.804 45.1426H67.6905L34.0103 80.864H152.538L122.804 45.1426Z" fill="#19AFAF" />
                             <path d="M45.2368 30.8535L67.6902 45.1422L34.01 80.8636L8.49463 61.4719L45.2368 30.8535Z" fill="#27BEC2" />
@@ -140,7 +173,7 @@ export function LaboratoryMenu(props) {
 
                     </Grid>
                     }
-                    <Grid className="mt-10">
+                    <Grid className="mt-3 overflow-y-auto" style={{ height: '70vh' }}>
 
                         {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
@@ -161,99 +194,61 @@ export function LaboratoryMenu(props) {
                         </div>
                         }
 
-
-
                         {
-                            loading === false && studiesData && <MaterialTable
-                                icons={tableIcons}
-                                columns={[
+                            selectedRow ?
+                                laboratoryDetail() : loading === false && studiesData !== undefined && studiesData.length > 0 &&
+                                studiesData.map((item, index) => (
+                                    <Grid
+                                        onClick={() => { setSelectedRow(item) }}
+                                        key={index}
+                                        style={{
+                                            // borderTop: '10px solid white',
+                                            borderRadius: '20px',
+                                            backgroundColor: "#F7FAFC",
+                                            padding: '15px',
+                                            marginTop: '15px'
 
-                                    // {
-                                    //     title: "Cagtegoria",
-                                    //     field: "mainReason"
-                                    // },
-                                    {
-                                        title: 'Categoria',
-                                        field: 'category',
-                                        render: rowData => {
-                                            // console.log(rowData.diagnosis)
-                                            //@ts-ignore
-                                            return (
-                                                rowData.category !== null ?
-                                                    <Grid container>
-                                                        {rowData.category === "LABORATORY" ? <svg width="20" height="27" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 0C0.671575 0 0 0.671575 0 1.5V16.5C0 17.3285 0.671575 18 1.5 18H16.5C17.3285 18 18 17.3285 18 16.5V1.5C18 0.671575 17.3285 0 16.5 0H1.5ZM7.4 5L11.1 5.0001V5.50005C11.1 5.64275 11.2113 5.86065 11.4246 6.10185C11.5197 6.20935 11.6162 6.30055 11.6896 6.3651C11.7259 6.39705 11.7557 6.4217 11.7755 6.43775C11.7854 6.44575 11.7928 6.45155 11.7972 6.45495L11.8012 6.45805L12 6.60795V7.5H11V7.0901C10.9084 7.008 10.7926 6.89675 10.6755 6.76425C10.5165 6.58455 10.3117 6.31795 10.1942 6L8.27235 6.00005C8.2465 6.05495 8.21945 6.10535 8.19405 6.15C8.0917 6.33005 7.96165 6.50825 7.84125 6.6596C7.71925 6.8129 7.5985 6.94935 7.5089 7.0469L7.5 7.0566V12.75C7.5 13.7165 8.2835 14.5 9.25 14.5C9.9481 14.5 10.5508 14.0913 10.8316 13.5H11.8965C11.57 14.6543 10.5088 15.5 9.25 15.5C7.7312 15.5 6.5 14.2688 6.5 12.75V6.65085L6.64535 6.50475L6.6467 6.50335L6.6527 6.4972C6.6583 6.4915 6.6669 6.4827 6.67805 6.47105C6.70045 6.44775 6.733 6.4134 6.77235 6.37055C6.8515 6.28435 6.95575 6.16635 7.05875 6.0369C7.1633 5.9055 7.2583 5.77265 7.3247 5.65585C7.3762 5.5652 7.3925 5.5151 7.39765 5.4993C7.39885 5.4955 7.39945 5.4937 7.39975 5.49375C7.3998 5.49375 7.3997 5.4936 7.39975 5.49375C7.39975 5.49385 7.39995 5.4943 7.39995 5.4945L7.4 5.4966V5ZM13 11.0455C13 11.8488 12.3285 12.5 11.5 12.5C10.6715 12.5 10 11.8488 10 11.0455C10 9.77275 11.5 8.5 11.5 8.5C11.5 8.5 13 9.77275 13 11.0455ZM11.5 2H7V4H11.5V2Z" fill="#364152" />
+                                        }} >
+
+
+                                        <Grid justifyContent="space-between" container>
+                                            <div style={{ display: 'flex' }}>
+                                                {item.category === "LABORATORY" ? <svg width="18" height="20" viewBox="0 0 18 18" fill="none" xmlns="http:www.w3.org/2000/svg">
+                                                    <path fillRule="evenodd" clipRule="evenodd" d="M1.5 0C0.671575 0 0 0.671575 0 1.5V16.5C0 17.3285 0.671575 18 1.5 18H16.5C17.3285 18 18 17.3285 18 16.5V1.5C18 0.671575 17.3285 0 16.5 0H1.5ZM7.4 5L11.1 5.0001V5.50005C11.1 5.64275 11.2113 5.86065 11.4246 6.10185C11.5197 6.20935 11.6162 6.30055 11.6896 6.3651C11.7259 6.39705 11.7557 6.4217 11.7755 6.43775C11.7854 6.44575 11.7928 6.45155 11.7972 6.45495L11.8012 6.45805L12 6.60795V7.5H11V7.0901C10.9084 7.008 10.7926 6.89675 10.6755 6.76425C10.5165 6.58455 10.3117 6.31795 10.1942 6L8.27235 6.00005C8.2465 6.05495 8.21945 6.10535 8.19405 6.15C8.0917 6.33005 7.96165 6.50825 7.84125 6.6596C7.71925 6.8129 7.5985 6.94935 7.5089 7.0469L7.5 7.0566V12.75C7.5 13.7165 8.2835 14.5 9.25 14.5C9.9481 14.5 10.5508 14.0913 10.8316 13.5H11.8965C11.57 14.6543 10.5088 15.5 9.25 15.5C7.7312 15.5 6.5 14.2688 6.5 12.75V6.65085L6.64535 6.50475L6.6467 6.50335L6.6527 6.4972C6.6583 6.4915 6.6669 6.4827 6.67805 6.47105C6.70045 6.44775 6.733 6.4134 6.77235 6.37055C6.8515 6.28435 6.95575 6.16635 7.05875 6.0369C7.1633 5.9055 7.2583 5.77265 7.3247 5.65585C7.3762 5.5652 7.3925 5.5151 7.39765 5.4993C7.39885 5.4955 7.39945 5.4937 7.39975 5.49375C7.3998 5.49375 7.3997 5.4936 7.39975 5.49375C7.39975 5.49385 7.39995 5.4943 7.39995 5.4945L7.4 5.4966V5ZM13 11.0455C13 11.8488 12.3285 12.5 11.5 12.5C10.6715 12.5 10 11.8488 10 11.0455C10 9.77275 11.5 8.5 11.5 8.5C11.5 8.5 13 9.77275 13 11.0455ZM11.5 2H7V4H11.5V2Z" fill="#364152" />
+                                                </svg>
+                                                    : item.category === "IMAGE" ? <svg width="18" height="20" viewBox="0 0 18 18" fill="none" xmlns="http:www.w3.org/2000/svg">
+                                                        <path fillRule="evenodd" clipRule="evenodd" d="M0 1.5C0 0.671575 0.671575 0 1.5 0H16.5C17.3285 0 18 0.671575 18 1.5V16.5C18 17.3285 17.3285 18 16.5 18H1.5C0.671575 18 0 17.3285 0 16.5V1.5ZM11.25 4.25C11.25 5.49265 10.2427 6.5 9 6.5C7.75735 6.5 6.75 5.49265 6.75 4.25C6.75 3.00735 7.75735 2 9 2C10.2427 2 11.25 3.00735 11.25 4.25ZM3.5 8C3.5 7.72385 3.72385 7.5 4 7.5H14C14.2761 7.5 14.5 7.72385 14.5 8V15.5C14.5 15.7761 14.2761 16 14 16H11.5C11.5 15.7014 11.3637 15.4302 11.2149 15.2219C11.0595 15.0043 10.8519 14.801 10.6249 14.6276C10.3106 14.3876 9.91265 14.1706 9.5 14.066V12.5732H10.2C10.6954 12.5732 11.3186 12.7711 11.8559 12.9974C12.1164 13.1072 12.3421 13.2172 12.5023 13.2997C12.5823 13.3409 12.6455 13.3749 12.688 13.3983C12.7093 13.41 12.7254 13.419 12.7358 13.4249L12.747 13.4313L12.7493 13.4326C12.7493 13.4326 12.7494 13.4326 13 13C13.2506 12.5674 13.2506 12.5673 13.2505 12.5673L13.2498 12.5668L13.2484 12.566L13.2437 12.5634L13.2278 12.5543C13.2141 12.5466 13.1946 12.5357 13.1698 12.522C13.1201 12.4947 13.0489 12.4564 12.9601 12.4107C12.7829 12.3194 12.5335 12.1977 12.2441 12.0758C11.6814 11.8388 10.9045 11.5732 10.2 11.5732H9.5V10.5H9.9C10.2744 10.5 10.7423 10.6073 11.1425 10.7285C11.337 10.7875 11.5054 10.8465 11.6248 10.8907C11.6843 10.9128 11.7313 10.931 11.7628 10.9434C11.7746 10.9481 11.7842 10.952 11.7914 10.955C11.7939 10.9559 11.7961 10.9568 11.798 10.9576L11.8062 10.9609L11.8078 10.9616C11.8078 10.9616 11.8077 10.9615 12 10.5C12.1923 10.0385 12.1923 10.0384 12.1922 10.0384L12.1904 10.0377L12.1868 10.0362L12.1746 10.0312C12.1642 10.027 12.1494 10.021 12.1306 10.0135C12.093 9.9987 12.0391 9.97785 11.9721 9.953C11.8383 9.90345 11.6504 9.83755 11.4325 9.7715C11.0077 9.64275 10.4255 9.5 9.9 9.5H9.5V8.5H8.5V9.5H7.95C7.3498 9.5 6.80385 9.642 6.4157 9.7782C6.21975 9.84695 6.05925 9.91595 5.94615 9.9685C5.88955 9.99485 5.8445 10.0172 5.81255 10.0336C5.7966 10.0418 5.78385 10.0485 5.7746 10.0534L5.76325 10.0596L5.75955 10.0616L5.7582 10.0624L5.75765 10.0626C5.75755 10.0627 5.7572 10.0629 6 10.5C6.2428 10.9371 6.2427 10.9371 6.2426 10.9372L6.24615 10.9353C6.25055 10.9329 6.2582 10.9289 6.2689 10.9234C6.29025 10.9124 6.32375 10.8957 6.3679 10.8752C6.4564 10.834 6.5865 10.778 6.7468 10.7218C7.07115 10.608 7.5002 10.5 7.95 10.5H8.5V11.5732H7.6C6.79525 11.5732 6.06735 11.8377 5.5558 12.0872C5.297 12.2134 5.0857 12.3397 4.9379 12.4353C4.8638 12.4832 4.8052 12.5237 4.76405 12.5531C4.74345 12.5677 4.7272 12.5796 4.7155 12.5883L4.70145 12.5989L4.697 12.6023L4.6955 12.6034L4.69485 12.6039C4.69475 12.604 4.6944 12.6043 5 13C5.3056 13.3957 5.3055 13.3958 5.3054 13.3959L5.3121 13.3909C5.3187 13.386 5.3296 13.378 5.34455 13.3673C5.3745 13.346 5.42055 13.314 5.48085 13.275C5.6018 13.1969 5.778 13.0915 5.9942 12.986C6.43265 12.7722 7.00475 12.5732 7.6 12.5732H8.5V14.0822C8.08535 14.195 7.68465 14.4073 7.36335 14.6492C7.139 14.8181 6.93385 15.0158 6.78025 15.2299C6.6319 15.4367 6.5 15.7035 6.5 16H4C3.72385 16 3.5 15.7761 3.5 15.5V8ZM10.4852 15.9495C10.4978 15.9809 10.4997 15.9972 10.5 16H7.5C7.50005 15.9988 7.50095 15.983 7.5139 15.9504C7.5278 15.9154 7.55255 15.8689 7.5928 15.8127C7.67425 15.6992 7.80115 15.5712 7.9648 15.448C8.2939 15.2002 8.6948 15.0281 9.0169 15.0002C9.2937 15.0065 9.6797 15.1641 10.018 15.4224C10.1838 15.549 10.3155 15.6832 10.4011 15.8031C10.4436 15.8625 10.4701 15.912 10.4852 15.9495Z" fill="#364152" />
+                                                    </svg>
+                                                        : <svg width="18" height="20" viewBox="0 0 20 27" fill="none" xmlns="http:www.w3.org/2000/svg">
+                                                            <path fillRule="evenodd" clipRule="evenodd" d="M6.75 0C5.68485 0 4.82143 0.863421 4.82143 1.92857H1.92857C0.863421 1.92857 0 2.79199 0 3.85714V25.0714C0 26.1366 0.863421 27 1.92857 27H17.3571C18.4223 27 19.2857 26.1366 19.2857 25.0714V3.85714C19.2857 2.79199 18.4223 1.92857 17.3571 1.92857H14.4643C14.4643 0.863421 13.6009 0 12.5357 0H6.75ZM6.75 1.92857H12.5357V3.85714H6.75V1.92857ZM10.1802 17.3571L7.77581 23.7687C7.58883 24.2673 7.84148 24.8231 8.34011 25.0101C8.83874 25.1972 9.39455 24.9445 9.58163 24.4458L10.795 21.2099H13.3124L14.5258 24.4458C14.7128 24.9445 15.2686 25.1972 15.7672 25.0101C16.266 24.8231 16.5186 24.2673 16.3316 23.7687L13.9273 17.3571H16.6834C17.216 17.3571 17.6477 16.9254 17.6477 16.3929C17.6477 15.8603 17.216 15.4286 16.6834 15.4286H12.5541C12.5419 15.4284 12.5295 15.4284 12.5173 15.4286H11.59C11.5778 15.4284 11.5655 15.4284 11.5533 15.4286H6.75019C6.21771 15.4286 5.78591 15.8603 5.78591 16.3929C5.78591 16.9254 6.21771 17.3571 6.75019 17.3571H10.1802ZM16.3929 8.91H2.89286V6.98143H16.3929V8.91ZM2.89286 12.9214H7.71429V10.9929H2.89286V12.9214ZM13.9821 12.5357C13.9821 13.6009 13.1187 14.4643 12.0536 14.4643C10.9884 14.4643 10.125 13.6009 10.125 12.5357C10.125 11.4706 10.9884 10.6071 12.0536 10.6071C13.1187 10.6071 13.9821 11.4706 13.9821 12.5357Z" fill="#364152" />
                                                         </svg>
-                                                            : rowData.category === "IMAGE" ? <svg width="20" height="27" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 1.5C0 0.671575 0.671575 0 1.5 0H16.5C17.3285 0 18 0.671575 18 1.5V16.5C18 17.3285 17.3285 18 16.5 18H1.5C0.671575 18 0 17.3285 0 16.5V1.5ZM11.25 4.25C11.25 5.49265 10.2427 6.5 9 6.5C7.75735 6.5 6.75 5.49265 6.75 4.25C6.75 3.00735 7.75735 2 9 2C10.2427 2 11.25 3.00735 11.25 4.25ZM3.5 8C3.5 7.72385 3.72385 7.5 4 7.5H14C14.2761 7.5 14.5 7.72385 14.5 8V15.5C14.5 15.7761 14.2761 16 14 16H11.5C11.5 15.7014 11.3637 15.4302 11.2149 15.2219C11.0595 15.0043 10.8519 14.801 10.6249 14.6276C10.3106 14.3876 9.91265 14.1706 9.5 14.066V12.5732H10.2C10.6954 12.5732 11.3186 12.7711 11.8559 12.9974C12.1164 13.1072 12.3421 13.2172 12.5023 13.2997C12.5823 13.3409 12.6455 13.3749 12.688 13.3983C12.7093 13.41 12.7254 13.419 12.7358 13.4249L12.747 13.4313L12.7493 13.4326C12.7493 13.4326 12.7494 13.4326 13 13C13.2506 12.5674 13.2506 12.5673 13.2505 12.5673L13.2498 12.5668L13.2484 12.566L13.2437 12.5634L13.2278 12.5543C13.2141 12.5466 13.1946 12.5357 13.1698 12.522C13.1201 12.4947 13.0489 12.4564 12.9601 12.4107C12.7829 12.3194 12.5335 12.1977 12.2441 12.0758C11.6814 11.8388 10.9045 11.5732 10.2 11.5732H9.5V10.5H9.9C10.2744 10.5 10.7423 10.6073 11.1425 10.7285C11.337 10.7875 11.5054 10.8465 11.6248 10.8907C11.6843 10.9128 11.7313 10.931 11.7628 10.9434C11.7746 10.9481 11.7842 10.952 11.7914 10.955C11.7939 10.9559 11.7961 10.9568 11.798 10.9576L11.8062 10.9609L11.8078 10.9616C11.8078 10.9616 11.8077 10.9615 12 10.5C12.1923 10.0385 12.1923 10.0384 12.1922 10.0384L12.1904 10.0377L12.1868 10.0362L12.1746 10.0312C12.1642 10.027 12.1494 10.021 12.1306 10.0135C12.093 9.9987 12.0391 9.97785 11.9721 9.953C11.8383 9.90345 11.6504 9.83755 11.4325 9.7715C11.0077 9.64275 10.4255 9.5 9.9 9.5H9.5V8.5H8.5V9.5H7.95C7.3498 9.5 6.80385 9.642 6.4157 9.7782C6.21975 9.84695 6.05925 9.91595 5.94615 9.9685C5.88955 9.99485 5.8445 10.0172 5.81255 10.0336C5.7966 10.0418 5.78385 10.0485 5.7746 10.0534L5.76325 10.0596L5.75955 10.0616L5.7582 10.0624L5.75765 10.0626C5.75755 10.0627 5.7572 10.0629 6 10.5C6.2428 10.9371 6.2427 10.9371 6.2426 10.9372L6.24615 10.9353C6.25055 10.9329 6.2582 10.9289 6.2689 10.9234C6.29025 10.9124 6.32375 10.8957 6.3679 10.8752C6.4564 10.834 6.5865 10.778 6.7468 10.7218C7.07115 10.608 7.5002 10.5 7.95 10.5H8.5V11.5732H7.6C6.79525 11.5732 6.06735 11.8377 5.5558 12.0872C5.297 12.2134 5.0857 12.3397 4.9379 12.4353C4.8638 12.4832 4.8052 12.5237 4.76405 12.5531C4.74345 12.5677 4.7272 12.5796 4.7155 12.5883L4.70145 12.5989L4.697 12.6023L4.6955 12.6034L4.69485 12.6039C4.69475 12.604 4.6944 12.6043 5 13C5.3056 13.3957 5.3055 13.3958 5.3054 13.3959L5.3121 13.3909C5.3187 13.386 5.3296 13.378 5.34455 13.3673C5.3745 13.346 5.42055 13.314 5.48085 13.275C5.6018 13.1969 5.778 13.0915 5.9942 12.986C6.43265 12.7722 7.00475 12.5732 7.6 12.5732H8.5V14.0822C8.08535 14.195 7.68465 14.4073 7.36335 14.6492C7.139 14.8181 6.93385 15.0158 6.78025 15.2299C6.6319 15.4367 6.5 15.7035 6.5 16H4C3.72385 16 3.5 15.7761 3.5 15.5V8ZM10.4852 15.9495C10.4978 15.9809 10.4997 15.9972 10.5 16H7.5C7.50005 15.9988 7.50095 15.983 7.5139 15.9504C7.5278 15.9154 7.55255 15.8689 7.5928 15.8127C7.67425 15.6992 7.80115 15.5712 7.9648 15.448C8.2939 15.2002 8.6948 15.0281 9.0169 15.0002C9.2937 15.0065 9.6797 15.1641 10.018 15.4224C10.1838 15.549 10.3155 15.6832 10.4011 15.8031C10.4436 15.8625 10.4701 15.912 10.4852 15.9495Z" fill="#364152" />
-                                                            </svg>
-                                                                : <svg width="20" height="22" viewBox="0 0 20 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.75 0C5.68485 0 4.82143 0.863421 4.82143 1.92857H1.92857C0.863421 1.92857 0 2.79199 0 3.85714V25.0714C0 26.1366 0.863421 27 1.92857 27H17.3571C18.4223 27 19.2857 26.1366 19.2857 25.0714V3.85714C19.2857 2.79199 18.4223 1.92857 17.3571 1.92857H14.4643C14.4643 0.863421 13.6009 0 12.5357 0H6.75ZM6.75 1.92857H12.5357V3.85714H6.75V1.92857ZM10.1802 17.3571L7.77581 23.7687C7.58883 24.2673 7.84148 24.8231 8.34011 25.0101C8.83874 25.1972 9.39455 24.9445 9.58163 24.4458L10.795 21.2099H13.3124L14.5258 24.4458C14.7128 24.9445 15.2686 25.1972 15.7672 25.0101C16.266 24.8231 16.5186 24.2673 16.3316 23.7687L13.9273 17.3571H16.6834C17.216 17.3571 17.6477 16.9254 17.6477 16.3929C17.6477 15.8603 17.216 15.4286 16.6834 15.4286H12.5541C12.5419 15.4284 12.5295 15.4284 12.5173 15.4286H11.59C11.5778 15.4284 11.5655 15.4284 11.5533 15.4286H6.75019C6.21771 15.4286 5.78591 15.8603 5.78591 16.3929C5.78591 16.9254 6.21771 17.3571 6.75019 17.3571H10.1802ZM16.3929 8.91H2.89286V6.98143H16.3929V8.91ZM2.89286 12.9214H7.71429V10.9929H2.89286V12.9214ZM13.9821 12.5357C13.9821 13.6009 13.1187 14.4643 12.0536 14.4643C10.9884 14.4643 10.125 13.6009 10.125 12.5357C10.125 11.4706 10.9884 10.6071 12.0536 10.6071C13.1187 10.6071 13.9821 11.4706 13.9821 12.5357Z" fill="#364152" />
-                                                                </svg>
 
 
-                                                        }
-                                                        <p style={{ marginLeft: '10px' }}> </p>  {rowData.category === "LABORATORY" ? "Laboratorio"
-                                                            : rowData.category === "IMAGE" ? "Imágenes"
-                                                                : "Otros"
+                                                }
+                                                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                                                    {item.category === "LABORATORY" ? "Laboratorio"
+                                                        : item.category === "IMAGE" ? "Imágenes"
+                                                            : "Otros"
 
 
-                                                        }
-                                                    </Grid> : <>vacio</>
-                                            )
+                                                    }
+                                                </Typography>  </div>
+                                            <Typography variant='body2' color='textSecondary'>
+                                                {item.effectiveDate}
+                                            </Typography>
+                                        </Grid>
+                                        <Typography style={{ color: '#13A5A9' }} variant='body1' >
+                                            {item.description}
+                                        </Typography>
 
-                                        },
-                                    },
+                                        <Typography variant='body2' color='textSecondary'>
+                                            {item.source}
+                                        </Typography>
+                                    </Grid>
+                                ))
 
-                                    {
-                                        title: "Fecha",
-                                        field: "effectiveDate",
-                                        width: "10%"
-                                    },
-                                    // {
-                                    //   title: "Diagnóstico",
-                                    //   field: "diagnosis"
-                                    // },
-                                    {
-                                        title: 'Descripción',
-                                        field: 'description',
-                                        render: rowData => {
-                                            // console.log(rowData.diagnosis)
-                                            //@ts-ignore
-                                            return (
-                                                <Grid container>
-                                                    <p style={{ marginTop: '3px' }}></p> {rowData.description !== null && rowData.description}
-                                                </Grid>
-                                            )
-                                        },
-                                    },
-                                    {
-                                        title: "Fuente",
-                                        field: "source",
-
-                                    },
-
-                                ]}
-                                data={studiesData}
-                                onRowClick={(evt, selectedRow) =>
-                                    //@ts-ignore
-                                    setSelectedRow(selectedRow)
-                                }
-                                options={{
-                                    search: false,
-
-                                    toolbar: false,
-                                    paging: false,
-                                    draggable: false,
-
-                                    rowStyle: (rowData) => ({
-                                        borderTop: '10px solid white',
-                                        borderRadius:'10px',
-                                        backgroundColor: "#F7FAFC",
-                                    }),
-                                }}
-                            />
                         }
+
 
                     </Grid>
                 </Grid>
@@ -298,35 +293,53 @@ export function LaboratoryMenu(props) {
         return <div>
 
 
-            <Grid className='w-full px-8 mt-10'>
+            <Grid className='w-full '>
 
-                <Grid container>
-                    <button
-                        style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
-                        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
-                        onClick={() => {
-                            setSelectedRow(undefined);
+                <Grid container justifyContent="space-between">
+                    <Card
+                        style={{
+                            // backgroundColor: '#F7FAFC',
+                            borderRadius: '16px',
+                            boxShadow: 'none',
+
+                            paddingLeft: '15px',
+
                         }}
                     >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
-                        </svg>
+
+                        <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                            Resultados de fecha:
+                        </Typography>
+
+                        <Grid container>
+                            <svg className="m-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 5V1M14 5V1M5 9H15M3 19H17C17.5304 19 18.0391 18.7893 18.4142 18.4142C18.7893 18.0391 19 17.5304 19 17V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H3C2.46957 3 1.96086 3.21071 1.58579 3.58579C1.21071 3.96086 1 4.46957 1 5V17C1 17.5304 1.21071 18.0391 1.58579 18.4142C1.96086 18.7893 2.46957 19 3 19Z" stroke="#DF6D51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+
+                            <Grid>
+                                <Typography variant='subtitle1' color='textSecondary'>
+                                    { //@ts-ignore
+                                        moment(studyDetail.effectiveDate).format('DD/MM/YYYY')
+                                    }
+                                </Typography>
+                                <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
+
+                                    hace {
+                                        days_diff
+
+                                    } días
+                                </Typography>
+                            </Grid>
+
+                        </Grid>
 
 
-                    </button>
-                    <Typography style={{ padding: '20px' }} variant='h5' color='textPrimary'>
+                    </Card>
 
-                        { //@ts-ignore
-                            studyDetail.description}
-                    </Typography>
-                </Grid>
-
-
-                <Grid container justifyContent="space-between" className="mt-10">
 
                     <Card
                         style={{
-                            backgroundColor: '#F7FAFC',
+                            // backgroundColor: '#F7FAFC',
                             borderRadius: '16px',
                             boxShadow: 'none',
                             marginBottom: '15px',
@@ -336,7 +349,7 @@ export function LaboratoryMenu(props) {
                         <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
                             Origen
                         </Typography>
-                        <svg className="mt-3" width="198" height="42" viewBox="0 0 198 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="198" height="42" viewBox="0 0 198 42" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M38.0664 27.9485V11.0488H44.8329C46.0802 11.0488 47.1178 11.2365 47.9457 11.6007C48.7735 11.965 49.4027 12.4838 49.8222 13.1351C50.2416 13.7863 50.4514 14.5369 50.4514 15.3869C50.4514 16.0492 50.3189 16.6232 50.054 17.1199C49.7891 17.6166 49.4248 18.025 48.9722 18.3451C48.5086 18.6652 47.9898 18.886 47.4048 19.0185V19.184C48.045 19.2061 48.6521 19.3938 49.2151 19.7249C49.778 20.0561 50.2416 20.5307 50.5838 21.1268C50.9371 21.7339 51.1137 22.4403 51.1137 23.2793C51.1137 24.1734 50.8929 24.9791 50.4514 25.6746C50.0098 26.381 49.3586 26.9329 48.4866 27.3413C47.6256 27.7498 46.5548 27.9485 45.2965 27.9485H38.0664ZM41.6428 18.1244H44.292C44.7777 18.1244 45.2192 18.0361 45.5945 17.8595C45.9809 17.6828 46.2789 17.44 46.4997 17.1199C46.7204 16.7998 46.8308 16.4134 46.8308 15.9719C46.8308 15.3648 46.61 14.8681 46.1795 14.4928C45.7491 14.1175 45.1309 13.9298 44.3472 13.9298H41.6318V18.1244H41.6428ZM41.6428 25.0343H44.5569C45.5504 25.0343 46.2789 24.8467 46.7315 24.4604C47.184 24.074 47.4158 23.5662 47.4158 22.926C47.4158 22.4624 47.3055 22.043 47.0736 21.6897C46.8529 21.3365 46.5328 21.0495 46.1133 20.8508C45.6939 20.6521 45.2082 20.5418 44.6342 20.5418H41.6428V25.0343Z" fill="#27BEC2" />
                             <path d="M75.9165 19.5042C75.9165 21.3476 75.5633 22.9151 74.8679 24.2065C74.1725 25.498 73.2232 26.4804 72.031 27.1648C70.8389 27.8492 69.4922 28.1803 68.0021 28.1803C66.5008 28.1803 65.1542 27.8381 63.962 27.1538C62.7699 26.4694 61.8206 25.487 61.1362 24.1955C60.4408 22.904 60.0986 21.3366 60.0986 19.5042C60.0986 17.6608 60.4408 16.0934 61.1362 14.8019C61.8316 13.5104 62.7699 12.528 63.962 11.8436C65.1542 11.1593 66.5008 10.8281 68.0021 10.8281C69.4922 10.8281 70.8389 11.1703 72.031 11.8436C73.2232 12.528 74.1725 13.5104 74.8679 14.8019C75.5743 16.0934 75.9165 17.6608 75.9165 19.5042ZM72.2959 19.5042C72.2959 18.3121 72.1193 17.3076 71.7661 16.4797C71.4129 15.6629 70.9162 15.0337 70.2649 14.6143C69.6247 14.1948 68.863 13.974 68.0021 13.974C67.1411 13.974 66.3794 14.1838 65.7392 14.6143C65.099 15.0337 64.5912 15.6629 64.238 16.4797C63.8848 17.2966 63.7082 18.301 63.7082 19.5042C63.7082 20.6964 63.8848 21.7008 64.238 22.5287C64.5912 23.3455 65.0879 23.9747 65.7392 24.3942C66.3794 24.8136 67.1411 25.0344 68.0021 25.0344C68.863 25.0344 69.6247 24.8247 70.2649 24.3942C70.9051 23.9747 71.4129 23.3455 71.7661 22.5287C72.1193 21.7008 72.2959 20.6964 72.2959 19.5042Z" fill="#27BEC2" />
                             <path d="M85.5308 27.9485V11.0488H89.1072V25.0012H96.3483V27.9485H85.5308Z" fill="#27BEC2" />
@@ -351,85 +364,8 @@ export function LaboratoryMenu(props) {
 
                     </Card>
 
-                    <Card
-                        style={{
-                            backgroundColor: '#F7FAFC',
-                            borderRadius: '16px',
-                            boxShadow: 'none',
-                            marginBottom: '15px',
-                            padding: '15px',
 
-                        }}
-                    >
-                        <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                            Resultados con fecha
-                        </Typography>
-                        <Card
-                            className="mt-3"
-                            style={{
-                                backgroundColor: '#FFFFFF',
-                                borderRadius: '16px',
-                                boxShadow: 'none',
-                                marginBottom: '15px',
-                                padding: '5px',
-                                width: '200px'
-                            }}
-                        >
-                            <Grid container>
-                                <svg className="m-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 5V1M14 5V1M5 9H15M3 19H17C17.5304 19 18.0391 18.7893 18.4142 18.4142C18.7893 18.0391 19 17.5304 19 17V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H3C2.46957 3 1.96086 3.21071 1.58579 3.58579C1.21071 3.96086 1 4.46957 1 5V17C1 17.5304 1.21071 18.0391 1.58579 18.4142C1.96086 18.7893 2.46957 19 3 19Z" stroke="#DF6D51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
 
-                                <Grid>
-                                    <Typography variant='body2' color='textSecondary'>
-                                        { //@ts-ignore
-                                            moment(studyDetail.effectiveDate).format('DD/MM/YYYY')
-                                        }
-                                    </Typography>
-                                    <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-
-                                        hace {
-                                            days_diff
-
-                                        } días
-                                    </Typography>
-                                </Grid>
-
-                            </Grid>
-                        </Card>
-
-                    </Card>
-
-                    <Card
-                        style={{
-                            backgroundColor: '#F7FAFC',
-                            borderRadius: '16px',
-                            boxShadow: 'none',
-                            marginBottom: '15px',
-                            padding: '15px',
-                        }}
-                    >
-                        <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                            Orden
-                        </Typography>
-
-                        <Card
-                            className="mt-3"
-                            style={{
-                                backgroundColor: '#FFFFFF',
-                                borderRadius: '16px',
-                                boxShadow: 'none',
-                                marginBottom: '15px',
-                                padding: '5px',
-                                width: '200px',
-                                minWidth: '50px'
-                            }}
-                        >
-                            <Typography variant='body2' color='textSecondary'>
-                                Sin orden
-                            </Typography>
-                        </Card>
-                    </Card>
                 </Grid>
 
 
@@ -441,19 +377,31 @@ export function LaboratoryMenu(props) {
                         boxShadow: 'none',
                         marginBottom: '15px',
                         padding: '15px',
-                        minHeight: '300px'
+                        minHeight: '100px'
                     }}
                 >
-                    <Typography variant='h6' noWrap style={{ padding: '20px', textAlign: 'left', color: '#6B7280' }}>
+                    <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
                         Conclusión
                     </Typography>
 
 
                 </Card>
 
-
                 <Grid
-                    className="mt-15"
+                    style={{
+                        padding: '15px',
+                    }}
+                >
+                    <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                        Orden
+                    </Typography>
+
+                    <Typography variant='body2' color='textSecondary'>
+                        Sin ordeen
+                    </Typography>
+                </Grid>
+                <Grid
+                    className="mt-5"
                 >
                     <Divider
                         style={{
@@ -463,12 +411,15 @@ export function LaboratoryMenu(props) {
                         }}
                     />
 
-                    <Grid className="mt-3" container>
+                    <Grid className="mt-5" style={{
+
+                        padding: '15px',
+                    }} container>
                         <svg className="mt-2" width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12.172 4.99968L5.58602 11.5857C5.395 11.7702 5.24264 11.9909 5.13782 12.2349C5.033 12.4789 4.97783 12.7413 4.97552 13.0069C4.97321 13.2724 5.02381 13.5358 5.12438 13.7816C5.22494 14.0274 5.37344 14.2507 5.56123 14.4385C5.74902 14.6263 5.97232 14.7748 6.21811 14.8753C6.4639 14.9759 6.72726 15.0265 6.99282 15.0242C7.25838 15.0219 7.52082 14.9667 7.76483 14.8619C8.00884 14.7571 8.22953 14.6047 8.41402 14.4137L14.828 7.82768C15.5567 7.07327 15.9598 6.06286 15.9507 5.01407C15.9416 3.96528 15.5209 2.96203 14.7793 2.2204C14.0377 1.47877 13.0344 1.05809 11.9856 1.04898C10.9368 1.03987 9.92643 1.44304 9.17202 2.17168L2.75702 8.75668C1.63171 9.88199 0.999512 11.4082 0.999512 12.9997C0.999512 14.5911 1.63171 16.1174 2.75702 17.2427C3.88233 18.368 5.40859 19.0002 7.00002 19.0002C8.59145 19.0002 10.1177 18.368 11.243 17.2427L17.5 10.9997" stroke="#364152" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
 
-                        <Typography variant='h6' noWrap style={{ paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
+                        <Typography variant='h6' noWrap style={{ paddingLeft: '10px', textAlign: 'left', color: 'textPrimary' }}>
                             Adjuntos
                         </Typography>
                     </Grid>
@@ -523,7 +474,7 @@ export function LaboratoryMenu(props) {
                                             >
                                                 <svg width="18" height="15" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M12.0001 11.3996C12.6366 11.3996 13.2471 11.1468 13.6972 10.6967C14.1472 10.2466 14.4001 9.63613 14.4001 8.99961C14.4001 8.36309 14.1472 7.75264 13.6972 7.30255C13.2471 6.85247 12.6366 6.59961 12.0001 6.59961C11.3636 6.59961 10.7531 6.85247 10.303 7.30255C9.85295 7.75264 9.6001 8.36309 9.6001 8.99961C9.6001 9.63613 9.85295 10.2466 10.303 10.6967C10.7531 11.1468 11.3636 11.3996 12.0001 11.3996Z" fill="#6B7280" />
-                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
+                                                    <path fillRule="evenodd" clipRule="evenodd" d="M0.549805 8.99961C2.0786 4.13121 6.6266 0.599609 12.0002 0.599609C17.3738 0.599609 21.9218 4.13121 23.4506 8.99961C21.9218 13.868 17.3738 17.3996 12.0002 17.3996C6.6266 17.3996 2.0786 13.868 0.549805 8.99961ZM16.8002 8.99961C16.8002 10.2726 16.2945 11.4935 15.3943 12.3937C14.4941 13.2939 13.2732 13.7996 12.0002 13.7996C10.7272 13.7996 9.50627 13.2939 8.60609 12.3937C7.70592 11.4935 7.2002 10.2726 7.2002 8.99961C7.2002 7.72657 7.70592 6.50567 8.60609 5.6055C9.50627 4.70532 10.7272 4.19961 12.0002 4.19961C13.2732 4.19961 14.4941 4.70532 15.3943 5.6055C16.2945 6.50567 16.8002 7.72657 16.8002 8.99961Z" fill="#6B7280" />
                                                 </svg>
 
                                             </button>
@@ -544,10 +495,10 @@ export function LaboratoryMenu(props) {
 
             </Grid>
 
-            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'  >
+            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={true}   >
 
                 {
-                    showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />
+                    showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object style={{opacity:'0.5'}} data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img style={{opacity:'0.5'}}  src={showPreview['url']} alt="img" />
                 }
 
             </Modal>
