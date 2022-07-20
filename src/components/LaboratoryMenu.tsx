@@ -8,7 +8,10 @@ import {
     Grid,
     Typography,
 } from '@material-ui/core';
+import { forwardRef } from 'react';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import MaterialTable from "material-table";
+import { Icons } from 'material-table';
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
@@ -22,6 +25,11 @@ export function LaboratoryMenu(props) {
     const [studyDetail, setStudyDetail] = useState()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
+
+    const tableIcons: Icons = {
+        SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
+    }
+    
     useEffect(() => {
         const load = async () => {
             try {
@@ -157,6 +165,7 @@ export function LaboratoryMenu(props) {
 
                         {
                             loading === false && studiesData && <MaterialTable
+                                icons={tableIcons}
                                 columns={[
 
                                     // {
