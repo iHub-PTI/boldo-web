@@ -495,10 +495,10 @@ export function StudiesMenuRemote(props) {
 
             </Grid>
 
-            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'  >
+            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={true}   >
 
                 {
-                    showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />
+                    showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object style={{opacity:'0.5'}} data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img style={{opacity:'0.5'}}  src={showPreview['url']} alt="img" />
                 }
 
             </Modal>
