@@ -397,7 +397,7 @@ export function StudiesMenuRemote(props) {
                     </Typography>
 
                     <Typography variant='body2' color='textSecondary'>
-                        Sin ordeen
+                        Sin orden
                     </Typography>
                 </Grid>
                 <Grid
