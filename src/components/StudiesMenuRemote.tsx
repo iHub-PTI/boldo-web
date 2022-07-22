@@ -16,7 +16,6 @@ import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
 import type * as CSS from 'csstype';
-import { DayTable } from "@fullcalendar/daygrid";
 
 //Component to filter by category
 const SelectCategory = ({ categorySelect, setCategory }) => {
@@ -115,15 +114,18 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 }
 
 // Component to filter by date
-const DateFilter = ({dateFilter, setDateFilter}) => {
+const DateRever = ({dateRever, setDateRever, studiesData, setStudiesData}) => {
+    
 
     const rotate: CSS.Properties = {
-        transform: dateFilter ? "rotate(180deg)": "",
+        transform: dateRever ? "rotate(180deg)": "",
     }
 
-    const onclickDate = () => {
-        setDateFilter(!dateFilter)
-        console.log(dateFilter)
+    const onClickDate = () => {
+        if (studiesData !== undefined){
+            setStudiesData(studiesData.reverse())
+            setDateRever(!dateRever)
+        }
     }
 
     return (
@@ -136,7 +138,7 @@ const DateFilter = ({dateFilter, setDateFilter}) => {
             alignItems: 'center',
             gap: "0.2rem",
             cursor: 'pointer',
-        }} onClick={onclickDate}>
+        }} onClick={onClickDate}>
             {/*Date Icons */}
             <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.65625C3.73478 0.65625 3.48043 0.761607 3.29289 0.949143C3.10536 1.13668 3 1.39103 3 1.65625V2.65625H2C1.46957 2.65625 0.960859 2.86696 0.585786 3.24204C0.210714 3.61711 0 4.12582 0 4.65625V14.6562C0 15.1867 0.210714 15.6954 0.585786 16.0705C0.960859 16.4455 1.46957 16.6562 2 16.6562H14C14.5304 16.6562 15.0391 16.4455 15.4142 16.0705C15.7893 15.6954 16 15.1867 16 14.6562V4.65625C16 4.12582 15.7893 3.61711 15.4142 3.24204C15.0391 2.86696 14.5304 2.65625 14 2.65625H13V1.65625C13 1.39103 12.8946 1.13668 12.7071 0.949143C12.5196 0.761607 12.2652 0.65625 12 0.65625C11.7348 0.65625 11.4804 0.761607 11.2929 0.949143C11.1054 1.13668 11 1.39103 11 1.65625V2.65625H5V1.65625C5 1.39103 4.89464 1.13668 4.70711 0.949143C4.51957 0.761607 4.26522 0.65625 4 0.65625V0.65625ZM4 5.65625C3.73478 5.65625 3.48043 5.76161 3.29289 5.94914C3.10536 6.13668 3 6.39103 3 6.65625C3 6.92147 3.10536 7.17582 3.29289 7.36336C3.48043 7.55089 3.73478 7.65625 4 7.65625H12C12.2652 7.65625 12.5196 7.55089 12.7071 7.36336C12.8946 7.17582 13 6.92147 13 6.65625C13 6.39103 12.8946 6.13668 12.7071 5.94914C12.5196 5.76161 12.2652 5.65625 12 5.65625H4Z" fill="#718096" />
@@ -148,35 +150,6 @@ const DateFilter = ({dateFilter, setDateFilter}) => {
     )
 }
 
-//Sort to studiesData by date
-const sortStudiesData = (data, dateFilter, setStudiesData) => {
-    console.log(data)
-    if(data !== undefined){
-        if (dateFilter){
-            data.sort((a, b) => {
-                if(a.effectiveDate == b.effectiveDate) {
-                  return 0; 
-                }
-                if(a.effectiveDate < b.effectiveDate) {
-                  return -1;
-                }
-                return 1;
-              });
-        }else{
-            data.sort((a, b) => {
-                if(a.effectiveDate == b.effectiveDate) {
-                  return 0; 
-                }
-                if(a.effectiveDate > b.effectiveDate) {
-                  return -1;
-                }
-                return 1;
-              });
-        }
-        setStudiesData(data)
-    }
-}
-
 
 export function StudiesMenuRemote(props) {
     const { addErrorToast } = useToasts()
@@ -184,12 +157,11 @@ export function StudiesMenuRemote(props) {
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
-    const [listStudies, setListStudies] = useState([])
     const [studyDetail, setStudyDetail] = useState()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
-    const [dateFilter, setDateFilter] = useState(false)
+    const [dateRever, setDateRever] = useState(false)
 
     useEffect(() => {
         const load = async () => {
@@ -199,7 +171,7 @@ export function StudiesMenuRemote(props) {
                 if (appointment !== undefined) {
                     const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
                     // if(res.data.items > 0)
-                    setListStudies(res.data.items)
+                    setStudiesData(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
@@ -215,10 +187,6 @@ export function StudiesMenuRemote(props) {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
-
-    useEffect(()=>{
-        sortStudiesData(listStudies, dateFilter, setStudiesData)
-    },[dateFilter, listStudies])
 
 
     const downloadBlob = (url, contentType, download) => {
@@ -325,7 +293,10 @@ export function StudiesMenuRemote(props) {
                     </Grid>
                     <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
                         <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
-                        <DateFilter dateFilter={dateFilter} setDateFilter={setDateFilter}></DateFilter>
+                        <DateRever dateRever={dateRever}
+                                    setDateRever={setDateRever}
+                                    studiesData={studiesData} 
+                                    setStudiesData={setStudiesData}></DateRever>
                     </div>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
