@@ -338,7 +338,7 @@ export function StudiesMenuRemote(props) {
                         {
                             selectedRow ?
                                 laboratoryDetail() : loading === false && studiesData !== undefined && studiesData.length > 0 &&
-                                studiesData.map((item, index) => (
+                                studiesData.filter((data)=> (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
                                         onClick={() => { setSelectedRow(item) }}
                                         key={index}
