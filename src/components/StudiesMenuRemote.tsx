@@ -15,49 +15,54 @@ import {
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
+import type * as CSS from 'csstype';
+import { DayTable } from "@fullcalendar/daygrid";
 
+//Component to filter by category
+const SelectCategory = ({ categorySelect, setCategory }) => {
 
-const SelectCategory = ({categorySelect, setCategory}) => {
-
-    //HoverSelect
+    //HoverSelect theme
     const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        form: {
-            marginTop: "0.75rem"
-        },
-        menuItem: {
-            '&:active': {
-                backgroundColor: "#EDFAFA"
+        createStyles({
+            menuItem: {
+                '&:active': {
+                    backgroundColor: "#EDFAFA"
+                },
+                '&:focus': {
+                    backgroundColor: "#EDFAFA"
+                },
+                '&:hover': {
+                    backgroundColor: "#EDFAFA"
+                },
+                '&:selected': {
+                    backgroundColor: "black"
+                }
             },
-            '&:focus': {
-                backgroundColor: "#EDFAFA"
-            },
-            '&:hover':{
-                backgroundColor: "#EDFAFA"
-            },
-            '&:selected':{
-                backgroundColor : "black"
+            select: {
+                paddingLeft: "0.5rem",
+                paddingRight: "0.1rem",
+                borderRadius: "0.9rem",
+                backgroundColor: "#E5E7EB",
+                "&&&:before": {
+                    borderBottom: "none"
+                },
+                "&&:after": {
+                    borderBottom: "none"
+                },
+                '& .MuiSelect-select:focus': {
+                    backgroundColor: "transparent"
+                },
+                "& .MuiSvgIcon-root": {
+                    color: "#13A5A9",
+                },
+                '& .MuiListItem-root.Mui-selected': {
+                    backgroundColor: "#EDFAFA"
+                },
+                '& .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover': {
+                    backgroundColor: "#EDFAFA"
+                }
             }
-        },
-        select:{
-            paddingLeft: "0.5rem",
-            paddingRight: "0.1rem",
-            borderRadius: "0.3rem",
-            backgroundColor: "#E5E7EB",
-            "&&&:before": {
-                borderBottom: "none"
-            },
-            "&&:after": {
-                borderBottom: "none"
-            },
-            '& .MuiSelect-select:focus': {
-                backgroundColor: "transparent"
-            },
-            "& .MuiSvgIcon-root": {
-                color: "#13A5A9",
-            },
-        }
-    }),
+        }),
     );
 
     const IconLab = () => {
@@ -92,7 +97,7 @@ const SelectCategory = ({categorySelect, setCategory}) => {
     const classes = useStyles();
 
     return (
-        <FormControl className={classes.form}>
+        <FormControl>
             <Select className={classes.select}
                 value={categorySelect}
                 onChange={handleChange}
@@ -101,12 +106,75 @@ const SelectCategory = ({categorySelect, setCategory}) => {
                 <MenuItem className={classes.menuItem} value="">
                     Categoría
                 </MenuItem>
-                <MenuItem className={classes.menuItem} value={'LABORATORY'}><span className="pl-2 pr-2 bg"><IconLab></IconLab></span>Laboratorio</MenuItem>
+                <MenuItem className={classes.menuItem} value={'LABORATORY'}><span className="pl-2 pr-2"><IconLab></IconLab></span>Laboratorio</MenuItem>
                 <MenuItem className={classes.menuItem} value={'IMAGE'}><span className="pl-2 pr-2"><IconImg></IconImg></span>Imágenes</MenuItem>
                 <MenuItem className={classes.menuItem} value={'OTHER'}><span className="pl-2 pr-2"><IconOther></IconOther></span>Otros</MenuItem>
             </Select>
         </FormControl>
     )
+}
+
+// Component to filter by date
+const DateFilter = ({dateFilter, setDateFilter}) => {
+
+    const rotate: CSS.Properties = {
+        transform: dateFilter ? "rotate(180deg)": "",
+    }
+
+    const onclickDate = () => {
+        setDateFilter(!dateFilter)
+        console.log(dateFilter)
+    }
+
+    return (
+        <div style={{
+            display: "flex",
+            flexDirection: "row",
+            backgroundColor: "#E5E7EB",
+            borderRadius: "0.9rem",
+            padding: "0.1rem 0.5rem 0.1rem 0.5rem",
+            alignItems: 'center',
+            gap: "0.2rem",
+            cursor: 'pointer',
+        }} onClick={onclickDate}>
+            {/*Date Icons */}
+            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.65625C3.73478 0.65625 3.48043 0.761607 3.29289 0.949143C3.10536 1.13668 3 1.39103 3 1.65625V2.65625H2C1.46957 2.65625 0.960859 2.86696 0.585786 3.24204C0.210714 3.61711 0 4.12582 0 4.65625V14.6562C0 15.1867 0.210714 15.6954 0.585786 16.0705C0.960859 16.4455 1.46957 16.6562 2 16.6562H14C14.5304 16.6562 15.0391 16.4455 15.4142 16.0705C15.7893 15.6954 16 15.1867 16 14.6562V4.65625C16 4.12582 15.7893 3.61711 15.4142 3.24204C15.0391 2.86696 14.5304 2.65625 14 2.65625H13V1.65625C13 1.39103 12.8946 1.13668 12.7071 0.949143C12.5196 0.761607 12.2652 0.65625 12 0.65625C11.7348 0.65625 11.4804 0.761607 11.2929 0.949143C11.1054 1.13668 11 1.39103 11 1.65625V2.65625H5V1.65625C5 1.39103 4.89464 1.13668 4.70711 0.949143C4.51957 0.761607 4.26522 0.65625 4 0.65625V0.65625ZM4 5.65625C3.73478 5.65625 3.48043 5.76161 3.29289 5.94914C3.10536 6.13668 3 6.39103 3 6.65625C3 6.92147 3.10536 7.17582 3.29289 7.36336C3.48043 7.55089 3.73478 7.65625 4 7.65625H12C12.2652 7.65625 12.5196 7.55089 12.7071 7.36336C12.8946 7.17582 13 6.92147 13 6.65625C13 6.39103 12.8946 6.13668 12.7071 5.94914C12.5196 5.76161 12.2652 5.65625 12 5.65625H4Z" fill="#718096" />
+            </svg>
+            <svg style={rotate} width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16.6562C10.1217 16.6562 12.1566 15.8134 13.6569 14.3131C15.1571 12.8128 16 10.778 16 8.65625C16 6.53452 15.1571 4.49969 13.6569 2.9994C12.1566 1.4991 10.1217 0.65625 8 0.65625C5.87827 0.65625 3.84344 1.4991 2.34315 2.9994C0.842855 4.49969 0 6.53452 0 8.65625C0 10.778 0.842855 12.8128 2.34315 14.3131C3.84344 15.8134 5.87827 16.6562 8 16.6562V16.6562ZM11.707 7.94925L8.707 4.94925C8.51947 4.76178 8.26516 4.65646 8 4.65646C7.73484 4.65646 7.48053 4.76178 7.293 4.94925L4.293 7.94925C4.11084 8.13785 4.01005 8.39045 4.01233 8.65265C4.0146 8.91485 4.11977 9.16566 4.30518 9.35107C4.49059 9.53648 4.7414 9.64165 5.0036 9.64392C5.2658 9.6462 5.5184 9.54541 5.707 9.36325L7 8.07025V11.6562C7 11.9215 7.10536 12.1758 7.29289 12.3634C7.48043 12.5509 7.73478 12.6562 8 12.6562C8.26522 12.6562 8.51957 12.5509 8.70711 12.3634C8.89464 12.1758 9 11.9215 9 11.6562V8.07025L10.293 9.36325C10.4816 9.54541 10.7342 9.6462 10.9964 9.64392C11.2586 9.64165 11.5094 9.53648 11.6948 9.35107C11.8802 9.16566 11.9854 8.91485 11.9877 8.65265C11.99 8.39045 11.8892 8.13785 11.707 7.94925V7.94925Z" fill="#13A5A9" />
+            </svg>
+        </div>
+    )
+}
+
+//Sort to studiesData by date
+const sortStudiesData = (data, dateFilter, setStudiesData) => {
+    console.log(data)
+    if(data !== undefined){
+        if (dateFilter){
+            data.sort((a, b) => {
+                if(a.effectiveDate == b.effectiveDate) {
+                  return 0; 
+                }
+                if(a.effectiveDate < b.effectiveDate) {
+                  return -1;
+                }
+                return 1;
+              });
+        }else{
+            data.sort((a, b) => {
+                if(a.effectiveDate == b.effectiveDate) {
+                  return 0; 
+                }
+                if(a.effectiveDate > b.effectiveDate) {
+                  return -1;
+                }
+                return 1;
+              });
+        }
+        setStudiesData(data)
+    }
 }
 
 
@@ -116,11 +184,12 @@ export function StudiesMenuRemote(props) {
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
+    const [listStudies, setListStudies] = useState([])
     const [studyDetail, setStudyDetail] = useState()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
-    const [dateFilter, setDateFiler] = useState({})
+    const [dateFilter, setDateFilter] = useState(false)
 
     useEffect(() => {
         const load = async () => {
@@ -130,7 +199,7 @@ export function StudiesMenuRemote(props) {
                 if (appointment !== undefined) {
                     const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
                     // if(res.data.items > 0)
-                    setStudiesData(res.data.items)
+                    setListStudies(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
@@ -146,6 +215,12 @@ export function StudiesMenuRemote(props) {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+
+    useEffect(()=>{
+        sortStudiesData(listStudies, dateFilter, setStudiesData)
+    },[dateFilter, listStudies])
+
+
     const downloadBlob = (url, contentType, download) => {
         var oReq = new XMLHttpRequest();
         oReq.open("GET", url, true);
@@ -177,6 +252,7 @@ export function StudiesMenuRemote(props) {
 
     }
 
+
     useEffect(() => {
         const load = async () => {
             try {
@@ -199,13 +275,8 @@ export function StudiesMenuRemote(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-
-
-
-
     // if (selectedRow)
     //     return laboratoryDetail()
-
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid >
@@ -252,8 +323,10 @@ export function StudiesMenuRemote(props) {
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography> */}
                     </Grid>
-
-                    <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
+                    <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
+                        <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
+                        <DateFilter dateFilter={dateFilter} setDateFilter={setDateFilter}></DateFilter>
+                    </div>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
