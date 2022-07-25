@@ -64,12 +64,12 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: '15px',
             marginTop: '15px',
             cursor: 'pointer',
-            borderWidth:'2px',
-            borderColor:'transparent',
+            borderWidth: '2px',
+            borderColor: 'transparent',
             "&:hover": {
                 backgroundColor: "#f3faf7",
                 borderColor: "#dff5f6",
-                borderWidth:'2px'
+                borderWidth: '2px'
 
             },
         }
@@ -268,7 +268,7 @@ export function StudiesMenuRemote(props) {
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid >
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
-                    <button
+                    {selectedRow ? <button
                         style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
@@ -281,6 +281,9 @@ export function StudiesMenuRemote(props) {
 
 
                     </button>
+                    :
+                    <Grid style={{marginLeft:'20px'}}></Grid>
+                    }
                     <Typography variant='h6'>Resultados de estudios</Typography>
                 </Grid>
                 <Grid className='w-full px-4 mt-8'>
