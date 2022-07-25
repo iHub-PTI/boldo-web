@@ -17,52 +17,69 @@ import { useToasts } from './Toast';
 import Modal from "./Modal";
 import type * as CSS from 'csstype';
 
+//HoverSelect theme
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        menuItem: {
+            '&:active': {
+                backgroundColor: "#EDFAFA"
+            },
+            '&:focus': {
+                backgroundColor: "#EDFAFA"
+            },
+            '&:hover': {
+                backgroundColor: "#EDFAFA"
+            },
+            '&:selected': {
+                backgroundColor: "black"
+            }
+        },
+        select: {
+            paddingLeft: "0.5rem",
+            paddingRight: "0.1rem",
+            borderRadius: "0.9rem",
+            backgroundColor: "#E5E7EB",
+            "&&&:before": {
+                borderBottom: "none"
+            },
+            "&&:after": {
+                borderBottom: "none"
+            },
+            '& .MuiSelect-select:focus': {
+                backgroundColor: "transparent"
+            },
+            "& .MuiSvgIcon-root": {
+                color: "#13A5A9",
+            },
+            '& .MuiListItem-root.Mui-selected': {
+                backgroundColor: "#EDFAFA"
+            },
+            '& .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover': {
+                backgroundColor: "#EDFAFA"
+            }
+        },
+        gridBorder: {
+            borderRadius: '20px',
+            backgroundColor: "#F7FAFC",
+            padding: '15px',
+            marginTop: '15px',
+            cursor: 'pointer',
+            borderWidth:'2px',
+            borderColor:'transparent',
+            "&:hover": {
+                backgroundColor: "#f3faf7",
+                borderColor: "#dff5f6",
+                borderWidth:'2px'
+
+            },
+        }
+    }),
+);
+
 //Component to filter by category
 const SelectCategory = ({ categorySelect, setCategory }) => {
 
-    //HoverSelect theme
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            menuItem: {
-                '&:active': {
-                    backgroundColor: "#EDFAFA"
-                },
-                '&:focus': {
-                    backgroundColor: "#EDFAFA"
-                },
-                '&:hover': {
-                    backgroundColor: "#EDFAFA"
-                },
-                '&:selected': {
-                    backgroundColor: "black"
-                }
-            },
-            select: {
-                paddingLeft: "0.5rem",
-                paddingRight: "0.1rem",
-                borderRadius: "0.9rem",
-                backgroundColor: "#E5E7EB",
-                "&&&:before": {
-                    borderBottom: "none"
-                },
-                "&&:after": {
-                    borderBottom: "none"
-                },
-                '& .MuiSelect-select:focus': {
-                    backgroundColor: "transparent"
-                },
-                "& .MuiSvgIcon-root": {
-                    color: "#13A5A9",
-                },
-                '& .MuiListItem-root.Mui-selected': {
-                    backgroundColor: "#EDFAFA"
-                },
-                '& .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover': {
-                    backgroundColor: "#EDFAFA"
-                }
-            }
-        }),
-    );
+
 
     const IconLab = () => {
         return (<svg className="inline-block" width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,15 +131,15 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 }
 
 // Component to filter by date
-const DateRever = ({dateRever, setDateRever, studiesData, setStudiesData}) => {
-    
+const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => {
+
 
     const rotate: CSS.Properties = {
-        transform: dateRever ? "rotate(180deg)": "",
+        transform: dateRever ? "rotate(180deg)" : "",
     }
 
     const onClickDate = () => {
-        if (studiesData !== undefined){
+        if (studiesData !== undefined) {
             setStudiesData(studiesData.reverse())
             setDateRever(!dateRever)
         }
@@ -245,6 +262,8 @@ export function StudiesMenuRemote(props) {
 
     // if (selectedRow)
     //     return laboratoryDetail()
+    //Hover theme
+    const classes = useStyles();
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid >
@@ -294,9 +313,9 @@ export function StudiesMenuRemote(props) {
                     <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
                         <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
                         <DateRever dateRever={dateRever}
-                                    setDateRever={setDateRever}
-                                    studiesData={studiesData} 
-                                    setStudiesData={setStudiesData}></DateRever>
+                            setDateRever={setDateRever}
+                            studiesData={studiesData}
+                            setStudiesData={setStudiesData}></DateRever>
                     </div>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
@@ -338,18 +357,12 @@ export function StudiesMenuRemote(props) {
                         {
                             selectedRow ?
                                 laboratoryDetail() : loading === false && studiesData !== undefined && studiesData.length > 0 &&
-                                studiesData.filter((data)=> (data.category == categorySelect || categorySelect == "")).map((item, index) => (
+                                studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
+                                        className={classes.gridBorder}
                                         onClick={() => { setSelectedRow(item) }}
                                         key={index}
-                                        style={{
-                                            // borderTop: '10px solid white',
-                                            borderRadius: '20px',
-                                            backgroundColor: "#F7FAFC",
-                                            padding: '15px',
-                                            marginTop: '15px'
-
-                                        }} >
+                                    >
 
 
                                         <Grid justifyContent="space-between" container>
