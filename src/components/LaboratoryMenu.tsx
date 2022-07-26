@@ -656,13 +656,7 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 
     //Hover theme
     const classes = useStyles();
-    const DropdownIndicator = props => {
-        return (
-          <components.DropdownIndicator {...props}>
-            <CaretDownIcon />
-          </components.DropdownIndicator>
-        );
-      };
+    
     return (
         <FormControl>
             <Select className={classes.select}
