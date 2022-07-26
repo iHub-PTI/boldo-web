@@ -582,8 +582,6 @@ const useStyles = makeStyles((theme: Theme) =>
         select: {
             paddingLeft: "0.5rem",
             paddingRight: "0.1rem",
-            borderRadius: "0.9rem",
-            backgroundColor: "#E5E7EB",
             "&&&:before": {
                 borderBottom: "none"
             },
