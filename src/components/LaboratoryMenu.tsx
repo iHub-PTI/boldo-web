@@ -146,9 +146,6 @@ export function LaboratoryMenu(props) {
                     </Grid>
                     }
                     <Grid className="mt-10">
-                        {loading === false && <div className="pb-5">
-                            <SelectCategory categorySelect={categorySelect} setCategory={setCategory}></SelectCategory>
-                        </div>}
 
                         {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
@@ -179,7 +176,7 @@ export function LaboratoryMenu(props) {
                                     //     field: "mainReason"
                                     // },
                                     {
-                                        title: 'Categoria',
+                                        title:  <SelectCategory categorySelect={categorySelect} setCategory={setCategory}></SelectCategory>,
                                         field: 'category',
                                         sorting: false,
                                         render: rowData => {
@@ -659,7 +656,13 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 
     //Hover theme
     const classes = useStyles();
-
+    const DropdownIndicator = props => {
+        return (
+          <components.DropdownIndicator {...props}>
+            <CaretDownIcon />
+          </components.DropdownIndicator>
+        );
+      };
     return (
         <FormControl>
             <Select className={classes.select}
