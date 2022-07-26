@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import { forwardRef } from 'react';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import MaterialTable from "material-table";
 import { Icons } from 'material-table';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -32,7 +33,7 @@ export function LaboratoryMenu(props) {
     const [categorySelect, setCategory] = useState("")
 
     const tableIcons: Icons = {
-        SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
+        SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
     }
 
     useEffect(() => {
@@ -212,7 +213,7 @@ export function LaboratoryMenu(props) {
                                     {
                                         title: "Fecha",
                                         field: "effectiveDate",
-                                        width: "10%"
+                                        width: "10%",
                                     },
                                     // {
                                     //   title: "Diagnóstico",
@@ -250,7 +251,6 @@ export function LaboratoryMenu(props) {
                                     toolbar: false,
                                     paging: false,
                                     draggable: false,
-
                                     rowStyle: (rowData) => ({
                                         borderTop: '10px solid white',
                                         borderRadius: '10px',
@@ -595,28 +595,18 @@ const useStyles = makeStyles((theme: Theme) =>
             },
             "& .MuiSvgIcon-root": {
                 color: "#13A5A9",
+                marginRight: "0.313rem",
+                cursor: "default"
             },
             '& .MuiListItem-root.Mui-selected': {
                 backgroundColor: "#EDFAFA"
             },
             '& .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover': {
                 backgroundColor: "#EDFAFA"
-            }
-        },
-        gridBorder: {
-            borderRadius: '20px',
-            backgroundColor: "#F7FAFC",
-            padding: '15px',
-            marginTop: '15px',
-            cursor: 'pointer',
-            borderWidth: '2px',
-            borderColor: 'transparent',
-            "&:hover": {
-                backgroundColor: "#f3faf7",
-                borderColor: "#dff5f6",
-                borderWidth: '2px'
-
             },
+            '& .MuiSelect-select.MuiSelect-select': {
+                paddingRight:"0.313rem"
+            }
         }
     }),
 );
@@ -663,6 +653,7 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
                 value={categorySelect}
                 onChange={handleChange}
                 displayEmpty
+                IconComponent={()=><FilterListIcon></FilterListIcon>}
             >
                 <MenuItem className={classes.menuItem} value="">
                     Categoría
