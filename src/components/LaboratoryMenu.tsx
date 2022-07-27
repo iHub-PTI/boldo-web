@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import { forwardRef } from 'react';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import CloseIcon from '@material-ui/icons/Close';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import MaterialTable from "material-table";
 import { Icons } from 'material-table';
@@ -550,11 +551,19 @@ export function LaboratoryMenu(props) {
             </Grid>
 
             <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'  >
+                <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        width: '100%',
+                        marginBottom: '0.5rem'
+                    }}>
+                    <button onClick={() => {setShowEditModal(false)}}><CloseIcon></CloseIcon></button>
+                </div>
 
                 {
                     showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />
                 }
-
+                
             </Modal>
 
 
