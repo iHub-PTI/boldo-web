@@ -170,6 +170,25 @@ export function LaboratoryMenu(props) {
 
                         {
                             loading === false && studiesData && <MaterialTable
+                                localization={{
+                                    body: {
+                                        emptyDataSourceMessage: 'No hay datos por mostrar',
+                                    },
+                                    /* traducción para páginación
+                                        pagination: {
+                                        firstAriaLabel: 'Primera página',
+                                        firstTooltip: 'Primera página',
+                                        labelDisplayedRows: '{from}-{to} de {count}',
+                                        labelRowsPerPage: 'Filas por página:',
+                                        labelRowsSelect: 'filas',
+                                        lastAriaLabel: 'Ultima página',
+                                        lastTooltip: 'Ultima página',
+                                        nextAriaLabel: 'Pagina siguiente',
+                                        nextTooltip: 'Pagina siguiente',
+                                        previousAriaLabel: 'Pagina anterior',
+                                        previousTooltip: 'Pagina anterior',
+                                      }, */
+                                }}
                                 icons={tableIcons}
                                 columns={[
 
