@@ -12,6 +12,7 @@ import {
     Select,
     FormControl
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
@@ -653,6 +654,14 @@ export function StudiesMenuRemote(props) {
             </Grid>
 
             <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={true}   >
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    width: '100%',
+                    marginBottom: '0.5rem'
+                }}>
+                <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
+                </div>
 
                 {
                     showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object style={{ opacity: '0.5' }} data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img style={{ opacity: '0.5' }} src={showPreview['url']} alt="img" />
