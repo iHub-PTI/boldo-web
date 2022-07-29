@@ -45,7 +45,7 @@ export default function Dashboard() {
     <Layout>
       <Grid style={{ padding: '23px', }}>
         <Typography variant='h6' color='textPrimary'>
-          Consulta presencial
+          Consulta {appointment && appointment.status !== 'locked' ? 'presencial':'finalizada'}
         </Typography>
       </Grid>
       <Grid 
