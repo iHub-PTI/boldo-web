@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Avatar, Card, CardContent, Grid, Typography } from '@material-ui/core'
+import { Avatar, Button, Card, CardContent, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import MaterialTable from 'material-table'
 import moment from 'moment'
-
+import useStyles from './style'
 
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
@@ -40,7 +40,7 @@ const PatientRecord = props => {
   const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
-
+  const classes = useStyles()
   useEffect(() => {
     if (status === 'finished' || status === 'locked' || status === 'cancelled') {
       setAppointmentDisabled(true);
@@ -203,31 +203,36 @@ const PatientRecord = props => {
         item style={{ marginTop: '60px' }}>
         <div className='flex mt-4 md:mt-0 md:ml-4'>
           <span className='ml-3 rounded-md shadow-sm'>
-            <button
+            <Button
+              style={{ border: 'none',outline:'none' }}
               disabled={isAppointmentDisabled}
-              type='button'
-              className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700 disabled:opacity-25 disabled:cursor-default'
+              className={classes.muiButtonContained}
+              variant='contained'
+              endIcon={
+                (
+                  <svg
+                    className='w-6 h-6 ml-3'
+                    width='21'
+                    height='20'
+                    viewBox='0 0 21 20'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
+                      fill='white'
+                    />
+                  </svg>
+                )
+              }
               onClick={e => {
                 setShowEditModal(true)
               }}
             >
               Seguimiento
-              <svg
-                className='w-6 h-6 ml-3'
-                width='21'
-                height='20'
-                viewBox='0 0 21 20'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                  fill='white'
-                />
-              </svg>
-            </button>
+            </Button>
           </span>
         </div>
 
