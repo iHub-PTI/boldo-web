@@ -231,7 +231,7 @@ const PatientRecord = props => {
                 setShowEditModal(true)
               }}
             >
-              Seguimiento
+              { Object.entries(props.encounter.soep).length === 0 ? 'Primera Consulta' : 'Seguimiento'}
             </Button>
           </span>
         </div>
