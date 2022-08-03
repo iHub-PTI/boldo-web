@@ -12,7 +12,7 @@ import axios from 'axios'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 export default function Dashboard() {
-  const [DynamicMenuSelector, setDynamicMenuSelector] = useState('L')
+  const [DynamicMenuSelector, setDynamicMenuSelector] = useState('M')
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
