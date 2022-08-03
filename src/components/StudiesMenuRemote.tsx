@@ -282,8 +282,8 @@ export function StudiesMenuRemote(props) {
 
 
                     </button>
-                    :
-                    <Grid style={{marginLeft:'20px'}}></Grid>
+                        :
+                        <Grid style={{ marginLeft: '20px' }}></Grid>
                     }
                     <Typography variant='h6'>Resultados de estudios</Typography>
                 </Grid>
@@ -392,7 +392,8 @@ export function StudiesMenuRemote(props) {
                                                     }
                                                 </Typography>  </div>
                                             <Typography variant='body2' color='textSecondary'>
-                                                {item.effectiveDate}
+                                                {moment(item.effectiveDate).format('DD/MM/YYYY')}
+
                                             </Typography>
                                         </Grid>
                                         <Typography style={{ color: '#13A5A9' }} variant='body1' >
@@ -660,7 +661,7 @@ export function StudiesMenuRemote(props) {
                     width: '100%',
                     marginBottom: '0.5rem'
                 }}>
-                <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
+                    <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
                 </div>
 
                 {
