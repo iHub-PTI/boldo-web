@@ -1,0 +1,7 @@
+FROM node:14.15.1
+
+WORKDIR /home/app
+
+COPY package*.json ./
+
+EXPOSE 3000

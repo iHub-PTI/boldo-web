@@ -1,11 +1,15 @@
 Dockerfile
 .dockerignore
 .git
+.gitignore
+Dockerfile-local
+Dockerfile.dev
 ##same as gitignore, but without the env file
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Boldo
+.env
 /src/styles.output.css
 
 # dependencies

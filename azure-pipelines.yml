@@ -57,11 +57,11 @@ stages:
         repository: $(imageRepository)
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-test.pti.org.py/api --build-arg app_sentry=https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906'
+        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906'
 
     - task: Docker@2
       displayName: Docker build prod
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/prod'))
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       inputs:
         containerRegistry: $(dockerRegistryServiceConnection)
         repository: $(imageRepository)
