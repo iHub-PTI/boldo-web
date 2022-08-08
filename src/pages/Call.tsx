@@ -331,7 +331,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const stream = useRef<HTMLVideoElement>(null)
   const video = useRef<HTMLVideoElement>(null)
 
-  const [showCallMenu, setShowCallMenu] = useState(false)
+  const [showCallMenu, setShowCallMenu] = useState(true)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
