@@ -675,7 +675,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                     <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
                 </div>
                 {
-                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object style={{ opacity: '0.5' }} data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img style={{ opacity: '0.5' }} src={showPreview['url']} alt="img" />) : (
+                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object  data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img  src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto', opacity: '0.5' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                 <svg
