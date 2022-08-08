@@ -181,6 +181,7 @@ export function StudiesMenuRemote(props) {
     const [categorySelect, setCategory] = useState("")
     const [dateRever, setDateRever] = useState(false)
     const [loadPreview, setLoadPreview] = useState(false)
+    const [filterHide, setFilterHide] = useState(true)
 
     useEffect(() => {
         const load = async () => {
@@ -277,6 +278,7 @@ export function StudiesMenuRemote(props) {
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
                             setSelectedRow(undefined);
+                            setFilterHide(true);
                         }}
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -317,13 +319,17 @@ export function StudiesMenuRemote(props) {
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography> */}
                     </Grid>
-                    <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
-                        <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
-                        <DateRever dateRever={dateRever}
-                            setDateRever={setDateRever}
-                            studiesData={studiesData}
-                            setStudiesData={setStudiesData}></DateRever>
-                    </div>
+                    {
+                        filterHide === true && (
+                            <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
+                                <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
+                                <DateRever dateRever={dateRever}
+                                    setDateRever={setDateRever}
+                                    studiesData={studiesData}
+                                    setStudiesData={setStudiesData}></DateRever>
+                            </div>
+                        )
+                    }
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -367,7 +373,10 @@ export function StudiesMenuRemote(props) {
                                 studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
                                         className={classes.gridBorder}
-                                        onClick={() => { setSelectedRow(item) }}
+                                        onClick={() => { 
+                                            setSelectedRow(item) 
+                                            setFilterHide(false);
+                                        }}
                                         key={index}
                                     >
 
