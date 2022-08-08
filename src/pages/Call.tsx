@@ -216,7 +216,9 @@ const Gate = () => {
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} isFromInperson={true} />
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+
+        }} />
 
       default:
         return <Sidebar appointment={appointment} />
@@ -654,6 +656,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           sideBarAction={sideBarAction}
           appointment={appointment}
           show={showSidebarMenu}
+          stream={stream}
           hideSidebar={() => setShowSidebarMenu(false)}
         />
       </Grid>
@@ -748,9 +751,10 @@ interface SidebarContainerProps {
   hideSidebar: () => void
   appointment: AppointmentWithPatient
   sideBarAction: Number
+  stream: any
 }
 
-const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: SidebarContainerProps) => {
+const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, stream }: SidebarContainerProps) => {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -774,7 +778,21 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
     document.addEventListener('keyup', handleEscape)
     return () => document.removeEventListener('keyup', handleEscape)
   }, [show, hideSidebar])
-
+  const activatePicInPic = () => {
+    console.log('activatePicInPic');
+    if (!stream.current) return
+    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+      try {
+        if ((document as any).pictureInPictureElement) {
+          ; (document as any).exitPictureInPicture()
+        }
+        ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    //   }}
+  }
   const controlSideBarState = () => {
     switch (sideBarAction) {
       case 0:
@@ -787,7 +805,9 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} isFromInperson={true} />
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+          activatePicInPic();
+        }} />
 
       default:
         return <Sidebar appointment={appointment} />

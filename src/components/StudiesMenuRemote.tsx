@@ -169,9 +169,8 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 }
 
 
-export function StudiesMenuRemote(props) {
+export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
     const { addErrorToast } = useToasts()
-    const { appointment } = props;
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -633,7 +632,7 @@ export function StudiesMenuRemote(props) {
                                                 className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
                                                 onClick={() => {
                                                     setShowEditModal(true);
-
+                                                    setPreviewActivate(true);
                                                     if (contentType.includes("pdf")) {
                                                         downloadBlob(url, contentType, false)
 
@@ -666,7 +665,7 @@ export function StudiesMenuRemote(props) {
 
             </Grid>
 
-            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={true}   >
+            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={false}   >
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',
