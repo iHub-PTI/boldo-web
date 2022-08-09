@@ -21,6 +21,14 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
+import { ReactComponent as  OrderAdd } from "../assets/post-add.svg"
+
+/* const styleOrderButton = {
+    clipPath: "inset(0 50% 0 0)",
+    "&:hover": {
+        background: "black"
+    }
+} */
 
 export function LaboratoryMenu(props) {
     const { addErrorToast } = useToasts()
@@ -122,17 +130,21 @@ export function LaboratoryMenu(props) {
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid>
-
                 <Grid className='w-full px-8 mt-10'>
-
-                    <Grid>
-                        <Typography variant='h5' color='textPrimary'>
-                            Resultados de estudios
-                        </Typography>
-                        <Typography variant='body2' color='textSecondary'>
-                            archivos subidos por el paciente, laboratorios o dispositivos médicos
-                        </Typography>
-                    </Grid>
+                    <div className='flex flex-row justify-between'>
+                        <Grid>
+                            <Typography variant='h5' color='textPrimary'>
+                                Resultados de estudios
+                            </Typography>
+                            <Typography variant='body2' color='textSecondary'>
+                                archivos subidos por el paciente, laboratorios o dispositivos médicos
+                            </Typography>
+                        </Grid>
+                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip relative">
+                            <div className="absolute break-normal">Emitir orden de estudio</div>
+                            <OrderAdd className="mx-0.5 p-0"></OrderAdd>
+                        </button>
+                    </div>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
