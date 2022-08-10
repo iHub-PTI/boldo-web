@@ -196,18 +196,18 @@ Events
 
 /* Class of the Study Order Text */
 .text-clip div {
-  right: -12.5rem;
-  opacity: 0;
-  width: 11.25rem;
-  transition: right 0.5s ease-in-out, opacity 0.3s ease-out;
+  width: 14rem;
+  position: absolute;
+  clip-path: inset(0 0 0 100%);
+  transition: all 0.5s;
 }
 
 .text-clip:hover div {
-  right: 2.5rem;
-  opacity: 100%;
+  clip-path: inset(0 0 0 0);
 }
 
 .text-clip {
+  position: relative;
   width: 2.625rem;
   transition: width 0.5s ;
 }

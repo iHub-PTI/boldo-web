@@ -131,7 +131,7 @@ export function LaboratoryMenu(props) {
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid>
                 <Grid className='w-full px-8 mt-10'>
-                    <div className='flex flex-row justify-between'>
+                    <div className='flex flex-row justify-between md-max:flex-col'>
                         <Grid>
                             <Typography variant='h5' color='textPrimary'>
                                 Resultados de estudios
@@ -140,9 +140,9 @@ export function LaboratoryMenu(props) {
                                 archivos subidos por el paciente, laboratorios o dispositivos médicos
                             </Typography>
                         </Grid>
-                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip relative">
-                            <div className="absolute break-normal">Emitir orden de estudio</div>
-                            <OrderAdd className="mx-0.5 p-0"></OrderAdd>
+                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2">
+                            <div>Emitir orden de estudio</div>
+                            <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
                         </button>
                     </div>
 
