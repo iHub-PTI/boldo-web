@@ -1,10 +1,9 @@
 import React, { useState, ChangeEvent } from 'react';
 
-import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Checkbox, Typography, TextField } from '@material-ui/core';
+import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Checkbox, Typography, TextField, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../assets/trash.svg';
 import SelectCategory from './SelectCategory';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Widgets } from '@material-ui/icons';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,6 +57,11 @@ const useStyles = makeStyles((theme: Theme) =>
             '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 borderColor: "#808080",
             }
+        },
+        buttonClass: {
+            '.MuiIconButton-root MuiButtonBase-root': {
+                padding: '0'
+            }
         }
     }),
 );
@@ -72,12 +76,12 @@ const StudyOrder = () => {
     }
 
     return (
-        <div className="m-10 p-5 pb-10 bg-gray-50 rounded-xl">
+        <div className="pt-3 px-5 pb-7 m-5 bg-gray-50 rounded-xl">
             <FormControl className={classes.form}>
-                <Grid container direction="row" justifyContent="flex-end">
-                    <button>
-                        <TrashIcon />
-                    </button>
+                <Grid container direction="row" justifyContent="flex-end" >
+                    <IconButton aria-label="Eliminar" style={{padding: '3px', margin: '0', outline: 'none'}}>
+                        <TrashIcon></TrashIcon>
+                    </IconButton>
                 </Grid>
                 <Grid container direction='column'>
                     <Grid container direction='row' spacing={5}>
@@ -94,7 +98,7 @@ const StudyOrder = () => {
                             <FormHelperText>marque la opción si estos estudios requieren ser realizadas cuanto antes</FormHelperText>
                         </Grid>
                     </Grid>
-                    <Grid style={{marginBottom:'1rem'}}>
+                    <Grid style={{ marginBottom: '1rem' }}>
                         <Typography>Estudios a realizar</Typography>
                         <TextField variant='outlined' className={classes.textfield}></TextField>
                     </Grid>
