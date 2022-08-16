@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const StudyOrder = () => {
     const classes = useStyles()
     const [checkOrder, setCheckOrder] = useState(false)
-    const options = ['Glucosa', ' Hemograma de Constraste', 'Sangre']
+    const studies = [{id:1, name:'Glucosa'}, {id: 2, name:' Hemograma de Constraste'}, {id:3, name:'Sangre'}]
 
     const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
         setCheckOrder(event.target.checked)
@@ -109,7 +109,7 @@ const StudyOrder = () => {
                     </Grid>
                     <Grid style={{ marginBottom: '1rem' }}>
                         <Typography>Estudios a realizar</Typography>
-                        <BoxSelect options={options}></BoxSelect>
+                        <BoxSelect options={studies}></BoxSelect>
                     </Grid>
                     <Grid >
                         <Typography>Observaciones</Typography>
