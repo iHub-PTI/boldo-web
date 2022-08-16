@@ -1,5 +1,5 @@
 import React from 'react'
-import { ReactComponent as IconCross } from '../assets/icon-cross.svg'
+import { ReactComponent as IconCross } from '../../assets/icon-cross.svg'
 
 const SelectItem = ({ id, value, handleDelete }) => {
   
