@@ -1,15 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import SelectItem from './SelectItem'
 import {ReactComponent as TemplateStudy } from '../../assets/template-study.svg'
+import { CategoriesContext } from './Provider'
 
-const BoxSelect = ({ options }) => {
+const BoxSelect = props => {
 
-    const [data, setData] = useState(options)
+    const [orders, setOrders] = useContext(CategoriesContext)
+    //const { options } = props
+    //const [data, setData] = useState(options)
+    const data = orders[props.index].studies
 
     const deleteData = (id) => {
-        console.log(id, 'Eliminando...')
         const dataUpdate = data.filter(item => item.id !== id)
-        setData(dataUpdate)
+        //setData(dataUpdate)
+        const orderUpdate = [...orders]
+        orderUpdate[props.index].studies = dataUpdate
+        setOrders(orderUpdate)
     }
 
     return (
@@ -19,7 +25,7 @@ const BoxSelect = ({ options }) => {
                 <TemplateStudy></TemplateStudy>
             </div>
             {data && data.map( (item) => {
-                return <SelectItem id={item.id} value={item.name} handleDelete={deleteData}></SelectItem>
+                return <SelectItem id={item.id} value={item.name} handleDelete={deleteData} {...props}></SelectItem>
             })}
         </div>
     )

@@ -1,13 +1,14 @@
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent, useEffect, createContext, useContext } from 'react';
 
 import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
-import SelectCategory from '../SelectCategory';
+import SelectCategory from './SelectCategory'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import BoxSelect from './BoxSelect';
 import CheckOrder from './CheckOrder';
 import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
+import { CategoriesContext } from './Provider';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -72,16 +73,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const StudyOrder = () => {
     const classes = useStyles()
-
-    const [orders, setOrders] = useState([
-        {
-            category: "",
-            rush_order: false,
-            diagnostic_impression: "",
-            studies: [{ id: 1, name: 'Glucosa' }, { id: 2, name: ' Hemograma de Constraste' }, { id: 3, name: 'Sangre' }],
-            observation: ""
-        }
-    ]);
+    const [orders, setOrders] = useContext(CategoriesContext)
 
     const addCategory = () => {
         setOrders([...orders, {
@@ -94,8 +86,8 @@ const StudyOrder = () => {
     }
 
     const deleteCategory = (key) => {
-        if (orders.length !== 1){
-            
+        console.log(orders)
+        if (orders.length > 1){
             let update = [...orders]
             update.splice(key,1)
             setOrders(update)
@@ -103,60 +95,59 @@ const StudyOrder = () => {
     }
 
     return (
-        <div className="w-full">
-            {
-                orders.map((item, index) => {
-                    return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
-                        <FormControl className={classes.form}>
-                            <Grid container>
-                                <Grid item container direction="row" justifyContent="flex-end" >
-                                    <IconButton aria-label="Eliminar" style={{ padding: '3px', margin: '0', outline: 'none' }} onClick={()=>deleteCategory(index)}>
-                                        <TrashIcon></TrashIcon>
-                                    </IconButton>
-                                </Grid>
-                                <Grid item container direction='row' spacing={5}>
-                                    <Grid item xs={5}>
-                                        <SelectCategory variant='outlined' classes={classes}></SelectCategory>
+            <div className="w-full">
+                {
+                    orders.map((item, index) => {
+                        return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                            <FormControl className={classes.form}>
+                                <Grid container>
+                                    <Grid item container direction="row" justifyContent="flex-end" >
+                                        <IconButton aria-label="Eliminar" style={{ padding: '3px', margin: '0', outline: 'none' }} onClick={() => deleteCategory(index)}>
+                                            <TrashIcon></TrashIcon>
+                                        </IconButton>
                                     </Grid>
-                                    <Grid item xs={7}>
-                                        <FormGroup>
-                                            <FormControlLabel
-                                                control={<CheckOrder checked={false}></CheckOrder>}
-                                                label="Orden Urgente"
-                                            />
-                                        </FormGroup>
-                                        <FormHelperText>marque la opción si estos estudios requieren ser realizadas cuanto antes</FormHelperText>
+                                    <Grid item container direction='row' spacing={5}>
+                                        <Grid item xs={5}>
+                                            <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                        </Grid>
+                                        <Grid item xs={7}>
+                                            <FormGroup>
+                                                <FormControlLabel
+                                                    control={<CheckOrder checked={false} index={index}></CheckOrder>}
+                                                    label="Orden Urgente"
+                                                />
+                                            </FormGroup>
+                                            <FormHelperText>marque la opción si estos estudios requieren ser realizadas cuanto antes</FormHelperText>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
-                            </Grid>
 
-                            <Grid container direction='column'>
-                                <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
-                                    <Typography>Impresión diagnóstica</Typography>
-                                    <InputText variant='outlined' className={classes.textfield} />
+                                <Grid container direction='column'>
+                                    <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+                                        <Typography>Impresión diagnóstica</Typography>
+                                        <InputText variant='outlined' className={classes.textfield} index={index}/>
+                                    </Grid>
+                                    <Grid style={{ marginBottom: '1rem' }}>
+                                        <Typography>Estudios a realizar</Typography>
+                                        <BoxSelect options={item.studies} index={index}></BoxSelect>
+                                    </Grid>
+                                    <Grid >
+                                        <Typography>Observaciones</Typography>
+                                        <InputText variant='outlined' className={classes.textfield} multiline index={index} />
+                                    </Grid>
                                 </Grid>
-                                <Grid style={{ marginBottom: '1rem' }}>
-                                    <Typography>Estudios a realizar</Typography>
-                                    <BoxSelect options={item.studies}></BoxSelect>
-                                </Grid>
-                                <Grid >
-                                    <Typography>Observaciones</Typography>
-                                    <InputText variant='outlined' className={classes.textfield} multiline />
-                                </Grid>
-                            </Grid>
-                        </FormControl>
-                    </div>
-                })
-            }
-            <div className="m-1 p-1 flex justify-end">
-                <button className="btn focus:outline-none border-primary-600 border-2 mx-3 px-3 my-1 py-1 rounded-lg text-primary-600 font-semibold flex flex-row "
-                    onClick={() => addCategory()}
-                >Agregar
-                    <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
-                </button>
+                            </FormControl>
+                        </div>
+                    })
+                }
+                <div className="m-1 p-1 flex justify-end">
+                    <button className="btn focus:outline-none border-primary-600 border-2 mx-3 px-3 my-1 py-1 rounded-lg text-primary-600 font-semibold flex flex-row "
+                        onClick={() => addCategory()}
+                    >Agregar
+                        <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
+                    </button>
+                </div>
             </div>
-        </div>
-
     )
 }
 

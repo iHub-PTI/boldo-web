@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { ChangeEvent } from "react"
 import { FormControl, MenuItem, Select, InputBase,  OutlinedInput as MuiOutlinedInput } from '@material-ui/core';
 import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
-import { ReactComponent as IconLab } from "../assets/laboratory-icon.svg";
-import { ReactComponent as IconImg } from "../assets/img-icon.svg";
-import { ReactComponent as IconOther } from "../assets/icon-other.svg";
+import { ReactComponent as IconLab } from "../../assets/laboratory-icon.svg";
+import { ReactComponent as IconImg } from "../../assets/img-icon.svg";
+import { ReactComponent as IconOther } from "../../assets/icon-other.svg";
 
 
 const SelectStyled = withStyles((theme: Theme) =>
