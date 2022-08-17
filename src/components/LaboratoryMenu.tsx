@@ -22,13 +22,8 @@ import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
 import { ReactComponent as  OrderAdd } from "../assets/post-add.svg"
+import StudyOrder from "./studiesorder/StudyOrder";
 
-/* const styleOrderButton = {
-    clipPath: "inset(0 50% 0 0)",
-    "&:hover": {
-        background: "black"
-    }
-} */
 
 export function LaboratoryMenu(props) {
     const { addErrorToast } = useToasts()
@@ -41,6 +36,7 @@ export function LaboratoryMenu(props) {
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
     const [loadPreview, setLoadPreview] = useState(false)
+    const [showMakeOrder, setShowMakeOrder] = useState(false)
 
     const tableIcons: Icons = {
         SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -68,6 +64,8 @@ export function LaboratoryMenu(props) {
             load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+
+
     const downloadBlob = (url, contentType, download) => {
         var oReq = new XMLHttpRequest();
         setLoadPreview(true) //loading preview data modal
@@ -100,6 +98,7 @@ export function LaboratoryMenu(props) {
 
     }
 
+
     useEffect(() => {
         const load = async () => {
             try {
@@ -123,9 +122,11 @@ export function LaboratoryMenu(props) {
     }, [selectedRow])
 
 
-
     if (selectedRow)
         return laboratoryDetail()
+
+    if (showMakeOrder)
+        return <StudyOrder></StudyOrder>
 
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
@@ -140,7 +141,9 @@ export function LaboratoryMenu(props) {
                                 archivos subidos por el paciente, laboratorios o dispositivos médicos
                             </Typography>
                         </Grid>
-                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2">
+                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
+                        onClick={() => setShowMakeOrder(true)}
+                        >
                             <div>Emitir orden de estudio</div>
                             <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
                         </button>
@@ -275,6 +278,7 @@ export function LaboratoryMenu(props) {
                                     },
 
                                 ]}
+                                // eslint-disable-next-line eqeqeq
                                 data={studiesData.filter((data) => (data.category == categorySelect || categorySelect == ""))}
                                 onRowClick={(evt, selectedRow) =>
                                     //@ts-ignore
@@ -594,6 +598,7 @@ export function LaboratoryMenu(props) {
                 </div>
 
                 {
+                    // eslint-disable-next-line jsx-a11y/alt-text
                     !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>

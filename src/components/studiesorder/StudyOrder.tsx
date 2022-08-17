@@ -84,23 +84,22 @@ const StudyOrder = () => {
     ]);
 
     const addCategory = () => {
-
-        setOrders([{
+        setOrders([...orders, {
             category: "",
             rush_order: false,
             diagnostic_impression: "",
             studies: [{ id: 1, name: 'Glucosa' }, { id: 2, name: ' Hemograma de Constraste' }, { id: 3, name: 'Sangre' }],
             observation: ""
-        }, ...orders])
+        }])
     }
 
     const deleteCategory = (key) => {
         if (key > 0){
-            setOrders(orders.splice(key, 1))
+            let update = [...orders]
+            update.splice(key,1)
+            setOrders(update)
         }
     }
-
-
 
     return (
         <>
