@@ -94,7 +94,8 @@ const StudyOrder = () => {
     }
 
     const deleteCategory = (key) => {
-        if (key > 0){
+        if (orders.length !== 1){
+            
             let update = [...orders]
             update.splice(key,1)
             setOrders(update)
@@ -102,10 +103,10 @@ const StudyOrder = () => {
     }
 
     return (
-        <>
+        <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div className="pt-3 px-5 pb-7 m-5 bg-gray-50 rounded-xl">
+                    return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
@@ -114,10 +115,10 @@ const StudyOrder = () => {
                                     </IconButton>
                                 </Grid>
                                 <Grid item container direction='row' spacing={5}>
-                                    <Grid item xs={4}>
+                                    <Grid item xs={5}>
                                         <SelectCategory variant='outlined' classes={classes}></SelectCategory>
                                     </Grid>
-                                    <Grid item xs={8}>
+                                    <Grid item xs={7}>
                                         <FormGroup>
                                             <FormControlLabel
                                                 control={<CheckOrder checked={false}></CheckOrder>}
@@ -154,7 +155,7 @@ const StudyOrder = () => {
                     <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
                 </button>
             </div>
-        </>
+        </div>
 
     )
 }

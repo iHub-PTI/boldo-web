@@ -47,6 +47,7 @@ module.exports = {
       },
       screens: {
         'md-max': {max: '1024px'},
+        'sm-max': {max: '600px'},
         '2xl': '1920px',
       },
       maxHeight: { 0: '0', 200: '200px' },

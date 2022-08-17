@@ -126,7 +126,26 @@ export function LaboratoryMenu(props) {
         return laboratoryDetail()
 
     if (showMakeOrder)
-        return <StudyOrder></StudyOrder>
+        return (
+            <>
+                <div className="flex flex-row sm-max:mt-4">
+                    <button
+                        style={{ backgroundColor: '#27BEC2', height: '46px', width: '48px' }}
+                        className='flex items-center justify-center m-3 rounded-full focus:outline-none focus:bg-gray-600'
+                        onClick={() => {
+                            setShowMakeOrder(false);
+                        }}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
+                        </svg>
+                    </button>
+                    <StudyOrder></StudyOrder>
+                </div>
+                
+            </>
+            
+        )
 
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
