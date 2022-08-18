@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useContext } from 'react'
 import SelectItem from './SelectItem'
 import {ReactComponent as TemplateStudy } from '../../assets/template-study.svg'
 import { CategoriesContext } from './Provider'

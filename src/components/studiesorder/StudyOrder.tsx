@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useEffect, createContext, useContext } from 'react';
+import React, { useContext } from 'react';
 
 import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
@@ -86,12 +86,12 @@ const StudyOrder = () => {
     }
 
     const deleteCategory = (key) => {
-        console.log(orders)
         if (orders.length > 1){
             let update = [...orders]
             update.splice(key,1)
             setOrders(update)
         }
+        console.table(orders)
     }
 
     return (

@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import { CategoriesContext } from './Provider';
