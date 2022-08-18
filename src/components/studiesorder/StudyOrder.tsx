@@ -113,7 +113,7 @@ const StudyOrder = () => {
                                         <Grid item xs={7}>
                                             <FormGroup>
                                                 <FormControlLabel
-                                                    control={<CheckOrder checked={false} index={index}></CheckOrder>}
+                                                    control={<CheckOrder checked={item.rush_order} index={index}></CheckOrder>}
                                                     label="Orden Urgente"
                                                 />
                                             </FormGroup>
@@ -125,7 +125,7 @@ const StudyOrder = () => {
                                 <Grid container direction='column'>
                                     <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                         <Typography>Impresión diagnóstica</Typography>
-                                        <InputText variant='outlined' className={classes.textfield} index={index}/>
+                                        <InputText name="diagnosis" variant='outlined' className={classes.textfield} index={index}/>
                                     </Grid>
                                     <Grid style={{ marginBottom: '1rem' }}>
                                         <Typography>Estudios a realizar</Typography>
@@ -133,7 +133,7 @@ const StudyOrder = () => {
                                     </Grid>
                                     <Grid >
                                         <Typography>Observaciones</Typography>
-                                        <InputText variant='outlined' className={classes.textfield} multiline index={index} />
+                                        <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} />
                                     </Grid>
                                 </Grid>
                             </FormControl>

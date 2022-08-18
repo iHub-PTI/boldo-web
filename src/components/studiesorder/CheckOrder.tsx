@@ -1,20 +1,22 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useContext } from 'react';
 
 import Checkbox from '@material-ui/core/Checkbox';
+import { CategoriesContext } from './Provider';
 
 
 
 const CheckOrder = props => {
 
-    const { checked } = props;
-
-    const [checkOrder, setCheckOrder] = useState(checked)
+    const [orders, setOrders] = useContext(CategoriesContext)
 
     const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
-        setCheckOrder(event.target.checked)
-        console.log(checkOrder)
+        orders[props.index].rush_order = event.target.checked
+        let update = [...orders]
+        setOrders(update)
+        console.table(orders)
     }
-    return <Checkbox checked={checkOrder} onChange={handleCheck} name="orden" {...props}/>
+
+    return <Checkbox onChange={handleCheck} name="orden" {...props}/>
 }
 
 export default CheckOrder;

@@ -1,14 +1,24 @@
 import { TextField } from "@material-ui/core";
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useContext } from "react";
+import { CategoriesContext } from "./Provider";
 
 
 
 const InputText = props => {
-    const [text, setText] = useState("")
+    
+    const [text, setText] = useState('')
+    const [orders, setOrders ] = useContext(CategoriesContext)
 
     const changeText = (event: ChangeEvent<{ value: string }>) => {
         setText(event.target.value)
-        console.log(event.target.value)
+        if('diagnosis' === props.name){
+            orders[props.index].diagnostic_impression = event.target.value
+            setOrders(orders)
+        }else if('observation' === props.name){
+            orders[props.index].observation = event.target.value
+            setOrders(orders)
+        }
+        console.table(orders)
     }
     
 
