@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { ChangeEvent } from "react"
-import { FormControl, MenuItem, Select, InputBase,  OutlinedInput as MuiOutlinedInput } from '@material-ui/core';
+import { FormControl, MenuItem, Select, InputBase } from '@material-ui/core';
 import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
 import { ReactComponent as IconLab } from "../../assets/laboratory-icon.svg";
 import { ReactComponent as IconImg } from "../../assets/img-icon.svg";
 import { ReactComponent as IconOther } from "../../assets/icon-other.svg";
+import { CategoriesContext } from "./Provider";
 
 
 const SelectStyled = withStyles((theme: Theme) =>
@@ -35,11 +36,15 @@ const SelectCategory = (props) => {
 
     
     const [categorySelect, setCategory] = useState("")
+    const [orders, setOrders] = useContext(CategoriesContext)
 
     //Handle Change Event Select
     const handleChange = (event: ChangeEvent<{ value: unknown }>) => {
         setCategory(event.target.value as string);
-        console.log(categorySelect)
+        let update = [...orders]
+        update[props.index].category = event.target.value as string
+        setOrders(update)
+        console.table(orders)
     };
 
     
