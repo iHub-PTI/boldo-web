@@ -10,6 +10,10 @@ const BoxSelect = props => {
     //const [data, setData] = useState(options)
     const data = orders[props.index].studies
 
+    const onClickToogle = () => {
+        props.setShow(!props.show)
+    }
+
     const deleteData = (id) => {
         const dataUpdate = data.filter(item => item.id !== id)
         //setData(dataUpdate)
@@ -21,9 +25,9 @@ const BoxSelect = props => {
     return (
         <div className="flex flex-row flex-wrap bg-white border border-gray-300 rounded items-center"
         style={{minHeight:'3rem'}}>
-            <div className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full">
+            <button className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full focus:outline-none" onClick={()=>{onClickToogle()}}>
                 <TemplateStudy></TemplateStudy>
-            </div>
+            </button>
             {data && data.map( (item) => {
                 return <SelectItem id={item.id} value={item.name} handleDelete={deleteData} {...props}></SelectItem>
             })}

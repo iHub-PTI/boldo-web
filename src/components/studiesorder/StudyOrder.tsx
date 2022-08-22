@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
@@ -9,6 +9,7 @@ import CheckOrder from './CheckOrder';
 import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
 import { CategoriesContext } from './Provider';
+import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -74,6 +75,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const StudyOrder = () => {
     const classes = useStyles()
     const [orders, setOrders] = useContext(CategoriesContext)
+    const [show, setShow] = useState(false)
 
     const addCategory = () => {
         setOrders([...orders, {
@@ -129,7 +131,7 @@ const StudyOrder = () => {
                                     </Grid>
                                     <Grid style={{ marginBottom: '1rem' }}>
                                         <Typography>Estudios a realizar</Typography>
-                                        <BoxSelect options={item.studies} index={index}></BoxSelect>
+                                        <BoxSelect options={item.studies} index={index} show={show} setShow={setShow}></BoxSelect>
                                     </Grid>
                                     <Grid >
                                         <Typography>Observaciones</Typography>
@@ -147,6 +149,7 @@ const StudyOrder = () => {
                         <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
                     </button>
                 </div>
+                <StudiesTemplate show={show} setShow={setShow} size="xl5" ></StudiesTemplate>
             </div>
     )
 }
