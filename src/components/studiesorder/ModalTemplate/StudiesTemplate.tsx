@@ -15,7 +15,7 @@ interface StudiesTemplate {
   id: number,
   name: string
   desc?: string
-  studies?: Array<StudiesWithIndication>
+  studiesIndication?: Array<StudiesWithIndication>
 }
 
 
@@ -25,37 +25,58 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       id: 1,
       name: "Predeterminado",
       desc: "Esta lista contiene los estudios solicitados con más frecuencia en la especialidad de gastroenterología.",
-      studies: [],
+      studiesIndication: [
+        {
+          name:"Hemograma",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Hemograma completo",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Heces por parásito, sangre oculta",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Perfil renal",
+          select: false,
+          indication: ""
+        }
+      ],
     },
     {
       id: 2,
       name: "Pancreatitis",
       desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
-      studies: [],
+      studiesIndication: [],
     },
     {
       id: 3,
       name: "Checkeo Anual",
       desc: "",
-      studies: [],
+      studiesIndication: [],
     },
     {
       id: 4,
       name: "Template1",
       desc: "",
-      studies: [],
+      studiesIndication: [],
     },
     {
       id: 5,
       name: "Template2",
       desc: "",
-      studies: [],
+      studiesIndication: [],
     },
     {
       id: 6,
       name: "Template3",
       desc: "",
-      studies: [],
+      studiesIndication: [],
     }
   ])
   
