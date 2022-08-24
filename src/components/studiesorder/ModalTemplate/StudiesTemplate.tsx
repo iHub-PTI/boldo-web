@@ -1,26 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import Modal from '../../Modal'
 import { ReactComponent as CloseIcon } from '../../../assets/close.svg'
 import {ReactComponent as AddIcon } from '../../../assets/rounded-add.svg'
 import { PaginationTemplate } from './PaginationTemplate'
 import { SelectStudies } from './SelectStudies'
-
-interface StudiesWithIndication {
-  name: string
-  select: boolean
-  indication: string
-}
-
-interface StudiesTemplate {
-  id: number,
-  name: string
-  desc?: string
-  studiesIndication?: Array<StudiesWithIndication>
-}
+import { CategoriesContext, Orders } from '../Provider'
+import { TemplateStudies } from './types'
 
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
-  const [studies, setStudies] = useState<Array<StudiesTemplate>>([
+  
+  const {orders, setOrders} = useContext(CategoriesContext)
+  const [studies, setStudies] = useState<Array<TemplateStudies>>([
     {
       id: 1,
       name: "Predeterminado",
@@ -53,30 +44,6 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       name: "Pancreatitis",
       desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
       studiesIndication: [],
-    },
-    {
-      id: 3,
-      name: "Checkeo Anual",
-      desc: "",
-      studiesIndication: [],
-    },
-    {
-      id: 4,
-      name: "Template1",
-      desc: "",
-      studiesIndication: [],
-    },
-    {
-      id: 5,
-      name: "Template2",
-      desc: "",
-      studiesIndication: [],
-    },
-    {
-      id: 6,
-      name: "Template3",
-      desc: "",
-      studiesIndication: [],
     }
   ])
   
@@ -84,6 +51,10 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const [page, setPage] = useState(1)
   const perPage = 3
   const maxPagination = Math.ceil(studies.length / perPage)
+
+  const confirmationStudies = () => {
+    console.log(studies)
+  }
 
   return (
     <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
@@ -131,7 +102,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
           <SelectStudies template={template} setTemplate={setTemplate} studies={studies} setStudies={setStudies} />
         </div>
         <div className='flex flex-row justify-end mt-10 mr-10 mb-1'>
-          <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'>
+          <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20' onClick={() => { confirmationStudies()}}>
             Confirmar
           </button>
         </div>

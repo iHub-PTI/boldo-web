@@ -7,7 +7,7 @@ import { CategoriesContext } from './Provider';
 
 const CheckOrder = props => {
 
-    const [orders, setOrders] = useContext(CategoriesContext)
+    const {orders, setOrders} = useContext(CategoriesContext)
 
     const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
         orders[props.index].rush_order = event.target.checked

@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const StudyOrder = () => {
     const classes = useStyles()
-    const [orders, setOrders] = useContext(CategoriesContext)
+    const { orders, setOrders } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
 
     const addCategory = () => {
@@ -82,7 +82,7 @@ const StudyOrder = () => {
             category: "",
             rush_order: false,
             diagnostic_impression: "",
-            studies: [{ id: 1, name: 'Glucosa' }, { id: 2, name: ' Hemograma de Constraste' }, { id: 3, name: 'Sangre' }],
+            studies: [],
             observation: ""
         }])
     }

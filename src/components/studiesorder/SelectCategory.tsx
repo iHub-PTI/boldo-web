@@ -36,7 +36,7 @@ const SelectCategory = (props) => {
 
     
     const [categorySelect, setCategory] = useState("")
-    const [orders, setOrders] = useContext(CategoriesContext)
+    const {orders, setOrders} = useContext(CategoriesContext)
 
     //Handle Change Event Select
     const handleChange = (event: ChangeEvent<{ value: unknown }>) => {

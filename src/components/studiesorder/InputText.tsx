@@ -7,7 +7,7 @@ import { CategoriesContext } from "./Provider";
 const InputText = props => {
     
     const [text, setText] = useState('')
-    const [orders, setOrders ] = useContext(CategoriesContext)
+    const {orders, setOrders} = useContext(CategoriesContext)
 
     const changeText = (event: ChangeEvent<{ value: string }>) => {
         setText(event.target.value)

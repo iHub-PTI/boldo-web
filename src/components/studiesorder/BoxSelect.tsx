@@ -5,7 +5,7 @@ import { CategoriesContext } from './Provider'
 
 const BoxSelect = props => {
 
-    const [orders, setOrders] = useContext(CategoriesContext)
+    const {orders, setOrders} = useContext(CategoriesContext)
     //const { options } = props
     //const [data, setData] = useState(options)
     const data = orders[props.index].studies
