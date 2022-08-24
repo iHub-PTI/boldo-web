@@ -86,48 +86,55 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const maxPagination = Math.ceil(studies.length / perPage)
 
   return (
-    <Modal show={show} setShow={setShow} size='full' {...props}>
-      <div className='relative'>
-        <h2 className='text-2xl font-normal leading-normal mt-0 pt-0 mb-2'>
-          Plantillas: Orden de estudios laboratoriales
-        </h2>
-        <button className='absolute focus:outline-none top-0 right-0' onClick={() => setShow(false)}>
-          <CloseIcon></CloseIcon>
-        </button>
-      </div>
-      <div className='flex flex-row'>
-        <div className='flex w-full'>
-          {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
-            <div
-              key={i}
-              className={`flex flex-row justify-center border-b-2 ${
-                data.name === template.name ? 'border-primary-600' : 'border-gray-300'
-              }`}
-              style={{ width: '100%', height: '3rem' }}
-            >
-              <button
-                className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${
-                  data.name === template.name ? 'text-primary-600' : 'text-gray-400'
-                }`}
-                onClick={() => {
-                  setTemplate(data)
-                }}
-              >
-                {data.name}
-              </button>
-            </div>
-          ))}
+    <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
+      <div className='p-5'>
+        <div className='relative'>
+          <h2 className='text-2xl font-normal leading-normal mt-0 pt-0 mb-2'>
+            Plantillas: Orden de estudios laboratoriales
+          </h2>
+          <button className='absolute focus:outline-none top-0 right-0' onClick={() => setShow(false)}>
+            <CloseIcon></CloseIcon>
+          </button>
         </div>
-        <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination}></PaginationTemplate>
-        <button className="focus:outline-none ml-10">
-          <AddIcon></AddIcon>
-        </button>
-      </div>
-      <div className="pt-2">
-        <h5 className="text-gray-500">{template.desc}</h5>
-      </div>
-      <div className='w-full pt-2'>
-        <SelectStudies template={template} setTemplate={setTemplate} studies={studies} setStudies={setStudies} />
+        <div className='flex flex-row'>
+          <div className='flex w-full'>
+            {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
+              <div
+                key={i}
+                className={`flex flex-row justify-center border-b-2 ${
+                  data.name === template.name ? 'border-primary-600' : 'border-gray-300'
+                }`}
+                style={{ width: '100%', height: '3rem' }}
+              >
+                <button
+                  className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${
+                    data.name === template.name ? 'text-primary-600' : 'text-gray-400'
+                  }`}
+                  onClick={() => {
+                    setTemplate(data)
+                  }}
+                >
+                  {data.name}
+                </button>
+              </div>
+            ))}
+          </div>
+          <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination}></PaginationTemplate>
+          <button className="focus:outline-none ml-10">
+            <AddIcon></AddIcon>
+          </button>
+        </div>
+        <div className="pt-2">
+          <h5 className="text-gray-500">{template.desc}</h5>
+        </div>
+        <div className='w-full pt-2'>
+          <SelectStudies template={template} setTemplate={setTemplate} studies={studies} setStudies={setStudies} />
+        </div>
+        <div className='flex flex-row justify-end mt-10 mr-10 mb-1'>
+          <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'>
+            Confirmar
+          </button>
+        </div>
       </div>
     </Modal>
   )

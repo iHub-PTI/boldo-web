@@ -29,6 +29,7 @@ export const SelectStudies = ({ template, setTemplate, studies, setStudies }) =>
     useEffect(()=>{
         if(template !== undefined){
             let data = [...template.studiesIndication]
+            if(data.length === 0) return
             let yesAll = true
             for (let i = 0; i < data.length; i++) {
                 if(data[i].select === false){
