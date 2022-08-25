@@ -10,6 +10,7 @@ import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
 import { CategoriesContext, initialState } from './Provider';
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
+import { StudiesWithIndication } from './ModalTemplate/types';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,7 +79,11 @@ const StudyOrder = () => {
     const [show, setShow] = useState(false)
 
     const addCategory = () => {
-        setOrders([...orders, initialState[0]])
+        
+        let copyStudies = [...initialState[0].studies]
+        let newCategory = {...initialState[0]}
+        newCategory.studies = copyStudies
+        setOrders([...orders, newCategory])
     }
 
     const deleteCategory = (key) => {
