@@ -5,20 +5,18 @@ import { CategoriesContext } from './Provider'
 
 const BoxSelect = props => {
 
-    const {orders, setOrders} = useContext(CategoriesContext)
-    //const { options } = props
-    //const [data, setData] = useState(options)
+    const {orders, setOrders, setIndexOrder} = useContext(CategoriesContext)
     const data = orders[props.index].studies
 
     const onClickToogle = () => {
         props.setShow(!props.show)
+        setIndexOrder(props.index)
     }
 
-    const deleteData = (id) => {
-        const dataUpdate = data.filter(item => item.id !== id)
-        //setData(dataUpdate)
+    const deleteData = (index) => {
+        data.splice(index, 1)
         const orderUpdate = [...orders]
-        orderUpdate[props.index].studies = dataUpdate
+        orderUpdate[props.index].studies = data
         setOrders(orderUpdate)
     }
 
@@ -28,8 +26,8 @@ const BoxSelect = props => {
             <button className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full focus:outline-none" onClick={()=>{onClickToogle()}}>
                 <TemplateStudy></TemplateStudy>
             </button>
-            {data && data.map( (item) => {
-                return <SelectItem id={item.id} value={item.name} handleDelete={deleteData} {...props}></SelectItem>
+            {data && data.map( (item, i) => {
+                return <SelectItem value={item.name} handleDelete={()=>deleteData(i)} {...props}></SelectItem>
             })}
         </div>
     )

@@ -8,7 +8,7 @@ import BoxSelect from './BoxSelect';
 import CheckOrder from './CheckOrder';
 import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
-import { CategoriesContext } from './Provider';
+import { CategoriesContext, initialState } from './Provider';
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
 
 //HoverSelect theme and Study Order styles
@@ -78,13 +78,7 @@ const StudyOrder = () => {
     const [show, setShow] = useState(false)
 
     const addCategory = () => {
-        setOrders([...orders, {
-            category: "",
-            rush_order: false,
-            diagnostic_impression: "",
-            studies: [],
-            observation: ""
-        }])
+        setOrders([...orders, initialState[0]])
     }
 
     const deleteCategory = (key) => {
@@ -131,7 +125,7 @@ const StudyOrder = () => {
                                     </Grid>
                                     <Grid style={{ marginBottom: '1rem' }}>
                                         <Typography>Estudios a realizar</Typography>
-                                        <BoxSelect options={item.studies} index={index} show={show} setShow={setShow}></BoxSelect>
+                                        <BoxSelect index={index} show={show} setShow={setShow}></BoxSelect>
                                     </Grid>
                                     <Grid >
                                         <Typography>Observaciones</Typography>

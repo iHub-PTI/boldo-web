@@ -4,49 +4,17 @@ import { ReactComponent as CloseIcon } from '../../../assets/close.svg'
 import {ReactComponent as AddIcon } from '../../../assets/rounded-add.svg'
 import { PaginationTemplate } from './PaginationTemplate'
 import { SelectStudies } from './SelectStudies'
-import { CategoriesContext, Orders } from '../Provider'
+import { CategoriesContext } from '../Provider'
 import { TemplateStudies } from './types'
+import { data } from './services'
 
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   
   const {orders, setOrders} = useContext(CategoriesContext)
-  const [studies, setStudies] = useState<Array<TemplateStudies>>([
-    {
-      id: 1,
-      name: "Predeterminado",
-      desc: "Esta lista contiene los estudios solicitados con más frecuencia en la especialidad de gastroenterología.",
-      studiesIndication: [
-        {
-          name:"Hemograma",
-          select: false,
-          indication: ""
-        },
-        {
-          name:"Hemograma completo",
-          select: false,
-          indication: ""
-        },
-        {
-          name:"Heces por parásito, sangre oculta",
-          select: false,
-          indication: ""
-        },
-        {
-          name:"Perfil renal",
-          select: false,
-          indication: ""
-        }
-      ],
-    },
-    {
-      id: 2,
-      name: "Pancreatitis",
-      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
-      studiesIndication: [],
-    }
-  ])
+  const [studies, setStudies] = useState<Array<TemplateStudies>>(data)
   
+  //index of studies
   const [template, setTemplate] = useState(studies[0])
   const [page, setPage] = useState(1)
   const perPage = 3

@@ -2,7 +2,7 @@
 
 export type StudiesWithIndication = {
   name: string
-  select: boolean
+  select?: boolean
   indication: string
 }
 
