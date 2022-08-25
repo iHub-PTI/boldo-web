@@ -29,6 +29,7 @@ const BoxSelect = props => {
             {data && data.map( (item, i) => {
                 return <SelectItem value={item.name} handleDelete={()=>deleteData(i)} {...props}></SelectItem>
             })}
+            
         </div>
     )
 }

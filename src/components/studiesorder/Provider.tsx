@@ -16,39 +16,20 @@ export type ContextProps = {
     setIndexOrder: React.Dispatch<React.SetStateAction<number>>;
 } 
 
-export const initialState:Array<Orders> = [
-    {
-        category: "",
-        rush_order: false,
-        diagnostic_impression: "",
-        studies: [{
-            name: "Prueba",
-            select: false,
-            indication: "",
-
-        },
-        {
-            name: "Prueba2",
-            select: false,
-            indication: "",
-
-        },
-        {
-            name: "Prueba3",
-            select: false,
-            indication: "",
-
-        }] as Array<StudiesWithIndication>,
-        observation: ""
-    }
-]
-
 export const CategoriesContext = createContext<ContextProps>({} as ContextProps )
 
-
-
 const Provider = ({children}) => {
-    const [orders, setOrders] = useState<Array<Orders>>(initialState);
+    const [orders, setOrders] = useState<Array<Orders>>(
+        [
+            {
+                category: "",
+                rush_order: false,
+                diagnostic_impression: "",
+                studies: [] as Array<StudiesWithIndication>,
+                observation: ""
+            }
+        ]
+    );
     const [indexOrder, setIndexOrder] = useState(0)
 
     return (

@@ -1,4 +1,4 @@
-export const data = [
+export const templates = [
     {
       id: 1,
       name: "Predeterminado",

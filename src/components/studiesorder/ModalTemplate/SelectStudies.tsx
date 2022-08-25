@@ -7,7 +7,7 @@ const CheckStyle = styled.input.attrs({ type: 'checkbox' })`
     accent-color:#13A5A9;
 `
 
-export const SelectStudies = ({ template, setTemplate, studies, setStudies }) => {
+export const SelectStudies = ({ template, setTemplate }) => {
     const [selectAll, setSelectAll] = useState(false)
 
     const handleSelectAll = () => {
