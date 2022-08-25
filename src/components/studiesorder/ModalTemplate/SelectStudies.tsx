@@ -22,6 +22,16 @@ export const SelectStudies = ({ template, setTemplate, studies, setStudies }) =>
 
     const selectCheck = (id) => {
         template.studiesIndication[id].select =  !template.studiesIndication[id].select
+        if(template.studiesIndication[id].select === false){
+            template.studiesIndication[id].indication = ''
+        }
+        let copyTemplate = {...template}
+        setTemplate(copyTemplate)
+    }
+
+    const updateIndication = (indication,id) => {
+        template.studiesIndication[id].select =  true
+        template.studiesIndication[id].indication =  indication
         let copyTemplate = {...template}
         setTemplate(copyTemplate)
     }
@@ -51,7 +61,7 @@ export const SelectStudies = ({ template, setTemplate, studies, setStudies }) =>
             <div className="mt-1 pl-8 pb-2 flex flex-row flex-wrap w-full overflow-y-auto" style={{ height:"250px", maxHeight: '580px' }}>
                 {
                     template.studiesIndication.map((data, i) => (
-                        <StudyIndication id={i} name={data.name} check={data.select} selectCheck={selectCheck} disabled={!data.select} />
+                        <StudyIndication id={i} name={data.name} indication={data.indication} check={data.select} selectCheck={selectCheck} setIndication={updateIndication} disabled={!data.select} />
 
                     ))
                 }
