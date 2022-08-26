@@ -44,7 +44,8 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
         }
       })
     })
-
+    setTemplate(studies[0])
+    setPage(1)
     setShow(false) 
   }
 

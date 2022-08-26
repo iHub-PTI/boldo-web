@@ -50,7 +50,59 @@ export const templates = [
           name:"Perfil",
           select: false,
           indication: ""
-        }
-      ],
-    }
+        },
+      ]
+    },
+    {
+      id: 3,
+      name: "Pancreatitis22",
+      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
+      studiesIndication: [
+        {
+          name:"Hemo22",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"He22",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Heces por parásia22",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Perfil22",
+          select: false,
+          indication: ""
+        }]
+    },
+    {
+      id: 4,
+      name: "Template1",
+      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
+      studiesIndication: [
+        {
+          name:"Estudio1",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio2",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio3",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio4",
+          select: false,
+          indication: ""
+        }]
+    },
   ]
