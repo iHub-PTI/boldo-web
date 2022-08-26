@@ -44,7 +44,7 @@ export default function MedicationsModal({
     try {
       setShowError(false)
       setMedicationsLoading(true)
-      const res = await axios.get(`/medications${content ? `?content=${content}` : ''} `)
+      const res = await axios.get(`/profile/doctor/medications${content ? `?content=${content}` : ''} `)
 
       setMedicationsItems(res.data.items)
       setMedicationsLoading(false)

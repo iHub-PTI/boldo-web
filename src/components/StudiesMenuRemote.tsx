@@ -169,9 +169,8 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 }
 
 
-export function StudiesMenuRemote(props) {
+export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
     const { addErrorToast } = useToasts()
-    const { appointment } = props;
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -181,6 +180,7 @@ export function StudiesMenuRemote(props) {
     const [categorySelect, setCategory] = useState("")
     const [dateRever, setDateRever] = useState(false)
     const [loadPreview, setLoadPreview] = useState(false)
+    const [filterHide, setFilterHide] = useState(true)
 
     useEffect(() => {
         const load = async () => {
@@ -277,6 +277,7 @@ export function StudiesMenuRemote(props) {
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
                             setSelectedRow(undefined);
+                            setFilterHide(true);
                         }}
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -317,13 +318,17 @@ export function StudiesMenuRemote(props) {
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography> */}
                     </Grid>
-                    <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
-                        <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
-                        <DateRever dateRever={dateRever}
-                            setDateRever={setDateRever}
-                            studiesData={studiesData}
-                            setStudiesData={setStudiesData}></DateRever>
-                    </div>
+                    {
+                        filterHide === true && (
+                            <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
+                                <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
+                                <DateRever dateRever={dateRever}
+                                    setDateRever={setDateRever}
+                                    studiesData={studiesData}
+                                    setStudiesData={setStudiesData}></DateRever>
+                            </div>
+                        )
+                    }
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -367,7 +372,10 @@ export function StudiesMenuRemote(props) {
                                 studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
                                         className={classes.gridBorder}
-                                        onClick={() => { setSelectedRow(item) }}
+                                        onClick={() => { 
+                                            setSelectedRow(item) 
+                                            setFilterHide(false);
+                                        }}
                                         key={index}
                                     >
 
@@ -624,7 +632,7 @@ export function StudiesMenuRemote(props) {
                                                 className='flex items-center justify-center ml-3 rounded-full focus:outline-none focus:bg-gray-600'
                                                 onClick={() => {
                                                     setShowEditModal(true);
-
+                                                    setPreviewActivate(true);
                                                     if (contentType.includes("pdf")) {
                                                         downloadBlob(url, contentType, false)
 
@@ -657,7 +665,7 @@ export function StudiesMenuRemote(props) {
 
             </Grid>
 
-            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={true}   >
+            <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={false}   >
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',
@@ -667,7 +675,7 @@ export function StudiesMenuRemote(props) {
                     <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
                 </div>
                 {
-                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object style={{ opacity: '0.5' }} data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img style={{ opacity: '0.5' }} src={showPreview['url']} alt="img" />) : (
+                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object  data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img  src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto', opacity: '0.5' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                 <svg

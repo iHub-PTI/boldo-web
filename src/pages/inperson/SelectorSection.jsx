@@ -5,12 +5,12 @@ import ShowSoepHelper from '../../components/TooltipSoep'
 export default ({ setDynamicMenuSelector }) => {
   const [activeColor, setActiveColor] = useState('M')
   const [showHover, setShowHover] = useState('')
-  const Soep = {
-    Subjetive: 'Subjetivo',
-    Note: 'Nota',
-    Prescription: 'Receta',
+
+  const soep = {
+    studies: 'Estudios',
+    note: 'Nota',
+    prescription: 'Receta',
   }
-  const [soepSelected, setSoepSelected] = useState(Soep.Subjetive)
 
   return (
     <Grid
@@ -28,35 +28,13 @@ export default ({ setDynamicMenuSelector }) => {
       }}
     >
       <button
-        style={{ backgroundColor: `${activeColor === 'L' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
-        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
-        onClick={() => {
-          setDynamicMenuSelector('L')
-          // setSoepSelected(Soep.Note)
-          setActiveColor('L')
-        }}
-        onMouseEnter={() => setShowHover(Soep.Note)}
-        onMouseLeave={() => setShowHover('')}
-      >
-        <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-          <path
-            d='M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z'
-            fill='white'
-          />
-        </svg>
-
-        {showHover === Soep.Note && ShowSoepHelper({ title: 'Estudios', isBlackColor: false })}
-      </button>
-
-      <button
         style={{ backgroundColor: `${activeColor === 'M' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
         className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
           setDynamicMenuSelector('M')
-          // setSoepSelected(Soep.Note)
           setActiveColor('M')
         }}
-        onMouseEnter={() => setShowHover(Soep.Note)}
+        onMouseEnter={() => setShowHover(soep.note)}
         onMouseLeave={() => setShowHover('')}
       >
         <svg width='16' height='20' viewBox='0 0 16 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -69,7 +47,7 @@ export default ({ setDynamicMenuSelector }) => {
             fill='white'
           />
         </svg>
-        {showHover === Soep.Note && ShowSoepHelper({ title: Soep.Note, isBlackColor: false })}
+        {showHover === soep.note && ShowSoepHelper({ title: soep.note, isBlackColor: false })}
       </button>
 
       <button
@@ -77,10 +55,9 @@ export default ({ setDynamicMenuSelector }) => {
         className='flex items-center mt-3 justify-center rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
           setDynamicMenuSelector('P')
-          // setSoepSelected(Soep.Prescription)
           setActiveColor('P')
         }}
-        onMouseEnter={() => setShowHover(Soep.Prescription)}
+        onMouseEnter={() => setShowHover(soep.prescription)}
         onMouseLeave={() => setShowHover('')}
       >
         <svg width='19' height='19' viewBox='0 0 19 19' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -97,7 +74,26 @@ export default ({ setDynamicMenuSelector }) => {
             fill='white'
           />
         </svg>
-        {showHover === Soep.Prescription && ShowSoepHelper({ title: Soep.Prescription, isBlackColor: false })}
+        {showHover === soep.prescription && ShowSoepHelper({ title: soep.prescription, isBlackColor: false })}
+      </button>
+      <button
+        style={{ backgroundColor: `${activeColor === 'L' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
+        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
+        onClick={() => {
+          setDynamicMenuSelector('L')
+          setActiveColor('L')
+        }}
+        onMouseEnter={() => setShowHover(soep.studies)}
+        onMouseLeave={() => setShowHover('')}
+      >
+        <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <path
+            d='M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z'
+            fill='white'
+          />
+        </svg>
+
+        {showHover === soep.studies && ShowSoepHelper({ title: soep.studies, isBlackColor: false })}
       </button>
     </Grid>
   )

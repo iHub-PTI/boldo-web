@@ -216,7 +216,9 @@ const Gate = () => {
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} isFromInperson={true} /> 
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+
+        }} />
 
       default:
         return <Sidebar appointment={appointment} />
@@ -331,7 +333,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const stream = useRef<HTMLVideoElement>(null)
   const video = useRef<HTMLVideoElement>(null)
 
-  const [showCallMenu, setShowCallMenu] = useState(false)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
@@ -526,79 +527,62 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             </div>
           </div>
           <div />
-          <button
-            onClick={hangUp}
-            className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
-          >
-            <svg
-              style={{ transform: 'rotate(134deg)' }}
-              height='30px'
-              width='30px'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
+
+          <Grid justifyContent='center' container>
+            <button
+              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+              onClick={muteAudio}
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
-              />
-            </svg>
-          </button>
-          <Grid
-            style={{
-              position: 'fixed',
-              bottom: '0',
-              right: '27%',
-            }}
-          >
-            <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
-            </Grid>
-          </Grid>
-          <div className='flex flex-col items-end space-y-4'>
-            {showCallMenu && (
-              <>
-                <div className='flex items-center'>
-                  <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getAudioTracks()[0].label}</p>
-                  <button
-                    className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-                    onClick={muteAudio}
-                  >
-                    {audioEnabled ? (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
-                        />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <div className='flex items-center'>
-                  <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getVideoTracks()[0].label}</p>
-                  <button
+              {audioEnabled ? (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
+                  />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={hangUp}
+              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
+            >
+              <svg
+                style={{ transform: 'rotate(134deg)' }}
+                height='30px'
+                width='30px'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
+                />
+              </svg>
+            </button>
+            <button
                     className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
                     onClick={muteVideo}
                   >
@@ -630,33 +614,21 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                       </svg>
                     )}
                   </button>
-                </div>
-              </>
-            )}
-            {/* <button
-              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-              onClick={() => {
-                setShowCallMenu(menuOpen => !menuOpen)
-              }}
-            >
-              <svg
-                className={`w-6 h-6 transition-transform duration-150 ease-in-out ${
-                  showCallMenu && 'transform rotate-90'
-                }`}
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
-                />
-              </svg>
-            </button> */}
-          </div>
+
+          </Grid>
+
+          <Grid
+            style={{
+              position: 'fixed',
+              bottom: '0',
+              right: '27%',
+            }}
+          >
+            <Grid style={{ marginBottom: '20px' }}>
+              <TogleMenu />
+            </Grid>
+          </Grid>
+        
         </div>
         {callStatus.connecting && (
           <div
@@ -684,6 +656,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           sideBarAction={sideBarAction}
           appointment={appointment}
           show={showSidebarMenu}
+          stream={stream}
           hideSidebar={() => setShowSidebarMenu(false)}
         />
       </Grid>
@@ -778,9 +751,10 @@ interface SidebarContainerProps {
   hideSidebar: () => void
   appointment: AppointmentWithPatient
   sideBarAction: Number
+  stream: any
 }
 
-const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: SidebarContainerProps) => {
+const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, stream }: SidebarContainerProps) => {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -804,7 +778,21 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
     document.addEventListener('keyup', handleEscape)
     return () => document.removeEventListener('keyup', handleEscape)
   }, [show, hideSidebar])
-
+  const activatePicInPic = () => {
+    console.log('activatePicInPic');
+    if (!stream.current) return
+    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+      try {
+        if ((document as any).pictureInPictureElement) {
+          ; (document as any).exitPictureInPicture()
+        }
+        ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    //   }}
+  }
   const controlSideBarState = () => {
     switch (sideBarAction) {
       case 0:
@@ -816,8 +804,10 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
       case 2:
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
-        case 3:
-          return <StudiesMenuRemote appointment={appointment} isFromInperson={true} /> 
+      case 3:
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+          activatePicInPic();
+        }} />
 
       default:
         return <Sidebar appointment={appointment} />
