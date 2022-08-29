@@ -2,17 +2,21 @@ import React, { useState, useContext, useEffect } from 'react'
 import Modal from '../../Modal'
 import { ReactComponent as CloseIcon } from '../../../assets/close.svg'
 import { ReactComponent as AddIcon } from '../../../assets/rounded-add.svg'
+import { ReactComponent as EditIcon } from '../../../assets/edit-icon.svg'
 import { PaginationTemplate } from './PaginationTemplate'
 import { SelectStudies } from './SelectStudies'
 import { CategoriesContext } from '../Provider'
 import { TemplateStudies } from './types'
 import { templates } from './services'
 import { CreateStudyTemplate } from './CreateStudyTemplate'
+import { EditStudyTemplate } from './EditStudyTemplate'
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
   const [studies, setStudies] = useState<Array<TemplateStudies>>(templates)
   const [showAddTemplate, setShowAddTemplate] = useState(false)
+  const [showEditTemplate, setShowEditTemplate] = useState(false)
+  const [idEditStudy, setIdEditStudy] = useState(undefined)
 
   //index of studies
   const [template, setTemplate] = useState(studies[0])
@@ -52,9 +56,24 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     setShowAddTemplate(true)
   }
 
+  const editTemplate = (id) => {
+    setIdEditStudy(id)
+    setShowEditTemplate(true)
+  }
+
   useEffect(()=>{
-    if(show === false) setShowAddTemplate(false)
+    if(show === false) {
+      setShowAddTemplate(false)
+      setShowEditTemplate(false)
+    }
   }, [show])
+
+  useEffect(()=>{
+    //reset view on change 
+    setTemplate(studies[0])
+  },[studies])
+
+
 
   return (
     <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
@@ -67,8 +86,8 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {showAddTemplate && show? <CreateStudyTemplate /> : (
-          <div>
+        {showAddTemplate && show? <CreateStudyTemplate /> : showEditTemplate && show? <EditStudyTemplate id={idEditStudy} studies={studies} setStudies={setStudies} setShow={setShowEditTemplate}></EditStudyTemplate> : (
+          <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
                 {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
@@ -89,6 +108,10 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                     >
                       {data.name}
                     </button>
+                    {!template.default && (
+                    <div className='absolute bottom-1 left-1'>
+                      <EditIcon className='cursor-pointer' onClick={() => editTemplate(template.id)}/>
+                    </div>)}
                   </div>
                 ))}
               </div>

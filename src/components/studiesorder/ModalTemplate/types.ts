@@ -11,4 +11,5 @@ export type TemplateStudies = {
   name: string
   desc?: string
   studiesIndication?: Array<StudiesWithIndication>
+  default?: boolean
 }

@@ -25,6 +25,7 @@ export const templates = [
           indication: ""
         }
       ],
+      default: true
     },
     {
       id: 2,
