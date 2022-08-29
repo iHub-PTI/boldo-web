@@ -3,8 +3,9 @@ import { StudyIndication } from './StudyIndication'
 import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
+import { StudiesWithIndication } from './types'
 
-export const CreateStudyTemplate = () => {
+export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -12,7 +13,7 @@ export const CreateStudyTemplate = () => {
 
   const [newStudy, setNewStudy] = useState('')
 
-  const [studyArray, setStudyArray] = useState([])
+  const [studyArray, setStudyArray] = useState<Array<StudiesWithIndication>>([])
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
@@ -21,7 +22,6 @@ export const CreateStudyTemplate = () => {
 
   const handleChangeNewStudy = e => {
     setNewStudy(e.target.value)
-    console.log(newStudy)
   }
 
   const deleteStudy = i => {
@@ -30,11 +30,28 @@ export const CreateStudyTemplate = () => {
   }
 
   const addStudy = () => {
-    studyArray.push(newStudy)
-    console.log(studyArray)
+    studyArray.push({
+      name: newStudy,
+      select:false,
+      indication: ''
+    })
     setStudyArray([...studyArray])
     setNewStudy('')
-    console.log('hola')
+  }
+
+  const saveTemplate = () => {
+    const newTemplate = {
+      id: studies.length,
+      name: state.name,
+      desc: state.description,
+      studiesIndication: [...studyArray],
+    }
+
+    let copyStudies = JSON.parse(JSON.stringify(studies))
+    copyStudies.push(newTemplate)
+    console.log(copyStudies)
+    setStudies(copyStudies)
+    setShow(false)
   }
 
   return (
@@ -69,11 +86,9 @@ export const CreateStudyTemplate = () => {
         </div>
         <div className='flex flex-row justify-center w-6/12'>
           <div className='w-72 m-1 p-5 shadow-md rounded-md relative'>
-              <IconInfo className="absolute left-4 top-5"></IconInfo>
-              <h5 className='font-bold text-sm text-center mb-2'>Agregar estudio</h5>
-              <p className="text-center">
-              Podés ingresar hasta 15 estudios por cada plantilla personalizada
-              </p>
+            <IconInfo className='absolute left-4 top-5'></IconInfo>
+            <h5 className='font-bold text-sm text-center mb-2'>Agregar estudio</h5>
+            <p className='text-center'>Podés ingresar hasta 15 estudios por cada plantilla personalizada</p>
           </div>
         </div>
       </div>
@@ -89,7 +104,7 @@ export const CreateStudyTemplate = () => {
                 <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
                 <StudyIndication
                   id={i}
-                  name={item}
+                  name={item.name}
                   className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
                   disabled={true}
                   disabledCheck={true}
@@ -124,7 +139,7 @@ export const CreateStudyTemplate = () => {
         </div>
       </div>
       <div className='flex flex-row justify-end mt-3'>
-        <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'>Guardar</button>
+        <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20' onClick={() => saveTemplate()}>Guardar</button>
       </div>
     </>
   )

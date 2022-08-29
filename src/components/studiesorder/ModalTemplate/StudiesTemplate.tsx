@@ -86,7 +86,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {showAddTemplate && show? <CreateStudyTemplate /> : showEditTemplate && show? <EditStudyTemplate id={idEditStudy} studies={studies} setStudies={setStudies} setShow={setShowEditTemplate}></EditStudyTemplate> : (
+        {showAddTemplate && show? <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} /> : showEditTemplate && show? <EditStudyTemplate id={idEditStudy} studies={studies} setStudies={setStudies} setShow={setShowEditTemplate}></EditStudyTemplate> : (
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
