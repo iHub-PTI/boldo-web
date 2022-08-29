@@ -106,4 +106,83 @@ export const templates = [
           indication: ""
         }]
     },
+    {
+      id: 5,
+      name: "Template2",
+      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
+      studiesIndication: [
+        {
+          name:"Estudio1",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio2",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio3",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio4",
+          select: false,
+          indication: ""
+        }]
+    },
+    {
+      id: 6,
+      name: "Template3",
+      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
+      studiesIndication: [
+        {
+          name:"Estudio1",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio2",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio3",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio4",
+          select: false,
+          indication: ""
+        }]
+    },
+    {
+      id: 7,
+      name: "Template4",
+      desc: "Estudios solicitados en sospecha de pancreatitis o seudoquiste pancreático.",
+      studiesIndication: [
+        {
+          name:"Estudio1",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio2",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio3",
+          select: false,
+          indication: ""
+        },
+        {
+          name:"Estudio4",
+          select: false,
+          indication: ""
+        }]
+    }
+    
   ]

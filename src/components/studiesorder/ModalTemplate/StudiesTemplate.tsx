@@ -10,6 +10,7 @@ import { TemplateStudies } from './types'
 import { templates } from './services'
 import { CreateStudyTemplate } from './CreateStudyTemplate'
 import { EditStudyTemplate } from './EditStudyTemplate'
+import { info } from 'console'
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
@@ -22,7 +23,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const [template, setTemplate] = useState(studies[0])
   const [page, setPage] = useState(1)
   const perPage = 3
-  const maxPagination = Math.ceil(studies.length / perPage)
+  const [maxPagination, setMaxPagination] = useState(Math.ceil(studies.length / perPage))
 
   const confirmationStudies = () => {
     let orderStudies = []
@@ -69,15 +70,18 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   }, [show])
 
   useEffect(() => {
+    //reset pagination
+    setMaxPagination(Math.ceil(studies.length / perPage))
     //reset view on change
     setTemplate(studies[0])
+    setPage(1)
+
   }, [studies])
 
+  useEffect(()=>{
+      setTemplate(studies[(page - 1) * perPage])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    //set first template of the pagination
-    setTemplate(studies[(page - 1) * perPage])
-  })
+  }, [page, maxPagination])
 
   return (
     <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
