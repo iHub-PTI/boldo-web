@@ -56,24 +56,28 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     setShowAddTemplate(true)
   }
 
-  const editTemplate = (id) => {
+  const editTemplate = id => {
     setIdEditStudy(id)
     setShowEditTemplate(true)
   }
 
-  useEffect(()=>{
-    if(show === false) {
+  useEffect(() => {
+    if (show === false) {
       setShowAddTemplate(false)
       setShowEditTemplate(false)
     }
   }, [show])
 
-  useEffect(()=>{
-    //reset view on change 
+  useEffect(() => {
+    //reset view on change
     setTemplate(studies[0])
-  },[studies])
+  }, [studies])
 
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    //set first template of the pagination
+    setTemplate(studies[(page - 1) * perPage])
+  })
 
   return (
     <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
@@ -86,7 +90,16 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {showAddTemplate && show? <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} /> : showEditTemplate && show? <EditStudyTemplate id={idEditStudy} studies={studies} setStudies={setStudies} setShow={setShowEditTemplate}></EditStudyTemplate> : (
+        {showAddTemplate && show ? (
+          <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
+        ) : showEditTemplate && show ? (
+          <EditStudyTemplate
+            id={idEditStudy}
+            studies={studies}
+            setStudies={setStudies}
+            setShow={setShowEditTemplate}
+          ></EditStudyTemplate>
+        ) : (
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
@@ -109,9 +122,10 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                       {data.name}
                     </button>
                     {!template.default && (
-                    <div className='absolute bottom-1 left-1'>
-                      <EditIcon className='cursor-pointer' onClick={() => editTemplate(template.id)}/>
-                    </div>)}
+                      <div className='absolute bottom-1 left-1'>
+                        <EditIcon className='cursor-pointer' onClick={() => editTemplate(template.id)} />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
