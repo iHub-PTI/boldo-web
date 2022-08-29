@@ -4,7 +4,6 @@ import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { StudiesWithIndication } from './types'
-import { info } from 'console'
 
 export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [state, setState] = useState({
@@ -83,7 +82,7 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
           <div className='flex flex-col mt-3 mb-3'>
             <label>Descripción</label>
             <input
-              className='outline-none h-9 border border-gray-300 rounded-md p-2 w-ful'
+              className='outline-none h-9 border border-gray-300 rounded-md p-2 w-full'
               name='description'
               type='text'
               onChange={e => {
