@@ -5,7 +5,6 @@ import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { StudiesWithIndication } from './types'
-import { info } from 'console'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const study = studies.find(data => data.id === id)
