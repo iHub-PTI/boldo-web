@@ -88,10 +88,12 @@ export const CreateStudyTemplate = () => {
               <div className='relative'>
                 <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
                 <StudyIndication
+                  id={i}
                   name={item}
                   className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
                   disabled={true}
                   disabledCheck={true}
+                  indication=''
                 />
               </div>
             )
