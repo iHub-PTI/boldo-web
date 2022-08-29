@@ -4,6 +4,7 @@ import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { StudiesWithIndication } from './types'
+import { info } from 'console'
 
 export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [state, setState] = useState({
@@ -14,6 +15,9 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [newStudy, setNewStudy] = useState('')
 
   const [studyArray, setStudyArray] = useState<Array<StudiesWithIndication>>([])
+
+  const [maxStudies, setMaxStudies] = useState(false)
+
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
@@ -27,16 +31,20 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const deleteStudy = i => {
     studyArray.splice(i, 1)
     setStudyArray([...studyArray])
+    setMaxStudies(false)
   }
 
   const addStudy = () => {
-    studyArray.push({
-      name: newStudy,
-      select:false,
-      indication: ''
-    })
-    setStudyArray([...studyArray])
-    setNewStudy('')
+    if(studyArray.length  < 15 ) {
+      studyArray.push({
+        name: newStudy,
+        select:false,
+        indication: ''
+      })
+      setStudyArray([...studyArray])
+      setNewStudy('')
+      if(studyArray.length >= 15) setMaxStudies(true)
+    }
   }
 
   const saveTemplate = () => {
@@ -75,7 +83,7 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
           <div className='flex flex-col mt-3 mb-3'>
             <label>Descripción</label>
             <input
-              className='outline-none h-9 border border-gray-300 rounded-md p-2 w-full'
+              className='outline-none h-9 border border-gray-300 rounded-md p-2 w-ful'
               name='description'
               type='text'
               onChange={e => {
@@ -116,13 +124,14 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
           <div className='flex flex-col gap-2 h-20 p-1 w-60 m-2'>
             <label>Nombre del estudio</label>
             <input
-              className='mt-2 p-1 w-full h-8 rounded-md border border-gray-400 text-sm focs:outline-none outline-none'
+              className='mt-2 p-1 w-full h-8 rounded-md border border-gray-400 text-sm focs:outline-none outline-none disabled:bg-gray-300'
               type='text'
               name='study name'
               value={newStudy}
               onChange={e => {
                 handleChangeNewStudy(e)
               }}
+              disabled= {maxStudies ? true: false }
             />
             <div className='flex flex-row justify-end'>
               <button
