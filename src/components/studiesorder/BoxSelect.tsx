@@ -6,7 +6,7 @@ import { CategoriesContext } from './Provider'
 const BoxSelect = props => {
 
     const {orders, setOrders, setIndexOrder} = useContext(CategoriesContext)
-    const data = orders[props.index].studies
+    const data = orders[props.index].studies_codes
 
     const onClickToogle = () => {
         props.setShow(!props.show)
@@ -16,7 +16,7 @@ const BoxSelect = props => {
     const deleteData = (index) => {
         data.splice(index, 1)
         const orderUpdate = [...orders]
-        orderUpdate[props.index].studies = data
+        orderUpdate[props.index].studies_codes = data
         setOrders(orderUpdate)
     }
 

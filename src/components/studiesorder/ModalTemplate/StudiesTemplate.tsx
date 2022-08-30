@@ -36,7 +36,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     })
 
     let copyOrder = JSON.parse(JSON.stringify(orders))
-    copyOrder[indexOrder].studies = orderStudies
+    copyOrder[indexOrder].studies_codes = orderStudies
     setOrders(copyOrder)
 
     studies.forEach(el => {

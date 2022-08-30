@@ -3,10 +3,11 @@ import { StudiesWithIndication } from './ModalTemplate/types';
 
 export interface Orders {
     category: string,
-    rush_order: boolean,
-    diagnostic_impression: string
-    studies?: Array<StudiesWithIndication>,
-    observation: string
+    urgent: boolean,
+    diagnosis: string
+    studies_codes?: Array<StudiesWithIndication>,
+    notes: string,
+    encounterId?:string
 }
 
 export type ContextProps = {
@@ -23,10 +24,10 @@ const Provider = ({children}) => {
         [
             {
                 category: "",
-                rush_order: false,
-                diagnostic_impression: "",
-                studies: [] as Array<StudiesWithIndication>,
-                observation: ""
+                urgent: false,
+                diagnosis: "",
+                studies_codes: [] as Array<StudiesWithIndication>,
+                notes: ""
             }
         ]
     );

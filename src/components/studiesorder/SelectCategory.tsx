@@ -60,9 +60,9 @@ const SelectCategory = (props) => {
                 <MenuItem value="">
                     Categoría
                 </MenuItem>
-                <MenuItem className={props.classes.menuItem} value={'LABORATORY'}><span className="pl-2 pr-2"><IconLab></IconLab></span>Laboratorio</MenuItem>
-                <MenuItem className={props.classes.menuItem} value={'IMAGE'}><span className="pl-2 pr-2"><IconImg></IconImg></span>Imágenes</MenuItem>
-                <MenuItem className={props.classes.menuItem} value={'OTHER'}><span className="pl-2 pr-2"><IconOther></IconOther></span>Otros</MenuItem>
+                <MenuItem className={props.classes.menuItem} value={'LAB'}><span className="pl-2 pr-2"><IconLab></IconLab></span>Laboratorio</MenuItem>
+                <MenuItem className={props.classes.menuItem} value={'IMG'}><span className="pl-2 pr-2"><IconImg></IconImg></span>Imágenes</MenuItem>
+                <MenuItem className={props.classes.menuItem} value={'OTH'}><span className="pl-2 pr-2"><IconOther></IconOther></span>Otros</MenuItem>
             </Select>
         </FormControl>
     )

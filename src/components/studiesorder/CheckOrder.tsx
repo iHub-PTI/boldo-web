@@ -10,7 +10,7 @@ const CheckOrder = props => {
     const {orders, setOrders} = useContext(CategoriesContext)
 
     const handleCheck = (event: ChangeEvent<HTMLInputElement>) => {
-        orders[props.index].rush_order = event.target.checked
+        orders[props.index].urgent = event.target.checked
         let update = [...orders]
         setOrders(update)
         console.table(orders)

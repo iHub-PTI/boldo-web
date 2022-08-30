@@ -12,10 +12,10 @@ const InputText = props => {
     const changeText = (event: ChangeEvent<{ value: string }>) => {
         setText(event.target.value)
         if('diagnosis' === props.name){
-            orders[props.index].diagnostic_impression = event.target.value
+            orders[props.index].diagnosis = event.target.value
             setOrders(orders)
         }else if('observation' === props.name){
-            orders[props.index].observation = event.target.value
+            orders[props.index].notes = event.target.value
             setOrders(orders)
         }
         console.table(orders)

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
@@ -11,7 +11,10 @@ import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
 import { CategoriesContext } from './Provider';
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
 import { StudiesWithIndication } from './ModalTemplate/types';
-
+import axios from 'axios';
+import { useRouteMatch } from 'react-router-dom';
+import { useToasts } from '../Toast';
+// import { useToasts } from './Toast';
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -74,18 +77,41 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 const StudyOrder = () => {
+    const { addErrorToast } = useToasts()
     const classes = useStyles()
     const { orders, setOrders } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
+    const [encounterId, setEncounterId] = useState('')
 
+    let match = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
+    const id = match?.params.id
+
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                console.log(res.data)
+                setEncounterId(res.data.encounter.id)
+
+            } catch (err) {
+                console.log(err)
+            } finally {
+                // setInitialLoad(false)
+            }
+        }
+
+        load()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const addCategory = () => {
         setOrders([...orders, {
             category: "",
-            rush_order: false,
-            diagnostic_impression: "",
-            studies: [] as Array<StudiesWithIndication>,
-            observation: ""
+            urgent: false,
+            diagnosis: "",
+            studies_codes: [] as Array<StudiesWithIndication>,
+            notes: ""
         }])
     }
 
@@ -96,6 +122,34 @@ const StudyOrder = () => {
             setOrders(update)
         }
         console.table(orders)
+    }
+
+    const [showError, setShowError] = useState(false)
+    const [sendStudyLoading, setSendStudyLoading] = useState(false)
+
+    const sendOrderToServer = async () => {
+        // addErrorToast('este es un ejemplo')
+        // const payload = {
+        //     "idEncounter": 'encounterId',
+        //     "text": 'commentText'
+        // }
+
+        orders.forEach(object => {
+            object.encounterId = encounterId;
+            // object.studies_codes = object.s
+          });
+
+          console.log('order before send',orders)
+        // try {
+        //     setShowError(false)
+        //     setSendStudyLoading(true)
+        //     const res = await axios.post(`/profile/doctor/serviceResquest`, orders)
+        //     console.log("server response", res.data)
+        //     setSendStudyLoading(false)
+        // } catch (err) {
+        //     console.log(err)
+        //     setShowError(true)
+        // }
     }
 
     return (
@@ -117,7 +171,7 @@ const StudyOrder = () => {
                                     <Grid item xs={7}>
                                         <FormGroup>
                                             <FormControlLabel
-                                                control={<CheckOrder checked={item.rush_order} index={index}></CheckOrder>}
+                                                control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
                                                 label="Orden Urgente"
                                             />
                                         </FormGroup>
@@ -152,7 +206,10 @@ const StudyOrder = () => {
                         <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
                     </button>
                     <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-8 w-12"
-                    onClick={()=>{ console.table(orders)}}
+                        onClick={() => {
+                            sendOrderToServer()
+
+                        }}
                     >
                         Listo
                     </button>
