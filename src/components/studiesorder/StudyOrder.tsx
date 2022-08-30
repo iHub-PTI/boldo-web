@@ -8,12 +8,13 @@ import BoxSelect from './BoxSelect';
 import CheckOrder from './CheckOrder';
 import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
-import { CategoriesContext } from './Provider';
+import { CategoriesContext, Orders } from './Provider';
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
 import { StudiesWithIndication } from './ModalTemplate/types';
 import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
+
 // import { useToasts } from './Toast';
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -77,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 const StudyOrder = () => {
-    const { addErrorToast } = useToasts()
+    const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
@@ -124,11 +125,27 @@ const StudyOrder = () => {
         console.table(orders)
     }
 
+    /* const validateOrders = (orders: Array<Orders>) => {
+        for (let i = 0; i < orders.length; i++) {
+            let order = orders[i]
+            if(order.category === "") {
+                addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' }) 
+                break 
+            }else if(order.diagnosis === "") {
+                addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
+                break
+            }else if(order.studies_codes.length <= 0){
+                addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
+                break
+            }
+        }
+    } */
+
     const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
     const sendOrderToServer = async () => {
-        // addErrorToast('este es un ejemplo')
+        //validateOrders(orders)
         // const payload = {
         //     "idEncounter": 'encounterId',
         //     "text": 'commentText'
