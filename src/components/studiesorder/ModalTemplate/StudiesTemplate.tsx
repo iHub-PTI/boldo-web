@@ -84,7 +84,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   }, [page, maxPagination])
 
   return (
-    <Modal show={show} setShow={setShow} size='full' {...props} noPadding={true}>
+    <Modal show={show} setShow={setShow} size='full' handleOutClick={false} {...props} noPadding={true}>
       <div className='p-5'>
         <div className='relative'>
           <h2 className='text-2xl font-normal leading-normal mt-0 pt-0 mb-2'>

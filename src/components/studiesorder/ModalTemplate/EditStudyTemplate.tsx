@@ -5,6 +5,7 @@ import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { StudiesWithIndication } from './types'
+import ConfirmationDeleteTemplate from './ConfirmationDeleteTemplate'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const study = studies.find(data => data.id === id)
@@ -13,6 +14,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     name: study.name,
     description: study.desc,
   })
+
+  //confirmation delete template
+  const [isOpen, setIsOpen] = useState(false)
 
   const [newStudy, setNewStudy] = useState({ name: '', select: false, indication: '' } as StudiesWithIndication)
 
@@ -164,7 +168,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       </div>
       <div className='flex flex-row justify-end mt-3 relative'>
         <div className='absolute bottom-1 left-1'>
-          <IconTrash className='cursor-pointer' onClick={() => deleteTemplate()} />
+          <IconTrash className='cursor-pointer' onClick={() => setIsOpen(true)} />
+          <ConfirmationDeleteTemplate isOpen={isOpen} setIsOpen={setIsOpen} name={state.name} callBack={deleteTemplate}/>
         </div>
         <button
           className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'
