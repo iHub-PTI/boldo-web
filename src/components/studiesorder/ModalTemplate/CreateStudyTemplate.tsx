@@ -4,6 +4,7 @@ import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { StudiesWithIndication } from './types'
+import { useToasts } from '../../../components/Toast'
 
 export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [state, setState] = useState({
@@ -16,6 +17,8 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   const [studyArray, setStudyArray] = useState<Array<StudiesWithIndication>>([])
 
   const [maxStudies, setMaxStudies] = useState(false)
+
+  const { addToast } = useToasts() 
 
 
   const handleChange = e => {
@@ -59,6 +62,9 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
     console.log(copyStudies)
     setStudies(copyStudies)
     setShow(false)
+    setTimeout(()=>{
+      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+    }, 900)
   }
 
   return (

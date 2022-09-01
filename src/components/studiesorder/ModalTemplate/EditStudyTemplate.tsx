@@ -5,7 +5,8 @@ import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { StudiesWithIndication } from './types'
-import ConfirmationDeleteTemplate from './ConfirmationDeleteTemplate'
+import ConfirmationTemplate from './ConfirmationTemplate'
+import { useToasts } from "../../Toast"
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const study = studies.find(data => data.id === id)
@@ -23,6 +24,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const [studyArray, setStudyArray] = useState(copyArray)
 
   const [maxStudies, setMaxStudies] = useState(false)
+
+  const { addToast } = useToasts();
 
   console.log('studyarrayy', studyArray)
 
@@ -64,6 +67,10 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     copyStudies[index].studiesIndication = [...studyArray]
     setStudies(copyStudies)
     setShow(false)
+    setTimeout(()=>{
+      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
+    }, 900)
+    console.log('hola')
   }
 
   const deleteTemplate = () => {
@@ -72,6 +79,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     copyStudies.splice(index, 1)
     setStudies(copyStudies)
     setShow(false)
+    setTimeout(()=>{
+      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
+    }, 900)
   }
 
   useEffect(()=>{
@@ -169,7 +179,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       <div className='flex flex-row justify-end mt-3 relative'>
         <div className='absolute bottom-1 left-1'>
           <IconTrash className='cursor-pointer' onClick={() => setIsOpen(true)} />
-          <ConfirmationDeleteTemplate isOpen={isOpen} setIsOpen={setIsOpen} name={state.name} callBack={deleteTemplate}/>
+          <ConfirmationTemplate isOpen={isOpen} setIsOpen={setIsOpen} title={`Eliminar plantilla ${state.name}`} message={'¿Estas seguro que quieres eliminar la plantilla?'} callBack={deleteTemplate}/>
         </div>
         <button
           className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'
