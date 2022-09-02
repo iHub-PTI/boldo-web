@@ -10,7 +10,6 @@ import { TemplateStudies } from './types'
 import { templates } from './services'
 import { CreateStudyTemplate } from './CreateStudyTemplate'
 import { EditStudyTemplate } from './EditStudyTemplate'
-import { info } from 'console'
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
@@ -127,7 +126,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                     </button>
                     {!template.default && (
                       <div className='absolute bottom-1 left-1'>
-                        <EditIcon className='cursor-pointer' onClick={() => editTemplate(template.id)} />
+                        <EditIcon title="Editar plantilla" className='cursor-pointer' onClick={() => editTemplate(template.id)} />
                       </div>
                     )}
                   </div>
@@ -140,7 +139,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                   toggleNewTemplate()
                 }}
               >
-                <AddIcon></AddIcon>
+                <AddIcon title="Agregar nueva plantilla"></AddIcon>
               </button>
             </div>
             <div className='pt-2'>

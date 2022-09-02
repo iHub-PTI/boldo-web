@@ -178,7 +178,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       </div>
       <div className='flex flex-row justify-end mt-3 relative'>
         <div className='absolute bottom-1 left-1'>
-          <IconTrash className='cursor-pointer' onClick={() => setIsOpen(true)} />
+          <IconTrash title="Eliminar plantilla" className='cursor-pointer' onClick={() => setIsOpen(true)} />
           <ConfirmationTemplate isOpen={isOpen} setIsOpen={setIsOpen} title={`Eliminar plantilla ${state.name}`} message={'¿Estas seguro que quieres eliminar la plantilla?'} callBack={deleteTemplate}/>
         </div>
         <button

@@ -24,7 +24,7 @@ const BoxSelect = props => {
         <div className="flex flex-row flex-wrap bg-white border border-gray-300 rounded items-center"
         style={{minHeight:'3rem'}}>
             <button className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full focus:outline-none" onClick={()=>{onClickToogle()}}>
-                <TemplateStudy></TemplateStudy>
+                <TemplateStudy title="Seleccionar estudios"></TemplateStudy>
             </button>
             {data && data.map( (item, i) => {
                 return <SelectItem value={item.name} handleDelete={()=>deleteData(i)} {...props}></SelectItem>

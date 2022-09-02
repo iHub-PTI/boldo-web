@@ -178,7 +178,7 @@ const StudyOrder = () => {
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
                                     <IconButton aria-label="Eliminar" style={{ padding: '3px', margin: '0', outline: 'none' }} onClick={() => deleteCategory(index)}>
-                                        <TrashIcon></TrashIcon>
+                                        <TrashIcon title='Eliminar Orden'></TrashIcon>
                                     </IconButton>
                                 </Grid>
                                 <Grid item container direction='row' spacing={5}>
