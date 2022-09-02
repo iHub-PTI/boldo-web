@@ -5,8 +5,9 @@ import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { StudiesWithIndication } from './types'
 import { useToasts } from '../../../components/Toast'
+import axios from 'axios'
 
-export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
+export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -18,8 +19,7 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
 
   const [maxStudies, setMaxStudies] = useState(false)
 
-  const { addToast } = useToasts() 
-
+  const { addToast } = useToasts()
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
@@ -37,34 +37,42 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
   }
 
   const addStudy = () => {
-    if(studyArray.length  < 15 ) {
+    if (studyArray.length < 15) {
       studyArray.push({
         name: newStudy,
-        select:false,
-        indication: ''
+        select: false,
+        indication: '',
       })
       setStudyArray([...studyArray])
       setNewStudy('')
-      if(studyArray.length >= 15) setMaxStudies(true)
+      if (studyArray.length >= 15) setMaxStudies(true)
     }
   }
 
-  const saveTemplate = () => {
-    const newTemplate = {
-      id: studies.length,
-      name: state.name,
-      desc: state.description,
-      studiesIndication: [...studyArray],
-    }
-
-    let copyStudies = JSON.parse(JSON.stringify(studies))
-    copyStudies.push(newTemplate)
-    console.log(copyStudies)
-    setStudies(copyStudies)
-    setShow(false)
-    setTimeout(()=>{
+  const saveTemplate = async () => {
+    try {
+      let tempArray = []
+      //format data to send server
+      studyArray.forEach(e => {
+        tempArray.push({ name: e.name })
+      })
+      
+      const data = { name: state.name, description: state.description, StudyOrderTemplateDetails: tempArray }
+      //to ask for validation
+      const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
+      let copyStudies = JSON.parse(JSON.stringify(studies))
+      tempArray = [...res.data.StudyOrderTemplateDetails]
+      tempArray.forEach(e => {
+        e.select=false
+        e.indication=""
+      });
+      copyStudies.push({...res.data, studiesIndication:tempArray })
+      setStudies(copyStudies)
+      setShow(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
-    }, 900)
+    } catch (err) {
+      console.log("error", err)
+    } 
   }
 
   return (
@@ -136,7 +144,7 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
               onChange={e => {
                 handleChangeNewStudy(e)
               }}
-              disabled= {maxStudies ? true: false }
+              disabled={maxStudies ? true : false}
             />
             <div className='flex flex-row justify-end'>
               <button
@@ -153,7 +161,12 @@ export const CreateStudyTemplate = ({studies, setStudies, setShow}) => {
         </div>
       </div>
       <div className='flex flex-row justify-end mt-3'>
-        <button className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20' onClick={() => saveTemplate()}>Guardar</button>
+        <button
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'
+          onClick={() => saveTemplate()}
+        >
+          Guardar
+        </button>
       </div>
     </>
   )

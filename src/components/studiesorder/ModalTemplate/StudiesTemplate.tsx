@@ -7,22 +7,27 @@ import { PaginationTemplate } from './PaginationTemplate'
 import { SelectStudies } from './SelectStudies'
 import { CategoriesContext } from '../Provider'
 import { TemplateStudies } from './types'
-import { templates } from './services'
 import { CreateStudyTemplate } from './CreateStudyTemplate'
 import { EditStudyTemplate } from './EditStudyTemplate'
+import axios from 'axios'
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
-  const [studies, setStudies] = useState<Array<TemplateStudies>>(templates)
+  // Hook for getting templates
+  const [studies, setStudies] = useState<Array<TemplateStudies>>([])
   const [showAddTemplate, setShowAddTemplate] = useState(false)
   const [showEditTemplate, setShowEditTemplate] = useState(false)
   const [idEditStudy, setIdEditStudy] = useState(undefined)
 
   //index of studies
-  const [template, setTemplate] = useState(studies[0])
+  const [template, setTemplate] = useState({} as TemplateStudies)
   const [page, setPage] = useState(1)
   const perPage = 3
-  const [maxPagination, setMaxPagination] = useState(Math.ceil(studies.length / perPage))
+  const [maxPagination, setMaxPagination] = useState(0)
+
+  //hooks for controlling the error and loading state
+  const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const confirmationStudies = () => {
     let orderStudies = []
@@ -61,6 +66,40 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     setShowEditTemplate(true)
   }
 
+  const loadTemplates = async () => {
+    try {
+      setLoading(true)
+      const res = await axios.get(`profile/doctor/studyOrderTemplate`)
+      console.log(res.data)
+      let templates = []
+      res.data.forEach(item => {
+        let temp = {} as TemplateStudies
+        temp.id = item.id
+        temp.name = item.name
+        temp.description = item.description
+        temp.status = item.status
+        temp.studiesIndication = item.StudyOrderTemplateDetails
+        // select and indicaciont are added
+        temp.studiesIndication.forEach(e => {
+          e.select = false
+          e.indication = ''
+        })
+        templates.push(temp)
+      })
+      console.log('response templates', templates)
+      setStudies(templates)
+      setTemplate(templates[0])
+      setMaxPagination(Math.ceil(templates.length / perPage))
+      setLoading(false)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(() => {
+    loadTemplates()
+  }, [])
+
   useEffect(() => {
     if (show === false) {
       setShowAddTemplate(false)
@@ -74,12 +113,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     //reset view on change
     setTemplate(studies[0])
     setPage(1)
-
   }, [studies])
 
-  useEffect(()=>{
-      setTemplate(studies[(page - 1) * perPage])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setTemplate(studies[(page - 1) * perPage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, maxPagination])
 
   return (
@@ -93,16 +131,16 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {showAddTemplate && show ? (
+        {loading === false && showAddTemplate && show ? (
           <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
-        ) : showEditTemplate && show ? (
+        ) : loading === false && showEditTemplate && show ? (
           <EditStudyTemplate
             id={idEditStudy}
             studies={studies}
             setStudies={setStudies}
             setShow={setShowEditTemplate}
           ></EditStudyTemplate>
-        ) : (
+        ) : !loading ? (
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
@@ -124,11 +162,14 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                     >
                       {data.name}
                     </button>
-                    {!template.default && (
-                      <div className='absolute bottom-1 left-1'>
-                        <EditIcon title="Editar plantilla" className='cursor-pointer' onClick={() => editTemplate(template.id)} />
-                      </div>
-                    )}
+
+                    <div className='absolute bottom-1 left-1'>
+                      <EditIcon
+                        title='Editar plantilla'
+                        className='cursor-pointer'
+                        onClick={() => editTemplate(template.id)}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -139,11 +180,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                   toggleNewTemplate()
                 }}
               >
-                <AddIcon title="Agregar nueva plantilla"></AddIcon>
+                <AddIcon title='Agregar nueva plantilla'></AddIcon>
               </button>
             </div>
             <div className='pt-2'>
-              <h5 className='text-gray-500'>{template.desc}</h5>
+              <h5 className='text-gray-500'>{template.description}</h5>
             </div>
             <div className='w-full pt-2'>
               <SelectStudies template={template} setTemplate={setTemplate} />
@@ -157,6 +198,24 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
               >
                 Confirmar
               </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+              <svg
+                className='w-6 h-6 text-secondary-500 animate-spin'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+              >
+                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                ></path>
+              </svg>
             </div>
           </div>
         )}

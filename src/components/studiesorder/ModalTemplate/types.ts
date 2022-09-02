@@ -1,15 +1,18 @@
 
 
 export type StudiesWithIndication = {
-  name: string
+  id?: number
+  name?: string
+  status?: boolean
   select?: boolean
-  indication: string
+  indication?: string
+  studyOrderTemplateId ?: number
 }
 
 export type TemplateStudies = {
-  id: number
+  id?: number
   name: string
-  desc?: string
+  status?: boolean
+  description?: string
   studiesIndication?: Array<StudiesWithIndication>
-  default?: boolean
 }
