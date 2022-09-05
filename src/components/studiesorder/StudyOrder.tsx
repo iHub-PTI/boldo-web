@@ -144,29 +144,63 @@ const StudyOrder = () => {
     const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
+    // const sendOrderToServer = async () => {
+    //     //validateOrders(orders)
+    //     // const payload = {
+    //     //     "idEncounter": 'encounterId',
+    //     //     "text": 'commentText'
+    //     // }
+
+    //     orders.forEach(object => {
+    //         object.encounterId = encounterId;
+    //         // object.studies_codes = object.s
+    //       });
+
+    //       console.log('order before send',orders)
+    //     // try {
+    //     //     setShowError(false)
+    //     //     setSendStudyLoading(true)
+    //     //     const res = await axios.post(`/profile/doctor/serviceResquest`, orders)
+    //     //     console.log("server response", res.data)
+    //     //     setSendStudyLoading(false)
+    //     // } catch (err) {
+    //     //     console.log(err)
+    //     //     setShowError(true)
+    //     // }
+    // }
+
     const sendOrderToServer = async () => {
-        //validateOrders(orders)
-        // const payload = {
-        //     "idEncounter": 'encounterId',
-        //     "text": 'commentText'
-        // }
+        console.log("test", orders);
+        // validateOrders(orders)
 
         orders.forEach(object => {
             object.encounterId = encounterId;
             // object.studies_codes = object.s
-          });
+        });
 
-          console.log('order before send',orders)
-        // try {
-        //     setShowError(false)
-        //     setSendStudyLoading(true)
-        //     const res = await axios.post(`/profile/doctor/serviceResquest`, orders)
-        //     console.log("server response", res.data)
-        //     setSendStudyLoading(false)
-        // } catch (err) {
-        //     console.log(err)
-        //     setShowError(true)
-        // }
+        var ordersCopy = []
+        orders.forEach((object, index) => {
+            var studiesCodes = []
+            object.studies_codes.forEach(studies => {
+                studiesCodes.push({ "display": studies.name, "code": studies.id })
+            })
+            ordersCopy.push({
+                "category": object.category, "diagnosis": object.diagnosis,
+                "encounterId": object.encounterId, "notes": object.notes, "urgent": object.urgent,
+                "studies_codes": studiesCodes
+            })
+        });
+        try {
+            setShowError(false)
+            setSendStudyLoading(true)
+            const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
+            console.log("server response", res)
+
+            setSendStudyLoading(false)
+        } catch (err) {
+            console.log(err)
+            setShowError(true)
+        }
     }
 
     return (
