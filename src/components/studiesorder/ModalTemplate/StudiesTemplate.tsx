@@ -72,7 +72,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       const res = await axios.get(`profile/doctor/studyOrderTemplate`)
       console.log(res.data)
       let templates = []
-      res.data.forEach(item => {
+      res.data.filter(obj => obj.status === true).forEach(item => {
         let temp = {} as TemplateStudies
         temp.id = item.id
         temp.name = item.name
@@ -144,7 +144,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
-                {studies.filter(obj => obj.status === true).slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
+                {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
                   <div
                     key={i}
                     className={`flex flex-row justify-center border-b-2 ${

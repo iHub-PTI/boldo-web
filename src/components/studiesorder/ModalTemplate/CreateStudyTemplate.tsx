@@ -49,6 +49,25 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
     }
   }
 
+  const validateAddTemplate = data => {
+      if (data.name === '') {
+        addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
+        return false
+      } else if (data.StudyOrderTemplateDetails.length <= 0) {
+        addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
+        return false
+      }else{
+        data.StudyOrderTemplateDetails.forEach(e=>{
+          if(e.name === '') {
+            addToast({ type: 'warning', title: 'Notificación', text: 'Los nombres de los campos del estudio son obligatorios.' })
+            return false
+          }
+        })
+      }
+
+    return true
+  }
+
   const saveTemplate = async () => {
     try {
       let tempArray = []
@@ -56,23 +75,24 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
       studyArray.forEach(e => {
         tempArray.push({ name: e.name })
       })
-      
+
       const data = { name: state.name, description: state.description, StudyOrderTemplateDetails: tempArray }
-      //to ask for validation
-      const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
-      let copyStudies = JSON.parse(JSON.stringify(studies))
-      tempArray = [...res.data.StudyOrderTemplateDetails]
-      tempArray.forEach(e => {
-        e.select=false
-        e.indication=""
-      });
-      copyStudies.push({...res.data, studiesIndication:tempArray })
-      setStudies(copyStudies)
-      setShow(false)
-      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+      if (validateAddTemplate(data)) {
+        const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
+        let copyStudies = JSON.parse(JSON.stringify(studies))
+        tempArray = [...res.data.StudyOrderTemplateDetails]
+        tempArray.forEach(e => {
+          e.select = false
+          e.indication = ''
+        })
+        copyStudies.push({ ...res.data, studiesIndication: tempArray })
+        setStudies(copyStudies)
+        setShow(false)
+        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+      }
     } catch (err) {
-      console.log("error", err)
-    } 
+      console.log('error', err)
+    }
   }
 
   return (

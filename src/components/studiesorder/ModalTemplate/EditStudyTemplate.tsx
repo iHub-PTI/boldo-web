@@ -62,6 +62,25 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     }
   }
 
+  const validateEditTemplate = data => {
+    if (data.name === '') {
+      addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
+      return false
+    } else if (data.StudyOrderTemplateDetails.length <= 0) {
+      addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
+      return false
+    }else{
+      data.StudyOrderTemplateDetails.forEach(e=>{
+        if(e.name === '') {
+          addToast({ type: 'warning', title: 'Notificación', text: 'Los nombres de los campos del estudio son obligatorios.' })
+          return false
+        }
+      })
+    }
+
+  return true
+}
+
   const saveTemplate = async () => {
     // const index = studies.findIndex(data => data.id === id)
     // let copyStudies = JSON.parse(JSON.stringify(studies))
@@ -106,10 +125,12 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
         StudyOrderTemplateDetails: details
       }
 
-      const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
-      console.log(res.data)
+      if(validateEditTemplate(dataTemplate)){
+        const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
+        console.log(res.data)
+      }
     } catch (err) {
-
+      console.log(err)
     }
   }
 
