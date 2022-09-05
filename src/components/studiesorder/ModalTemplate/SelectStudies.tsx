@@ -60,9 +60,8 @@ export const SelectStudies = ({ template, setTemplate }) => {
             </div>
             <div className="mt-1 pl-8 pb-2 flex flex-row flex-wrap w-full overflow-y-auto" style={{ height:"250px", maxHeight: '580px' }}>
                 {
-                    template.studiesIndication.map((data, i) => (
+                    template.studiesIndication.filter(obj => obj.status === true).map((data, i) => (
                         <StudyIndication id={i} name={data.name} indication={data.indication} check={data.select} selectCheck={selectCheck} setIndication={updateIndication} disabled={!data.select} />
-
                     ))
                 }
                 {console.table(template.studiesIndication)}

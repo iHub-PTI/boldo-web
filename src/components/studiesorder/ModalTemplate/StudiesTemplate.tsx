@@ -144,7 +144,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
-                {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
+                {studies.filter(obj => obj.status === true).slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
                   <div
                     key={i}
                     className={`flex flex-row justify-center border-b-2 ${

@@ -7,6 +7,7 @@ import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { StudiesWithIndication } from './types'
 import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from "../../Toast"
+import axios from 'axios'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const study = studies.find(data => data.id === id)
@@ -19,7 +20,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   //confirmation delete template
   const [isOpen, setIsOpen] = useState(false)
 
-  const [newStudy, setNewStudy] = useState({ name: '', select: false, indication: '' } as StudiesWithIndication)
+  const [newStudy, setNewStudy] = useState({ name: '', select: false, indication: '', status: true } as StudiesWithIndication)
 
   const [studyArray, setStudyArray] = useState(copyArray)
 
@@ -35,15 +36,16 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   }
 
   const handleChangeNewStudy = e => {
-    setNewStudy({ name: e.target.value, select: false, indication: '' })
+    setNewStudy({ name: e.target.value, select: false, indication: '', status: true })
     console.log(newStudy)
   }
 
-  const deleteStudy = i => {
-    studyArray.splice(i, 1)
+  const deleteStudy = (i) => {
+    console.log("idd", i)
+    studyArray[i].status = false
     setStudyArray([...studyArray])
-    console.log('eliminar')
     setMaxStudies(false)
+    console.log("elimnado", studyArray)
   }
 
   const addStudy = () => {
@@ -55,33 +57,78 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
         name: '',
         select: false,
         indication: '',
+        status: true
       })
     }
   }
 
-  const saveTemplate = () => {
-    const index = studies.findIndex(data => data.id === id)
-    let copyStudies = JSON.parse(JSON.stringify(studies))
-    copyStudies[index].name = state.name
-    copyStudies[index].desc = state.description
-    copyStudies[index].studiesIndication = [...studyArray]
-    setStudies(copyStudies)
-    setShow(false)
-    setTimeout(()=>{
-      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
-    }, 900)
-    console.log('hola')
+  const saveTemplate = async () => {
+    // const index = studies.findIndex(data => data.id === id)
+    // let copyStudies = JSON.parse(JSON.stringify(studies))
+    // copyStudies[index].name = state.name
+    // copyStudies[index].desc = state.description
+    // copyStudies[index].studiesIndication = [...studyArray]
+    // setStudies(copyStudies)
+    // setShow(false)
+    // setTimeout(()=>{
+    //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
+    // }, 900)
+    // console.log('hola')
+
+    try {
+      const index = studies.findIndex(data => data.id === id)
+      let details = []
+
+      studyArray.forEach(obj => {
+        if(obj.id !== undefined){
+          if(obj.status){
+            details.push({
+              id: obj.id,
+              name: obj.name,
+            })
+          }else {
+            details.push({
+              id: obj.id,
+              name: obj.name,
+              status: obj.status
+            })
+          }
+        }else{
+          details.push({
+            name: obj.name,
+          })
+        }    
+      });
+
+      let dataTemplate = {
+        name: state.name,
+        description: state.description,
+        StudyOrderTemplateDetails: details
+      }
+
+      const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
+      console.log(res.data)
+    } catch (err) {
+
+    }
   }
 
-  const deleteTemplate = () => {
-    const index = studies.findIndex(data => data.id === id)
-    let copyStudies = JSON.parse(JSON.stringify(studies))
-    copyStudies.splice(index, 1)
-    setStudies(copyStudies)
-    setShow(false)
-    setTimeout(()=>{
-      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
-    }, 900)
+  const deleteTemplate = async () => {
+    // const index = studies.findIndex(data => data.id === id)
+    // let copyStudies = JSON.parse(JSON.stringify(studies))
+    // copyStudies.splice(index, 1)
+    // setStudies(copyStudies)
+    // 
+    // setTimeout(()=>{
+    //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
+    // }, 900)
+    try{
+      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id} `)
+      console.log("eliminar template con id:", id)
+      console.log(res.data)
+    } catch(err){
+      console.log(err)
+    }
   }
 
   useEffect(()=>{
@@ -134,21 +181,21 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           className='flex flex-row flex-wrap mt-1 w-full overflow-y-auto'
           style={{ height: '250px', maxHeight: '600px' }}
         >
-          {studyArray.map((item, i) => {
-            return (
-              <div className='relative'>
-                <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
-                <StudyIndication
-                  id={i}
-                  name={item.name}
-                  check={false}
-                  className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
-                  disabled={true}
-                  disabledCheck={true}
-                  indication=''
-                />
-              </div>
-            )
+          {studyArray.filter(obj => obj.status === true).map((item, i) => {
+              return (
+                <div className='relative'>
+                  <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
+                  <StudyIndication
+                    id={i}
+                    name={item.name}
+                    check={false}
+                    className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
+                    disabled={true}
+                    disabledCheck={true}
+                    indication=''
+                  />
+                </div>
+              )
           })}
           <div className='flex flex-col gap-2 h-20 p-1 w-60 m-2'>
             <label>Nombre del estudio</label>
