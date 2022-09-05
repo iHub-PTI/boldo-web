@@ -125,21 +125,22 @@ const StudyOrder = () => {
         console.table(orders)
     }
 
-    /* const validateOrders = (orders: Array<Orders>) => {
+    const validateOrders = (orders: Array<Orders>) => {
         for (let i = 0; i < orders.length; i++) {
             let order = orders[i]
             if(order.category === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' }) 
-                break 
+                return false
             }else if(order.diagnosis === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
-                break
+                return false
             }else if(order.studies_codes.length <= 0){
                 addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
-                break
+                return false
             }
         }
-    } */
+        return true
+    }
 
     const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
@@ -171,35 +172,35 @@ const StudyOrder = () => {
 
     const sendOrderToServer = async () => {
         console.log("test", orders);
-        // validateOrders(orders)
-
-        orders.forEach(object => {
-            object.encounterId = encounterId;
-            // object.studies_codes = object.s
-        });
-
-        var ordersCopy = []
-        orders.forEach((object, index) => {
-            var studiesCodes = []
-            object.studies_codes.forEach(studies => {
-                studiesCodes.push({ "display": studies.name, "code": studies.id })
-            })
-            ordersCopy.push({
-                "category": object.category, "diagnosis": object.diagnosis,
-                "encounterId": object.encounterId, "notes": object.notes, "urgent": object.urgent,
-                "studies_codes": studiesCodes
-            })
-        });
-        try {
-            setShowError(false)
-            setSendStudyLoading(true)
-            const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
-            console.log("server response", res)
-
-            setSendStudyLoading(false)
-        } catch (err) {
-            console.log(err)
-            setShowError(true)
+        if(validateOrders(orders)){
+            orders.forEach(object => {
+                object.encounterId = encounterId;
+                // object.studies_codes = object.s
+            });
+    
+            let ordersCopy = []
+            orders.forEach((object, index) => {
+                let studiesCodes = []
+                object.studies_codes.forEach(studies => {
+                    studiesCodes.push({ "display": studies.name, "code": studies.id, "notes": studies.indication })
+                })
+                ordersCopy.push({
+                    "category": object.category, "diagnosis": object.diagnosis,
+                    "encounterId": object.encounterId, "notes": object.notes, "urgent": object.urgent,
+                    "studiesCodes": studiesCodes
+                })
+            });
+            console.log(ordersCopy)
+            try {
+                setShowError(false)
+                setSendStudyLoading(true)
+                const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
+                console.log("server response", res)
+                setSendStudyLoading(false)
+            } catch (err) {
+                console.log(err)
+                setShowError(true)
+            }
         }
     }
 
