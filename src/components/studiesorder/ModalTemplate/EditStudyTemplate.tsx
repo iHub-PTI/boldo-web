@@ -4,7 +4,7 @@ import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
-import { StudiesWithIndication } from './types'
+import { StudiesWithIndication, TemplateStudies } from './types'
 import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from "../../Toast"
 import axios from 'axios'
@@ -147,6 +147,27 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id} `)
       console.log("eliminar template con id:", id)
       console.log(res.data)
+      //get template
+      const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
+      let templates = []
+      dataTemplate.data.filter(obj => obj.status === true).forEach(item => {
+        let temp = {} as TemplateStudies
+        temp.id = item.id
+        temp.name = item.name
+        temp.description = item.description
+        temp.status = item.status
+        temp.studiesIndication = item.StudyOrderTemplateDetails
+        // select and indicaciont are added
+        temp.studiesIndication.forEach(e => {
+          e.select = false
+          e.indication = ''
+        })
+        templates.push(temp)
+      })
+      console.log(templates)
+      setShow(false)
+      setStudies(templates)
+      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     } catch(err){
       console.log(err)
     }
