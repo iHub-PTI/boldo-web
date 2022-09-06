@@ -6,7 +6,7 @@ import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { StudiesWithIndication, TemplateStudies } from './types'
 import ConfirmationTemplate from './ConfirmationTemplate'
-import { useToasts } from "../../Toast"
+import { useToasts } from '../../Toast'
 import axios from 'axios'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
@@ -14,19 +14,24 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const copyArray = study.studiesIndication.slice()
   const [state, setState] = useState({
     name: study.name,
-    description: study.desc,
+    description: study.description,
   })
 
   //confirmation delete template
   const [isOpen, setIsOpen] = useState(false)
 
-  const [newStudy, setNewStudy] = useState({ name: '', select: false, indication: '', status: true } as StudiesWithIndication)
+  const [newStudy, setNewStudy] = useState({
+    name: '',
+    select: false,
+    indication: '',
+    status: true,
+  } as StudiesWithIndication)
 
   const [studyArray, setStudyArray] = useState(copyArray)
 
   const [maxStudies, setMaxStudies] = useState(false)
 
-  const { addToast } = useToasts();
+  const { addToast } = useToasts()
 
   console.log('studyarrayy', studyArray)
 
@@ -40,16 +45,23 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     console.log(newStudy)
   }
 
-  const deleteStudy = (i) => {
-    console.log("idd", i)
-    studyArray[i].status = false
+  const deleteStudyIndex = index => {
+    studyArray.splice(index, 1)
+    setStudyArray([...studyArray])
+    console.log('eliminar')
+    setMaxStudies(false)
+  }
+
+  const deleteStudyId = id => {
+    let ind = studyArray.findIndex(obj => obj.id === id)
+    studyArray[ind].status = false
     setStudyArray([...studyArray])
     setMaxStudies(false)
-    console.log("elimnado", studyArray)
+    console.log('elimnado con id', studyArray)
   }
 
   const addStudy = () => {
-    if (studyArray.length < 15) {
+    if (studyArray.filter(obj => obj.status === true).length < 15) {
       studyArray.push(newStudy)
       console.log(studyArray)
       setStudyArray([...studyArray])
@@ -57,7 +69,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
         name: '',
         select: false,
         indication: '',
-        status: true
+        status: true,
       })
     }
   }
@@ -69,17 +81,21 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     } else if (data.StudyOrderTemplateDetails.length <= 0) {
       addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
       return false
-    }else{
-      data.StudyOrderTemplateDetails.forEach(e=>{
-        if(e.name === '') {
-          addToast({ type: 'warning', title: 'Notificación', text: 'Los nombres de los campos del estudio son obligatorios.' })
+    } else {
+      data.StudyOrderTemplateDetails.forEach(e => {
+        if (e.name === '') {
+          addToast({
+            type: 'warning',
+            title: 'Notificación',
+            text: 'Los nombres de los campos del estudio son obligatorios.',
+          })
           return false
         }
       })
     }
 
-  return true
-}
+    return true
+  }
 
   const saveTemplate = async () => {
     // const index = studies.findIndex(data => data.id === id)
@@ -93,41 +109,43 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
     // }, 900)
     // console.log('hola')
-
     try {
-      const index = studies.findIndex(data => data.id === id)
       let details = []
-
       studyArray.forEach(obj => {
-        if(obj.id !== undefined){
-          if(obj.status){
+        if (obj.id !== undefined) {
+          if (obj.status) {
             details.push({
               id: obj.id,
               name: obj.name,
             })
-          }else {
+          } else {
             details.push({
               id: obj.id,
               name: obj.name,
-              status: obj.status
+              status: obj.status,
             })
           }
-        }else{
+        } else {
           details.push({
             name: obj.name,
           })
-        }    
-      });
+        }
+      })
 
       let dataTemplate = {
         name: state.name,
         description: state.description,
-        StudyOrderTemplateDetails: details
+        StudyOrderTemplateDetails: details,
       }
 
-      if(validateEditTemplate(dataTemplate)){
+      if (validateEditTemplate(dataTemplate)) {
         const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
         console.log(res.data)
+        let index = studies.findIndex(el => el.id === res.data.id)
+        studies[index].studiesIndication = res.data.StudyOrderTemplateDetails
+        setStudies([...studies])
+        setShow(false)
+        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
       }
     } catch (err) {
       console.log(err)
@@ -139,42 +157,44 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     // let copyStudies = JSON.parse(JSON.stringify(studies))
     // copyStudies.splice(index, 1)
     // setStudies(copyStudies)
-    // 
+    //
     // setTimeout(()=>{
     //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     // }, 900)
-    try{
+    try {
       const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id} `)
-      console.log("eliminar template con id:", id)
+      console.log('eliminar template con id:', id)
       console.log(res.data)
       //get template
       const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
       let templates = []
-      dataTemplate.data.filter(obj => obj.status === true).forEach(item => {
-        let temp = {} as TemplateStudies
-        temp.id = item.id
-        temp.name = item.name
-        temp.description = item.description
-        temp.status = item.status
-        temp.studiesIndication = item.StudyOrderTemplateDetails
-        // select and indicaciont are added
-        temp.studiesIndication.forEach(e => {
-          e.select = false
-          e.indication = ''
+      dataTemplate.data
+        .filter(obj => obj.status === true)
+        .forEach(item => {
+          let temp = {} as TemplateStudies
+          temp.id = item.id
+          temp.name = item.name
+          temp.description = item.description
+          temp.status = item.status
+          temp.studiesIndication = item.StudyOrderTemplateDetails
+          // select and indicaciont are added
+          temp.studiesIndication.forEach(e => {
+            e.select = false
+            e.indication = ''
+          })
+          templates.push(temp)
         })
-        templates.push(temp)
-      })
       console.log(templates)
       setShow(false)
       setStudies(templates)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
-    } catch(err){
+    } catch (err) {
       console.log(err)
     }
   }
 
-  useEffect(()=>{
-    if(studyArray.length >= 15) setMaxStudies(true)
+  useEffect(() => {
+    if (studyArray.filter(obj => obj.status === true).length >= 15) setMaxStudies(true)
   }, [studyArray])
 
   return (
@@ -223,12 +243,20 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           className='flex flex-row flex-wrap mt-1 w-full overflow-y-auto'
           style={{ height: '250px', maxHeight: '600px' }}
         >
-          {studyArray.filter(obj => obj.status === true).map((item, i) => {
+          {studyArray.map((item, i) => {
+            if (item.status === true) {
               return (
                 <div className='relative'>
-                  <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
+                  {item.id === undefined ? (
+                    <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudyIndex(i)} />
+                  ) : (
+                    <IconDele
+                      className='absolute right-5 top-5 cursor-pointer'
+                      onClick={() => deleteStudyId(item.id)}
+                    />
+                  )}
                   <StudyIndication
-                    id={i}
+                    id={item.id === undefined ? i : item.id}
                     name={item.name}
                     check={false}
                     className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
@@ -238,6 +266,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
                   />
                 </div>
               )
+            } else {
+              return false
+            }
           })}
           <div className='flex flex-col gap-2 h-20 p-1 w-60 m-2'>
             <label>Nombre del estudio</label>
@@ -249,7 +280,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
               onChange={e => {
                 handleChangeNewStudy(e)
               }}
-              disabled= {maxStudies ? true: false }
+              disabled={maxStudies ? true : false}
             />
             <div className='flex flex-row justify-end'>
               <button
@@ -267,8 +298,14 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       </div>
       <div className='flex flex-row justify-end mt-3 relative'>
         <div className='absolute bottom-1 left-1'>
-          <IconTrash title="Eliminar plantilla" className='cursor-pointer' onClick={() => setIsOpen(true)} />
-          <ConfirmationTemplate isOpen={isOpen} setIsOpen={setIsOpen} title={`Eliminar plantilla ${state.name}`} message={'¿Estas seguro que quieres eliminar la plantilla?'} callBack={deleteTemplate}/>
+          <IconTrash title='Eliminar plantilla' className='cursor-pointer' onClick={() => setIsOpen(true)} />
+          <ConfirmationTemplate
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            title={`Eliminar plantilla ${state.name}`}
+            message={'¿Estas seguro que quieres eliminar la plantilla?'}
+            callBack={deleteTemplate}
+          />
         </div>
         <button
           className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'

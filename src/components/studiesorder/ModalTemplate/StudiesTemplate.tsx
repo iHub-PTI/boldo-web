@@ -20,7 +20,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const [idEditStudy, setIdEditStudy] = useState(undefined)
 
   //index of studies
-  const [template, setTemplate] = useState({} as TemplateStudies)
+  const [template, setTemplate] = useState<TemplateStudies>(undefined)
   const [page, setPage] = useState(1)
   const perPage = 3
   const [maxPagination, setMaxPagination] = useState(0)
@@ -28,6 +28,9 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   //hooks for controlling the error and loading state
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // hooks for controlling when templates is empty
+  const [emptyTemp, setEmptyTemp] = useState(false)
 
   const confirmationStudies = () => {
     let orderStudies = []
@@ -66,31 +69,50 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     setShowEditTemplate(true)
   }
 
+  const validateStudiesTemplates = studies => {
+    let count = 0
+    studies.forEach(stud => {
+      if (stud.status === true) {
+        count++
+      }
+    })
+    if (count <= 0) setEmptyTemp(true)
+    else setEmptyTemp(false)
+  }
+
   const loadTemplates = async () => {
     try {
       setLoading(true)
       const res = await axios.get(`profile/doctor/studyOrderTemplate`)
-      console.log(res.data)
-      let templates = []
-      res.data.filter(obj => obj.status === true).forEach(item => {
-        let temp = {} as TemplateStudies
-        temp.id = item.id
-        temp.name = item.name
-        temp.description = item.description
-        temp.status = item.status
-        temp.studiesIndication = item.StudyOrderTemplateDetails
-        // select and indicaciont are added
-        temp.studiesIndication.forEach(e => {
-          e.select = false
-          e.indication = ''
-        })
-        templates.push(temp)
-      })
-      console.log('response templates', templates)
-      setStudies(templates)
-      setTemplate(templates[0])
-      setMaxPagination(Math.ceil(templates.length / perPage))
-      setLoading(false)
+      console.log(res)
+      if (res.status === 200) {
+        let templates = []
+        res.data
+          .filter(obj => obj.status === true)
+          .forEach(item => {
+            let temp = {} as TemplateStudies
+            temp.id = item.id
+            temp.name = item.name
+            temp.description = item.description
+            temp.status = item.status
+            temp.studiesIndication = item.StudyOrderTemplateDetails
+            // select and indicaciont are added
+            temp.studiesIndication.forEach(e => {
+              e.select = false
+              e.indication = ''
+            })
+            templates.push(temp)
+          })
+        console.log('response templates', templates)
+        validateStudiesTemplates(studies)
+        setStudies(templates)
+        setTemplate(templates[0])
+        setMaxPagination(Math.ceil(templates.length / perPage))
+      } else if (res.status === 204) {
+        toggleNewTemplate()
+        setLoading(false)
+        setEmptyTemp(true)
+      }
     } catch (err) {
       console.log(err)
     }
@@ -98,6 +120,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
 
   useEffect(() => {
     loadTemplates()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -108,11 +131,19 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   }, [show])
 
   useEffect(() => {
-    //reset pagination
-    setMaxPagination(Math.ceil(studies.length / perPage))
-    //reset view on change
-    setTemplate(studies[0])
-    setPage(1)
+    console.log('study', studies.length)
+    if (studies.length > 0) {
+      //reset pagination
+      setMaxPagination(Math.ceil(studies.length / perPage))
+      //reset view on change
+      setTemplate(studies[0])
+      setPage(1)
+      setEmptyTemp(false)
+      setLoading(false)
+    } else {
+      setEmptyTemp(true)
+      setTemplate(undefined)
+    }
   }, [studies])
 
   useEffect(() => {
@@ -131,16 +162,16 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {loading === false && showAddTemplate && show ? (
+        {(loading === false && showAddTemplate && show && template === undefined) || emptyTemp ? (
           <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
-        ) : loading === false && showEditTemplate && show ? (
+        ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate
             id={idEditStudy}
             studies={studies}
             setStudies={setStudies}
             setShow={setShowEditTemplate}
           ></EditStudyTemplate>
-        ) : !loading ? (
+        ) : !loading && template !== undefined ? (
           <div className='relative'>
             <div className='flex flex-row'>
               <div className='flex w-full'>
