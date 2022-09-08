@@ -3,7 +3,7 @@ import { StudyIndication } from './StudyIndication'
 import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
-import { StudiesWithIndication } from './types'
+import { StudiesWithIndication, TemplateStudies } from './types'
 import { useToasts } from '../../../components/Toast'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
@@ -53,25 +53,25 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
   }
 
   const validateAddTemplate = data => {
-      if (data.name === '') {
-        addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
-        return false
-      } else if (data.StudyOrderTemplateDetails.length <= 0) {
-        addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
-        return false
-      }else{
-        for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
-          const e = data.StudyOrderTemplateDetails[i];
-          if (e.name === '') {
-            addToast({
-              type: 'warning',
-              title: 'Notificación',
-              text: 'Los nombres de los campos del estudio son obligatorios.',
-            })
-            return false
-          }
+    if (data.name === '') {
+      addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
+      return false
+    } else if (data.StudyOrderTemplateDetails.length <= 0) {
+      addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
+      return false
+    } else {
+      for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
+        const e = data.StudyOrderTemplateDetails[i]
+        if (e.name === '') {
+          addToast({
+            type: 'warning',
+            title: 'Notificación',
+            text: 'Los nombres de los campos del estudio son obligatorios.',
+          })
+          return false
         }
       }
+    }
 
     return true
   }
@@ -88,21 +88,44 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
       if (validateAddTemplate(data)) {
         setLoading(true)
         const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
-        let copyStudies = JSON.parse(JSON.stringify(studies))
+        //let copyStudies = JSON.parse(JSON.stringify(studies))
         tempArray = [...res.data.StudyOrderTemplateDetails]
+        console.log('array', tempArray)
         tempArray.forEach(e => {
           e.select = false
           e.indication = ''
         })
-        copyStudies.push({ ...res.data, studiesIndication: tempArray })
-        setStudies(copyStudies)
-        setShow(false)
-        setLoading(true)
-        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+        //copyStudies.push({ ...res.data, studiesIndication: tempArray })
+        // TODO: no retorna el id del /profile/doctor/studyOrderTemplate
+        const resGet = await axios.get(`profile/doctor/studyOrderTemplate`)
+        console.log(resGet)
+        if (resGet.status === 200) {
+          let templates = []
+          resGet.data
+            .filter(obj => obj.status === true)
+            .forEach(item => {
+              let temp = {} as TemplateStudies
+              temp.id = item.id
+              temp.name = item.name
+              temp.description = item.description
+              temp.status = item.status
+              temp.studiesIndication = item.StudyOrderTemplateDetails
+              // select and indicaciont are added
+              temp.studiesIndication.forEach(e => {
+                e.select = false
+                e.indication = ''
+              })
+              templates.push(temp)
+            })
+          setStudies(templates)
+          setShow(false)
+          setLoading(true)
+          addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+        }
       }
     } catch (err) {
       console.log('error', err)
-      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      addErrorToast('Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.')
       setLoading(false)
     }
   }

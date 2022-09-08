@@ -144,6 +144,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
 
       if (validateEditTemplate(dataTemplate)) {
         setLoading(true)
+        console.log("id template", id)
         const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
         console.log(res.data)
         let index = studies.findIndex(el => el.id === res.data.id)
