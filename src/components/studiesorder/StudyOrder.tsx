@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-
 import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
+import { ReactComponent as Spinner } from '../../assets/spinner.svg';
 import SelectCategory from './SelectCategory'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import BoxSelect from './BoxSelect';
@@ -15,7 +15,6 @@ import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
 
-// import { useToasts } from './Toast';
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -77,10 +76,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-const StudyOrder = () => {
+const StudyOrder = ({setShowMakeOrder}) => {
     const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
-    const { orders, setOrders } = useContext(CategoriesContext)
+    const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
     const [encounterId, setEncounterId] = useState('')
 
@@ -197,8 +196,23 @@ const StudyOrder = () => {
                 const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
                 console.log("server response", res)
                 setSendStudyLoading(false)
+                //reset Orders
+                setOrders([
+                    {
+                        category: "",
+                        urgent: false,
+                        diagnosis: "",
+                        studies_codes: [] as Array<StudiesWithIndication>,
+                        notes: ""
+                    }
+                ])
+                setIndexOrder(0)
+                setShowMakeOrder(false)
+                addToast({ type: 'success', title: 'Notificación', text: '¡La(s) orden(es) han sido enviadas!' })
             } catch (err) {
                 console.log(err)
+                setSendStudyLoading(false)
+                addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
                 setShowError(true)
             }
         }
@@ -257,12 +271,13 @@ const StudyOrder = () => {
                     >Agregar
                         <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
                     </button>
-                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-8 w-12"
+                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-8 w-auto p-1 flex flex-row justify-center items-center"
                         onClick={() => {
                             sendOrderToServer()
 
                         }}
                     >
+                        {sendStudyLoading ? <Spinner /> : ''}
                         Listo
                     </button>
                 </div>

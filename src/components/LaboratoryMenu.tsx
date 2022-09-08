@@ -142,7 +142,7 @@ export function LaboratoryMenu(props) {
                         </svg>
                     </button>
                     <Provider>
-                        <StudyOrder></StudyOrder>
+                        <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
                     </Provider>
                 </div>
                 
