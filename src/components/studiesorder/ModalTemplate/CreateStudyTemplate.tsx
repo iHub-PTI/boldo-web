@@ -40,7 +40,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
   }
 
   const addStudy = () => {
-    if (studyArray.length < 15) {
+    if (studyArray.length < 15 && newStudy !== '') {
       studyArray.push({
         name: newStudy,
         select: false,

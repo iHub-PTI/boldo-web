@@ -64,7 +64,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   }
 
   const addStudy = () => {
-    if (studyArray.filter(obj => obj.status === true).length < 15) {
+    if (studyArray.filter(obj => obj.status === true).length < 15 && newStudy.name !== '') {
       studyArray.push(newStudy)
       console.log(studyArray)
       setStudyArray([...studyArray])
