@@ -20,12 +20,13 @@ interface Props {
   size: keyof typeof sizes
   noPadding?: boolean
   bgTransparent?:boolean
+  handleOutClick?: boolean //Allow or disable for outside click to close
 }
 
 const portal = document.getElementById('portal')
 
 const Modal: React.FC<Props> = props => {
-  const { show, setShow, bgTransparent=false } = props
+  const { show, setShow, bgTransparent=false, handleOutClick=true } = props
 
   const container = useRef<HTMLDivElement>(null)
 
@@ -38,8 +39,11 @@ const Modal: React.FC<Props> = props => {
       }
     }
 
-    window.addEventListener('click', handleOutsideClick, true)
-    return () => window.removeEventListener('click', handleOutsideClick, true)
+    if(handleOutClick){
+      window.addEventListener('click', handleOutsideClick, true)
+      return () => window.removeEventListener('click', handleOutsideClick, true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, setShow])
 
   useEffect(() => {

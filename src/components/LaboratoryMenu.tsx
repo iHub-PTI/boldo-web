@@ -21,6 +21,10 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
+import { ReactComponent as  OrderAdd } from "../assets/post-add.svg"
+import StudyOrder from "./studiesorder/StudyOrder";
+import Provider from "./studiesorder/Provider";
+
 
 export function LaboratoryMenu(props) {
     const { addErrorToast } = useToasts()
@@ -33,6 +37,7 @@ export function LaboratoryMenu(props) {
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
     const [loadPreview, setLoadPreview] = useState(false)
+    const [showMakeOrder, setShowMakeOrder] = useState(false)
 
     const tableIcons: Icons = {
         SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -60,6 +65,8 @@ export function LaboratoryMenu(props) {
             load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+
+
     const downloadBlob = (url, contentType, download) => {
         var oReq = new XMLHttpRequest();
         setLoadPreview(true) //loading preview data modal
@@ -92,6 +99,7 @@ export function LaboratoryMenu(props) {
 
     }
 
+
     useEffect(() => {
         const load = async () => {
             try {
@@ -115,24 +123,53 @@ export function LaboratoryMenu(props) {
     }, [selectedRow])
 
 
-
     if (selectedRow)
         return laboratoryDetail()
+
+    if (showMakeOrder)
+        return (
+            <>
+                <div className="flex flex-row sm-max:mt-4">
+                    <button
+                        style={{ backgroundColor: '#27BEC2', height: '46px', width: '48px' }}
+                        className='flex items-center justify-center m-3 rounded-full focus:outline-none focus:bg-gray-600'
+                        onClick={() => {
+                            setShowMakeOrder(false);
+                        }}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
+                        </svg>
+                    </button>
+                    <Provider>
+                        <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
+                    </Provider>
+                </div>
+                
+            </>
+            
+        )
 
     return (
         <div className='flex flex-col h-full  bg-white shadow-xl'>
             <Grid>
-
                 <Grid className='w-full px-8 mt-10'>
-
-                    <Grid>
-                        <Typography variant='h5' color='textPrimary'>
-                            Resultados de estudios
-                        </Typography>
-                        <Typography variant='body2' color='textSecondary'>
-                            archivos subidos por el paciente, laboratorios o dispositivos médicos
-                        </Typography>
-                    </Grid>
+                    <div className='flex flex-row justify-between md-max:flex-col'>
+                        <Grid>
+                            <Typography variant='h5' color='textPrimary'>
+                                Resultados de estudios
+                            </Typography>
+                            <Typography variant='body2' color='textSecondary'>
+                                archivos subidos por el paciente, laboratorios o dispositivos médicos
+                            </Typography>
+                        </Grid>
+                        <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
+                        onClick={() => setShowMakeOrder(true)}
+                        >
+                            <div>Emitir orden de estudio</div>
+                            <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
+                        </button>
+                    </div>
 
                     {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -263,6 +300,7 @@ export function LaboratoryMenu(props) {
                                     },
 
                                 ]}
+                                // eslint-disable-next-line eqeqeq
                                 data={studiesData.filter((data) => (data.category == categorySelect || categorySelect == ""))}
                                 onRowClick={(evt, selectedRow) =>
                                     //@ts-ignore
@@ -582,6 +620,7 @@ export function LaboratoryMenu(props) {
                 </div>
 
                 {
+                    // eslint-disable-next-line jsx-a11y/alt-text
                     !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
