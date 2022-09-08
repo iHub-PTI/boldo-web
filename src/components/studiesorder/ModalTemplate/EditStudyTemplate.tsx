@@ -314,6 +314,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
             title={`Eliminar plantilla ${state.name}`}
             message={'¿Estas seguro que quieres eliminar la plantilla?'}
             callBack={deleteTemplate}
+            loading={loading}
           />
         </div>
         <button
