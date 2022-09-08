@@ -60,12 +60,17 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
         addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
         return false
       }else{
-        data.StudyOrderTemplateDetails.forEach(e=>{
-          if(e.name === '') {
-            addToast({ type: 'warning', title: 'Notificación', text: 'Los nombres de los campos del estudio son obligatorios.' })
+        for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
+          const e = data.StudyOrderTemplateDetails[i];
+          if (e.name === '') {
+            addToast({
+              type: 'warning',
+              title: 'Notificación',
+              text: 'Los nombres de los campos del estudio son obligatorios.',
+            })
             return false
           }
-        })
+        }
       }
 
     return true
@@ -97,7 +102,8 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
       }
     } catch (err) {
       console.log('error', err)
-      addErrorToast(err)
+      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      setLoading(false)
     }
   }
 

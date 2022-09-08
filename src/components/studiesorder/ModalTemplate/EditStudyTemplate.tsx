@@ -85,7 +85,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       addToast({ type: 'warning', title: 'Notificación', text: 'Debe agregar al menos un estudio.' })
       return false
     } else {
-      data.StudyOrderTemplateDetails.forEach(e => {
+      for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
+        const e = data.StudyOrderTemplateDetails[i];
         if (e.name === '') {
           addToast({
             type: 'warning',
@@ -94,7 +95,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           })
           return false
         }
-      })
+      }
     }
 
     return true
@@ -154,7 +155,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       }
     } catch (err) {
       console.log(err)
-      addErrorToast(err)
+      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      setLoading(false)
     }
   }
 
@@ -198,7 +200,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     } catch (err) {
       console.log(err)
-      addErrorToast(err)
+      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      setLoading(false)
     }
   }
 
