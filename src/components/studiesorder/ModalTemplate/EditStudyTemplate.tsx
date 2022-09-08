@@ -4,6 +4,7 @@ import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
+import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import { StudiesWithIndication, TemplateStudies } from './types'
 import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from '../../Toast'
@@ -16,6 +17,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     name: study.name,
     description: study.description,
   })
+
+  const [loading, setLoading] = useState(false)
 
   //confirmation delete template
   const [isOpen, setIsOpen] = useState(false)
@@ -31,7 +34,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
 
   const [maxStudies, setMaxStudies] = useState(false)
 
-  const { addToast } = useToasts()
+  const { addToast, addErrorToast } = useToasts()
 
   console.log('studyarrayy', studyArray)
 
@@ -139,16 +142,19 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       }
 
       if (validateEditTemplate(dataTemplate)) {
+        setLoading(true)
         const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
         console.log(res.data)
         let index = studies.findIndex(el => el.id === res.data.id)
         studies[index].studiesIndication = res.data.StudyOrderTemplateDetails
         setStudies([...studies])
         setShow(false)
+        setLoading(false)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
       }
     } catch (err) {
       console.log(err)
+      addErrorToast(err)
     }
   }
 
@@ -162,6 +168,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     // }, 900)
     try {
+      setLoading(true)
       const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id} `)
       console.log('eliminar template con id:', id)
       console.log(res.data)
@@ -187,9 +194,11 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       console.log(templates)
       setShow(false)
       setStudies(templates)
+      setLoading(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     } catch (err) {
       console.log(err)
+      addErrorToast(err)
     }
   }
 
@@ -308,9 +317,10 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           />
         </div>
         <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center'
           onClick={() => saveTemplate()}
         >
+          {loading ? <Spinner /> : ''}
           Guardar
         </button>
       </div>

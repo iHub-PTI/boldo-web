@@ -26,7 +26,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const [maxPagination, setMaxPagination] = useState(0)
 
   //hooks for controlling the error and loading state
-  const [error, setError] = useState(false)
+  //const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
 
   // hooks for controlling when templates is empty
@@ -162,7 +162,9 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             <CloseIcon></CloseIcon>
           </button>
         </div>
-        {(loading === false && showAddTemplate && show && template === undefined) || emptyTemp ? (
+        {(loading === false && showAddTemplate && show && template !== undefined) ||
+        (loading === false && showAddTemplate && show && template === undefined) ||
+        emptyTemp ? (
           <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
         ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate

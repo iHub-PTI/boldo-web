@@ -5,6 +5,7 @@ import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { StudiesWithIndication } from './types'
 import { useToasts } from '../../../components/Toast'
+import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
 
 export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
@@ -13,13 +14,15 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
     description: '',
   })
 
+  const [loading, setLoading] = useState(false)
+
   const [newStudy, setNewStudy] = useState('')
 
   const [studyArray, setStudyArray] = useState<Array<StudiesWithIndication>>([])
 
   const [maxStudies, setMaxStudies] = useState(false)
 
-  const { addToast } = useToasts()
+  const { addToast, addErrorToast } = useToasts()
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
@@ -78,6 +81,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
 
       const data = { name: state.name, description: state.description, StudyOrderTemplateDetails: tempArray }
       if (validateAddTemplate(data)) {
+        setLoading(true)
         const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
         let copyStudies = JSON.parse(JSON.stringify(studies))
         tempArray = [...res.data.StudyOrderTemplateDetails]
@@ -88,10 +92,12 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
         copyStudies.push({ ...res.data, studiesIndication: tempArray })
         setStudies(copyStudies)
         setShow(false)
+        setLoading(true)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
       }
     } catch (err) {
       console.log('error', err)
+      addErrorToast(err)
     }
   }
 
@@ -182,9 +188,10 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
       </div>
       <div className='flex flex-row justify-end mt-3'>
         <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-20'
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center'
           onClick={() => saveTemplate()}
         >
+          {loading ? <Spinner /> : ''}
           Guardar
         </button>
       </div>
