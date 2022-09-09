@@ -37,6 +37,9 @@ const ShowSoepHelper = ({ title, isBlackColor }: { title: String, isBlackColor: 
     case 'Receta':
       description = "Aquí se registran las recetas médicas."
       break;
+    case 'Estudios':
+      description = "Aquí se visualizan los estudios médicos."
+      break;
 
     default:
       break;

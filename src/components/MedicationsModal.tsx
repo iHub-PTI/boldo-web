@@ -44,7 +44,7 @@ export default function MedicationsModal({
     try {
       setShowError(false)
       setMedicationsLoading(true)
-      const res = await axios.get(`/medications${content ? `?content=${content}` : ''} `)
+      const res = await axios.get(`/profile/doctor/medications${content ? `?content=${content}` : ''} `)
 
       setMedicationsItems(res.data.items)
       setMedicationsLoading(false)
@@ -172,7 +172,7 @@ export default function MedicationsModal({
                           {medication.manufacturer}
                         </td>
                         <td className='px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap'>
-                          {medication.code}
+                          {medication.form}
                         </td>
                       </tr>
                     ))}

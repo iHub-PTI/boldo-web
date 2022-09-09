@@ -51,6 +51,6 @@ module.exports = {
       maxHeight: { 0: '0', 200: '200px' },
     },
   },
-  variants: { textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'] },
+  variants: { textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'], opacity: ['disabled'], cursor:['disabled'] },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }

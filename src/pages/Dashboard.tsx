@@ -15,7 +15,7 @@ import { validateDate, validateTime } from '../util/helpers'
 import { UserContext } from '../App'
 import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
-
+import RotateScreenModal from '../components/RotateScreenModal'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -115,12 +115,19 @@ export default function Dashboard() {
 
   const { user } = useContext(UserContext)
   const { openHours, new: newUser } = user || {}
-
+  const [isOpen, setIsOpen] = useState(false)
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
     setAppointments(arg0)
     setDateRange(range => ({ ...range, refetch: true }))
   }
+
+
+  useEffect(() => {
+    if (window.innerHeight > window.innerWidth) {
+      setIsOpen(true);
+    }
+  }, [])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -212,7 +219,7 @@ export default function Dashboard() {
     if (info.event.extendedProps.status === 'cancelled') {
 
     } else
-      if (info.event.extendedProps.appointmentType === 'V') {
+      if (info.event.extendedProps.appointmentType === 'V' && info.event.extendedProps.status !== 'locked') {
         return history.push(`/appointments/${info.event.extendedProps.id}/call`)
       } else {
         return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
@@ -351,6 +358,16 @@ export default function Dashboard() {
           </>
         )}
       </Layout>
+      <>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+          }} >
+
+          <RotateScreenModal   isOpen={isOpen} setIsOpen={setIsOpen} />
+        </div>
+      </>
       <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
         <form
           onSubmit={e => {

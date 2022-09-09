@@ -1,19 +1,22 @@
 
 import axios from "axios"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import _ from "lodash";
 import { useRouteMatch } from "react-router-dom"
 import {
     Grid,
     Typography,
     CardHeader,
     Button,
-
-
+    CircularProgress
 } from '@material-ui/core';
+
+import DoneIcon from '@material-ui/icons/Done';
 
 import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
+
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedMedication, setSelectedMedication] = useState<any[]>([])
@@ -24,9 +27,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [instructions, setInstructions] = useState<string>('')
     const [initialLoad, setInitialLoad] = useState(true)
 
-    const [success, setSuccess] = useState('')
-    const [error, setError] = useState('')
-    const [loadingSubmit, setLoadingSubmit] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [success, setSuccess] = useState(false)
+    const [error, setError] = useState(false)
+    // const [loadingSubmit, setLoadingSubmit] = useState(false)
     const classes = useStyles()
     let match = useRouteMatch<{ id: string }>(`/appointments/:id/${!isFromInperson ? 'call' : 'inperson'}`)
     const id = match?.params.id
@@ -58,6 +62,52 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    const debounce = useCallback(
+        _.debounce(async (_encounter: object) => {
+          try {
+            setLoading(true)
+            const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+            setLoading(false)
+            setSuccess(true)
+            console.log('response', res.data)
+            console.log('se ha actualizado con exito!')
+            setError(false)
+          } catch (error) {
+            setError(true)
+            setSuccess(false)
+            console.log(error)
+          }
+        }, 1000),
+        []
+      )
+    
+    useEffect(() => {
+        if(initialLoad === false && !isAppointmentDisabled){
+            var result = selectedMedication.map(function (el) {
+                var o = Object.assign({}, el);
+                if (o.status !== 'completed') {
+                    o.status = 'active';
+                }
+    
+                return o;
+            })
+    
+            debounce({
+                encounterData: {
+                    diagnosis: diagnose,
+                    instructions: instructions,
+                    prescriptions: result,
+                    encounterClass: 'V',
+                    soep: selectedSoep,
+                    mainReason: mainReason,
+                    partOfEncounterId: encounterId,
+                }
+            })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [diagnose, instructions, selectedMedication])
+    
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -78,9 +128,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 </div>
             </div>
         )
+    
     return (
         <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-            <Grid style={{ minWidth: '350px' }} >
+            <Grid>
 
                 {!isFromInperson ?
                     <>
@@ -124,7 +175,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     </div>
                     <div className='mt-6'>
                         <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
-                            Indicaciones
+                            Observaciones
                         </label>
 
                         <div className='rounded-md shadow-sm'>
@@ -203,7 +254,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                             </Button>}
                         </span>
                         <form
-                            onSubmit={async e => {
+                            /* onSubmit={async e => {
                                 e.preventDefault()
                                 if (diagnose === '' || diagnose === undefined) {
                                     setError('Escriba un diagnóstico primero')
@@ -241,10 +292,34 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                         setLoadingSubmit(false)
                                     }
                                 }
-                            }}
+                            }} */
                         >
                             <div className='mt-3'>
-                                {success && (
+                                {
+                                    loading && (
+                                        <div className='flex justify-items-center items-center mt-2 text-sm text-gray-600 sm:mt-0 sm:mr-2'>
+                                            <CircularProgress color="inherit" size={"1rem"} style={{ marginRight: '0.5rem' }} />
+                                            Guardando.
+                                        </div>
+                                    )
+                                }
+                                {
+                                    loading === false && success && (
+                                        <div className='flex justify-items-center items-center mt-2 text-sm text-gray-600 sm:mt-0 sm:mr-2'>
+                                            <DoneIcon fontSize="small" style={{ marginRight: '0.5rem' }} />
+                                            Guardado.
+                                        </div>
+                                    )
+                                }
+                                {
+                                    error && (
+                                        <div className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
+                                            Ha ocurrido un error.
+                                        </div>
+                                    )
+                                }
+
+                                {/* {success && (
                                     <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>
                                         Datos guardados correctamente.
                                     </span>
@@ -253,10 +328,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                     <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>
                                         {error}
                                     </span>
-                                )}
+                                )} */}
                             </div>
-
-                            <div className='flex w-full mt-5 mb-12 jusitfy-end'>
+                            {/* <div className='flex w-full mt-5 mb-12 jusitfy-end'>
                                 <div className='mt-3 ml-auto sm:flex'>
                                     <span className='flex w-full mt-3 ml-auto rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
 
@@ -288,9 +362,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                         </Button>
                                     </span>
                                 </div>
-                            </div>
-
-
+                            </div> */}
                         </form>
                     </div>
 

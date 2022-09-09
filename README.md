@@ -18,10 +18,6 @@ The browser application is specifically for doctors.
    ```
    REACT_APP_SENTRY = PUBLIC SENTRY DSN
 
-   # ###################### Online ######################
-   # REACT_APP_SOCKETS_ADDRESS = https://sockets.boldo.penguin.software
-   # REACT_APP_SERVER_ADDRESS = https://api.boldo.penguin.software
-
    # ###################### Local ######################
    REACT_APP_SOCKETS_ADDRESS = http://localhost:8000
    REACT_APP_SERVER_ADDRESS = http://localhost:8008

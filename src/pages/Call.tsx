@@ -9,9 +9,9 @@ import Layout from '../components/Layout'
 
 import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
-import MdAdd from '@material-ui/icons/MoreVert';
-import MdClose from '@material-ui/icons/Clear';
-import PersonIcon from '@material-ui/icons/Person';
+import MdAdd from '@material-ui/icons/MoreVert'
+import MdClose from '@material-ui/icons/Clear'
+import PersonIcon from '@material-ui/icons/Person'
 // import { ReactComponent as SoepIcon } from '../assets/soep.svg'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
@@ -25,21 +25,16 @@ import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-com
 import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
 import { ReactComponent as RecordIcon } from '../assets/record-table.svg'
 import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
-import PropTypes from 'prop-types';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Tooltip from '@material-ui/core/Tooltip';
+import PropTypes from 'prop-types'
+import Accordion from '@material-ui/core/Accordion'
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import Tooltip from '@material-ui/core/Tooltip'
 import _ from 'lodash'
 import moment from 'moment'
 import loading from '../assets/loading.gif'
-import {
-  MainButton,
-  ChildButton,
-  FloatingMenu,
-  Directions,
-} from 'react-floating-button-menu';
+import { MainButton, ChildButton, FloatingMenu, Directions } from 'react-floating-button-menu'
 import {
   Card,
   CardContent,
@@ -50,13 +45,14 @@ import {
   Tabs,
   TextField,
   makeStyles,
-  withStyles
-} from '@material-ui/core';
+  withStyles,
+} from '@material-ui/core'
 import Modal from '../components/Modal'
 import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
+import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -75,7 +71,6 @@ const Gate = () => {
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
-
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -220,78 +215,89 @@ const Gate = () => {
       case 2:
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
+      case 3:
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+
+        }} />
+
       default:
         return <Sidebar appointment={appointment} />
     }
-  };
+  }
   const TogleMenu = () => {
-
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false)
     return (
       <div>
-        <FloatingMenu
-          slideSpeed={500}
-          isOpen={isOpen}
-          spacing={8}
-          direction={Directions.Up}
-        >
+        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
           <MainButton
             isOpen={isOpen}
             iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
             iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             onClick={() => {
-              setIsOpen((prev) => !prev);
+              setIsOpen(prev => !prev)
             }}
             size={50}
           />
           <ChildButton
             icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          <ChildButton
-            icon={<RecordIcon />}
-            background="#323030"
-            size={50}
-            onClick={() => setSideBarAction(1)}
-          />
+          <ChildButton icon={<RecordIcon />} background='#323030' size={50} onClick={() => setSideBarAction(1)} />
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             size={50}
             onClick={() => setSideBarAction(0)}
           />
+          <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
+          />
         </FloatingMenu>
       </div>
-    );
+    )
   }
   return (
-
     <Layout>
-
-
       {instance === 0 ? (
-        <div className='flex flex-col h-full md:flex-row'>
-          <Grid
-
-            style={{
-              position: 'fixed',
-              bottom: '0',
-              right: '25%'
-            }}
-          >
-            <Grid style={{ marginBottom: '20px' }}>
+        // remote dating screen
+        // <div className='flex flex-col h-full md:flex-row'>
+        <Grid container className='flex  h-full flex-row'>
+          <Grid container item lg={9} md={9} sm={8} xs={8}>
+            {/* daiting screen here */}
+            <CallStatusMessage
+              status={appointment.status}
+              statusText={statusText}
+              updateStatus={updateStatus}
+              appointmentId={appointment.id}
+            />
+            {/* Togle Menu */}
+            <Grid
+              style={{
+                position: 'fixed',
+                bottom: '0',
+                right: '26%',
+                marginBottom: '20px',
+              }}
+            >
               <TogleMenu />
             </Grid>
           </Grid>
-          <CallStatusMessage status={appointment.status} statusText={statusText} updateStatus={updateStatus} appointmentId={appointment.id} />
-          <Card>
-            {controlSideBarState()}
-          </Card>
-        </div>
+          <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
+            {/* patient data screen */}
+            <Card>{controlSideBarState()}</Card>
+          </Grid>
+        </Grid>
       ) : (
+        // </div>
         <Call
           appointment={appointment}
           id={id}
@@ -327,7 +333,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const stream = useRef<HTMLVideoElement>(null)
   const video = useRef<HTMLVideoElement>(null)
 
-  const [showCallMenu, setShowCallMenu] = useState(false)
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
@@ -354,47 +359,45 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   const TogleMenu = () => {
-
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false)
     return (
-      <div>
-        <FloatingMenu
-          slideSpeed={500}
-          isOpen={isOpen}
-          spacing={8}
-          direction={Directions.Up}
-        >
+      <>
+        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
           <MainButton
             isOpen={isOpen}
             iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
             iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             onClick={() => {
-              setIsOpen((prev) => !prev);
+              setIsOpen(prev => !prev)
             }}
             size={50}
           />
           <ChildButton
             icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             size={50}
             onClick={() => setSideBarAction(2)}
           />
-          <ChildButton
-            icon={<RecordIcon />}
-            background="#323030"
-            size={50}
-            onClick={() => setSideBarAction(1)}
-          />
+          <ChildButton icon={<RecordIcon />} background='#323030' size={50} onClick={() => setSideBarAction(1)} />
           <ChildButton
             icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
-            background="#323030"
+            background='#323030'
             size={50}
             onClick={() => setSideBarAction(0)}
           />
+          <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
+          />
         </FloatingMenu>
-      </div>
-    );
+      </>
+    )
   }
   // NOTE: Mutes audio for development comfort
   // useEffect(() => {
@@ -524,80 +527,62 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             </div>
           </div>
           <div />
-          <button
-            onClick={hangUp}
-            className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
-          >
-            <svg
-              style={{ transform: 'rotate(134deg)' }}
-              height='30px'
-              width='30px'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
-              />
-            </svg>
-          </button>
-          <Grid
 
-            style={{
-              position: 'fixed',
-              bottom: '0',
-              right: '25%'
-            }}
-          >
-            <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
-            </Grid>
-          </Grid>
-          <div className='flex flex-col items-end space-y-4'>
-            {showCallMenu && (
-              <>
-                <div className='flex items-center'>
-                  <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getAudioTracks()[0].label}</p>
-                  <button
-                    className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-                    onClick={muteAudio}
-                  >
-                    {audioEnabled ? (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
-                        />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <div className='flex items-center'>
-                  <p className='p-1 text-xs bg-white rounded opacity-75'>{mediaStream?.getVideoTracks()[0].label}</p>
-                  <button
+          <Grid justifyContent='center' container>
+            <button
+              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+              onClick={muteAudio}
+            >
+              {audioEnabled ? (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
+                  />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={hangUp}
+              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
+            >
+              <svg
+                style={{ transform: 'rotate(134deg)' }}
+                height='30px'
+                width='30px'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
+                />
+              </svg>
+            </button>
+            <button
                     className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
                     onClick={muteVideo}
                   >
@@ -629,33 +614,21 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                       </svg>
                     )}
                   </button>
-                </div>
-              </>
-            )}
-            {/* <button
-              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-              onClick={() => {
-                setShowCallMenu(menuOpen => !menuOpen)
-              }}
-            >
-              <svg
-                className={`w-6 h-6 transition-transform duration-150 ease-in-out ${
-                  showCallMenu && 'transform rotate-90'
-                }`}
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
-                />
-              </svg>
-            </button> */}
-          </div>
+
+          </Grid>
+
+          <Grid
+            style={{
+              position: 'fixed',
+              bottom: '0',
+              right: '27%',
+            }}
+          >
+            <Grid style={{ marginBottom: '20px' }}>
+              <TogleMenu />
+            </Grid>
+          </Grid>
+        
         </div>
         {callStatus.connecting && (
           <div
@@ -678,12 +651,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           </div>
         )}
       </div>
-      <SidebarContainer
-        sideBarAction={sideBarAction}
-        appointment={appointment}
-        show={showSidebarMenu}
-        hideSidebar={() => setShowSidebarMenu(false)}
-      />
+      <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
+        <SidebarContainer
+          sideBarAction={sideBarAction}
+          appointment={appointment}
+          show={showSidebarMenu}
+          stream={stream}
+          hideSidebar={() => setShowSidebarMenu(false)}
+        />
+      </Grid>
     </div>
   )
 }
@@ -775,9 +751,10 @@ interface SidebarContainerProps {
   hideSidebar: () => void
   appointment: AppointmentWithPatient
   sideBarAction: Number
+  stream: any
 }
 
-const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: SidebarContainerProps) => {
+const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, stream }: SidebarContainerProps) => {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -801,7 +778,21 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
     document.addEventListener('keyup', handleEscape)
     return () => document.removeEventListener('keyup', handleEscape)
   }, [show, hideSidebar])
-
+  const activatePicInPic = () => {
+    console.log('activatePicInPic');
+    if (!stream.current) return
+    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+      try {
+        if ((document as any).pictureInPictureElement) {
+          ; (document as any).exitPictureInPicture()
+        }
+        ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    //   }}
+  }
   const controlSideBarState = () => {
     switch (sideBarAction) {
       case 0:
@@ -813,15 +804,17 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
       case 2:
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
+      case 3:
+        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
+          activatePicInPic();
+        }} />
+
       default:
         return <Sidebar appointment={appointment} />
     }
-  };
+  }
   return (
-
-    <Card >
-      {controlSideBarState()}
-    </Card>
+    <Card>{controlSideBarState()}</Card>
     // <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
     // <>
     //   <Transition show={show}>
@@ -860,7 +853,6 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction }: Sid
     //     <Sidebar appointment={appointment} hideSidebar={hideSidebar} />
     //   </Transition>
     // </>
-
   )
 }
 
@@ -898,8 +890,6 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
     // </div>
   )
 }
-
-
 
 // function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
 //   return (
@@ -988,120 +978,121 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 //   )
 // }
 
-
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   return (
-    <Grid style={{ minWidth: '350px' }} >
-      <CardHeader title="Paciente" titleTypographyProps={{ variant: 'h6' }} style={{ backgroundColor: '#27BEC2', color: 'white' }} />
+    <Grid>
+      <CardHeader
+        title='Paciente'
+        titleTypographyProps={{ variant: 'h6' }}
+        style={{ backgroundColor: '#27BEC2', color: 'white' }}
+      />
 
       <CardContent>
         <Grid style={{ paddingTop: '10px' }}>
-          {
-            appointment.patient.photoUrl !== undefined &&
+          {appointment.patient.photoUrl !== undefined && (
             <div className='flex justify-center w-full  '>
-              <img className="rounded-full center" style={{ width: '100px', height: '100px' }} src={appointment.patient.photoUrl} alt="user image" />
+              <img
+                className='rounded-full center'
+                style={{ width: '100px', height: '100px' }}
+                src={appointment.patient.photoUrl}
+                alt='user image'
+              />
             </div>
-          }
+          )}
 
           <Grid style={{ paddingTop: '10px' }}>
-            <Typography variant="h6" color="textPrimary">
+            <Typography variant='h6' color='textPrimary'>
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
 
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography variant='subtitle1' color='textSecondary'>
               {appointment.patient.identifier}
             </Typography>
-
           </Grid>
 
-          <Grid style={{ paddingTop: '20px' }} >
-            <Typography variant="subtitle1" color="textSecondary">
+          <Grid style={{ paddingTop: '20px' }}>
+            <Typography variant='subtitle1' color='textSecondary'>
               Edad
             </Typography>
-            <Typography variant="subtitle2" color="textPrimary">
+            <Typography variant='subtitle2' color='textPrimary'>
               {age} ({birthDate})
             </Typography>
           </Grid>
 
-          <Grid style={{ paddingTop: '20px' }} >
-            <Typography variant="subtitle1" color="textSecondary">
+          <Grid style={{ paddingTop: '20px' }}>
+            <Typography variant='subtitle1' color='textSecondary'>
               Profesión
             </Typography>
-            <Typography variant="subtitle2" color="textPrimary">
+            <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.job || '-'}
             </Typography>
           </Grid>
 
-          <Grid style={{ paddingTop: '20px' }} >
-            <Typography variant="subtitle1" color="textSecondary">
+          <Grid style={{ paddingTop: '20px' }}>
+            <Typography variant='subtitle1' color='textSecondary'>
               Telefono
             </Typography>
-            <Typography variant="subtitle2" color="textPrimary">
+            <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.phone || '-'}
             </Typography>
           </Grid>
 
-          <Grid style={{ paddingTop: '20px' }} >
-            <Typography variant="subtitle1" color="textSecondary">
+          <Grid style={{ paddingTop: '20px' }}>
+            <Typography variant='subtitle1' color='textSecondary'>
               Ciudad
             </Typography>
-            <Typography variant="subtitle2" color="textPrimary">
+            <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.city || '-'}
             </Typography>
           </Grid>
-
         </Grid>
       </CardContent>
     </Grid>
-  );
+  )
 }
 function TabPanel(props: { [x: string]: any; children: any; value: any; index: any }) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props
 
   return (
     <div
-      role="tabpanel"
+      role='tabpanel'
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <div>{children}</div>
-      )}
+      {value === index && <div>{children}</div>}
     </div>
-  );
+  )
 }
 TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
-};
+}
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
-  };
+  }
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%",
-
-
+    width: '100%',
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular
+    fontWeight: theme.typography.fontWeightRegular,
   },
   test: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular
+    fontWeight: theme.typography.fontWeightRegular,
   },
   MuiAccordionroot: {
-    "&.MuiAccordion-root:before": {
-      backgroundColor: "white"
-    }
+    '&.MuiAccordion-root:before': {
+      backgroundColor: 'white',
+    },
   },
   tab: {
     '& .MuiBox-root': {
@@ -1112,38 +1103,37 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiTab-root': {
       minHeight: '20px',
       minWidth: '50%',
-      textTransform: 'none'
+      textTransform: 'none',
     },
   },
+}))
 
-}));
-
-function SOEP({ appointment }: { appointment: any; }) {
-  const [value, setValue] = useState(0);
-  const [mainReason, setMainReason] = useState("");
-  const [disableMainReason, setDisableMainReason] = useState(false);
-  const [subjective, setSubjective] = useState("");
-  const [objective, setObjective] = useState("");
-  const [evaluation, setEvaluation] = useState("");
-  const [plan, setPlan] = useState("");
-  const [selectedMedication, setSelectedMedication] = useState<any[]>([]);
-  const [soepHistory, setSoepHistory] = useState<any[]>([]);
-  const [diagnose, setDiagnose] = useState<string>('');
-  const [instructions, setInstructions] = useState<string>('');
-  const [initialLoad, setInitialLoad] = useState(true);
+function SOEP({ appointment }: { appointment: any }) {
+  const [value, setValue] = useState(0)
+  const [mainReason, setMainReason] = useState('')
+  const [disableMainReason, setDisableMainReason] = useState(false)
+  const [subjective, setSubjective] = useState('')
+  const [objective, setObjective] = useState('')
+  const [evaluation, setEvaluation] = useState('')
+  const [plan, setPlan] = useState('')
+  const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+  const [soepHistory, setSoepHistory] = useState<any[]>([])
+  const [diagnose, setDiagnose] = useState<string>('')
+  const [instructions, setInstructions] = useState<string>('')
+  const [initialLoad, setInitialLoad] = useState(true)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
-  const [encounterHistory, setEncounterHistory] = useState<any[]>([]);
-  const [selectedRow, setSelectedRow] = useState();
+  const [encounterHistory, setEncounterHistory] = useState<any[]>([])
+  const [selectedRow, setSelectedRow] = useState()
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
-    setValue(newValue);
-  };
+    setValue(newValue)
+  }
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -1151,25 +1141,25 @@ function SOEP({ appointment }: { appointment: any; }) {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
         const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
         if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-          setAppointmentDisabled(true);
+          setAppointmentDisabled(true)
         } else {
-          setAppointmentDisabled(false);
+          setAppointmentDisabled(false)
         }
-        setDiagnose(diagnosis);
-        setInstructions(instructions);
-        setSelectedMedication(prescriptions);
-        setEncounterId(res.data.encounter.id);
+        setDiagnose(diagnosis)
+        setInstructions(instructions)
+        setSelectedMedication(prescriptions)
+        setEncounterId(res.data.encounter.id)
         setPartOfEncounterId(res.data.encounter.partOfEncounterId)
-        mainReason !== undefined && setMainReason(mainReason);
+        mainReason !== undefined && setMainReason(mainReason)
         if (res.data.encounter.soep !== undefined) {
-          const { subjective, objective, evaluation, plan } = res.data.encounter.soep;
-          objective !== undefined && setObjective(objective);
-          subjective !== undefined && setSubjective(subjective);
-          evaluation !== undefined && setEvaluation(evaluation);
-          plan !== undefined && setPlan(plan);
+          const { subjective, objective, evaluation, plan } = res.data.encounter.soep
+          objective !== undefined && setObjective(objective)
+          subjective !== undefined && setSubjective(subjective)
+          evaluation !== undefined && setEvaluation(evaluation)
+          plan !== undefined && setPlan(plan)
         }
         setInitialLoad(false)
       } catch (err) {
@@ -1188,17 +1178,16 @@ function SOEP({ appointment }: { appointment: any; }) {
       const load = async () => {
         try {
           //get related encounters records
-          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`);
+          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`)
           if (res.data.encounter !== undefined) {
             var count = Object.keys(res.data.encounter.items).length
             const tempArray = []
             for (var i = 0; i < count; i++) {
               const data = res.data.encounter.items[i]
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
-              if (data.appointmentId !== appointment.id)
-                tempArray.push(data)
+              if (data.appointmentId !== appointment.id) tempArray.push(data)
             }
-            setEncounterHistory(tempArray);
+            setEncounterHistory(tempArray)
           }
         } catch (err) {
           console.log(err)
@@ -1211,7 +1200,6 @@ function SOEP({ appointment }: { appointment: any; }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId, showEditModal, appointment])
-
 
   useEffect(() => {
     if (initialLoad === false) {
@@ -1228,10 +1216,9 @@ function SOEP({ appointment }: { appointment: any; }) {
               subjective: subjective,
               objective: objective,
               evaluation: evaluation,
-              plan: plan
-            }
+              plan: plan,
+            },
           },
-
         })
       } else {
         debounce({
@@ -1245,25 +1232,24 @@ function SOEP({ appointment }: { appointment: any; }) {
               subjective: subjective,
               objective: objective,
               evaluation: evaluation,
-              plan: plan
-            }
+              plan: plan,
+            },
           },
-
         })
       }
-
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
-
 
   useEffect(() => {
     if (showEditModal === true) {
       // get encounters list
       const load = async () => {
         try {
-          const res = await axios.get(`/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`);
+          const res = await axios.get(
+            `/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`
+          )
           if (res.data.encounter !== undefined) {
             var count = Object.keys(res.data.encounter).length
             const tempArray = []
@@ -1272,16 +1258,16 @@ function SOEP({ appointment }: { appointment: any; }) {
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               tempArray.push(data)
             }
-            setSoepHistory(tempArray);
+            console.log("a ver ", tempArray)
+            setSoepHistory(tempArray)
           }
         } catch (error) {
           console.log(error)
           //@ts-ignore
           addErrorToast(error)
         }
-
       }
-      load();
+      load()
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1307,13 +1293,12 @@ function SOEP({ appointment }: { appointment: any; }) {
               subjective: subjective,
               objective: objective,
               evaluation: evaluation,
-              plan: plan
-            }
+              plan: plan,
+            },
           },
-
         }
         try {
-          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter);
+          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
           console.log('response', res.data)
           addToast({ type: 'success', title: 'Ficha médica asociada con exito', text: '' })
           setIsLoading(false)
@@ -1323,8 +1308,6 @@ function SOEP({ appointment }: { appointment: any; }) {
           addErrorToast(error)
           setIsLoading(false)
         }
-
-
       }
       send()
     }
@@ -1333,8 +1316,8 @@ function SOEP({ appointment }: { appointment: any; }) {
 
   useEffect(() => {
     if (showEditModal === false) {
-      //go to first tab 
-      setValue(0);
+      //go to first tab
+      setValue(0)
     }
   }, [showEditModal])
 
@@ -1342,8 +1325,8 @@ function SOEP({ appointment }: { appointment: any; }) {
     if (encounterHistory.length > 0) {
       //disable mainReason and show first mainReason record
 
-      setDisableMainReason(true);
-      setMainReason(encounterHistory[0].mainReason);
+      setDisableMainReason(true)
+      setMainReason(encounterHistory[0].mainReason)
     }
   }, [encounterHistory])
 
@@ -1351,7 +1334,7 @@ function SOEP({ appointment }: { appointment: any; }) {
     _.debounce(async (_encounter: object) => {
       try {
         setIsLoading(true)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter);
+        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
         console.log('response', res.data)
         setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
@@ -1365,10 +1348,8 @@ function SOEP({ appointment }: { appointment: any; }) {
     []
   )
 
-
   useEffect(() => {
     const getPrivateCommentsRecords = async () => {
-
       try {
         const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}/privateComments`)
         setPrivateCommentsRecords(res.data.encounter.items)
@@ -1377,152 +1358,164 @@ function SOEP({ appointment }: { appointment: any; }) {
         addErrorToast('Algo salió mal, vuelve a intentarlo')
       }
     }
-    if (encounterId !== '')
-      getPrivateCommentsRecords();
+    if (encounterId !== '') getPrivateCommentsRecords()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
-
-  const CustomToolTip = withStyles((theme) => ({
+  const CustomToolTip = withStyles(theme => ({
     tooltip: {
       backgroundColor: '#EDF2F7',
       color: 'black',
       maxWidth: 220,
       fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip);
+  }))(Tooltip)
 
-  const ToolTipSoepHelper = withStyles((theme) => ({
+  const ToolTipSoepHelper = withStyles(theme => ({
     tooltip: {
       backgroundColor: '#FFFF',
       color: 'black',
       maxWidth: 220,
       fontSize: theme.typography.pxToRem(12),
-      borderWidth: '2px', borderColor: '#d0ebee',
-      borderStyle: 'solid', borderRadius: '10px'
+      borderWidth: '2px',
+      borderColor: '#d0ebee',
+      borderStyle: 'solid',
+      borderRadius: '10px',
     },
-  }))(Tooltip);
+  }))(Tooltip)
 
-  const toolTipData = ({ iconItem, date, title, body }: { iconItem: number, date: any, title: String, body: String }) => {
-    return (<React.Fragment key={iconItem} >
-      <Grid container>
-        {iconItem === 1 ? <FirstSoepIcon style={{ marginTop: '3px' }} /> : iconItem === 2 ? <SecondSoepIcon /> : <ThirdSoepIcon />}
+  const toolTipData = ({
+    iconItem,
+    date,
+    title,
+    body,
+  }: {
+    iconItem: number
+    date: any
+    title: String
+    body: String
+  }) => {
+    return (
+      <React.Fragment key={iconItem}>
+        <Grid container>
+          {iconItem === 1 ? (
+            <FirstSoepIcon style={{ marginTop: '3px' }} />
+          ) : iconItem === 2 ? (
+            <SecondSoepIcon />
+          ) : (
+            <ThirdSoepIcon />
+          )}
 
-        <Typography style={{ paddingLeft: '10px' }} variant="subtitle1" color="textSecondary" >{date}</Typography>
-      </Grid>
-      <Grid  >
-        <Typography style={{ color: '#27BEC2', fontSize: '18px' }} >{title}</Typography>
-        <Typography variant="subtitle1" color="textPrimary" >{body} </Typography>
-      </Grid>
-    </React.Fragment>)
+          <Typography style={{ paddingLeft: '10px' }} variant='subtitle1' color='textSecondary'>
+            {date}
+          </Typography>
+        </Grid>
+        <Grid>
+          <Typography style={{ color: '#27BEC2', fontSize: '18px' }}>{title}</Typography>
+          <Typography variant='subtitle1' color='textPrimary'>
+            {body}{' '}
+          </Typography>
+        </Grid>
+      </React.Fragment>
+    )
   }
   const showSoepHelper = ({ title }: { title: String }) => {
-    var description = "";
+    var description = ''
     switch (title) {
       case 'Subjetivo':
-        description = "Aquí se consignan los datos recogidos en el interrogatorio, conjuntamente con las impresiones subjetivas del médico y las expresadas por el paciente."
-        break;
+        description =
+          'Aquí se consignan los datos recogidos en el interrogatorio, conjuntamente con las impresiones subjetivas del médico y las expresadas por el paciente.'
+        break
       case 'Objetivo':
-        description = "En este apartado se anotan los datos del examen físico y / o exámenes complementarios."
-        break;
+        description = 'En este apartado se anotan los datos del examen físico y / o exámenes complementarios.'
+        break
       case 'Evaluacion':
-        description = "En esta sección se registra la interpretación del problema identificado y su reevaluación"
-        break;
+        description = 'En esta sección se registra la interpretación del problema identificado y su reevaluación'
+        break
       case 'Plan':
-        description = "Aquí se registra la planificación de las conductas que se tomarán. Existen cuatro tipos de planes: · Plan diagnóstico · Plan terapéutico · Plan de seguimiento · Plan de educación."
-        break;
+        description =
+          'Aquí se registra la planificación de las conductas que se tomarán. Existen cuatro tipos de planes: · Plan diagnóstico · Plan terapéutico · Plan de seguimiento · Plan de educación.'
+        break
 
       default:
-        break;
+        break
     }
 
-    return <ToolTipSoepHelper
-
-      title={description}
-    >
-      <Grid style={{ paddingLeft: '10px', paddingTop: '5px' }}  >
-        {
-          <HelpIcon />
-        }
-      </Grid>
-
-    </ToolTipSoepHelper>
+    return (
+      <ToolTipSoepHelper title={description}>
+        <Grid style={{ paddingLeft: '10px', paddingTop: '5px' }}>{<HelpIcon />}</Grid>
+      </ToolTipSoepHelper>
+    )
   }
   const showSoepRecords = ({ title }: { title: String }) => {
-    const tempArray = [];
+    const tempArray = []
     if (encounterHistory.length > 0) {
       //only show the last three record
-      const encounterCounter = encounterHistory.length > 3 ? 3 : encounterHistory.length;
+      const encounterCounter = encounterHistory.length > 3 ? 3 : encounterHistory.length
 
       for (var i = 0; i < encounterCounter; i++) {
-        const { objective, subjective, evaluation, plan } = encounterHistory[i].soep;
-        const { startTimeDate, appointmentId } = encounterHistory[i];
+        const { objective, subjective, evaluation, plan } = encounterHistory[i].soep
+        const { startTimeDate, appointmentId } = encounterHistory[i]
         switch (title) {
           case 'Objetivo':
-            tempArray.push(<CustomToolTip
-              key={appointmentId}
-              title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
-            >
-              <Grid style={{ paddingLeft: '10px' }}  >
-                {
-                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
-                }
-              </Grid>
-
-            </CustomToolTip>)
-            break;
+            tempArray.push(
+              <CustomToolTip
+                key={appointmentId}
+                title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
+              >
+                <Grid style={{ paddingLeft: '10px' }}>
+                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
+                </Grid>
+              </CustomToolTip>
+            )
+            break
 
           case 'Subjetivo':
-            tempArray.push(<CustomToolTip
-              key={appointmentId}
-              title={toolTipData({ iconItem: i + 1, title: title, body: subjective, date: startTimeDate })}
-            >
-              <Grid style={{ paddingLeft: '10px' }}  >
-                {
-                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
-                }
-
-              </Grid>
-            </CustomToolTip>)
-            break;
+            tempArray.push(
+              <CustomToolTip
+                key={appointmentId}
+                title={toolTipData({ iconItem: i + 1, title: title, body: subjective, date: startTimeDate })}
+              >
+                <Grid style={{ paddingLeft: '10px' }}>
+                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
+                </Grid>
+              </CustomToolTip>
+            )
+            break
 
           case 'Evaluacion':
-            tempArray.push(<CustomToolTip
-              key={appointmentId}
-              title={toolTipData({ iconItem: i + 1, title: 'Evaluación', body: evaluation, date: startTimeDate })}
-            >
-              <Grid style={{ paddingLeft: '10px' }}  >
-                {
-                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
-                }
-
-              </Grid>
-            </CustomToolTip>)
-            break;
+            tempArray.push(
+              <CustomToolTip
+                key={appointmentId}
+                title={toolTipData({ iconItem: i + 1, title: 'Evaluación', body: evaluation, date: startTimeDate })}
+              >
+                <Grid style={{ paddingLeft: '10px' }}>
+                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
+                </Grid>
+              </CustomToolTip>
+            )
+            break
           case 'Plan':
-            tempArray.push(<CustomToolTip
-              key={appointmentId}
-              title={toolTipData({ iconItem: i + 1, title: title, body: plan, date: startTimeDate })}
-            >
-              <Grid style={{ paddingLeft: '10px' }}  >
-                {
-                  i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />
-                }
-
-              </Grid>
-            </CustomToolTip>)
-            break;
+            tempArray.push(
+              <CustomToolTip
+                key={appointmentId}
+                title={toolTipData({ iconItem: i + 1, title: title, body: plan, date: startTimeDate })}
+              >
+                <Grid style={{ paddingLeft: '10px' }}>
+                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
+                </Grid>
+              </CustomToolTip>
+            )
+            break
 
           default:
-            break;
+            break
         }
-
       }
     }
-    return tempArray;
-
+    return tempArray
   }
-  const classes = useStyles();
+  const classes = useStyles()
   if (initialLoad)
     return (
       <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -1545,330 +1538,427 @@ function SOEP({ appointment }: { appointment: any; }) {
     )
   return (
     <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-      <Grid style={{ minWidth: '350px' }}>
+      <Grid>
         <CardHeader
-          title="Notas médicas"
+          title='Notas médicas'
           titleTypographyProps={{ variant: 'h6' }}
           style={{ backgroundColor: '#27BEC2', color: 'white' }}
-          action={<button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}  >  {privateCommentsRecord.length <= 0 ? <PrivateCommentIcon /> : privateCommentsRecord.length === 1 ? <PrivateCommentIconBadge /> : <PrivateCommentIconBadgesExtra />}  </button>}
+          action={
+            <button onClick={() => setShowPrivateCommentMenu(true)} style={{ padding: '10px', outline: 'none' }}>
+              {' '}
+              {privateCommentsRecord.length <= 0 ? (
+                <PrivateCommentIcon />
+              ) : privateCommentsRecord.length === 1 ? (
+                <PrivateCommentIconBadge />
+              ) : (
+                <PrivateCommentIconBadgesExtra />
+              )}{' '}
+            </button>
+          }
         />
 
         <CardContent>
-          {
-            showPrivateCommentMenu === true ? <PrivateComments encounterId={encounterId} appointment={appointment} setDataCallback={(elem: any) => {
+          {showPrivateCommentMenu === true ? (
+            <PrivateComments
+              encounterId={encounterId}
+              appointment={appointment}
+              setDataCallback={(elem: any) => {
+                setShowPrivateCommentMenu(false)
+              }}
+            />
+          ) : (
+            <Grid style={{ paddingTop: '25px' }}>
+              <Grid>
+                <Typography variant='h6' color='textPrimary'>
+                  {appointment.patient.givenName} {appointment.patient.familyName}
+                </Typography>
 
-              setShowPrivateCommentMenu(false)
-            }} /> :
-              <Grid style={{ paddingTop: '25px' }}>
+                <Typography variant='subtitle1' color='textSecondary'>
+                  Ci: {appointment.patient.identifier}
+                </Typography>
+              </Grid>
 
-                <Grid>
-                  <Typography variant="h6" color="textPrimary">
+              <Grid style={{ marginTop: '25px' }}>
+                <Tabs
+                  classes={{
+                    root: classes.tabHeight,
+                  }}
+                  TabIndicatorProps={{
+                    style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
+                  }}
+                  value={value}
+                  onChange={handleChange}
+                >
+                  <Tab
+                    style={{
+                      backgroundColor: '#27BEC2',
+                      borderStartStartRadius: '10px',
+                      borderBottomLeftRadius: '10px',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: '15px',
+                    }}
+                    label='1ra consulta'
+                    {...a11yProps(0)}
+                  />
+                  <Tab
+                    disabled={isAppointmentDisabled}
+                    onClick={() => {
+                      setShowEditModal(true)
+                    }}
+                    label='Seguimiento'
+                    style={{
+                      borderTopRightRadius: '10px',
+                      borderBottomRightRadius: '10px',
+                      borderWidth: '1px',
+                      borderColor: '#27BEC2',
+                      borderStyle: 'solid',
+                      fontWeight: 'bold',
+                      fontSize: '15px',
+                    }}
+                    {...a11yProps(1)}
+                  />
+                </Tabs>
+              </Grid>
+
+              <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
+                <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
+                  Motivo principal de la visita
+                </Typography>
+
+                <TextField
+                  fullWidth
+                  disabled={disableMainReason || isAppointmentDisabled}
+                  InputProps={{
+                    disableUnderline: true,
+                  }}
+                  placeholder={' Ej: Dolor de cabeza prolongado'}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '2px solid #e3e8ef',
+                    boxSizing: 'border-box',
+                    borderRadius: '4px',
+                    paddingLeft: '10px',
+                  }}
+                  value={mainReason}
+                  onChange={event => {
+                    setMainReason(event.target.value)
+                  }}
+                  required
+                />
+
+                <Accordion
+                  classes={{
+                    root: classes.MuiAccordionroot,
+                  }}
+                  style={{
+                    backgroundColor: '#EDF8F9A6',
+                    boxShadow: 'none',
+                    border: 'none',
+                    borderRadius: '10px',
+                    marginTop: '30px',
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                    onMouseEnter={() => setShowHover('Subjetivo')}
+                    onMouseLeave={() => setShowHover('')}
+                  >
+                    <Typography style={{ color: '#177274' }}>Subjetivo</Typography>
+                    {showHover === 'Subjetivo' && showSoepHelper({ title: 'Subjetivo' })}
+                    <Grid
+                      container
+                      justifyContent='flex-end'
+                      style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {showSoepRecords({ title: 'Subjetivo' })}{' '}
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField
+                      fullWidth
+                      disabled={isAppointmentDisabled}
+                      multiline
+                      rows='9'
+                      InputProps={{
+                        disableUnderline: true,
+                      }}
+                      style={{
+                        background: '#FFFFFF',
+                        borderRadius: '4px',
+                      }}
+                      value={subjective}
+                      onChange={event => {
+                        setSubjective(event.target.value)
+                      }}
+                      required
+                    />
+                  </AccordionDetails>
+                </Accordion>
+
+                <Accordion
+                  classes={{
+                    root: classes.MuiAccordionroot,
+                  }}
+                  style={{
+                    backgroundColor: '#EDF8F9A6',
+                    boxShadow: 'none',
+                    border: 'none',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                    onMouseEnter={() => setShowHover('Objetivo')}
+                    onMouseLeave={() => setShowHover('')}
+                  >
+                    <Typography style={{ color: '#177274' }}>Objetivo</Typography>
+                    {showHover === 'Objetivo' && showSoepHelper({ title: 'Objetivo' })}
+                    <Grid
+                      container
+                      justifyContent='flex-end'
+                      style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {showSoepRecords({ title: 'Objetivo' })}{' '}
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField
+                      disabled={isAppointmentDisabled}
+                      fullWidth
+                      multiline
+                      rows='9'
+                      InputProps={{
+                        disableUnderline: true,
+                      }}
+                      style={{
+                        background: '#FFFFFF',
+                        // border: '2px solid #AAAAAA',
+                        // boxSizing: 'border-box',
+                        borderRadius: '4px',
+                      }}
+                      required
+                      value={objective}
+                      onChange={event => {
+                        setObjective(event.target.value)
+                      }}
+                    />
+                  </AccordionDetails>
+                </Accordion>
+
+                <Accordion
+                  classes={{
+                    root: classes.MuiAccordionroot,
+                  }}
+                  style={{
+                    backgroundColor: '#EDF8F9A6',
+                    boxShadow: 'none',
+                    border: 'none',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                    onMouseEnter={() => setShowHover('Evaluacion')}
+                    onMouseLeave={() => setShowHover('')}
+                  >
+                    <Typography style={{ color: '#177274' }}>Evaluación</Typography>
+                    {showHover === 'Evaluacion' && showSoepHelper({ title: 'Evaluacion' })}
+                    <Grid
+                      container
+                      justifyContent='flex-end'
+                      style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {showSoepRecords({ title: 'Evaluacion' })}{' '}
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField
+                      disabled={isAppointmentDisabled}
+                      fullWidth
+                      multiline
+                      rows='9'
+                      InputProps={{
+                        disableUnderline: true,
+                      }}
+                      style={{
+                        background: '#FFFFFF',
+                        // border: '2px solid #AAAAAA',
+                        // boxSizing: 'border-box',
+                        borderRadius: '4px',
+                      }}
+                      required
+                      value={evaluation}
+                      onChange={event => {
+                        setEvaluation(event.target.value)
+                      }}
+                    />
+                  </AccordionDetails>
+                </Accordion>
+
+                <Accordion
+                  classes={{
+                    root: classes.MuiAccordionroot,
+                  }}
+                  style={{
+                    backgroundColor: '#EDF8F9A6',
+                    boxShadow: 'none',
+                    border: 'none',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                    onMouseEnter={() => setShowHover('Plan')}
+                    onMouseLeave={() => setShowHover('')}
+                  >
+                    <Typography style={{ color: '#177274' }}>Plan</Typography>
+                    {showHover === 'Plan' && showSoepHelper({ title: 'Plan' })}
+                    <Grid
+                      container
+                      justifyContent='flex-end'
+                      style={{
+                        marginRight: '0',
+                        marginLeft: 'auto',
+                        marginBottom: 'auto',
+                        color: 'white',
+                        paddingRight: '10px',
+                        paddingLeft: '10px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {showSoepRecords({ title: 'Plan' })}{' '}
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField
+                      disabled={isAppointmentDisabled}
+                      fullWidth
+                      multiline
+                      rows='9'
+                      InputProps={{
+                        disableUnderline: true,
+                      }}
+                      style={{
+                        background: '#FFFFFF',
+                        // border: '2px solid #AAAAAA',
+                        // boxSizing: 'border-box',
+                        borderRadius: '4px',
+                      }}
+                      required
+                      value={plan}
+                      onChange={event => {
+                        setPlan(event.target.value)
+                      }}
+                    />
+                  </AccordionDetails>
+                </Accordion>
+              </TabPanel>
+              <TabPanel value={value} index={1}>
+                <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'>
+                  <Typography variant='body1' color='textSecondary'>
+                    Paciente
+                  </Typography>
+                  <Typography variant='body1' color='textPrimary'>
                     {appointment.patient.givenName} {appointment.patient.familyName}
                   </Typography>
 
-                  <Typography variant="subtitle1" color="textSecondary">
-                    Ci: {appointment.patient.identifier}
+                  <Typography style={{ marginBottom: '15px' }} variant='subtitle2' color='textSecondary'>
+                    CI: {appointment.patient.identifier}
                   </Typography>
 
-                </Grid>
+                  <MaterialTable
+                    columns={[
+                      {
+                        title: 'Fecha',
+                        field: 'startTimeDate',
+                      },
+                      {
+                        title: 'motivo de visita',
+                        field: 'mainReason',
+                      },
+                      // {
+                      //   title: "Diagnóstico",
+                      //   field: "diagnosis"
+                      // },
+                      {
+                        title: 'Diagnóstico',
+                        field: 'diagnosis',
+                        render: rowData => {
+                          //@ts-ignore
+                          return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
+                            <Grid style={{ width: '130px' }} container>
+                              <img src={loading} width='30px' alt='loading...' />{' '}
+                              <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
+                            </Grid>
+                          ) : (
+                            <p>{rowData.diagnosis}</p>
+                          )
+                        },
+                      },
+                    ]}
+                    data={soepHistory}
+                    onRowClick={(evt, selectedRow) =>
+                      //@ts-ignore
+                      setSelectedRow(selectedRow)
+                    }
+                    options={{
+                      search: false,
 
-                <Grid style={{ marginTop: '25px' }} >
-                  <Tabs classes={{
-                    root: classes.tabHeight
-                  }} TabIndicatorProps={{ style: { backgroundColor: "white", marginTop: '20px', marginBottom: '20px', display: 'none' } }} value={value} onChange={handleChange} >
-                    <Tab style={{ backgroundColor: '#27BEC2', borderStartStartRadius: '10px', borderBottomLeftRadius: '10px', color: 'white', fontWeight: 'bold', fontSize: '15px' }} label="1ra consulta" {...a11yProps(0)} />
-                    <Tab  disabled={isAppointmentDisabled} onClick={() => {
-                      setShowEditModal(true)
-                    }} label="Seguimiento" style={{ borderTopRightRadius: '10px', borderBottomRightRadius: '10px', borderWidth: '1px', borderColor: '#27BEC2', borderStyle: 'solid', fontWeight: 'bold', fontSize: '15px' }}  {...a11yProps(1)} />
-                  </Tabs>
-                </Grid>
+                      toolbar: false,
+                      paging: false,
+                      draggable: false,
 
-                <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
-                  <Typography variant="subtitle1" color="textPrimary" style={{ marginTop: '20px' }} >
-                    Motivo principal de la visita
-                  </Typography>
-
-                  <TextField
-                    fullWidth
-                    disabled={disableMainReason || isAppointmentDisabled}
-                    InputProps={{
-                      disableUnderline: true,
+                      rowStyle: rowData => ({
+                        backgroundColor:
+                          // @ts-ignore
+                          selectedRow !== undefined && selectedRow.id === rowData.id ? '#D4F2F3' : '#FFF',
+                      }),
                     }}
-                    placeholder={' Ej: Dolor de cabeza prolongado'}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '2px solid #e3e8ef',
-                      boxSizing: 'border-box',
-                      borderRadius: '4px',
-                      paddingLeft: '10px'
-                    }}
-                    value={mainReason}
-                    onChange={event => {
-                      setMainReason(event.target.value);
-                    }}
-                    required
                   />
-
-                  <Accordion classes={{
-                    root: classes.MuiAccordionroot
-                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '30px' }} >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
-                      onMouseEnter={() => setShowHover('Subjetivo')}
-                      onMouseLeave={() => setShowHover('')}
-                    >
-                      <Typography style={{ color: '#177274' }} >Subjetivo</Typography>
-                      {showHover === 'Subjetivo' && showSoepHelper({ title: 'Subjetivo' })}
-                      <Grid container justifyContent='flex-end' style={{
-                        marginRight: '0',
-                        marginLeft: 'auto',
-                        marginBottom: 'auto',
-                        color: 'white',
-                        paddingRight: '10px',
-                        paddingLeft: '10px',
-                        borderRadius: '5px',
-                      }} >{showSoepRecords({ title: 'Subjetivo' })} </Grid>
-                    </AccordionSummary>
-                    <AccordionDetails  >
-                      <TextField
-                        fullWidth
-                        disabled={isAppointmentDisabled}
-                        multiline
-                        rows="9"
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        style={{
-                          background: '#FFFFFF',
-                          borderRadius: '4px',
-                        }}
-                        value={subjective}
-                        onChange={event => {
-                          setSubjective(event.target.value);
-                        }}
-                        required
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion classes={{
-                    root: classes.MuiAccordionroot
-                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
-                      onMouseEnter={() => setShowHover('Objetivo')}
-                      onMouseLeave={() => setShowHover('')}
-                    >
-                      <Typography style={{ color: '#177274' }} >Objetivo</Typography>
-                      {showHover === 'Objetivo' && showSoepHelper({ title: 'Objetivo' })}
-                      <Grid container justifyContent='flex-end' style={{
-                        marginRight: '0',
-                        marginLeft: 'auto',
-                        marginBottom: 'auto',
-                        color: 'white',
-                        paddingRight: '10px',
-                        paddingLeft: '10px',
-                        borderRadius: '5px',
-                      }} >{showSoepRecords({ title: 'Objetivo' })} </Grid>
-                    </AccordionSummary>
-                    <AccordionDetails  >
-                      <TextField
-                        disabled={isAppointmentDisabled}
-                        fullWidth
-                        multiline
-                        rows="9"
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        style={{
-                          background: '#FFFFFF',
-                          // border: '2px solid #AAAAAA',
-                          // boxSizing: 'border-box',
-                          borderRadius: '4px',
-                        }}
-                        required
-                        value={objective}
-                        onChange={event => {
-                          setObjective(event.target.value);
-                        }}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion classes={{
-                    root: classes.MuiAccordionroot
-                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
-                      onMouseEnter={() => setShowHover('Evaluacion')}
-                      onMouseLeave={() => setShowHover('')}
-                    >
-                      <Typography style={{ color: '#177274' }} >Evaluación</Typography>
-                      {showHover === 'Evaluacion' && showSoepHelper({ title: 'Evaluacion' })}
-                      <Grid container justifyContent='flex-end' style={{
-                        marginRight: '0',
-                        marginLeft: 'auto',
-                        marginBottom: 'auto',
-                        color: 'white',
-                        paddingRight: '10px',
-                        paddingLeft: '10px',
-                        borderRadius: '5px',
-                      }} >{showSoepRecords({ title: 'Evaluacion' })} </Grid>
-                    </AccordionSummary>
-                    <AccordionDetails  >
-                      <TextField
-                        disabled={isAppointmentDisabled}
-                        fullWidth
-                        multiline
-                        rows="9"
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        style={{
-                          background: '#FFFFFF',
-                          // border: '2px solid #AAAAAA',
-                          // boxSizing: 'border-box',
-                          borderRadius: '4px',
-                        }}
-                        required
-                        value={evaluation}
-                        onChange={event => {
-                          setEvaluation(event.target.value);
-                        }}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-
-                  <Accordion classes={{
-                    root: classes.MuiAccordionroot
-                  }} style={{ backgroundColor: '#EDF8F9A6', boxShadow: 'none', border: 'none', borderRadius: '10px', marginTop: '10px' }} >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon style={{ fill: "#177274" }} />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
-                      onMouseEnter={() => setShowHover('Plan')}
-                      onMouseLeave={() => setShowHover('')}
-                    >
-                      <Typography style={{ color: '#177274' }} >Plan</Typography>
-                      {showHover === 'Plan' && showSoepHelper({ title: 'Plan' })}
-                      <Grid container justifyContent='flex-end' style={{
-                        marginRight: '0',
-                        marginLeft: 'auto',
-                        marginBottom: 'auto',
-                        color: 'white',
-                        paddingRight: '10px',
-                        paddingLeft: '10px',
-                        borderRadius: '5px',
-                      }} >{showSoepRecords({ title: 'Plan' })} </Grid>
-                    </AccordionSummary>
-                    <AccordionDetails  >
-                      <TextField
-                        disabled={isAppointmentDisabled}
-                        fullWidth
-                        multiline
-                        rows="9"
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        style={{
-                          background: '#FFFFFF',
-                          // border: '2px solid #AAAAAA',
-                          // boxSizing: 'border-box',
-                          borderRadius: '4px',
-                        }}
-                        required
-                        value={plan}
-                        onChange={event => {
-                          setPlan(event.target.value);
-                        }}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-
-
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                  <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
-                    <Typography variant="body1" color="textSecondary">
-                      Paciente
-                    </Typography>
-                    <Typography variant="body1" color="textPrimary">
-                      {appointment.patient.givenName} {appointment.patient.familyName}
-                    </Typography>
-
-                    <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
-                      CI: {appointment.patient.identifier}
-                    </Typography>
-
-                    <MaterialTable
-                      columns={[
-                        {
-                          title: "Fecha",
-                          field: "startTimeDate",
-                        },
-                        {
-                          title: "motivo de visita",
-                          field: "mainReason"
-                        },
-                        // {
-                        //   title: "Diagnóstico",
-                        //   field: "diagnosis"
-                        // },
-                        {
-                          title: 'Diagnóstico',
-                          field: 'diagnosis',
-                          render: rowData => {
-                            //@ts-ignore
-                            return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
-                              <Grid style={{ width: '130px' }} container>
-                                <img src={loading} width='30px' alt='loading...' /> <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
-                              </Grid>
-                            ) : (
-                              <p>
-                                {rowData.diagnosis}
-                              </p>
-                            )
-                          },
-                        },
-
-                      ]}
-                      data={soepHistory}
-                      onRowClick={(evt, selectedRow) =>
-                        //@ts-ignore
-                        setSelectedRow(selectedRow)
-                      }
-                      options={{
-                        search: false,
-
-                        toolbar: false,
-                        paging: false,
-                        draggable: false,
-
-                        rowStyle: (rowData) => ({
-                          backgroundColor:
-                            // @ts-ignore
-                            selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
-                        }),
-                      }}
-                    />
-                  </Modal>
-                </TabPanel>
-
-
-
-              </Grid>
-          }
-
+                </Modal>
+              </TabPanel>
+            </Grid>
+          )}
         </CardContent>
       </Grid>
     </div>
-  );
+  )
 }
 
 interface CallStatusMessageProps {
@@ -1933,7 +2023,6 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
                   }}
                 >
                   <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={appointmentId} />
-
                 </div>
               </>
             </div>
