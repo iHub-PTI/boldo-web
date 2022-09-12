@@ -13,10 +13,13 @@ import {
     FormControl
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import { ReactComponent as  OrderAdd } from "../assets/post-add.svg"
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
 import type * as CSS from 'csstype';
+import StudyOrder from "./studiesorder/StudyOrder";
+import Provider from "./studiesorder/Provider";
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
@@ -181,6 +184,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
     const [dateRever, setDateRever] = useState(false)
     const [loadPreview, setLoadPreview] = useState(false)
     const [filterHide, setFilterHide] = useState(true)
+    const [issueOrder, setIssueOrder] = useState(false)
 
     useEffect(() => {
         const load = async () => {
@@ -264,20 +268,19 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-    // if (selectedRow)
-    //     return laboratoryDetail()
     //Hover theme
     const classes = useStyles();
     return (
-        <div className='flex flex-col h-full  bg-white shadow-xl'>
-            <Grid >
+        <div className='flex flex-col bg-white shadow-xl relative' style={{height: "100%"}}>
+            <Grid className="h-full">
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
-                    {selectedRow ? <button
+                    {selectedRow || issueOrder ? <button
                         style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
                             setSelectedRow(undefined);
                             setFilterHide(true);
+                            setIssueOrder(false);
                         }}
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -289,9 +292,12 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                         :
                         <Grid style={{ marginLeft: '20px' }}></Grid>
                     }
-                    <Typography variant='h6'>Resultados de estudios</Typography>
+                    {
+                        issueOrder ?  <Typography variant='h6'>Nueva Orden de estudios</Typography> : <Typography variant='h6'>Resultados de estudios</Typography> 
+                    }
+                   
                 </Grid>
-                <Grid className='w-full px-4 mt-8'>
+                <Grid className='w-full px-4 mt-8 h-full'>
 
                     <Grid container>
                         <Avatar
@@ -318,6 +324,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography> */}
                     </Grid>
+                    { issueOrder && loading === false && studyOrderView() }
                     {
                         filterHide === true && (
                             <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
@@ -330,7 +337,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                         )
                     }
 
-                    {loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
+                    {issueOrder === false && loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                         <svg width="200" height="255" viewBox="0 0 200 255" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3.00028 171.398C10.6163 189.983 23.0343 193.852 31.7651 189.983C48.6502 182.502 92.5118 174.143 137.559 193.791C197.222 219.814 209.916 180.552 190.875 140.838C171.834 101.123 165.38 60.9609 187.331 38.8338C209.282 16.7066 180.557 -17.9082 129.544 18.1234C96.5774 41.4084 72.3839 36.2235 59.392 29.6409C47.1476 23.4371 33.5304 16.9513 20.7723 22.0154C5.2918 28.1604 -0.807998 41.4831 22.7449 71.2461C56.1213 113.423 -14.072 129.741 3.00028 171.398Z" fill="#65CFD3" fillOpacity="0.25" />
                             <path d="M34.0103 80.8633H152.538V172.019C152.538 172.204 152.465 172.382 152.333 172.514C152.202 172.645 152.024 172.719 151.838 172.719H34.7103C34.5246 172.719 34.3465 172.645 34.2153 172.514C34.084 172.382 34.0103 172.204 34.0103 172.019V80.8633Z" fill="#2FC1B0" />
@@ -345,7 +352,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
 
                     </Grid>
                     }
-                    <Grid className="mt-3 overflow-y-auto" style={{ height: '70vh' }}>
+                    <Grid className="mt-3 overflow-y-auto" style={{maxHeight:'100%'}}>
 
                         {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
@@ -368,7 +375,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
 
                         {
                             selectedRow ?
-                                laboratoryDetail() : loading === false && studiesData !== undefined && studiesData.length > 0 &&
+                                laboratoryDetail() : issueOrder === false && loading === false && studiesData !== undefined && studiesData.length > 0 &&
                                 studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
                                         className={classes.gridBorder}
@@ -378,8 +385,6 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                                         }}
                                         key={index}
                                     >
-
-
                                         <Grid justifyContent="space-between" container>
                                             <div style={{ display: 'flex' }}>
                                                 {item.category === "LABORATORY" ? <svg width="18" height="20" viewBox="0 0 18 18" fill="none" xmlns="http:www.w3.org/2000/svg">
@@ -416,14 +421,21 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                                         </Typography>
                                     </Grid>
                                 ))
-
                         }
-
-
                     </Grid>
                 </Grid>
             </Grid>
-
+            {!selectedRow && issueOrder === false && (
+                <div className="flex flex-row pt-1 pb-1 absolute right-4 bottom-4">
+                    <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
+                        onClick={() => { setIssueOrder(true)
+                            setFilterHide(false)}}
+                    >
+                        <div>Emitir orden de estudio</div>
+                        <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
+                    </button>
+                </div>
+            )}
         </div>
     )
 
@@ -461,10 +473,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
         }
 
         return <div>
-
-
             <Grid className='w-full '>
-
                 <Grid container justifyContent="space-between">
                     <Card
                         style={{
@@ -485,7 +494,6 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                             <svg className="m-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6 5V1M14 5V1M5 9H15M3 19H17C17.5304 19 18.0391 18.7893 18.4142 18.4142C18.7893 18.0391 19 17.5304 19 17V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H3C2.46957 3 1.96086 3.21071 1.58579 3.58579C1.21071 3.96086 1 4.46957 1 5V17C1 17.5304 1.21071 18.0391 1.58579 18.4142C1.96086 18.7893 2.46957 19 3 19Z" stroke="#DF6D51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-
                             <Grid>
                                 <Typography variant='subtitle1' color='textSecondary'>
                                     { //@ts-ignore
@@ -500,13 +508,8 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                                     } días
                                 </Typography>
                             </Grid>
-
                         </Grid>
-
-
                     </Card>
-
-
                     <Card
                         style={{
                             // backgroundColor: '#F7FAFC',
@@ -531,14 +534,8 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                             <rect x="151" y="8.60547" width="47" height="20" rx="10" fill="#FFFAF0" />
                             <path d="M161.114 13.8782V22.6055H160.057V13.8782H161.114ZM165.568 22.7418C165.022 22.7418 164.541 22.604 164.123 22.3285C163.706 22.0501 163.379 21.658 163.143 21.1523C162.907 20.6438 162.789 20.043 162.789 19.3498C162.789 18.6623 162.907 18.0657 163.143 17.56C163.379 17.0543 163.707 16.6637 164.127 16.3881C164.548 16.1126 165.034 15.9748 165.585 15.9748C166.011 15.9748 166.348 16.0458 166.595 16.1879C166.845 16.3271 167.035 16.4862 167.166 16.6651C167.299 16.8413 167.403 16.9862 167.477 17.0998H167.562V13.8782H168.568V22.6055H167.596V21.5998H167.477C167.403 21.7191 167.298 21.8697 167.162 22.0515C167.025 22.2305 166.831 22.391 166.578 22.533C166.325 22.6722 165.988 22.7418 165.568 22.7418ZM165.704 21.8384C166.108 21.8384 166.449 21.7333 166.727 21.5231C167.005 21.31 167.217 21.016 167.362 20.641C167.507 20.2631 167.579 19.8271 167.579 19.3327C167.579 18.8441 167.508 18.4165 167.366 18.0501C167.224 17.6808 167.014 17.3938 166.735 17.1893C166.457 16.9819 166.113 16.8782 165.704 16.8782C165.278 16.8782 164.923 16.9876 164.639 17.2063C164.358 17.4222 164.146 17.7163 164.004 18.0884C163.865 18.4577 163.795 18.8725 163.795 19.3327C163.795 19.7987 163.866 20.2219 164.008 20.6026C164.153 20.9805 164.366 21.2816 164.647 21.506C164.931 21.7276 165.284 21.8384 165.704 21.8384ZM177.708 16.6055H176.652C176.589 16.3015 176.48 16.0344 176.324 15.8043C176.17 15.5742 175.983 15.381 175.761 15.2248C175.542 15.0657 175.299 14.9464 175.032 14.8668C174.765 14.7873 174.487 14.7475 174.197 14.7475C173.669 14.7475 173.19 14.881 172.761 15.1481C172.335 15.4151 171.995 15.8086 171.743 16.3285C171.493 16.8484 171.368 17.4862 171.368 18.2418C171.368 18.9975 171.493 19.6353 171.743 20.1552C171.995 20.6751 172.335 21.0685 172.761 21.3356C173.19 21.6026 173.669 21.7362 174.197 21.7362C174.487 21.7362 174.765 21.6964 175.032 21.6168C175.299 21.5373 175.542 21.4194 175.761 21.2631C175.983 21.104 176.17 20.9094 176.324 20.6793C176.48 20.4464 176.589 20.1793 176.652 19.8782H177.708C177.629 20.3242 177.484 20.7234 177.274 21.0756C177.064 21.4279 176.802 21.7276 176.49 21.9748C176.177 22.2191 175.826 22.4052 175.437 22.533C175.051 22.6609 174.637 22.7248 174.197 22.7248C173.453 22.7248 172.791 22.543 172.211 22.1793C171.632 21.8157 171.176 21.2987 170.843 20.6282C170.511 19.9577 170.345 19.1623 170.345 18.2418C170.345 17.3214 170.511 16.5259 170.843 15.8555C171.176 15.185 171.632 14.668 172.211 14.3043C172.791 13.9407 173.453 13.7589 174.197 13.7589C174.637 13.7589 175.051 13.8228 175.437 13.9506C175.826 14.0785 176.177 14.266 176.49 14.5131C176.802 14.7575 177.064 15.0558 177.274 15.408C177.484 15.7575 177.629 16.1566 177.708 16.6055ZM179.416 13.8782H180.678L183.643 21.1225H183.746L186.712 13.8782H187.973V22.6055H186.984V15.9748H186.899L184.172 22.6055H183.217L180.49 15.9748H180.405V22.6055H179.416V13.8782Z" fill="#DF6D51" />
                         </svg>
-
                     </Card>
-
-
-
                 </Grid>
-
-
                 <Card
                     className="mt-3"
                     style={{
@@ -556,7 +553,6 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
 
 
                 </Card>
-
                 <Grid
                     style={{
                         padding: '15px',
@@ -662,7 +658,6 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                     </div>
 
                 </Grid>
-
             </Grid>
 
             <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' bgTransparent={false}   >
@@ -697,8 +692,16 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                 }
 
             </Modal>
-
-
         </div>
+    }
+
+    function studyOrderView() {
+        return (
+            <Provider>
+                <div className="overflow-y-auto" style={{height: '48rem'}}>
+                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={false}></StudyOrder>
+                </div>
+            </Provider>
+        ) 
     }
 }

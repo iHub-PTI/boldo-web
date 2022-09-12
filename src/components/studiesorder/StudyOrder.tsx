@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-const StudyOrder = ({setShowMakeOrder}) => {
+const StudyOrder = ({setShowMakeOrder, remoteMode = false}) => {
     const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
