@@ -699,7 +699,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
         return (
             <Provider>
                 <div className="overflow-y-auto" style={{height: '48rem'}}>
-                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={false}></StudyOrder>
+                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
                 </div>
             </Provider>
         ) 
