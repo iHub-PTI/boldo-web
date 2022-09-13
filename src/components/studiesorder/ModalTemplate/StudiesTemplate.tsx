@@ -164,7 +164,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
         </div>
         {(loading === false && showAddTemplate && show && template !== undefined) ||
         (loading === false && showAddTemplate && show && template === undefined) ||
-        emptyTemp ? (
+        (emptyTemp && loading === false)? (
           <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
         ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate
