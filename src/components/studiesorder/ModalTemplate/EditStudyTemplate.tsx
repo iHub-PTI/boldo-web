@@ -146,9 +146,13 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
         setLoading(true)
         console.log("id template", id)
         const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
-        console.log(res.data)
         let index = studies.findIndex(el => el.id === res.data.id)
-        studies[index].studiesIndication = res.data.StudyOrderTemplateDetails
+        studies[index] = {
+          id: res.data.id,
+          name: res.data.name,
+          description: res.data.description,
+          studiesIndication: res.data.StudyOrderTemplateDetails
+        }
         setStudies([...studies])
         setShow(false)
         setLoading(false)
@@ -172,13 +176,14 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     // }, 900)
     try {
       setLoading(true)
-      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id} `)
+      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
       console.log('eliminar template con id:', id)
       console.log(res.data)
       //get template
       const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
       let templates = []
-      dataTemplate.data
+      if(dataTemplate.status !== 204){
+        dataTemplate.data
         .filter(obj => obj.status === true)
         .forEach(item => {
           let temp = {} as TemplateStudies
@@ -194,6 +199,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           })
           templates.push(temp)
         })
+      }
       console.log(templates)
       setShow(false)
       setStudies(templates)
@@ -209,6 +215,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   useEffect(() => {
     if (studyArray.filter(obj => obj.status === true).length >= 15) setMaxStudies(true)
   }, [studyArray])
+
 
   return (
     <>
