@@ -13,7 +13,7 @@ import {
     FormControl
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import { ReactComponent as  OrderAdd } from "../assets/post-add.svg"
+import { ReactComponent as OrderAdd } from "../assets/post-add.svg"
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
@@ -172,7 +172,7 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 }
 
 
-export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
+export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const { addErrorToast } = useToasts()
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
@@ -271,7 +271,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
     //Hover theme
     const classes = useStyles();
     return (
-        <div className='flex flex-col bg-white shadow-xl relative' style={{height: "100%"}}>
+        <div className='flex flex-col bg-white shadow-xl relative' style={{ height: "100%" }}>
             <Grid className="h-full">
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
                     {selectedRow || issueOrder ? <button
@@ -293,9 +293,9 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                         <Grid style={{ marginLeft: '20px' }}></Grid>
                     }
                     {
-                        issueOrder ?  <Typography variant='h6'>Nueva Orden de estudios</Typography> : <Typography variant='h6'>Resultados de estudios</Typography> 
+                        issueOrder ? <Typography variant='h6'>Nueva Orden de estudios</Typography> : <Typography variant='h6'>Resultados de estudios</Typography>
                     }
-                   
+
                 </Grid>
                 <Grid className='w-full px-4 mt-8 h-full'>
 
@@ -324,7 +324,39 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                             archivos subidos por el paciente, laboratorios o dispositivos médicos
                         </Typography> */}
                     </Grid>
-                    { issueOrder && loading === false && studyOrderView() }
+                    
+                    {/* <div className="flex flex-row flex-no-wrap">
+                        <div className="flex flex-row w-full">
+                            <div className={`flex flex-row justify-center border-b-2 border-primary-600 `}
+                                style={{ width: '100%', height: '3rem' }}
+                            >
+                                <button
+                                    className={`flex items-center h-ful text-sm font-semibold focus:outline-none text-primary-600 text-gray-40`}
+                                    onClick={() => {
+                                        console.log('hola')
+                                    }}
+                                >
+                                    Estudios Realizados
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex flex-row w-full">
+                            <div className={`flex flex-row justify-center border-b-2 border-gray-300 `}
+                                style={{ width: '100%', height: '3rem' }}
+                            >
+                                <button
+                                    className={`flex items-center h-ful text-sm font-semibold focus:outline-none text-gray-400`}
+                                    onClick={() => {
+                                        console.log('hola')
+                                    }}
+                                >
+                                    Estudios Emitidos
+                                </button>
+                            </div>
+                        </div>
+                    </div> */}
+                   
+                    {issueOrder && loading === false && studyOrderView()}
                     {
                         filterHide === true && (
                             <div style={{ display: "flex", marginTop: "0.7rem", justifyContent: "space-between" }}>
@@ -352,7 +384,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
 
                     </Grid>
                     }
-                    <Grid className="mt-3 overflow-y-auto" style={{maxHeight:'100%'}}>
+                    <Grid className="mt-3 overflow-y-auto" style={{ maxHeight: '100%' }}>
 
                         {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
@@ -372,15 +404,14 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                             </div>
                         </div>
                         }
-
                         {
                             selectedRow ?
                                 laboratoryDetail() : issueOrder === false && loading === false && studiesData !== undefined && studiesData.length > 0 &&
                                 studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
                                     <Grid
                                         className={classes.gridBorder}
-                                        onClick={() => { 
-                                            setSelectedRow(item) 
+                                        onClick={() => {
+                                            setSelectedRow(item)
                                             setFilterHide(false);
                                         }}
                                         key={index}
@@ -428,8 +459,10 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
             {!selectedRow && issueOrder === false && (
                 <div className="flex flex-row pt-1 pb-1 absolute right-4 bottom-4">
                     <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
-                        onClick={() => { setIssueOrder(true)
-                            setFilterHide(false)}}
+                        onClick={() => {
+                            setIssueOrder(true)
+                            setFilterHide(false)
+                        }}
                     >
                         <div>Emitir orden de estudio</div>
                         <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
@@ -670,7 +703,7 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
                     <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
                 </div>
                 {
-                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object  data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img  src={showPreview['url']} alt="img" />) : (
+                    !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto', opacity: '0.5' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                 <svg
@@ -698,10 +731,10 @@ export function StudiesMenuRemote({ setPreviewActivate,appointment }) {
     function studyOrderView() {
         return (
             <Provider>
-                <div className="overflow-y-auto" style={{height: '48rem'}}>
+                <div className="overflow-y-auto" style={{ height: '48rem' }}>
                     <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
                 </div>
             </Provider>
-        ) 
+        )
     }
 }
