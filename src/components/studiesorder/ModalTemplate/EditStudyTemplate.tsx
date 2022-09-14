@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { StudyIndication } from './StudyIndication'
 import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
 import { ReactComponent as IconTrash } from '../../../assets/trash.svg'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
-import { StudiesWithIndication, TemplateStudies } from './types'
+import { StudiesWithIndication } from './types'
 import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from '../../Toast'
 import axios from 'axios'
+import { CategoriesContext } from '../Provider'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   const study = studies.find(data => data.id === id)
@@ -17,6 +18,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
     name: study.name,
     description: study.description,
   })
+  const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
 
   const [loading, setLoading] = useState(false)
 
@@ -102,17 +104,6 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   }
 
   const saveTemplate = async () => {
-    // const index = studies.findIndex(data => data.id === id)
-    // let copyStudies = JSON.parse(JSON.stringify(studies))
-    // copyStudies[index].name = state.name
-    // copyStudies[index].desc = state.description
-    // copyStudies[index].studiesIndication = [...studyArray]
-    // setStudies(copyStudies)
-    // setShow(false)
-    // setTimeout(()=>{
-    //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
-    // }, 900)
-    // console.log('hola')
     try {
       let details = []
       studyArray.forEach(obj => {
@@ -166,20 +157,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
   }
 
   const deleteTemplate = async () => {
-    // const index = studies.findIndex(data => data.id === id)
-    // let copyStudies = JSON.parse(JSON.stringify(studies))
-    // copyStudies.splice(index, 1)
-    // setStudies(copyStudies)
-    //
-    // setTimeout(()=>{
-    //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
-    // }, 900)
-    try {
-      setLoading(true)
-      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
-      console.log('eliminar template con id:', id)
-      console.log(res.data)
-      //get template
+
+    /* get template
       const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
       let templates = []
       if(dataTemplate.status !== 204){
@@ -200,9 +179,21 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           templates.push(temp)
         })
       }
-      console.log(templates)
+      console.log(templates) 
+    */
+
+    try {
+      setLoading(true)
+      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
+      console.log('eliminar template con id:', id)
+      console.log("index", indexOrder)
+      console.log(res.data)
+      const index = studies.findIndex(data => data.id === res.data.id)
+      let copyStudies = JSON.parse(JSON.stringify(studies))
+      copyStudies.splice(index, 1)
       setShow(false)
-      setStudies(templates)
+      setStudies(copyStudies)
+      updateStudiesOrder(res.data)
       setLoading(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
     } catch (err) {
@@ -210,6 +201,16 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
       setLoading(false)
     }
+  }
+
+  //function to update studies of already confirmed orders
+  const updateStudiesOrder = (template) => {
+    let copyOrders = JSON.parse(JSON.stringify(orders))
+    copyOrders.forEach((or)=>{
+      or.studies_codes = []
+    })
+    console.log(copyOrders)
+    setOrders(copyOrders)
   }
 
   useEffect(() => {
@@ -323,7 +324,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             title={`Eliminar plantilla ${state.name}`}
-            message={'¿Estas seguro que quieres eliminar la plantilla?'}
+            message={'¿Estas seguro que quieres eliminar la plantilla? Esto restablecera todos los estudios seleccionados en las ordenes.'}
             callBack={deleteTemplate}
             loading={loading}
           />
