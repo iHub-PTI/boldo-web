@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-const StudyOrder = ({setShowMakeOrder}) => {
+const StudyOrder = ({ setShowMakeOrder }) => {
     const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
@@ -127,13 +127,13 @@ const StudyOrder = ({setShowMakeOrder}) => {
     const validateOrders = (orders: Array<Orders>) => {
         for (let i = 0; i < orders.length; i++) {
             let order = orders[i]
-            if(order.category === "") {
-                addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' }) 
+            if (order.category === "") {
+                addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' })
                 return false
-            }else if(order.diagnosis === "") {
+            } else if (order.diagnosis === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
                 return false
-            }else if(order.studies_codes.length <= 0){
+            } else if (order.studies_codes.length <= 0) {
                 addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
                 return false
             }
@@ -144,39 +144,13 @@ const StudyOrder = ({setShowMakeOrder}) => {
     const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
-    // const sendOrderToServer = async () => {
-    //     //validateOrders(orders)
-    //     // const payload = {
-    //     //     "idEncounter": 'encounterId',
-    //     //     "text": 'commentText'
-    //     // }
-
-    //     orders.forEach(object => {
-    //         object.encounterId = encounterId;
-    //         // object.studies_codes = object.s
-    //       });
-
-    //       console.log('order before send',orders)
-    //     // try {
-    //     //     setShowError(false)
-    //     //     setSendStudyLoading(true)
-    //     //     const res = await axios.post(`/profile/doctor/serviceResquest`, orders)
-    //     //     console.log("server response", res.data)
-    //     //     setSendStudyLoading(false)
-    //     // } catch (err) {
-    //     //     console.log(err)
-    //     //     setShowError(true)
-    //     // }
-    // }
 
     const sendOrderToServer = async () => {
-        console.log("test", orders);
-        if(validateOrders(orders)){
+        if (validateOrders(orders)) {
             orders.forEach(object => {
                 object.encounterId = encounterId;
-                // object.studies_codes = object.s
             });
-    
+
             let ordersCopy = []
             orders.forEach((object, index) => {
                 let studiesCodes = []
@@ -209,10 +183,13 @@ const StudyOrder = ({setShowMakeOrder}) => {
                 setIndexOrder(0)
                 setShowMakeOrder(false)
                 addToast({ type: 'success', title: 'Notificación', text: '¡La(s) orden(es) han sido enviadas!' })
-            } catch (err) {
-                console.log(err)
+            } catch (error) {
+                if (error.response.data?.hasOwnProperty('messages')) {
+                    addErrorToast(error.response.data?.messages)
+                } else {
+                    addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
+                }
                 setSendStudyLoading(false)
-                addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
                 setShowError(true)
             }
         }
