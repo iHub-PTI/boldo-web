@@ -324,7 +324,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             title={`Eliminar plantilla ${state.name}`}
-            message={'¿Estas seguro que quieres eliminar la plantilla? Esto restablecera todos los estudios seleccionados en las ordenes.'}
+            message={'¿Estas seguro que quieres eliminar la plantilla? Esto restablecera todos los estudios seleccionados en las órdenes.'}
             callBack={deleteTemplate}
             loading={loading}
           />
