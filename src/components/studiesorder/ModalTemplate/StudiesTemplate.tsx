@@ -36,7 +36,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     let orderStudies = []
     studies.forEach(el => {
       el.studiesIndication.forEach(elem => {
-        if (elem.select) {
+        if (elem.select && elem.status) {
           orderStudies.push(JSON.parse(JSON.stringify(elem)))
         }
       })
@@ -181,13 +181,13 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                   <div
                     key={i}
                     className={`flex flex-row justify-center border-b-2 ${
-                      data.name === template.name ? 'border-primary-600' : 'border-gray-300'
+                      data.id === template.id ? 'border-primary-600' : 'border-gray-300'
                     }`}
                     style={{ width: '100%', height: '3rem' }}
                   >
                     <button
                       className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${
-                        data.name === template.name ? 'text-primary-600' : 'text-gray-400'
+                        data.id === template.id ? 'text-primary-600' : 'text-gray-400'
                       }`}
                       onClick={() => {
                         setTemplate(data)
