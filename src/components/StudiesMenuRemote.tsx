@@ -306,6 +306,29 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
+    useEffect(()=>{
+        const loadOrders = async () => {
+            try {
+                setLoadingOrders(true)
+                if (appointment !== undefined) {
+                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+                    console.log("response orders", res)
+                    if(res.status === 200) setIssuedStudies(res.data.items)
+                    else if (res.status === 204) setIssuedStudies([])
+                    setLoadingOrders(false)
+                }
+            } catch (err) {
+                addErrorToast(err)
+                console.log(err)
+            } finally {
+                setLoadingOrders(false)
+            }
+        }
+        if (appointment && !issueOrder) loadOrders()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [issueOrder])
+
     //Hover theme
     const classes = useStyles();
     return (
