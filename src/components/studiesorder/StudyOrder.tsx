@@ -3,17 +3,19 @@ import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typogra
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
 import { ReactComponent as Spinner } from '../../assets/spinner.svg';
 import SelectCategory from './SelectCategory'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
 import BoxSelect from './BoxSelect';
 import CheckOrder from './CheckOrder';
 import InputText from './InputText';
 import { ReactComponent as IconAdd } from '../../assets/add-cross.svg';
+import { ReactComponent as IconInfo } from '../../assets/info-icon.svg';
 import { CategoriesContext, Orders } from './Provider';
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate';
 import { StudiesWithIndication } from './ModalTemplate/types';
 import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
+import Tooltip from '@material-ui/core/Tooltip';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -75,22 +77,32 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+//Tooltip Theme
+const TooltipInfo = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: '#FFFF',
+      color: 'black',
+      maxWidth: 220,
+      padding: '1rem',
+      fontSize: theme.typography.pxToRem(12),
+    },
+  }))(Tooltip);
 
-const StudyOrder = ({ setShowMakeOrder }) => {
+
+const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
     const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
     const [encounterId, setEncounterId] = useState('')
 
-    let match = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
-    const id = match?.params.id
-
+    let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
+    let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
 
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                const res = remoteMode ? await axios.get(`/profile/doctor/appointments/${matchCall?.params.id}/encounter`) : await axios.get(`/profile/doctor/appointments/${matchInperson?.params.id}/encounter`)
                 console.log(res.data)
                 setEncounterId(res.data.encounter.id)
 
@@ -100,7 +112,6 @@ const StudyOrder = ({ setShowMakeOrder }) => {
                 // setInitialLoad(false)
             }
         }
-
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -143,7 +154,6 @@ const StudyOrder = ({ setShowMakeOrder }) => {
 
     const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
-
 
     const sendOrderToServer = async () => {
         if (validateOrders(orders)) {
@@ -208,18 +218,37 @@ const StudyOrder = ({ setShowMakeOrder }) => {
                                     </IconButton>
                                 </Grid>
                                 <Grid item container direction='row' spacing={5}>
-                                    <Grid item xs={5}>
-                                        <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
-                                    </Grid>
-                                    <Grid item xs={7}>
-                                        <FormGroup>
-                                            <FormControlLabel
-                                                control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
-                                                label="Orden Urgente"
-                                            />
-                                        </FormGroup>
-                                        <FormHelperText>marque la opción si estos estudios requieren ser realizadas cuanto antes</FormHelperText>
-                                    </Grid>
+                                    {remoteMode ?
+                                        <div>
+                                            <Grid direction='row' style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
+                                                <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                                <FormGroup style={{display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: "0.5rem"}}>
+                                                    <FormControlLabel
+                                                        control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
+                                                        label="Urgente"
+                                                    />
+                                                    <TooltipInfo title="marque la opción si estos estudios requieren ser realizadas cuanto antes">
+                                                        <IconInfo style={{transform: 'scale(.7)'}} />
+                                                    </TooltipInfo>
+                                                </FormGroup>
+                                            </Grid>
+                                        </div>
+                                         : 
+                                         <>
+                                            <Grid item xs={5}>
+                                                <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                            </Grid>
+                                            <Grid item xs={7}>
+                                                <FormGroup>
+                                                    <FormControlLabel
+                                                        control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
+                                                        label="Orden Urgente"
+                                                    />
+                                                </FormGroup>
+                                                <FormHelperText>marque la opción si estos estudios requieren ser realizadas cuanto antes</FormHelperText>
+                                            </Grid>
+                                        </>
+                                    }
                                 </Grid>
                             </Grid>
 
