@@ -21,7 +21,7 @@ const ConfirmationTemplate = ({isOpen, setIsOpen, title, message, callBack=()=>{
                             setIsOpen(false)
                         }}
                     >
-                        volver
+                        Volver
                     </button>
                 </span>
                 <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>

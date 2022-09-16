@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
             },
             "& .MuiSvgIcon-root": {
                 color: "#13A5A9",
-                marginRight: "0.313rem",
+                //marginRight: "0.313rem",
                 cursor: "default"
             },
             '& .MuiListItem-root.Mui-selected': {
@@ -227,7 +227,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                                         control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
                                                         label="Urgente"
                                                     />
-                                                    <TooltipInfo title="marque la opción si estos estudios requieren ser realizadas cuanto antes">
+                                                    <TooltipInfo title="marque la opción si estos estudios requieren ser realizados cuanto antes">
                                                         <IconInfo style={{transform: 'scale(.7)'}} />
                                                     </TooltipInfo>
                                                 </FormGroup>
