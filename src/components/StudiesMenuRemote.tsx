@@ -19,6 +19,7 @@ import { ReactComponent as SpinnerLoading } from "../assets/spinner-loading.svg"
 import { ReactComponent as OtherIcon } from "../assets/icon-other.svg"
 import { ReactComponent as ImgIcon } from "../assets/img-icon.svg"
 import { ReactComponent as LabIcon } from "../assets/laboratory-icon.svg"
+import { ReactComponent as Calendar } from "../assets/calendar-detail.svg"
 import moment from 'moment'
 import { useToasts } from './Toast';
 import Modal from "./Modal";
@@ -305,36 +306,18 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-    useEffect(() => {
-      const load = async () => {
-        try {
-          console.log(selectOrderDetail)
-          if (selectOrderDetail !== undefined) {
-            const res = await axios.get(`/profile/doctor/serviceRequest/${selectOrderDetail.id}`)
-            console.log("detail res", res)
-          }
-        } catch (err) {
-          console.log(err)
-          addErrorToast(err)
-          setSelectOrderDetail(undefined)
-          setFilterHide(true)
-        }
-      }
-      if (selectOrderDetail) load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectOrderDetail])
-
     //Hover theme
     const classes = useStyles();
     return (
         <div className='flex flex-col bg-white shadow-xl relative' style={{ height: "100%" }}>
             <Grid className="h-full">
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
-                    {selectedRow || issueOrder ? <button
+                    {selectedRow || issueOrder || selectOrderDetail? <button
                         style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
                             setSelectedRow(undefined);
+                            setSelectOrderDetail(undefined)
                             setFilterHide(true);
                             setIssueOrder(false);
                         }}
@@ -349,7 +332,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         <Grid style={{ marginLeft: '20px' }}></Grid>
                     }
                     {
-                        issueOrder ? <Typography variant='h6'>Nueva Orden de estudios</Typography> : <Typography variant='h6'>Resultados de estudios</Typography>
+                        issueOrder ? <Typography variant='h6'>Nueva Orden de estudios</Typography> : selectOrderDetail ? <Typography variant='h6'>Estudios a Realizar</Typography> : <Typography variant='h6'>Listado de Estudios</Typography>
                     }
 
                 </Grid>
@@ -375,9 +358,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                             </Typography>
 
                         </Grid>
-                        {/* <Typography variant='body2' color='textSecondary'>
-                            archivos subidos por el paciente, laboratorios o dispositivos médicos
-                        </Typography> */}
                     </Grid>
                     
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
@@ -420,8 +400,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
                                 <DateRever dateRever={dateRever}
                                     setDateRever={setDateRever}
-                                    studiesData={studiesData}
-                                    setStudiesData={setStudiesData}></DateRever>
+                                    studiesData={toggleStudies ? studiesData: issuedStudies}
+                                    setStudiesData={toggleStudies ? setStudiesData : setIssuedStudies}></DateRever>
                             </div>
                         )
                     }
@@ -439,7 +419,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     }
                     
                     <Grid className="mt-3 overflow-y-auto" style={{ maxHeight: '100%' }}>
-                        {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+                        {(loading || loadingOrders) && <div className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                <SpinnerLoading />
                             </div>
@@ -447,8 +427,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         }
                         {
                             selectedRow ?
-                                laboratoryDetail() : issueOrder === false && loading === false && toggleStudies && studiesData !== undefined && studiesData.length > 0 &&
-                                studiesData.filter((data) => (data.category == categorySelect || categorySelect == "")).map((item, index) => (
+                                laboratoryDetail() : issueOrder === false && loading === false && loadingOrders === false && toggleStudies && studiesData !== undefined && studiesData.length > 0 &&
+                                studiesData.filter((data) => (data.category === categorySelect || categorySelect === "")).map((item, index) => (
                                     <Grid
                                         className={classes.gridBorder}
                                         onClick={() => {
@@ -470,7 +450,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                                         : item.category === "IMAGE" ? "Imágenes"
                                                             : "Otros"
                                                     }
-                                                </Typography>  </div>
+                                                </Typography>
+                                            </div>
                                             <Typography variant='body2' color='textSecondary'>
                                                 {moment(item.effectiveDate).format('DD/MM/YYYY')}
                                             </Typography>
@@ -485,7 +466,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     </Grid>
                                 ))
                         }
-                        {!issueOrder && !loadingOrders && !toggleStudies && issuedStudies && issuedStudies.length > 0 && issuedStudies.filter((data) => (data.category === categoryIssuedOrders[categorySelect] || categorySelect === "")).map((item, index) => (
+                        {selectOrderDetail ? orderDetail(selectOrderDetail) : !issueOrder && !loadingOrders && !toggleStudies && issuedStudies && issuedStudies.length > 0 && issuedStudies.filter((data) => (data.category === categoryIssuedOrders[categorySelect] || categorySelect === "")).map((item, index) => (
                           <Grid
                             className={classes.gridBorder}
                             onClick={() => {
@@ -513,8 +494,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 {moment(item.authoredDate).format('DD/MM/YYYY')}
                               </Typography>
                             </Grid>
-                            <Typography style={{ color: '#13A5A9' }} variant='body1' >
-                              {item.diagnosis}
+                            <Typography style={{ color: '#13A5A9', width: '12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} variant='body1' >
+                              {item.studiesCodes.map(i => {return i.display}).join(', ')}
                             </Typography>
                           </Grid>
                         ))}
@@ -543,21 +524,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
         if (studyDetail === undefined)
             return (
-                <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+                <div className='flex items-center justify-center w-full h-full py-64'>
                     <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-                        <svg
-                            className='w-6 h-6 text-secondary-500 animate-spin'
-                            xmlns='http://www.w3.org/2000/svg'
-                            fill='none'
-                            viewBox='0 0 24 24'
-                        >
-                            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-                            <path
-                                className='opacity-75'
-                                fill='currentColor'
-                                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                            ></path>
-                        </svg>
+                        <SpinnerLoading />
                     </div>
                 </div>
             )
@@ -791,6 +760,100 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
             </Modal>
         </div>
+    }
+
+    function orderDetail(detail) {
+
+      var days_diff = -1;
+
+      if (detail !== undefined) {
+        const currentDate = moment(new Date());
+        //@ts-ignore
+        const returnDate = moment(orderDetail.authoredDate);
+        days_diff = currentDate.diff(returnDate, 'days');
+
+      }
+
+      return <div>
+        <Grid className='w-full '>
+          <Grid container justifyContent="space-between">
+            <Card
+              style={{
+                borderRadius: '16px',
+                boxShadow: 'none',
+                paddingLeft: '15px',
+              }}
+            >
+              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                Solicitado en fecha:
+              </Typography>
+              <Grid container>
+                <Calendar />
+                <Grid>
+                  <Typography variant='subtitle1' color='textSecondary'>
+                    { //@ts-ignore
+                      moment(detail.authoredDate).format('DD/MM/YYYY')
+                    }
+                  </Typography>
+                  <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
+                    hace {days_diff} días
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Card>
+          </Grid>
+          <Card
+              style={{
+                // backgroundColor: '#F7FAFC',
+                borderRadius: '16px',
+                boxShadow: 'none',
+                marginBottom: '15px',
+                padding: '15px',
+              }}
+            >
+              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                Impresión diagnostica
+              </Typography>
+              {detail.diagnosis}
+            </Card>
+          <Card
+            className="mt-3"
+            style={{
+              backgroundColor: '#F7FAFC',
+              borderRadius: '16px',
+              boxShadow: 'none',
+              marginBottom: '15px',
+              padding: '15px',
+              minHeight: '100px'
+            }}
+          >
+
+            <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
+              <div style={{ display: 'flex' }}>
+                {detail.category === "Laboratory" ?
+                  <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                  : detail.category === "Diagnostic Imaging" ?
+                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
+                }
+                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                  {detail.category === "Laboratory" ? "Laboratorio"
+                    : detail.category === "Diagnostic Imaging" ? "Imágenes"
+                      : "Otros"
+                  }
+                </Typography>
+              </div>
+              <Typography style={{marginLeft: '1rem', marginTop: '1rem'}}>
+                {detail.studiesCodes.map((i)=>(<li>{i.display}</li>))}
+              </Typography>
+            </Typography>
+            <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
+              Observaciones
+            </Typography>
+            {detail.notes}
+          </Card>
+        </Grid>
+      </div>
     }
 
     function studyOrderView() {
