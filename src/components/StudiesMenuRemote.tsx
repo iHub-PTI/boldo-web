@@ -792,7 +792,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
       if (detail !== undefined) {
         const currentDate = moment(new Date());
         //@ts-ignore
-        const returnDate = moment(orderDetail.authoredDate);
+        const returnDate = moment(detail.authoredDate);
         days_diff = currentDate.diff(returnDate, 'days');
 
       }
