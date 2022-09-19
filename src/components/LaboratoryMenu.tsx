@@ -455,7 +455,9 @@ export function LaboratoryMenu(props) {
               // console.log(rowData.diagnosis)
               //@ts-ignore
               return (
-                rowData.studiesCodes.map(i => {return i.display}).join(', ')
+               <div style={{ width: '30rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                   {rowData.studiesCodes.map(i => {return i.display}).join(', ')}
+               </div>
               )
             },
           }
