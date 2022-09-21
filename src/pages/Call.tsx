@@ -286,6 +286,7 @@ const Gate = () => {
                 bottom: '0',
                 right: '26%',
                 marginBottom: '20px',
+                zIndex: 1
               }}
             >
               <TogleMenu />
