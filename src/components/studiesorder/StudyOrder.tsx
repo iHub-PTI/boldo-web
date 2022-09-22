@@ -288,7 +288,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                     </button>
                 </div>
             </div>
-            <StudiesTemplate show={show} setShow={setShow} size="xl5" ></StudiesTemplate>
+            <StudiesTemplate show={show} setShow={setShow} size="xl5" remoteMode={remoteMode}></StudiesTemplate>
         </div>
     )
 }
