@@ -332,7 +332,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     //Hover theme
     const classes = useStyles();
     return (
-        <div className='flex flex-col bg-white shadow-xl relative overflow-hidden' style={{ height: "100vh" }}>
+        <div className='flex flex-col bg-white shadow-xl relative overflow-hidden' style={{ height: "100%" }}>
             <Grid>
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
                     {selectedRow || issueOrder || selectOrderDetail? <button
@@ -441,7 +441,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </Grid>
                     }
                     
-                    <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto'}`} style={{height:'60vh'}} >
+                    <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto'}`} style={{height:'100%'}} >
                         {(loading || loadingOrders) && <div className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                <SpinnerLoading />
