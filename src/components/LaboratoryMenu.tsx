@@ -511,10 +511,10 @@ export function LaboratoryMenu(props) {
 
     }
 
-    const getSourceSVG = (source) => {
-      if (source === 'tesai') return <TesaiSource />;
-      if (source === 'ventrix') return <VentrixSource />;
+    const getSourceSVG = (source : string) => {
       if (source === '' || source === null) return <WithoutSource />;
+      if (source.toLowerCase() === 'tesâi') return <TesaiSource />;
+      if (source.toLowerCase() === 'ventrix') return <VentrixSource />;
       return <PatientSource />;
     }
 
