@@ -350,6 +350,7 @@ export function LaboratoryMenu(props) {
             title: "Fecha",
             field: "effectiveDate",
             width: "10%",
+            render: rowData => (moment(rowData.effectiveDate).format('DD/MM/YYYY'))
           },
           {
             title: 'Descripción',
