@@ -147,7 +147,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
         setStudies([...studies])
         setShow(false)
         setLoading(false)
-        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editado con exito!' })
+        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editada con exito!' })
       }
     } catch (err) {
       console.log(err)
@@ -195,7 +195,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       setStudies(copyStudies)
       updateStudiesOrder(res.data)
       setLoading(false)
-      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminado con exito!' })
+      addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminada con exito!' })
     } catch (err) {
       console.log(err)
       addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")

@@ -105,7 +105,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
         setStudies([...copyStudies])
         setShow(false)
         setLoading(true)
-        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
+        addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })
         // TODO: no retorna el id del /profile/doctor/studyOrderTemplate
         // const resGet = await axios.get(`profile/doctor/studyOrderTemplate`)
         // console.log(resGet)
