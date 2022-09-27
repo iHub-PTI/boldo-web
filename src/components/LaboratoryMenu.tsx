@@ -106,32 +106,36 @@ export function LaboratoryMenu(props) {
                 setLoading(false)
             }
         }
-
-        const loadIssued = async () => {
-          try {
-              setLoadingIssued(true)
-              if (appointment !== undefined) {
-                setLoadingIssued(true)
-                const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
-                console.log("response issueds", res)
-                if(res.status === 200)
-                  setIssuedStudiesData(res.data.items)
-                if(res.status === 204)
-                  setIssuedStudiesData([])
-                setLoadingIssued(false)
-              }
-          } catch (err) {
-              addErrorToast(err)
-              console.log(err)
-          } finally {
-              setLoadingIssued(false)
-          }
-      }
         if (appointment)
             load()
-            loadIssued()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+
+
+    useEffect(() => {
+      const loadIssued = async () => {
+        try {
+          setLoadingIssued(true)
+          if (appointment !== undefined) {
+            setLoadingIssued(true)
+            const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+            console.log("response issueds", res)
+            if (res.status === 200)
+              setIssuedStudiesData(res.data.items)
+            if (res.status === 204)
+              setIssuedStudiesData([])
+            setLoadingIssued(false)
+          }
+        } catch (err) {
+          addErrorToast(err)
+          console.log(err)
+        } finally {
+          setLoadingIssued(false)
+        }
+      }
+      if (appointment) 
+        loadIssued()
+    }, [showMakeOrder, appointment, addErrorToast])
 
 
     const downloadBlob = (url,title, contentType, download) => {
@@ -278,7 +282,7 @@ export function LaboratoryMenu(props) {
                   }
                   <Grid className="mt-5">
 
-                      {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+                      {loading  && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
                           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                             <SpinnerLoading />
                           </div>
@@ -290,6 +294,12 @@ export function LaboratoryMenu(props) {
                       }
                       {
                           !toggleStudies && loadingIssued === false && issuedStudiesTable()
+                      }
+                      {!toggleStudies && loadingIssued  && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+                          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+                            <SpinnerLoading />
+                          </div>
+                      </div>
                       }
                   </Grid>
               </Grid>
