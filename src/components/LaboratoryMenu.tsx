@@ -133,7 +133,7 @@ export function LaboratoryMenu(props) {
           setLoadingIssued(false)
         }
       }
-      if (appointment) 
+      if (appointment && !showMakeOrder) 
         loadIssued()
     }, [showMakeOrder, appointment, addErrorToast])
 
