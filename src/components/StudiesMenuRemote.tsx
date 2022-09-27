@@ -226,26 +226,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
             }
         }
 
-        const loadOrders = async () => {
-            try {
-                setLoadingOrders(true)
-                if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
-                    console.log("response orders", res)
-                    if(res.status === 200) setIssuedStudies(res.data.items)
-                    else if (res.status === 204) setIssuedStudies([])
-                    setLoadingOrders(false)
-                }
-            } catch (err) {
-                addErrorToast(err)
-                console.log(err)
-            } finally {
-                setLoadingOrders(false)
-            }
-        }
         if (appointment)
             load()
-            loadOrders()
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
@@ -324,10 +306,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                 setLoadingOrders(false)
             }
         }
-        if (appointment && !issueOrder) loadOrders()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [issueOrder])
+        if (appointment) loadOrders()
+    }, [issueOrder, appointment, addErrorToast])
 
     //Hover theme
     const classes = useStyles();
@@ -526,7 +506,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                 </Grid>
             </Grid>
             {!selectedRow && issueOrder === false && (
-                <div className="flex flex-row pt-1 pb-1 absolute right-4 bottom-4">
+                <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
                     <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
                         onClick={() => {
                             setIssueOrder(true)
