@@ -216,3 +216,25 @@ Events
   width: 14.375rem;
 }
 /* End Class of the Study Order Text */
+
+/* Scrollbard Class */
+.scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  background: #E5E7EB;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #A0AEC0;
+  border-radius: 100vh;
+  border: 3px solid rgb(255, 255, 255, 0.7);
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #13a5a9;
+}
+/* end scrollbard class*/

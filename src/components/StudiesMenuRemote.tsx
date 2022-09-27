@@ -421,7 +421,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </Grid>
                     }
                     
-                    <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto'}`} style={{height:'100%'}} >
+                    <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto scrollbar'}`} style={{height:'60vh'}} >
                         {(loading || loadingOrders) && <div className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                                <SpinnerLoading />
