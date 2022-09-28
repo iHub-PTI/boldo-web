@@ -43,13 +43,13 @@ export default function Dashboard() {
   }, [id])
   return (
     <Layout>
-      <Grid style={{ padding: '23px', }}>
+      <Grid className='p-3' style={{height: '53px'}}>
         <Typography variant='h6' color='textPrimary'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial':'finalizada'}
         </Typography>
       </Grid>
       <Grid 
-       className='h-full'
+       style={{height: 'calc(100% - 53px)'}}
        container>
         <Grid item lg={3} md={3} sm={3} xs={9}>
         {appointment !== null &&
