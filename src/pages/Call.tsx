@@ -419,7 +419,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full h-full lg:h-screen bg-cool-gray-50'>
+    <div ref={container} className='flex w-full h-full xl:h-screen bg-cool-gray-50'>
       <div className='relative flex-1'>
         <Stream
           ref={stream}
