@@ -178,7 +178,13 @@ export default () => {
     try {
       let copyStrings = [...soepText]
       let encounter = {}
-      if (partOfEncounterId !== '') {
+
+      if(mainReason.replace(/\s+/g, '') === ''){
+        addToast({ type: 'warning', title: '¡El motivo de la consulta no puede quedar vacío!', text: '' })
+        return
+      }
+
+      if (partOfEncounterId !== '' && mainReason.replace(/\s+/g, '') !== '') {
         encounter = {
           encounterData: {
             diagnosis: diagnose,
@@ -466,7 +472,7 @@ export default () => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Motivo Principal de la visita
+        Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
