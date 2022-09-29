@@ -225,9 +225,9 @@ export function LaboratoryMenu(props) {
         )
 
   return (
-      <div className='flex flex-col h-full  bg-white shadow-xl'>
+      <div className='flex flex-col h-full bg-white'>
           <Grid>
-              <Grid className='w-full px-8 mt-10'>
+              <Grid className='w-full px-8'>
                   <div className='flex flex-row justify-between md-max:flex-col'>
                       <Grid>
                           <Typography variant='h5' color='textPrimary'>

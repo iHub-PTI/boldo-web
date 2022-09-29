@@ -455,7 +455,7 @@ export default () => {
   )
 
   return (
-    <Grid style={{ marginTop: '25px', marginLeft: '30px' }}>
+    <Grid style={{ marginInline: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas
@@ -559,7 +559,7 @@ export default () => {
       </Grid>
 
       {initialLoad ? (
-        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex items-center justify-center w-full h-full py-32'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <svg
               className='w-6 h-6 text-secondary-500 animate-spin'
