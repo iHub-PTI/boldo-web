@@ -147,7 +147,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         </Grid>
                     </>
                     :
-                    <Grid className='w-full px-8 mt-10'>
+                    <Grid className='w-full px-8'>
                         <Typography variant='h5' color='textPrimary'>
                             Receta Médica Electrónica
                         </Typography>
