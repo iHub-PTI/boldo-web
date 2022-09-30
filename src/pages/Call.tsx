@@ -1132,6 +1132,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const [mainReasonRequired, setMainReasonRequired] = useState(false)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue)
   }
@@ -1204,6 +1205,15 @@ function SOEP({ appointment }: { appointment: any }) {
 
   useEffect(() => {
     if (initialLoad === false) {
+
+      if(mainReason.replace(/\s+/g, '') === ''){
+        setMainReasonRequired(true)
+        return 
+      }
+      else {
+        setMainReasonRequired(false)
+      }
+      
       if (partOfEncounterId !== '') {
         debounce({
           encounterData: {
@@ -1624,7 +1634,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>(obligatorio)</span>
                 </Typography>
 
                 <TextField
