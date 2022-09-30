@@ -32,6 +32,14 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   // hooks for controlling when templates is empty
   const [emptyTemp, setEmptyTemp] = useState(false)
 
+  //action page
+  const [actionPage, setActionPage] = useState('') // add or remove or update
+
+  useEffect(()=>{
+    console.log("page", page)
+    console.log("slide", maxPagination)
+  })
+
   const confirmationStudies = () => {
     let orderStudies = []
     studies.forEach(el => {
@@ -135,16 +143,28 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     if (studies.length > 0) {
       //reset pagination
       setMaxPagination(Math.ceil(studies.length / perPage))
+      switch(actionPage){
+        case 'add' || 'remove':
+          console.log('entro')
+          setPage(maxPagination)
+          setTemplate(studies[studies.length - 1])
+          break
+        case 'update':
+          //setPage(maxPagination)
+          break
+        default:
+          
+      }
       //reset view on change
-      setTemplate(studies[0])
-      setPage(1)
+      //setTemplate(studies[0])
+      //setPage(1)
       setEmptyTemp(false)
       setLoading(false)
     } else {
       setEmptyTemp(true)
       setTemplate(undefined)
     }
-  }, [studies])
+  }, [studies, actionPage, maxPagination])
 
   useEffect(() => {
     setTemplate(studies[(page - 1) * perPage])
@@ -165,7 +185,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
         {(loading === false && showAddTemplate && show && template !== undefined) ||
         (loading === false && showAddTemplate && show && template === undefined) ||
         (emptyTemp && loading === false)? (
-          <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
+          <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} setActionPage={setActionPage} />
         ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate
             id={idEditStudy}
@@ -173,6 +193,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             setStudies={setStudies}
             setShow={setShowEditTemplate}
             remoteMode={props.remoteMode}
+            setActionPage={setActionPage}
           ></EditStudyTemplate>
         ) : !loading && template !== undefined ? (
           <div className='relative'>

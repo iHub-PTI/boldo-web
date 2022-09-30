@@ -145,6 +145,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
           studiesIndication: res.data.StudyOrderTemplateDetails
         }
         setStudies([...studies])
+        props.setActionPage('update')
         setShow(false)
         setLoading(false)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editada con exito!' })
@@ -158,30 +159,6 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
 
   const deleteTemplate = async () => {
 
-    /* get template
-      const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
-      let templates = []
-      if(dataTemplate.status !== 204){
-        dataTemplate.data
-        .filter(obj => obj.status === true)
-        .forEach(item => {
-          let temp = {} as TemplateStudies
-          temp.id = item.id
-          temp.name = item.name
-          temp.description = item.description
-          temp.status = item.status
-          temp.studiesIndication = item.StudyOrderTemplateDetails
-          // select and indicaciont are added
-          temp.studiesIndication.forEach(e => {
-            e.select = false
-            e.indication = ''
-          })
-          templates.push(temp)
-        })
-      }
-      console.log(templates) 
-    */
-
     try {
       setLoading(true)
       const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
@@ -193,6 +170,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
       copyStudies.splice(index, 1)
       setShow(false)
       setStudies(copyStudies)
+      props.setActionPage('remove')
       updateStudiesOrder(res.data)
       setLoading(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminada con exito!' })

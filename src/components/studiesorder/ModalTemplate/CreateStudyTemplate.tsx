@@ -8,7 +8,7 @@ import { useToasts } from '../../../components/Toast'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
 
-export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
+export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPage }) => {
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -103,6 +103,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
           description: res.data.description,
           studiesIndication: tempArray })
         setStudies([...copyStudies])
+        setActionPage('add')
         setShow(false)
         setLoading(true)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })
