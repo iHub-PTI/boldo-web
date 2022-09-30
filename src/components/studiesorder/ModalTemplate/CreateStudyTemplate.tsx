@@ -3,7 +3,7 @@ import { StudyIndication } from './StudyIndication'
 import { ReactComponent as IconAdd } from '../../../assets/add-cross.svg'
 import { ReactComponent as IconDele } from '../../../assets/cross-delete.svg'
 import { ReactComponent as IconInfo } from '../../../assets/info-icon.svg'
-import { StudiesWithIndication, TemplateStudies } from './types'
+import { StudiesWithIndication } from './types'
 import { useToasts } from '../../../components/Toast'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
@@ -227,7 +227,8 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow }) => {
       </div>
       <div className='flex flex-row justify-end mt-3'>
         <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center'
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:cursor-not-allowed'
+          disabled={loading}
           onClick={() => saveTemplate()}
         >
           {loading ? <Spinner /> : ''}

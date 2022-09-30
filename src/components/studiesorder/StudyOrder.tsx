@@ -276,11 +276,12 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                     >Agregar
                         <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
                     </button>
-                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-8 w-auto p-1 flex flex-row justify-center items-center"
+                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-8 w-auto p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:cursor-not-allowed"
                         onClick={() => {
                             sendOrderToServer()
 
                         }}
+                     disabled={sendStudyLoading}
                     >
                         {sendStudyLoading ? <Spinner /> : ''}
                         Listo

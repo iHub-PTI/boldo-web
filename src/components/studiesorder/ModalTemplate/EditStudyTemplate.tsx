@@ -331,8 +331,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
           />
         </div>
         <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center'
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:cursor-not-allowed'
           onClick={() => saveTemplate()}
+          disabled={loading}
         >
           {loading ? <Spinner /> : ''}
           Guardar
