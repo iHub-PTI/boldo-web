@@ -219,19 +219,18 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                 </Grid>
                                 <Grid item container direction='row' spacing={5}>
                                     {remoteMode ?
-                                        <div>
-                                            <Grid direction='row' style={{paddingLeft: "1rem", paddingRight: "1rem"}}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
-                                                <FormGroup style={{display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: "0.5rem"}}>
-                                                    <FormControlLabel
-                                                        control={<CheckOrder checked={item.urgent} index={index}></CheckOrder>}
-                                                        label="Urgente"
-                                                    />
-                                                    <TooltipInfo title="marque la opción si estos estudios requieren ser realizados cuanto antes">
-                                                        <IconInfo style={{transform: 'scale(.7)'}} />
-                                                    </TooltipInfo>
-                                                </FormGroup>
-                                            </Grid>
+                                        <div className='flex md:flex-row sm:flex-col px-4 pb-4'>
+                                            <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                            <FormGroup style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: "1rem" }}>
+                                                <div className='flex flex-col'>
+                                                    <CheckOrder checked={item.urgent} index={index}></CheckOrder>
+                                                    <span className='flex flex-row items-center'>
+                                                        Urgente <TooltipInfo title="marque la opción si estos estudios requieren ser realizados cuanto antes">
+                                                            <IconInfo style={{ transform: 'scale(.7)' }} />
+                                                        </TooltipInfo>
+                                                    </span>
+                                                </div>
+                                            </FormGroup>
                                         </div>
                                          : 
                                          <>

@@ -172,6 +172,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             studies={studies}
             setStudies={setStudies}
             setShow={setShowEditTemplate}
+            remoteMode={props.remoteMode}
           ></EditStudyTemplate>
         ) : !loading && template !== undefined ? (
           <div className='relative'>
