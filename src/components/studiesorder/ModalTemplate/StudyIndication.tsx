@@ -5,7 +5,7 @@ const Check = styled.input.attrs({ type: 'checkbox' })`
     accent-color: #13A5A9;
 `
 
-export const StudyIndication = ({ id, name, indication, check=false, disabled=true, disabledCheck=false, selectCheck=(id?:any)=>{},setIndication=(indication?:String,id?:any)=>{}, className="p-1 w-72 m-2 h-28"}) => {
+export const StudyIndication = ({ id, name, indication, check=false, disabled=true, disabledCheck=false, selectCheck=(id?:any)=>{},setIndication=(indication?:String,id?:any)=>{}, className="p-1 w-72 m-2 h-auto"}) => {
     return (
         <div className={className} id={id}>
             <div className="flex items-center mr-4">

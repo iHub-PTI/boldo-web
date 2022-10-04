@@ -32,6 +32,14 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   // hooks for controlling when templates is empty
   const [emptyTemp, setEmptyTemp] = useState(false)
 
+  //action page
+  const [actionPage, setActionPage] = useState('') // add or remove or update or pagination
+
+  useEffect(()=>{
+    console.log("page", page)
+    console.log("slide", maxPagination)
+  })
+
   const confirmationStudies = () => {
     let orderStudies = []
     studies.forEach(el => {
@@ -128,6 +136,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setShowAddTemplate(false)
       setShowEditTemplate(false)
     }
+    if(show) {
+      setPage(1)
+      setTemplate(studies[0])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
   useEffect(() => {
@@ -135,19 +148,34 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     if (studies.length > 0) {
       //reset pagination
       setMaxPagination(Math.ceil(studies.length / perPage))
+      switch(actionPage){
+        case 'add':
+          setPage(maxPagination)
+          setTemplate(studies[studies.length - 1])
+          break
+        case 'remove':
+          setPage(1)
+          setTemplate(studies[0])
+          break
+        case 'update':
+          let temp = studies.find((data) => data.id === template.id)
+          setTemplate({...temp})
+          break
+      }
       //reset view on change
-      setTemplate(studies[0])
-      setPage(1)
+      //setTemplate(studies[0])
+      //setPage(1)
       setEmptyTemp(false)
       setLoading(false)
     } else {
       setEmptyTemp(true)
       setTemplate(undefined)
     }
-  }, [studies])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studies, actionPage, maxPagination])
 
   useEffect(() => {
-    setTemplate(studies[(page - 1) * perPage])
+    if(actionPage === 'pagination') setTemplate(studies[(page - 1) * perPage])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, maxPagination])
 
@@ -165,13 +193,15 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
         {(loading === false && showAddTemplate && show && template !== undefined) ||
         (loading === false && showAddTemplate && show && template === undefined) ||
         (emptyTemp && loading === false)? (
-          <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} />
+          <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} setActionPage={setActionPage} />
         ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate
             id={idEditStudy}
             studies={studies}
             setStudies={setStudies}
             setShow={setShowEditTemplate}
+            remoteMode={props.remoteMode}
+            setActionPage={setActionPage}
           ></EditStudyTemplate>
         ) : !loading && template !== undefined ? (
           <div className='relative'>
@@ -206,7 +236,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                   </div>
                 ))}
               </div>
-              <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination}></PaginationTemplate>
+              <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination} setActionPage={setActionPage}></PaginationTemplate>
               <button
                 className='focus:outline-none ml-10'
                 onClick={() => {

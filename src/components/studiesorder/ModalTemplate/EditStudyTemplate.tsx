@@ -11,7 +11,7 @@ import { useToasts } from '../../Toast'
 import axios from 'axios'
 import { CategoriesContext } from '../Provider'
 
-export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
+export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }) => {
   const study = studies.find(data => data.id === id)
   const copyArray = study.studiesIndication.slice()
   const [state, setState] = useState({
@@ -67,7 +67,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
 
   const addStudy = () => {
     if (studyArray.filter(obj => obj.status === true).length < 15 && newStudy.name !== '') {
-      studyArray.push(newStudy)
+      studyArray.unshift(newStudy)
       console.log(studyArray)
       setStudyArray([...studyArray])
       setNewStudy({
@@ -144,6 +144,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           description: res.data.description,
           studiesIndication: res.data.StudyOrderTemplateDetails
         }
+        props.setActionPage('update')
         setStudies([...studies])
         setShow(false)
         setLoading(false)
@@ -158,30 +159,6 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
 
   const deleteTemplate = async () => {
 
-    /* get template
-      const dataTemplate = await axios.get(`profile/doctor/studyOrderTemplate`)
-      let templates = []
-      if(dataTemplate.status !== 204){
-        dataTemplate.data
-        .filter(obj => obj.status === true)
-        .forEach(item => {
-          let temp = {} as TemplateStudies
-          temp.id = item.id
-          temp.name = item.name
-          temp.description = item.description
-          temp.status = item.status
-          temp.studiesIndication = item.StudyOrderTemplateDetails
-          // select and indicaciont are added
-          temp.studiesIndication.forEach(e => {
-            e.select = false
-            e.indication = ''
-          })
-          templates.push(temp)
-        })
-      }
-      console.log(templates) 
-    */
-
     try {
       setLoading(true)
       const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
@@ -192,6 +169,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
       let copyStudies = JSON.parse(JSON.stringify(studies))
       copyStudies.splice(index, 1)
       setShow(false)
+      console.log("copy", copyStudies)
+      props.setActionPage('remove')
       setStudies(copyStudies)
       updateStudiesOrder(res.data)
       setLoading(false)
@@ -264,34 +243,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           className='flex flex-row flex-wrap mt-1 w-full overflow-y-auto'
           style={{ height: '250px', maxHeight: '600px' }}
         >
-          {studyArray.map((item, i) => {
-            if (item.status === true) {
-              return (
-                <div className='relative'>
-                  {item.id === undefined ? (
-                    <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudyIndex(i)} />
-                  ) : (
-                    <IconDele
-                      className='absolute right-5 top-5 cursor-pointer'
-                      onClick={() => deleteStudyId(item.id)}
-                    />
-                  )}
-                  <StudyIndication
-                    id={item.id === undefined ? i : item.id}
-                    name={item.name}
-                    check={false}
-                    className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
-                    disabled={true}
-                    disabledCheck={true}
-                    indication=''
-                  />
-                </div>
-              )
-            } else {
-              return false
-            }
-          })}
-          <div className='flex flex-col gap-2 h-20 p-1 w-60 m-2'>
+          <div className={`flex flex-col gap-2 h-20 p-1 ${props.remoteMode ? 'w-52' : 'w-60'} m-2`}>
             <label>Nombre del estudio</label>
             <input
               className='mt-2 p-1 w-full h-8 rounded-md border border-gray-400 text-sm focs:outline-none outline-none disabled:bg-gray-300'
@@ -315,6 +267,34 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
               </button>
             </div>
           </div>
+          {studyArray.map((item, i) => {
+            if (item.status === true) {
+              return (
+                <div className='relative'>
+                  {item.id === undefined ? (
+                    <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudyIndex(i)} />
+                  ) : (
+                    <IconDele
+                      className='absolute right-5 top-5 cursor-pointer'
+                      onClick={() => deleteStudyId(item.id)}
+                    />
+                  )}
+                  <StudyIndication
+                    id={item.id === undefined ? i : item.id}
+                    name={item.name}
+                    check={false}
+                    className={`p-3 ${props.remoteMode ? 'w-52' : 'w-60'} m-3 h-auto bg-gray-100 rounded-md`}
+                    disabled={true}
+                    disabledCheck={true}
+                    indication=''
+                  />
+                </div>
+              )
+            } else {
+              return false
+            }
+          })}
+          
         </div>
       </div>
       <div className='flex flex-row justify-end mt-3 relative'>
@@ -330,8 +310,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow }) => {
           />
         </div>
         <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center'
+          className='focus:outline-none rounded-md bg-primary-600 text-white h-10 w-auto p-2 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:cursor-not-allowed'
           onClick={() => saveTemplate()}
+          disabled={loading}
         >
           {loading ? <Spinner /> : ''}
           Guardar
