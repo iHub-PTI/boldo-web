@@ -102,8 +102,8 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
           status: res.data.status,
           description: res.data.description,
           studiesIndication: tempArray })
-        setStudies([...copyStudies])
         setActionPage('add')
+        setStudies([...copyStudies])
         setShow(false)
         setLoading(true)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })

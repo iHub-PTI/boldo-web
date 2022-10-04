@@ -144,8 +144,8 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
           description: res.data.description,
           studiesIndication: res.data.StudyOrderTemplateDetails
         }
-        setStudies([...studies])
         props.setActionPage('update')
+        setStudies([...studies])
         setShow(false)
         setLoading(false)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editada con exito!' })
@@ -169,8 +169,9 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
       let copyStudies = JSON.parse(JSON.stringify(studies))
       copyStudies.splice(index, 1)
       setShow(false)
-      setStudies(copyStudies)
+      console.log("copy", copyStudies)
       props.setActionPage('remove')
+      setStudies(copyStudies)
       updateStudiesOrder(res.data)
       setLoading(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminada con exito!' })
