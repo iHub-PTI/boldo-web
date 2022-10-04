@@ -40,7 +40,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
   }
 
   const addStudy = () => {
-    if (studyArray.length < 15 && newStudy !== '') {
+    if (studyArray.length < 15 && newStudy.replace(/\s+/g, '') !== '') {
       studyArray.unshift({
         name: newStudy,
         select: false,
@@ -53,7 +53,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
   }
 
   const validateAddTemplate = data => {
-    if (data.name === '') {
+    if (data.name.replace(/\s+/g, '') === '') {
       addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
       return false
     } else if (data.StudyOrderTemplateDetails.length <= 0) {
@@ -62,7 +62,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
     } else {
       for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
         const e = data.StudyOrderTemplateDetails[i]
-        if (e.name === '') {
+        if (e.name.replace(/\s+/g, '') === '') {
           addToast({
             type: 'warning',
             title: 'Notificación',
@@ -107,32 +107,6 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
         setShow(false)
         setLoading(true)
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })
-        // TODO: no retorna el id del /profile/doctor/studyOrderTemplate
-        // const resGet = await axios.get(`profile/doctor/studyOrderTemplate`)
-        // console.log(resGet)
-        // if (resGet.status === 200) {
-        //   let templates = []
-        //   resGet.data
-        //     .filter(obj => obj.status === true)
-        //     .forEach(item => {
-        //       let temp = {} as TemplateStudies
-        //       temp.id = item.id
-        //       temp.name = item.name
-        //       temp.description = item.description
-        //       temp.status = item.status
-        //       temp.studiesIndication = item.StudyOrderTemplateDetails
-        //       // select and indicaciont are added
-        //       temp.studiesIndication.forEach(e => {
-        //         e.select = false
-        //         e.indication = ''
-        //       })
-        //       templates.push(temp)
-        //     })
-        //   setStudies(templates)
-        //   setShow(false)
-        //   setLoading(true)
-        //   addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardado exito!' })
-        // } 
       }
     } catch (err) {
       console.log('error', err)
