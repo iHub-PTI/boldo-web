@@ -42,7 +42,6 @@ export const SelectStudies = ({ template, setTemplate }) => {
       let data = [...template.studiesIndication].filter(obj => obj.status === true)
       if (data.length === 0) return
       let yesAll = true
-      let yesUndefined = 0
       for (let i = 0; i < data.length; i++) {
         if (data[i].select === false) {
           yesAll = false
@@ -50,10 +49,11 @@ export const SelectStudies = ({ template, setTemplate }) => {
           return
         }
         if (data[i].select === undefined) {
-          yesUndefined++
+          yesAll = false
+          setSelectAll(false)
         }
       }
-      if (yesAll && yesUndefined <= 0) setSelectAll(true)
+      if (yesAll) setSelectAll(true)
     }
   }, [template])
 
