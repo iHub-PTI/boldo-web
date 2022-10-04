@@ -41,7 +41,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
 
   const addStudy = () => {
     if (studyArray.length < 15 && newStudy !== '') {
-      studyArray.push({
+      studyArray.unshift({
         name: newStudy,
         select: false,
         indication: '',
@@ -185,21 +185,6 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
           className='flex flex-row flex-wrap mt-1 w-full overflow-y-auto'
           style={{ height: '250px', maxHeight: '600px' }}
         >
-          {studyArray.map((item, i) => {
-            return (
-              <div className='relative'>
-                <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
-                <StudyIndication
-                  id={i}
-                  name={item.name}
-                  className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
-                  disabled={true}
-                  disabledCheck={true}
-                  indication=''
-                />
-              </div>
-            )
-          })}
           <div className='flex flex-col gap-2 h-20 p-1 w-60 m-2'>
             <label>Nombre del estudio</label>
             <input
@@ -224,6 +209,21 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
               </button>
             </div>
           </div>
+          {studyArray.map((item, i) => {
+            return (
+              <div className='relative'>
+                <IconDele className='absolute right-5 top-5 cursor-pointer' onClick={() => deleteStudy(i)}></IconDele>
+                <StudyIndication
+                  id={i}
+                  name={item.name}
+                  className='p-3 w-60 m-3 h-28 bg-gray-100 rounded-md'
+                  disabled={true}
+                  disabledCheck={true}
+                  indication=''
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
       <div className='flex flex-row justify-end mt-3'>

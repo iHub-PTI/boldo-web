@@ -33,7 +33,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const [emptyTemp, setEmptyTemp] = useState(false)
 
   //action page
-  const [actionPage, setActionPage] = useState('') // add or remove or update
+  const [actionPage, setActionPage] = useState('') // add or remove or update or pagination
 
   useEffect(()=>{
     console.log("page", page)
@@ -136,6 +136,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setShowAddTemplate(false)
       setShowEditTemplate(false)
     }
+    if(show) {
+      setPage(1)
+      setTemplate(studies[0])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
   useEffect(() => {
@@ -144,16 +149,18 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       //reset pagination
       setMaxPagination(Math.ceil(studies.length / perPage))
       switch(actionPage){
-        case 'add' || 'remove':
-          console.log('entro')
+        case 'add':
           setPage(maxPagination)
           setTemplate(studies[studies.length - 1])
           break
-        case 'update':
-          //setPage(maxPagination)
+        case 'remove':
+          setPage(1)
+          setTemplate(studies[0])
           break
-        default:
-          
+        case 'update':
+          let temp = studies.find((data) => data.id === template.id)
+          setTemplate({...temp})
+          break
       }
       //reset view on change
       //setTemplate(studies[0])
@@ -164,10 +171,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setEmptyTemp(true)
       setTemplate(undefined)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studies, actionPage, maxPagination])
 
   useEffect(() => {
-    setTemplate(studies[(page - 1) * perPage])
+    if(actionPage === 'pagination') setTemplate(studies[(page - 1) * perPage])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, maxPagination])
 
@@ -228,7 +236,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                   </div>
                 ))}
               </div>
-              <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination}></PaginationTemplate>
+              <PaginationTemplate page={page} setPage={setPage} maxPagination={maxPagination} setActionPage={setActionPage}></PaginationTemplate>
               <button
                 className='focus:outline-none ml-10'
                 onClick={() => {
