@@ -53,18 +53,6 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     let copyOrder = JSON.parse(JSON.stringify(orders))
     copyOrder[indexOrder].studies_codes = orderStudies
     setOrders(copyOrder)
-
-    studies.forEach(el => {
-      el.studiesIndication.forEach(elem => {
-        if (elem.select) {
-          //clean
-          elem.select = false
-          elem.indication = ''
-        }
-      })
-    })
-    setTemplate(studies[0])
-    setPage(1)
     setShow(false)
   }
 
@@ -137,6 +125,15 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setShowEditTemplate(false)
     }
     if(show) {
+      studies.forEach(el => {
+        el.studiesIndication.forEach(elem => {
+          if (elem.select) {
+            //clean
+            elem.select = false
+            elem.indication = ''
+          }
+        })
+      })
       setPage(1)
       setTemplate(studies[0])
     }
