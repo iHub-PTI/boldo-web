@@ -47,7 +47,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
   return (
     <div className='flex h-screen overflow-hidden bg-white'>
       {/* Off-canvas menu for mobile, show/hide based on off-canvas menu state. */}
-      <Transition show={mobileOpen} className='xl:hidden'>
+      <Transition show={mobileOpen} className='lg:hidden'>
         <div className='fixed inset-0 z-40 flex'>
           {/* Off-canvas menu overlay, show/hide based on off-canvas menu state. */}
           <Transition.Child
@@ -164,7 +164,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
       <WaitingRoomSidebar show={waitingroomOpen} hideSidebar={() => setWaitingroomOpen(false)} />
 
       {/* Static sidebar for desktop */}
-      <div className='hidden xl:flex xl:flex-shrink-0'>
+      <div className='hidden lg:flex lg:flex-shrink-0'>
         <div className='flex flex-col w-64 pt-5 pb-4 bg-white border-r border-gray-200'>
           <div className='flex items-center flex-shrink-0 px-6'>
             <img className='w-auto h-8' src='/img/logo.svg' alt='Boldo' />
@@ -392,10 +392,10 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
       {/* Main column */}
       <div className='flex flex-col flex-1 w-0 overflow-hidden'>
         {/* Search header */}
-        <div className='relative z-10 flex flex-shrink-0 h-16 bg-white border-b border-gray-200 xl:hidden'>
+        <div className='relative z-10 flex flex-shrink-0 h-16 bg-white border-b border-gray-200 lg:hidden'>
           {/* Sidebar toggle, controls the 'sidebarOpen' sidebar state. */}
           <button
-            className='px-4 text-gray-500 border-r border-gray-200 focus:outline-none focus:bg-gray-100 focus:text-gray-600 xl:hidden'
+            className='px-4 text-gray-500 border-r border-gray-200 focus:outline-none focus:bg-gray-100 focus:text-gray-600 lg:hidden'
             aria-label='Abrir barra lateral'
             onClick={() => setMobileOpen(value => !value)}
           >
@@ -411,7 +411,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
               <path d='M4 6h16M4 12h8m-8 6h16' />
             </svg>
           </button>
-          <div className='flex justify-end flex-1 px-4 sm:px-6 xl:px-8'>
+          <div className='flex justify-end flex-1 px-4 sm:px-6 lg:px-8'>
             <div className='flex items-center'>
               <div className='relative flex-grow-0 mr-3 inline-box'>
                 <button

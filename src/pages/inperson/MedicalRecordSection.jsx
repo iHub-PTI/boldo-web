@@ -178,13 +178,7 @@ export default () => {
     try {
       let copyStrings = [...soepText]
       let encounter = {}
-
-      if(mainReason.replace(/\s+/g, '') === ''){
-        addToast({ type: 'warning', title: '¡El motivo de la consulta no puede quedar vacío!', text: '' })
-        return
-      }
-
-      if (partOfEncounterId !== '' && mainReason.replace(/\s+/g, '') !== '') {
+      if (partOfEncounterId !== '') {
         encounter = {
           encounterData: {
             diagnosis: diagnose,
@@ -461,7 +455,7 @@ export default () => {
   )
 
   return (
-    <Grid style={{ marginInline: '30px' }}>
+    <Grid style={{ marginTop: '25px', marginLeft: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
           Notas médicas
@@ -472,7 +466,7 @@ export default () => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
+        Motivo Principal de la visita
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
@@ -565,7 +559,7 @@ export default () => {
       </Grid>
 
       {initialLoad ? (
-        <div className='flex items-center justify-center w-full h-full py-32'>
+        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <svg
               className='w-6 h-6 text-secondary-500 animate-spin'

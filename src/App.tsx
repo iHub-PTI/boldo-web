@@ -15,7 +15,6 @@ import { ToastProvider } from './components/Toast'
 
 import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
-import { Download } from './pages/Download'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -35,7 +34,7 @@ const App = () => {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (window.location.pathname !== "/boldo-app-privacy-policy") {
       axios.interceptors.response.use(
         response => response,
         async error => {
@@ -61,7 +60,7 @@ const App = () => {
         if (err?.response?.status !== 401) setError(true)
       }
     }
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (window.location.pathname !== "/boldo-app-privacy-policy") {
       effect()
     } else {
       setError(false)
@@ -73,7 +72,7 @@ const App = () => {
   }
 
   if (error) return <Error />
-  if (!user && window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') return <div className='h-1 fakeload-15 bg-primary-500' />
+  if (!user && window.location.pathname !== "/boldo-app-privacy-policy") return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <ToastProvider>
@@ -113,9 +112,7 @@ const App = () => {
                 <Route exact path='/boldo-app-privacy-policy'>
                   <PrivacyPolicy />
                 </Route>
-                <Route exact path='/download'>
-                  <Download />
-                </Route>
+
                 <Route>
                   <Redirect to='/' />
                 </Route>

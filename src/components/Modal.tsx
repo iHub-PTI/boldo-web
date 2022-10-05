@@ -20,14 +20,12 @@ interface Props {
   size: keyof typeof sizes
   noPadding?: boolean
   bgTransparent?:boolean
-  handleOutClick?: boolean //Allow or disable for outside click to close
-  remoteMode?: boolean
 }
 
 const portal = document.getElementById('portal')
 
 const Modal: React.FC<Props> = props => {
-  const { show, setShow, bgTransparent=false, handleOutClick=true } = props
+  const { show, setShow, bgTransparent=false } = props
 
   const container = useRef<HTMLDivElement>(null)
 
@@ -40,11 +38,8 @@ const Modal: React.FC<Props> = props => {
       }
     }
 
-    if(handleOutClick){
-      window.addEventListener('click', handleOutsideClick, true)
-      return () => window.removeEventListener('click', handleOutsideClick, true)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.addEventListener('click', handleOutsideClick, true)
+    return () => window.removeEventListener('click', handleOutsideClick, true)
   }, [show, setShow])
 
   useEffect(() => {
@@ -61,7 +56,6 @@ const Modal: React.FC<Props> = props => {
   }, [show, setShow])
 
   let size = sizes[props.size]
-  let classes = props.remoteMode ? 'sm:max-w-3xl absolute top-10 right-5': size
   
 
   return ReactDOM.createPortal(
@@ -92,7 +86,7 @@ const Modal: React.FC<Props> = props => {
             leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             className={`${
               props.noPadding ? '' : 'px-4 pt-5 pb-4 sm:p-6'
-            } ${classes} inline-block overflow-hidden text-left align-bottom transition-all transform ${bgTransparent === true ? 'opacity-75':'bg-white '} rounded-lg shadow-xl sm:my-8 sm:align-middle w-full`}
+            } ${size} inline-block overflow-hidden text-left align-bottom transition-all transform ${bgTransparent == true ? 'opacity-75':'bg-white '} rounded-lg shadow-xl sm:my-8 sm:align-middle w-full`}
             role='dialog'
             aria-modal='true'
             aria-labelledby='modal-headline'
