@@ -13,7 +13,7 @@ import { CategoriesContext } from '../Provider'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }) => {
   const study = studies.find(data => data.id === id)
-  const copyArray = study.studiesIndication.slice()
+  const copyArray = JSON.parse(JSON.stringify(study.studiesIndication))
   const [state, setState] = useState({
     name: study.name,
     description: study.description,
