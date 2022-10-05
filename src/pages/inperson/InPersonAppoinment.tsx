@@ -43,13 +43,13 @@ export default function Dashboard() {
   }, [id])
   return (
     <Layout>
-      <Grid style={{ padding: '23px', }}>
+      <Grid className='p-3' style={{height: '53px'}}>
         <Typography variant='h6' color='textPrimary'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial':'finalizada'}
         </Typography>
       </Grid>
       <Grid 
-       className='h-full'
+       style={{height: 'calc(100% - 53px)'}}
        container>
         <Grid item lg={3} md={3} sm={3} xs={9}>
         {appointment !== null &&
@@ -62,7 +62,7 @@ export default function Dashboard() {
             }} />
           </Grid>
         </Grid>
-        <Grid item lg={8} md={8} sm={8} xs={12}>
+        <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
           {
             DynamicMenuSelector === 'P' ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : DynamicMenuSelector === 'M' ? <MedicalRecordSection /> : <LaboratoryMenu appointment={appointment} isFromInperson={true} />
           }
