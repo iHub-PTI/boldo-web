@@ -66,7 +66,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
   }
 
   const addStudy = () => {
-    if (studyArray.filter(obj => obj.status === true).length < 15 && newStudy.name !== '') {
+    if (studyArray.filter(obj => obj.status === true).length < 15 && newStudy.name.trim() !== '') {
       studyArray.unshift(newStudy)
       console.log(studyArray)
       setStudyArray([...studyArray])
@@ -80,7 +80,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
   }
 
   const validateEditTemplate = data => {
-    if (data.name === '') {
+    if (data.name.trim() === '') {
       addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
       return false
     } else if (data.StudyOrderTemplateDetails.length <= 0) {
@@ -89,7 +89,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
     } else {
       for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
         const e = data.StudyOrderTemplateDetails[i];
-        if (e.name === '') {
+        if (e.name.trim() === '') {
           addToast({
             type: 'warning',
             title: 'Notificación',
