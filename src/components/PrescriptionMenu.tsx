@@ -52,6 +52,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 setInstructions(res.data.encounter.instructions);
                 setSelectedMedication(res.data.encounter.prescriptions);
                 setMainReason(res.data.encounter.mainReason);
+                console.log(res.data.encounter.mainReason)
                 setEncounterId(res.data.encounter.partOfEncounterId)
                 setSelectedSoep(res.data.encounter.soep)
             } catch (err) {
@@ -64,6 +65,11 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(()=>{
+        if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+        else setMainReasonRequired(false)
+    }, [mainReason])
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
@@ -95,22 +101,25 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 return o;
             })
 
-            if(mainReason.trim() === ''){
+            if(mainReason?.trim() === '' || mainReason === undefined){
                 setMainReasonRequired(true)
                 return
-            } else setMainReasonRequired(false)
+            } else if(mainReason !== undefined) {
+                setMainReasonRequired(false)
+                debounce({
+                    encounterData: {
+                        diagnosis: diagnose,
+                        instructions: instructions,
+                        prescriptions: result,
+                        encounterClass: 'V',
+                        soep: selectedSoep,
+                        mainReason: mainReason,
+                        partOfEncounterId: encounterId,
+                    }
+                })
+            }
     
-            debounce({
-                encounterData: {
-                    diagnosis: diagnose,
-                    instructions: instructions,
-                    prescriptions: result,
-                    encounterClass: 'V',
-                    soep: selectedSoep,
-                    mainReason: mainReason,
-                    partOfEncounterId: encounterId,
-                }
-            })
+            
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])

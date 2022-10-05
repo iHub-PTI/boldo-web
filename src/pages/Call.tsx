@@ -1206,11 +1206,11 @@ function SOEP({ appointment }: { appointment: any }) {
   useEffect(() => {
     if (initialLoad === false) {
 
-      if(mainReason.trim() === ''){
+      if(mainReason?.trim() === ''){
         setMainReasonRequired(true)
         return 
       }
-      else {
+      else if(mainReason !== undefined && mainReason?.trim() !== '') {
         setMainReasonRequired(false)
         if (partOfEncounterId !== '') {
           debounce({
@@ -1251,6 +1251,13 @@ function SOEP({ appointment }: { appointment: any }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
+
+  useEffect(()=>{
+    if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+    else{
+      setMainReasonRequired(false)
+    }
+  }, [mainReason])
 
   useEffect(() => {
     if (showEditModal === true) {
@@ -1697,7 +1704,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   <AccordionDetails>
                     <TextField
                       fullWidth
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       multiline
                       rows='9'
                       InputProps={{
@@ -1755,7 +1762,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired }
                       fullWidth
                       multiline
                       rows='9'
@@ -1816,7 +1823,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       fullWidth
                       multiline
                       rows='9'
@@ -1877,7 +1884,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       fullWidth
                       multiline
                       rows='9'
