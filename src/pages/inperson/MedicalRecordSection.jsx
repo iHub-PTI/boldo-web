@@ -20,7 +20,6 @@ const Soep = {
 export default () => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
-  const history = useHistory()
   const { addErrorToast, addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
@@ -179,12 +178,12 @@ export default () => {
       let copyStrings = [...soepText]
       let encounter = {}
 
-      if(mainReason.replace(/\s+/g, '') === ''){
+      if(mainReason?.trim() === ''){
         addToast({ type: 'warning', title: '¡El motivo de la consulta no puede quedar vacío!', text: '' })
         return
       }
 
-      if (partOfEncounterId !== '' && mainReason.replace(/\s+/g, '') !== '') {
+      if (partOfEncounterId !== '' && mainReason !== undefined && mainReason?.trim() !== '') {
         encounter = {
           encounterData: {
             diagnosis: diagnose,
@@ -223,7 +222,6 @@ export default () => {
       const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
       if (res.data === 'OK') {
         addToast({ type: 'success', title: 'Datos guardados correctamente', text: '' })
-        history.replace(`/`)
       } else {
         addErrorToast('Algo salió mal vuelva a intentarlo más tarde')
       }
