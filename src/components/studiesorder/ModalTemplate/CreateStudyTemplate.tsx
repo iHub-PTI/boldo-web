@@ -40,7 +40,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
   }
 
   const addStudy = () => {
-    if (studyArray.length < 15 && newStudy.replace(/\s+/g, '') !== '') {
+    if (studyArray.length < 15 && newStudy.trim() !== '') {
       studyArray.unshift({
         name: newStudy,
         select: false,
@@ -53,7 +53,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
   }
 
   const validateAddTemplate = data => {
-    if (data.name.replace(/\s+/g, '') === '') {
+    if (data.name.trim() === '') {
       addToast({ type: 'warning', title: 'Notificación', text: 'El nombre de la plantilla es un campo obligatorio.' })
       return false
     } else if (data.StudyOrderTemplateDetails.length <= 0) {
@@ -62,7 +62,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
     } else {
       for (let i = 0; i < data.StudyOrderTemplateDetails.length; i++) {
         const e = data.StudyOrderTemplateDetails[i]
-        if (e.name.replace(/\s+/g, '') === '') {
+        if (e.name.trim() === '') {
           addToast({
             type: 'warning',
             title: 'Notificación',

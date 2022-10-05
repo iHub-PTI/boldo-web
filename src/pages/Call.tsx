@@ -1206,47 +1206,46 @@ function SOEP({ appointment }: { appointment: any }) {
   useEffect(() => {
     if (initialLoad === false) {
 
-      if(mainReason.replace(/\s+/g, '') === ''){
+      if(mainReason.trim() === ''){
         setMainReasonRequired(true)
         return 
       }
       else {
         setMainReasonRequired(false)
-      }
-      
-      if (partOfEncounterId !== '') {
-        debounce({
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            encounterClass: 'V',
-            partOfEncounterId: partOfEncounterId,
-            soep: {
-              subjective: subjective,
-              objective: objective,
-              evaluation: evaluation,
-              plan: plan,
+        if (partOfEncounterId !== '') {
+          debounce({
+            encounterData: {
+              diagnosis: diagnose,
+              instructions: instructions,
+              prescriptions: selectedMedication,
+              mainReason: mainReason,
+              encounterClass: 'V',
+              partOfEncounterId: partOfEncounterId,
+              soep: {
+                subjective: subjective,
+                objective: objective,
+                evaluation: evaluation,
+                plan: plan,
+              },
             },
-          },
-        })
-      } else {
-        debounce({
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            encounterClass: 'V',
-            soep: {
-              subjective: subjective,
-              objective: objective,
-              evaluation: evaluation,
-              plan: plan,
+          })
+        } else {
+          debounce({
+            encounterData: {
+              diagnosis: diagnose,
+              instructions: instructions,
+              prescriptions: selectedMedication,
+              mainReason: mainReason,
+              encounterClass: 'V',
+              soep: {
+                subjective: subjective,
+                objective: objective,
+                evaluation: evaluation,
+                plan: plan,
+              },
             },
-          },
-        })
+          })
+        }
       }
     }
 
