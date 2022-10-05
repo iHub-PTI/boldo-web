@@ -179,12 +179,12 @@ export default () => {
       let copyStrings = [...soepText]
       let encounter = {}
 
-      if(mainReason.replace(/\s+/g, '') === ''){
+      if(mainReason.trim() === ''){
         addToast({ type: 'warning', title: '¡El motivo de la consulta no puede quedar vacío!', text: '' })
         return
       }
 
-      if (partOfEncounterId !== '' && mainReason.replace(/\s+/g, '') !== '') {
+      if (partOfEncounterId !== '' && mainReason.trim() !== '') {
         encounter = {
           encounterData: {
             diagnosis: diagnose,

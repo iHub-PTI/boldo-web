@@ -95,7 +95,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 return o;
             })
 
-            if(mainReason.replace(/\s+/g, '') === ''){
+            if(mainReason.trim() === ''){
                 setMainReasonRequired(true)
                 return
             } else setMainReasonRequired(false)
