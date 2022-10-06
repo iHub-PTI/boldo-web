@@ -27,7 +27,7 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
     return 'event-other'
   }
   return {
-    title: event.name || `${event.patient.givenName}`,
+    title: `${event.patient.givenName}`,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
@@ -311,6 +311,7 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
+              
               <FullCalendar
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
