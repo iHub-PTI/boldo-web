@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export const Download = () => {
   let device = navigator.userAgent
@@ -11,5 +11,8 @@ export const Download = () => {
       window.location.href = 'https://www.pti.org.py/' //En el caso que el cliente este visitando desde un computador, lo enviamos a la web.
     }
   }
+  useEffect(()=>{
+    document.title = 'Boldo para Pacientes'
+  },[])
   return <></>
 }
