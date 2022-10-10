@@ -27,7 +27,7 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
     return 'event-other'
   }
   return {
-    title: event.patient?.givenName || event.name,
+    title: `${event.patient.givenName} ${event.patient.familyName}` || event.name,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
