@@ -27,7 +27,7 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
     return 'event-other'
   }
   return {
-    title: `${event.patient.givenName}`,
+    title: event.patient?.givenName || event.name,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
@@ -190,6 +190,8 @@ export default function Dashboard() {
         `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
       )
       .then(res => {
+        console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res", res.data)
+        
         const events = res.data.appointments.map(event => eventDataTransform(event))
 
         const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
