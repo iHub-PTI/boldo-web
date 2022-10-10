@@ -1958,7 +1958,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </Typography>
 
                   <MaterialTable
-                    title='Seleccionar seguimiento'
+                    title='Seleccionar consulta'
                     icons={tableIcons}
                     localization={{
                       body: {

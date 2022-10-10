@@ -271,7 +271,7 @@ const PatientRecord = props => {
           </Typography>
 
           <MaterialTable
-          title='Seleccionar Seguimiento'
+          title='Seleccionar consulta'
            localization={{
                       body: {
                         emptyDataSourceMessage: 'No hay datos por mostrar',
