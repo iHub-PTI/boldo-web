@@ -37,17 +37,21 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
 
+    
+    useEffect(() => {
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+            setAppointmentDisabled(true);
+        } else {
+            setAppointmentDisabled(false);
+        }
+    }, [appointment])
+
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
                 console.log("res",res.data)
-                const { status = '' } = res.data.encounter
-                if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-                    setAppointmentDisabled(true);
-                } else {
-                    setAppointmentDisabled(false);
-                }
+                //const { status = '' } = res.data.encounter
                 setDiagnose(res.data.encounter.diagnosis);
                 setInstructions(res.data.encounter.instructions);
                 setSelectedMedication(res.data.encounter.prescriptions);

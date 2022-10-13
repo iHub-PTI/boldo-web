@@ -64,14 +64,12 @@ const PatientRecord = props => {
   }
 
   useEffect(() => {
-    if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+    if (props.appointment === undefined || props.appointment.status === 'locked' || props.appointment.status === 'upcoming') {
       setAppointmentDisabled(true);
     } else {
       setAppointmentDisabled(false);
     }
-
-    // eslint-disable-next-line
-  }, [])
+  }, [props.appointment])
 
   useEffect(() => {
     if (screenWidth < 900) {

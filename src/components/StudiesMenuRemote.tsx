@@ -205,6 +205,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [toggleStudies, setToggleStudies] = useState(true)
     //select study issued order detail
     const [selectOrderDetail, setSelectOrderDetail] = useState(undefined)
+    //disabled issuedOrder button
+    const [disabledButton, setDisabledButton] = useState(true)
 
     useEffect(() => {
         const load = async () => {
@@ -231,6 +233,14 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
+
+    useEffect(() => {
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+          setDisabledButton(true)
+        } else {
+          setDisabledButton(false)
+        }
+      }, [appointment])
 
     const downloadBlob = (url, title, contentType, download) => {
         var oReq = new XMLHttpRequest();
@@ -507,11 +517,12 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
             </Grid>
             {!selectedRow && issueOrder === false && (
                 <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
-                    <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
+                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
                         onClick={() => {
                             setIssueOrder(true)
                             setFilterHide(false)
                         }}
+                        disabled={disabledButton}
                     >
                         <div>Emitir orden de estudio</div>
                         <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
