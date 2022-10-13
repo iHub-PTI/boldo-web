@@ -468,7 +468,7 @@ export default ({appointment}) => {
     <Grid style={{ marginInline: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
-          Notas médicass
+          Notas médicas
         </Typography>
         <Typography variant='body2' color='textSecondary'>
           SOEP
