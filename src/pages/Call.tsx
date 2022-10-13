@@ -1685,7 +1685,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>(obligatorio)</span>
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
                 </Typography>
 
                 <TextField

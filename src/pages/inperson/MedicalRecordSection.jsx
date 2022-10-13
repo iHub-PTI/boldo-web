@@ -476,7 +476,7 @@ export default ({appointment}) => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
+        Motivo Principal de la visita <span className='text-gray-500'>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
