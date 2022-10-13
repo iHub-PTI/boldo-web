@@ -1194,7 +1194,7 @@ function SOEP({ appointment }: { appointment: any }) {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
+        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)

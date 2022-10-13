@@ -417,6 +417,7 @@ export default ({appointment}) => {
           }}
           style={{
             marginTop: '20px',
+            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
           }}
           fullWidth
           variant='outlined'
@@ -445,6 +446,7 @@ export default ({appointment}) => {
       }}
       style={{
         marginTop: '20px',
+        backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
       }}
       fullWidth
       variant='outlined'
@@ -466,7 +468,7 @@ export default ({appointment}) => {
     <Grid style={{ marginInline: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
-          Notas médicas
+          Notas médicass
         </Typography>
         <Typography variant='body2' color='textSecondary'>
           SOEP
@@ -478,7 +480,8 @@ export default ({appointment}) => {
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-         style={{ minWidth: '100%' }}
+        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
+        }}
         
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
