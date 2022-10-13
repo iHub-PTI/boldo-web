@@ -68,8 +68,8 @@ const PatientRecord = props => {
       setAppointmentDisabled(true);
     } else {
       setAppointmentDisabled(false);
-    }
-  }, [props.appointment])
+    }    
+  }, [props.appointment]);
 
   useEffect(() => {
     if (screenWidth < 900) {
@@ -391,7 +391,7 @@ export default (props) => {
         boxShadow: 'none',
       }}
     >
-      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} appointment={appointment}/> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
         <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
           <svg
             className='w-6 h-6 text-secondary-500 animate-spin'
