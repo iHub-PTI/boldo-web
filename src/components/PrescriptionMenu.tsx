@@ -37,17 +37,21 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
 
+    
+    useEffect(() => {
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+            setAppointmentDisabled(true);
+        } else {
+            setAppointmentDisabled(false);
+        }
+    }, [appointment])
+
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
                 console.log("res",res.data)
-                const { status = '' } = res.data.encounter
-                if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-                    setAppointmentDisabled(true);
-                } else {
-                    setAppointmentDisabled(false);
-                }
+                //const { status = '' } = res.data.encounter
                 setDiagnose(res.data.encounter.diagnosis);
                 setInstructions(res.data.encounter.instructions);
                 setSelectedMedication(res.data.encounter.prescriptions);
@@ -170,7 +174,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     </Grid>
                 }
                 <div className='w-full px-8'>
-                { mainReasonRequired && <span className="text-red-700 mt-7">Obs: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
+                { mainReasonRequired && !isAppointmentDisabled && <span className="text-red-700 mt-7">Obs: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
                     <div className="mt-3">
                         <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
                             Diagnóstico

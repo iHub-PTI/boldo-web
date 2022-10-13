@@ -64,7 +64,7 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
           {
-            DynamicMenuSelector === 'P' ? <PrescriptionMenu appointment={undefined} isFromInperson={true} /> : DynamicMenuSelector === 'M' ? <MedicalRecordSection /> : <LaboratoryMenu appointment={appointment} isFromInperson={true} />
+            DynamicMenuSelector === 'P' ? <PrescriptionMenu appointment={appointment} isFromInperson={true} /> : DynamicMenuSelector === 'M' ? <MedicalRecordSection appointment={appointment} /> : <LaboratoryMenu appointment={appointment} isFromInperson={true} />
           }
         </Grid>
       </Grid>

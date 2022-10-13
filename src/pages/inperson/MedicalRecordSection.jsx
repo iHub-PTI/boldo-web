@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
-import { useRouteMatch, useHistory } from 'react-router-dom'
+import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 
 import useStyles from './style'
@@ -17,7 +17,7 @@ const Soep = {
   Plan: 'Plan',
 }
 
-export default () => {
+export default ({appointment}) => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
   const { addErrorToast, addToast } = useToasts()
@@ -41,6 +41,15 @@ export default () => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+
+  useEffect(() => {
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setAppointmentDisabled(true)
+    } else {
+      setAppointmentDisabled(false)
+    }
+  }, [appointment])
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -53,11 +62,6 @@ export default () => {
           partOfEncounterId = '',
           status = '',
         } = res.data.encounter
-        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-          setAppointmentDisabled(true)
-        } else {
-          setAppointmentDisabled(false)
-        }
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
@@ -413,6 +417,7 @@ export default () => {
           }}
           style={{
             marginTop: '20px',
+            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
           }}
           fullWidth
           variant='outlined'
@@ -441,6 +446,7 @@ export default () => {
       }}
       style={{
         marginTop: '20px',
+        backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
       }}
       fullWidth
       variant='outlined'
@@ -470,11 +476,12 @@ export default () => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
-        Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
+        Motivo Principal de la visita <span className='text-gray-500'>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-         style={{ minWidth: '100%' }}
+        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
+        }}
         
         classes={{
           root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,

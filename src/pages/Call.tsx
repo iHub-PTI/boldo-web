@@ -1178,16 +1178,23 @@ function SOEP({ appointment }: { appointment: any }) {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   }
 
+  console.log("🚀 ~ file: Call.tsx ~ line 1187 ~ load ~ appointment", appointment)
+  useEffect(()=>{
+    
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+          setAppointmentDisabled(true)
+          setDisableMainReason(true)
+        } else {
+          setAppointmentDisabled(false)
+          setDisableMainReason(false)
+        }
+  }, [appointment])
+
   useEffect(() => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
-        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-          setAppointmentDisabled(true)
-        } else {
-          setAppointmentDisabled(false)
-        }
+        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
@@ -1678,7 +1685,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>(obligatorio)</span>
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
                 </Typography>
 
                 <TextField
@@ -1689,7 +1696,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   }}
                   placeholder={' Ej: Dolor de cabeza prolongado'}
                   style={{
-                    background: '#FFFFFF',
+                    background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                     border: '2px solid #e3e8ef',
                     boxSizing: 'border-box',
                     borderRadius: '4px',
@@ -1749,8 +1756,8 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
                         borderRadius: '4px',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                       }}
                       value={subjective}
                       onChange={event => {
@@ -1808,7 +1815,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1869,7 +1876,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1930,7 +1937,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',

@@ -190,7 +190,7 @@ export default function Dashboard() {
         `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
       )
       .then(res => {
-        console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res", res.data)
+        console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
         
         const events = res.data.appointments.map(event => eventDataTransform(event))
 
