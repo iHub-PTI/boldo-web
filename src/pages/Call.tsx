@@ -1756,8 +1756,8 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
                         borderRadius: '4px',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                       }}
                       value={subjective}
                       onChange={event => {
@@ -1815,7 +1815,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1876,7 +1876,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1937,7 +1937,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         disableUnderline: true,
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
