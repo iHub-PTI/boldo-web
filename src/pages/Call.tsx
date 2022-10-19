@@ -70,6 +70,7 @@ import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
+import useWindowDimensions from '../util/useWindowDimensions'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -355,6 +356,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
+  const { width: screenWidth } = useWindowDimensions()
+
+  //console.log(screenWidth)
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -436,7 +440,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full h-full xl:h-screen bg-cool-gray-50'>
+    <div ref={container} className='flex w-full bg-cool-gray-50' style={{height: `${screenWidth > 1535 ? ' 100vh ': 'calc( 100vh - 64px )'}`}}>
       <div className='relative flex-1'>
         <Stream
           ref={stream}
@@ -639,7 +643,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             style={{
               position: 'fixed',
               bottom: '0',
-              right: '27%',
+              right: '34%',
+              marginBottom: '20px',
+              zIndex: 1
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
@@ -669,7 +675,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           </div>
         )}
       </div>
-      <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
+      <Grid container item xs={4} style={{ display: 'grid' }}>
         <SidebarContainer
           sideBarAction={sideBarAction}
           appointment={appointment}
