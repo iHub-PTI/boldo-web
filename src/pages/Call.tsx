@@ -358,7 +358,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const [videoEnabled, setVideoEnabled] = useState(true)
   const { width: screenWidth } = useWindowDimensions()
 
-  console.log(screenWidth)
+  //console.log(screenWidth)
 
   const muteAudio = () => {
     if (!mediaStream) return
