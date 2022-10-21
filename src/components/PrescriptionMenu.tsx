@@ -20,7 +20,7 @@ import useStyles from '../pages/inperson/style'
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-    const [mainReason, setMainReason] = useState<any[]>([])
+    const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
     const [encounterId, setEncounterId] = useState('')
@@ -35,11 +35,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     let match = useRouteMatch<{ id: string }>(`/appointments/:id/${!isFromInperson ? 'call' : 'inperson'}`)
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+    const [mainReasonRequired, setMainReasonRequired] = useState(false)
 
     useEffect(() => {
         const load = async () => {
             try {
                 const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                console.log("res",res.data)
                 const { status = '' } = res.data.encounter
                 if (status === 'finished' || status === 'locked' || status === 'cancelled') {
                     setAppointmentDisabled(true);
@@ -50,6 +52,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 setInstructions(res.data.encounter.instructions);
                 setSelectedMedication(res.data.encounter.prescriptions);
                 setMainReason(res.data.encounter.mainReason);
+                console.log(res.data.encounter.mainReason)
                 setEncounterId(res.data.encounter.partOfEncounterId)
                 setSelectedSoep(res.data.encounter.soep)
             } catch (err) {
@@ -62,6 +65,11 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(()=>{
+        if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+        else setMainReasonRequired(false)
+    }, [mainReason])
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
@@ -92,18 +100,26 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     
                 return o;
             })
+
+            if(mainReason?.trim() === '' || mainReason === undefined){
+                setMainReasonRequired(true)
+                return
+            } else if(mainReason !== undefined) {
+                setMainReasonRequired(false)
+                debounce({
+                    encounterData: {
+                        diagnosis: diagnose,
+                        instructions: instructions,
+                        prescriptions: result,
+                        encounterClass: 'V',
+                        soep: selectedSoep,
+                        mainReason: mainReason,
+                        partOfEncounterId: encounterId,
+                    }
+                })
+            }
     
-            debounce({
-                encounterData: {
-                    diagnosis: diagnose,
-                    instructions: instructions,
-                    prescriptions: result,
-                    encounterClass: 'V',
-                    soep: selectedSoep,
-                    mainReason: mainReason,
-                    partOfEncounterId: encounterId,
-                }
-            })
+            
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
@@ -143,11 +159,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                             <Typography variant="subtitle1" color="textSecondary">
                                 CI: {appointment.patient.identifier}
                             </Typography>
-
                         </Grid>
                     </>
                     :
-                    <Grid className='w-full px-8 mt-10'>
+                    <Grid className='w-full px-8'>
                         <Typography variant='h5' color='textPrimary'>
                             Receta Médica Electrónica
                         </Typography>
@@ -155,7 +170,8 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     </Grid>
                 }
                 <div className='w-full px-8'>
-                    <div className='mt-6 '>
+                { mainReasonRequired && <span className="text-red-700 mt-7">Obs: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
+                    <div className="mt-3">
                         <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
                             Diagnóstico
                         </label>
@@ -163,10 +179,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         <div className='rounded-md shadow-sm'>
                             <textarea
                                 id='Diagnostico'
-                                disabled={isAppointmentDisabled}
+                                disabled={isAppointmentDisabled || mainReasonRequired}
                                 required
                                 rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5 disabled:bg-gray-100'
                                 placeholder=''
                                 onChange={e => setDiagnose(e.target.value)}
                                 value={diagnose}
@@ -181,9 +197,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         <div className='rounded-md shadow-sm'>
                             <textarea
                                 id='Indicationes'
-                                disabled={isAppointmentDisabled}
+                                disabled={isAppointmentDisabled || mainReasonRequired}
                                 rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
+                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5 disabled:bg-gray-100'
                                 placeholder=''
                                 onChange={e => setInstructions(e.target.value)}
                                 value={instructions}
@@ -232,7 +248,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                 />
                             ))}
                         <span className='rounded-md shadow-sm'>
-                            {isAppointmentDisabled === false ? <button
+                            {isAppointmentDisabled === false && !mainReasonRequired ? <button
                                 type='button'
                                 className=' mt-5 inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
                                 onClick={e => {

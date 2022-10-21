@@ -240,6 +240,15 @@ const Gate = () => {
             size={50}
           />
           <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
+          />
+          <ChildButton
             icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
             background='#323030'
             size={50}
@@ -252,15 +261,6 @@ const Gate = () => {
             size={50}
             onClick={() => setSideBarAction(0)}
           />
-          <ChildButton
-            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-            </svg>
-            }
-            background='#323030'
-            size={50}
-            onClick={() => setSideBarAction(3)}
-          />
         </FloatingMenu>
       </div>
     )
@@ -271,7 +271,7 @@ const Gate = () => {
         // remote dating screen
         // <div className='flex flex-col h-full md:flex-row'>
         <Grid container className='flex  h-full flex-row'>
-          <Grid container item lg={9} md={9} sm={8} xs={8}>
+          <Grid container item xs={8}>
             {/* daiting screen here */}
             <CallStatusMessage
               status={appointment.status}
@@ -284,14 +284,15 @@ const Gate = () => {
               style={{
                 position: 'fixed',
                 bottom: '0',
-                right: '26%',
+                right: '34%',
                 marginBottom: '20px',
+                zIndex: 1
               }}
             >
               <TogleMenu />
             </Grid>
           </Grid>
-          <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
+          <Grid container item xs={4} style={{ display: 'grid' }}>
             {/* patient data screen */}
             <Card>{controlSideBarState()}</Card>
           </Grid>
@@ -418,7 +419,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full h-full lg:h-screen bg-cool-gray-50'>
+    <div ref={container} className='flex w-full h-full xl:h-screen bg-cool-gray-50'>
       <div className='relative flex-1'>
         <Stream
           ref={stream}
@@ -1131,6 +1132,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const [mainReasonRequired, setMainReasonRequired] = useState(false)
   const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
     setValue(newValue)
   }
@@ -1203,44 +1205,59 @@ function SOEP({ appointment }: { appointment: any }) {
 
   useEffect(() => {
     if (initialLoad === false) {
-      if (partOfEncounterId !== '') {
-        debounce({
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            encounterClass: 'V',
-            partOfEncounterId: partOfEncounterId,
-            soep: {
-              subjective: subjective,
-              objective: objective,
-              evaluation: evaluation,
-              plan: plan,
+
+      if(mainReason?.trim() === ''){
+        setMainReasonRequired(true)
+        return 
+      }
+      else if(mainReason !== undefined && mainReason?.trim() !== '') {
+        setMainReasonRequired(false)
+        if (partOfEncounterId !== '') {
+          debounce({
+            encounterData: {
+              diagnosis: diagnose,
+              instructions: instructions,
+              prescriptions: selectedMedication,
+              mainReason: mainReason,
+              encounterClass: 'V',
+              partOfEncounterId: partOfEncounterId,
+              soep: {
+                subjective: subjective,
+                objective: objective,
+                evaluation: evaluation,
+                plan: plan,
+              },
             },
-          },
-        })
-      } else {
-        debounce({
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            encounterClass: 'V',
-            soep: {
-              subjective: subjective,
-              objective: objective,
-              evaluation: evaluation,
-              plan: plan,
+          })
+        } else {
+          debounce({
+            encounterData: {
+              diagnosis: diagnose,
+              instructions: instructions,
+              prescriptions: selectedMedication,
+              mainReason: mainReason,
+              encounterClass: 'V',
+              soep: {
+                subjective: subjective,
+                objective: objective,
+                evaluation: evaluation,
+                plan: plan,
+              },
             },
-          },
-        })
+          })
+        }
       }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
+
+  useEffect(()=>{
+    if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+    else{
+      setMainReasonRequired(false)
+    }
+  }, [mainReason])
 
   useEffect(() => {
     if (showEditModal === true) {
@@ -1623,7 +1640,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>(obligatorio)</span>
                 </Typography>
 
                 <TextField
@@ -1687,7 +1704,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   <AccordionDetails>
                     <TextField
                       fullWidth
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       multiline
                       rows='9'
                       InputProps={{
@@ -1745,7 +1762,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired }
                       fullWidth
                       multiline
                       rows='9'
@@ -1806,7 +1823,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       fullWidth
                       multiline
                       rows='9'
@@ -1867,7 +1884,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled}
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       fullWidth
                       multiline
                       rows='9'
