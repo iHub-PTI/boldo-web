@@ -1901,7 +1901,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setEvaluation(event.target.value)
                       }}
-                      placeholder={soepPlaceholder['Evaluacion']}
+                      placeholder={soepPlaceholder['Evaluation']}
                     />
                   </AccordionDetails>
                 </Accordion>
