@@ -69,6 +69,13 @@ const useStyles = makeStyles((theme: Theme) =>
                 borderColor: "#808080",
             }
         },
+        textfieldDisabled: {
+            backgroundColor: "#F4F5F7",
+            width: '100%',
+            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: "#808080",
+            }
+        },
         buttonClass: {
             '.MuiIconButton-root MuiButtonBase-root': {
                 padding: '0'
@@ -89,7 +96,7 @@ const TooltipInfo = withStyles((theme) => ({
   }))(Tooltip);
 
 
-const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
+const StudyOrder = ({setShowMakeOrder, remoteMode=false, evaluation=''}) => {
     const { addToast, addErrorToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
@@ -254,7 +261,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={classes.textfield} index={index} />
+                                    <InputText name="diagnosis" variant='outlined' className={classes.textfieldDisabled} index={index} disabled={true} value={evaluation} />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>

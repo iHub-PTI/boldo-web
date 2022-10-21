@@ -1132,6 +1132,13 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
+const soepPlaceholder = {
+  'Subjetivo': 'Ingrese los datos expresados por el paciente',
+  'Objetivo': 'Ingrese los exámenes realizados',
+  'Evaluation': 'Ingrese el diagnostico presuntivo',
+  'Plan': 'Ingrese el plan de tratamiento que se realizará al paciente'
+}
+
 
 function SOEP({ appointment }: { appointment: any }) {
   const [value, setValue] = useState(0)
@@ -1769,6 +1776,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setSubjective(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Subjetivo']}
                       required
                     />
                   </AccordionDetails>
@@ -1831,6 +1839,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setObjective(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Objetivo']}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -1892,6 +1901,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setEvaluation(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Evaluacion']}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -1953,6 +1963,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setPlan(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Plan']}
                     />
                   </AccordionDetails>
                 </Accordion>

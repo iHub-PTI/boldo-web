@@ -48,6 +48,7 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import { useRouteMatch } from "react-router-dom";
 
 
 export function LaboratoryMenu(props) {
@@ -69,6 +70,12 @@ export function LaboratoryMenu(props) {
     const [selectedRowIssued, setSelectedRowIssued] = useState(undefined)
     //disabled issuedOrder button
     const [disabledButton, setDisabledButton] = useState(true)
+    // Encounter handler
+    let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson/')
+    const id = match?.params.id
+    const [emptySoep, setEmptySoep] = useState(false)
+    const [evaluationSoep, setEvaluationSoep] = useState('')
+
 
     const tableIcons: Icons = {
         SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -113,13 +120,41 @@ export function LaboratoryMenu(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
 
+
+    useEffect(()=>{
+      const load = async () => {
+        try {
+            setDisabledButton(true)
+            if (appointment !== undefined) {
+                setEmptySoep(true)
+                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                if(Object.keys(res.data.encounter.soep).length === 0) { 
+                  setEmptySoep(true)
+                }else if(!res.data.encounter.soep.evaluation || res.data.encounter.soep.evaluation.trim() === '') {
+                  setEmptySoep(true)
+                }
+                else {
+                  setEmptySoep(false)
+                  setEvaluationSoep(res.data.encounter.soep.evaluation)
+                }
+            }
+        } catch (err) {
+            addErrorToast(err)
+            console.log(err)
+        }
+    }
+    if (appointment)
+        load()
+    }, [appointment, addErrorToast, id])
+
+
     useEffect(() => {
-      if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-        setDisabledButton(true)
-      } else {
-        setDisabledButton(false)
-      }
-    }, [appointment])
+        if (emptySoep || appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+          setDisabledButton(true)
+        } else if(!emptySoep){
+          setDisabledButton(false)
+        }
+    }, [appointment, emptySoep])
 
 
     useEffect(() => {
@@ -226,7 +261,7 @@ export function LaboratoryMenu(props) {
                         </svg>
                     </button>
                     <Provider>
-                        <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
+                        <StudyOrder setShowMakeOrder={setShowMakeOrder} evaluation={evaluationSoep}></StudyOrder>
                     </Provider>
                 </div>
                 

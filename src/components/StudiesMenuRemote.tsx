@@ -26,6 +26,7 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import { useRouteMatch } from "react-router-dom";
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
@@ -207,6 +208,11 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [selectOrderDetail, setSelectOrderDetail] = useState(undefined)
     //disabled issuedOrder button
     const [disabledButton, setDisabledButton] = useState(true)
+    // Encounter handler
+    let match = useRouteMatch<{ id: string }>('/appointments/:id/call/')
+    const id = match?.params.id
+    const [emptySoep, setEmptySoep] = useState(false)
+    const [evaluationSoep, setEvaluationSoep] = useState('')
 
     useEffect(() => {
         const load = async () => {
@@ -234,13 +240,39 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
 
-    useEffect(() => {
-        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+    useEffect(()=>{
+        const load = async () => {
+          try {
+              setDisabledButton(true)
+              if (appointment !== undefined) {
+                  setEmptySoep(true)
+                  const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                  if(Object.keys(res.data.encounter.soep).length === 0) { 
+                    setEmptySoep(true)
+                  }else if(!res.data.encounter.soep.evaluation || res.data.encounter.soep.evaluation.trim() === '') {
+                    setEmptySoep(true)
+                  }
+                  else {
+                    setEmptySoep(false)
+                    setEvaluationSoep(res.data.encounter.soep.evaluation)
+                  }
+              }
+          } catch (err) {
+              addErrorToast(err)
+              console.log(err)
+          }
+      }
+      if (appointment)
+          load()
+      }, [appointment, addErrorToast, id])
+
+      useEffect(() => {
+        if (emptySoep || appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
           setDisabledButton(true)
-        } else {
+        } else if(!emptySoep){
           setDisabledButton(false)
         }
-      }, [appointment])
+    }, [appointment, emptySoep])
 
     const downloadBlob = (url, title, contentType, download) => {
         var oReq = new XMLHttpRequest();
@@ -874,7 +906,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         return (
             <Provider>
                 <div className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
-                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
+                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true} evaluation={evaluationSoep}></StudyOrder>
                 </div>
             </Provider>
         )

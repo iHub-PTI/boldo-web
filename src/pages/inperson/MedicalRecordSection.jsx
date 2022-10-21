@@ -17,6 +17,13 @@ const Soep = {
   Plan: 'Plan',
 }
 
+const soepPlaceholder = {
+  'Subjetivo': 'Ingrese los datos expresados por el paciente',
+  'Objetivo': 'Ingrese los exámenes realizados',
+  'Evaluation': 'Ingrese el diagnostico presuntivo',
+  'Plan': 'Ingrese el plan de tratamiento que se realizará al paciente'
+}
+
 export default ({appointment}) => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
@@ -421,7 +428,7 @@ export default ({appointment}) => {
           }}
           fullWidth
           variant='outlined'
-          placeholder='Ingrese notas actualizadas'
+          placeholder={soepPlaceholder[soepSelected]}
           value={
             soepSelected === Soep.Subjetive
               ? soepText[0]
@@ -450,7 +457,7 @@ export default ({appointment}) => {
       }}
       fullWidth
       variant='outlined'
-      placeholder='Ingrese notas actualizadas'
+      placeholder={soepPlaceholder[soepSelected]}
       value={
         soepSelected === Soep.Subjetive
           ? soepText[0]

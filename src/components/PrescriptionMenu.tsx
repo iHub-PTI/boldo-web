@@ -26,6 +26,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [encounterId, setEncounterId] = useState('')
     const [instructions, setInstructions] = useState<string>('')
     const [initialLoad, setInitialLoad] = useState(true)
+    const [emptySoep, setEmptySoep] = useState(undefined)
 
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
@@ -39,12 +40,12 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     
     useEffect(() => {
-        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+        if (emptySoep || appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
             setAppointmentDisabled(true);
-        } else {
+        } else if(!emptySoep) {
             setAppointmentDisabled(false);
         }
-    }, [appointment])
+    }, [appointment, emptySoep])
 
     useEffect(() => {
         const load = async () => {
@@ -52,13 +53,19 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
                 console.log("res",res.data)
                 //const { status = '' } = res.data.encounter
-                setDiagnose(res.data.encounter.diagnosis);
+                setDiagnose(res.data.encounter.soep.evaluation);
                 setInstructions(res.data.encounter.instructions);
                 setSelectedMedication(res.data.encounter.prescriptions);
                 setMainReason(res.data.encounter.mainReason);
                 console.log(res.data.encounter.mainReason)
                 setEncounterId(res.data.encounter.partOfEncounterId)
                 setSelectedSoep(res.data.encounter.soep)
+                
+                //validation soep
+                if(Object.keys(res.data.encounter.soep).length === 0) setEmptySoep(true)
+                else if(!res.data.encounter.soep.evaluation || res.data.encounter.soep.evaluation.trim() === '') setEmptySoep(true)
+                else setEmptySoep(false)
+
             } catch (err) {
                 console.log(err)
             } finally {
@@ -183,7 +190,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         <div className='rounded-md shadow-sm'>
                             <textarea
                                 id='Diagnostico'
-                                disabled={isAppointmentDisabled || mainReasonRequired}
+                                disabled={true}
                                 required
                                 rows={!isFromInperson ? 3 : 5}
                                 className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5 disabled:bg-gray-100'

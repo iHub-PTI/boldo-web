@@ -8,11 +8,12 @@ const InputText = props => {
     
     const [text, setText] = useState('')
     const {orders, setOrders} = useContext(CategoriesContext)
+    const value = props.value
 
     const changeText = (event: ChangeEvent<{ value: string }>) => {
         setText(event.target.value)
         if('diagnosis' === props.name){
-            orders[props.index].diagnosis = event.target.value
+            orders[props.index].diagnosis = value
             setOrders(orders)
         }else if('observation' === props.name){
             orders[props.index].notes = event.target.value
@@ -22,7 +23,7 @@ const InputText = props => {
     }
     
 
-    return <TextField {...props} onChange={changeText} value={text}></TextField>
+    return <TextField {...props} onChange={changeText} value={props.name === 'diagnosis' ? value : text}></TextField>
 }
 
 export default InputText;
