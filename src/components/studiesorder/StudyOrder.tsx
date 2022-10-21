@@ -123,6 +123,8 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false, evaluation=''}) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    console.log("eva", evaluation)
+
     const addCategory = () => {
         setOrders([...orders, {
             category: "",

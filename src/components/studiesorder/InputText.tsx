@@ -1,14 +1,22 @@
 import { TextField } from "@material-ui/core";
+import { useEffect } from "react";
 import React, { useState, ChangeEvent, useContext } from "react";
 import { CategoriesContext } from "./Provider";
 
 
 
-const InputText = props => {
+const InputText = ({value='', ...props}) => {
     
-    const [text, setText] = useState('')
+    const [text, setText] = useState(value)
     const {orders, setOrders} = useContext(CategoriesContext)
-    const value = props.value
+
+    useEffect(()=>{
+        if('diagnosis' === props.name){
+            orders[props.index].diagnosis = text
+            setOrders(orders)
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[])
 
     const changeText = (event: ChangeEvent<{ value: string }>) => {
         setText(event.target.value)
@@ -22,8 +30,7 @@ const InputText = props => {
         console.table(orders)
     }
     
-
-    return <TextField {...props} onChange={changeText} value={props.name === 'diagnosis' ? value : text}></TextField>
+    return <TextField {...props} onChange={changeText} value={text}></TextField>
 }
 
 export default InputText;
