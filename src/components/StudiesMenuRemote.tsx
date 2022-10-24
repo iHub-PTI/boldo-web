@@ -376,6 +376,20 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
                       <div className="flex flex-row flex-no-wrap">
                         <div className="flex flex-row w-full">
+                          <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                            style={{ width: '100%', height: '3rem' }}
+                          >
+                            <button
+                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                              onClick={() => {
+                                setToggleStudies(false)
+                              }}
+                            >
+                              Órdenes de estudio
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex flex-row w-full">
                           <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
                             style={{ width: '100%', height: '3rem' }}
                           >
@@ -386,20 +400,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                               }}
                             >
                               Estudios Realizados
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex flex-row w-full">
-                          <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                            style={{ width: '100%', height: '3rem' }}
-                          >
-                            <button
-                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                              onClick={() => {
-                                setToggleStudies(false)
-                              }}
-                            >
-                              Estudios Emitidos
                             </button>
                           </div>
                         </div>
