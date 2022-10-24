@@ -1016,10 +1016,9 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
           {appointment.patient.photoUrl !== undefined && (
             <div className='flex justify-center w-full  '>
               <img
-                className='rounded-full center'
-                style={{ width: '100px', height: '100px' }}
+                className='object-cover w-24 h-24 rounded-full'
                 src={appointment.patient.photoUrl}
-                alt='user image'
+                alt='Foto de perfil del paciente'
               />
             </div>
           )}
