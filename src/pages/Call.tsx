@@ -1135,7 +1135,7 @@ const useStyles = makeStyles(theme => ({
 const soepPlaceholder = {
   'Subjetivo': 'Ingrese los datos expresados por el paciente',
   'Objetivo': 'Ingrese los exámenes realizados',
-  'Evaluation': 'Ingrese el diagnostico presuntivo',
+  'Evaluation': 'Ingrese el diagnóstico presuntivo',
   'Plan': 'Ingrese el plan de tratamiento que se realizará al paciente'
 }
 
