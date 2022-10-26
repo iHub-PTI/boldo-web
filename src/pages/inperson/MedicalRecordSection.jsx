@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { useRouteMatch, useHistory } from 'react-router-dom'
@@ -41,6 +41,8 @@ export default () => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const focusMe_Ref = useRef(undefined)
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -106,6 +108,11 @@ export default () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSoepSelected, encounterHistory, soepSelected])
+
+  useEffect(() => {
+    if(focusMe_Ref.current && !isAppointmentDisabled)
+      focusMe_Ref.current.focus()
+  }, [soepSelected, isAppointmentDisabled]);
 
   const showSoepDataDynamic = counter => {
     switch (soepSelected) {
@@ -380,6 +387,7 @@ export default () => {
     }
     return tempArray
   }
+ 
   const soepWithRecord = (
     <div className='flex  mt-6'>
       <Grid xs={12} md={5}>
@@ -431,11 +439,14 @@ export default () => {
       </Grid>
     </div>
   )
+
   const soepSection = (
     <TextField
+      inputRef={focusMe_Ref}
       disabled={isAppointmentDisabled}
       multiline
       rows='16'
+      autoFocus
       InputProps={{
         disableUnderline: true,
       }}
