@@ -9,6 +9,7 @@ import Languages from '../util/ISO639-1-es.json'
 import { validateDate } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
+import MultiSelect from '../components/MultiSelect'
 
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
@@ -559,7 +560,7 @@ const Settings = (props: Props) => {
                     <div className='px-4 py-5 bg-white sm:p-6'>
                       <div className='grid grid-cols-6 gap-6'>
                         <div className='col-span-6 mb-40 sm:col-span-3'>
-                          <MultiListbox
+                          <MultiSelect
                             data={specializations}
                             label='Especialidad Médica'
                             value={doctor.specializations}
