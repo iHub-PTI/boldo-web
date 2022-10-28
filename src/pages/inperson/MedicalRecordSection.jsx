@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { useRouteMatch, useHistory } from 'react-router-dom'
@@ -15,6 +15,13 @@ const Soep = {
   Objective: 'Objetivo',
   Evalutation: 'Evaluacion',
   Plan: 'Plan',
+}
+
+const soepPlaceholder = {
+  'Subjetivo': 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
+  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
 }
 
 export default () => {
@@ -41,6 +48,8 @@ export default () => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const focusMe_Ref = useRef(undefined)
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -106,6 +115,11 @@ export default () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSoepSelected, encounterHistory, soepSelected])
+
+  useEffect(() => {
+    if(focusMe_Ref.current && !isAppointmentDisabled)
+      focusMe_Ref.current.focus()
+  }, [soepSelected, isAppointmentDisabled]);
 
   const showSoepDataDynamic = counter => {
     switch (soepSelected) {
@@ -380,6 +394,7 @@ export default () => {
     }
     return tempArray
   }
+ 
   const soepWithRecord = (
     <div className='flex  mt-6'>
       <Grid xs={12} md={5}>
@@ -416,7 +431,7 @@ export default () => {
           }}
           fullWidth
           variant='outlined'
-          placeholder='Ingrese notas actualizadas'
+          placeholder={soepPlaceholder[soepSelected]}
           value={
             soepSelected === Soep.Subjetive
               ? soepText[0]
@@ -431,20 +446,24 @@ export default () => {
       </Grid>
     </div>
   )
+
   const soepSection = (
     <TextField
+      inputRef={focusMe_Ref}
       disabled={isAppointmentDisabled}
       multiline
       rows='16'
+      autoFocus
       InputProps={{
         disableUnderline: true,
+        classes: { input: classes.input}
       }}
       style={{
         marginTop: '20px',
       }}
       fullWidth
       variant='outlined'
-      placeholder='Ingrese notas actualizadas'
+      placeholder={soepPlaceholder[soepSelected]}
       value={
         soepSelected === Soep.Subjetive
           ? soepText[0]
