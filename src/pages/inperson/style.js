@@ -73,4 +73,9 @@ export default makeStyles((theme) => ({
     color: 'white',
     borderRadius: '10px',
   },
+  input:{
+    '&::placeholder': {
+      fontWeight: 'bold'
+    },
+  }
 }));
