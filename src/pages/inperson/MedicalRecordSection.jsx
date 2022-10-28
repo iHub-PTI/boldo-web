@@ -17,6 +17,13 @@ const Soep = {
   Plan: 'Plan',
 }
 
+const soepPlaceholder = {
+  'Subjetivo': 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
+  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
+}
+
 export default () => {
   const classes = useStyles()
   const { width: screenWidth } = useWindowDimensions()
@@ -424,7 +431,7 @@ export default () => {
           }}
           fullWidth
           variant='outlined'
-          placeholder='Ingrese notas actualizadas'
+          placeholder={soepPlaceholder[soepSelected]}
           value={
             soepSelected === Soep.Subjetive
               ? soepText[0]
@@ -449,13 +456,14 @@ export default () => {
       autoFocus
       InputProps={{
         disableUnderline: true,
+        classes: { input: classes.input}
       }}
       style={{
         marginTop: '20px',
       }}
       fullWidth
       variant='outlined'
-      placeholder='Ingrese notas actualizadas'
+      placeholder={soepPlaceholder[soepSelected]}
       value={
         soepSelected === Soep.Subjetive
           ? soepText[0]
