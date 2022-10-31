@@ -26,7 +26,6 @@ const soepPlaceholder = {
 
 export default () => {
   const classes = useStyles()
-  const { width: screenWidth } = useWindowDimensions()
   const { addErrorToast, addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
@@ -48,7 +47,8 @@ export default () => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
-  const focusMe_Ref = useRef(undefined)
+  const focusMe_RefSOEP = useRef(undefined)
+  const mainReason_Ref = useRef(undefined)
 
   useEffect(() => {
     const load = async () => {
@@ -96,6 +96,11 @@ export default () => {
   }, [])
 
   useEffect(() => {
+    if (mainReason_Ref.current && (!disableMainReason || !isAppointmentDisabled))
+      mainReason_Ref.current.focus();
+  }, [isAppointmentDisabled, disableMainReason])
+
+  useEffect(() => {
     if (encounterHistory.length > 0) {
       switch (recordSoepSelected) {
         case 0:
@@ -117,8 +122,9 @@ export default () => {
   }, [recordSoepSelected, encounterHistory, soepSelected])
 
   useEffect(() => {
-    if(focusMe_Ref.current && !isAppointmentDisabled)
-      focusMe_Ref.current.focus()
+    if(focusMe_RefSOEP.current && !isAppointmentDisabled && mainReason?.trim() !== '')
+      focusMe_RefSOEP.current.focus()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [soepSelected, isAppointmentDisabled]);
 
   const showSoepDataDynamic = counter => {
@@ -449,11 +455,10 @@ export default () => {
 
   const soepSection = (
     <TextField
-      inputRef={focusMe_Ref}
+      inputRef={focusMe_RefSOEP}
       disabled={isAppointmentDisabled}
       multiline
       rows='16'
-      autoFocus
       InputProps={{
         disableUnderline: true,
         classes: { input: classes.input}
@@ -488,17 +493,15 @@ export default () => {
         </Typography>
       </Grid>
 
-      <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
+      <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
         Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-         style={{ minWidth: '100%' }}
-        
-        classes={{
-          root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
-        }}
-        placeholder='Ej. Dolor de Cabeza'
+        inputRef={mainReason_Ref}
+        style={{ minWidth: '100%' }}
+        classes={classes.textFieldPaddingSmall}
+        placeholder='Ej: Dolor de cabeza prolongado'
         variant='outlined'
         value={mainReason}
         onChange={onChangeFilter}
