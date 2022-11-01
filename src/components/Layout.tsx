@@ -150,7 +150,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                       fill="currentColor">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    Registrar paciente
+                    Validar registro de pacientes
 
                   </NavLink>
                 </div>
@@ -243,7 +243,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                       >
                         <div className='py-1'>
                           <a
-                            href='https://www.apple.com/app-store/'
+                            href='https://apps.apple.com/us/app/boldo/id1614655648'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
@@ -252,16 +252,16 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             Descargar la app del paciente para iOS
                           </a>
                           <a
-                            href='https://play.google.com/store/apps/details?id=com.penguin.boldo'
+                            href='https://play.google.com/store/apps/details?id=py.org.pti.boldo'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                           >
-                            Descargar la app del pacienten para Android
+                            Descargar la app del paciente para Android
                           </a>
                           <a
-                            href='mailto:soporte@pti.org.py'
+                            href='mailto:soporte.tic@pti.org.py'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
@@ -381,7 +381,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                     fill="currentColor">
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                   </svg>
-                  Registrar paciente
+                  Validar registro de pacientes
 
                 </NavLink>
               </div>
@@ -482,35 +482,45 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                           aria-labelledby='user-menu'
                         >
                           <div className='py-1'>
-                            <a
-                              href='https://play.google.com/store'
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                              role='menuitem'
-                            >
-                              Descargar la app del paciente
-                            </a>
-                            <a
-                              href='mailto:soporte@pti.org.py'
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                              role='menuitem'
-                            >
-                              Soporte
-                            </a>
+                          <a
+                            href='https://apps.apple.com/us/app/boldo/id1614655648'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Descargar la app del paciente para iOS
+                          </a>
+                          <a
+                            href='https://play.google.com/store/apps/details?id=py.org.pti.boldo'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Descargar la app del paciente para Android
+                          </a>
+                          <a
+                            href='mailto:soporte.tic@pti.org.py'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                          >
+                            Soporte
+                          </a>
+                        </div>
+                        <div className='border-t border-gray-100' />
+                        <div className='py-1'>
+                          <a
+                            className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
+                            role='menuitem'
+                            href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
+                          >
+                            Cerrar Sesión
+                          </a>
                           </div>
                           <div className='border-t border-gray-100' />
-                          <div className='py-1'>
-                            <a
-                              className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
-                              role='menuitem'
-                              href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
-                            >
-                              Cerrar Sesión
-                            </a>
-                          </div>
                         </div>
                       </Transition>
                     </>
