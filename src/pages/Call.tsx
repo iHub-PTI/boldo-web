@@ -1659,17 +1659,9 @@ function SOEP({ appointment }: { appointment: any }) {
                 <TextField
                   fullWidth
                   disabled={disableMainReason || isAppointmentDisabled}
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
+                  autoFocus
+                  variant='outlined'
                   placeholder={' Ej: Dolor de cabeza prolongado'}
-                  style={{
-                    background: '#FFFFFF',
-                    border: '2px solid #e3e8ef',
-                    boxSizing: 'border-box',
-                    borderRadius: '4px',
-                    paddingLeft: '10px',
-                  }}
                   value={mainReason}
                   onChange={event => {
                     setMainReason(event.target.value)
