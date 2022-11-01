@@ -320,6 +320,8 @@ export default function Dashboard() {
                 eventClick={handleEventClick}
                 height='100%'
                 stickyHeaderDates={true}
+                slotDuration={'00:15:00'}
+                slotLabelInterval={'00:30'}
                 plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
                 initialView='timeGridWeek'
                 nowIndicator={true}

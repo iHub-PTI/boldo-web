@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 
 import useStyles from './style'
-import useWindowDimensions from '../../util/useWindowDimensions'
 import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
@@ -17,9 +16,15 @@ const Soep = {
   Plan: 'Plan',
 }
 
+const soepPlaceholder = {
+  'Subjetivo': 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
+  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
+}
+
 export default ({appointment}) => {
   const classes = useStyles()
-  const { width: screenWidth } = useWindowDimensions()
   const { addErrorToast, addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
@@ -41,6 +46,8 @@ export default ({appointment}) => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const focusMe_RefSOEP = useRef(undefined)
+  const mainReason_Ref = useRef(undefined)
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -91,6 +98,11 @@ export default ({appointment}) => {
   }, [])
 
   useEffect(() => {
+    if (mainReason_Ref.current && (!disableMainReason || !isAppointmentDisabled))
+      mainReason_Ref.current.focus();
+  }, [isAppointmentDisabled, disableMainReason])
+
+  useEffect(() => {
     if (encounterHistory.length > 0) {
       switch (recordSoepSelected) {
         case 0:
@@ -110,6 +122,12 @@ export default ({appointment}) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSoepSelected, encounterHistory, soepSelected])
+
+  useEffect(() => {
+    if(focusMe_RefSOEP.current && !isAppointmentDisabled && mainReason?.trim() !== '')
+      focusMe_RefSOEP.current.focus()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soepSelected, isAppointmentDisabled]);
 
   const showSoepDataDynamic = counter => {
     switch (soepSelected) {
@@ -384,6 +402,7 @@ export default ({appointment}) => {
     }
     return tempArray
   }
+ 
   const soepWithRecord = (
     <div className='flex  mt-6'>
       <Grid xs={12} md={5}>
@@ -421,7 +440,7 @@ export default ({appointment}) => {
           }}
           fullWidth
           variant='outlined'
-          placeholder='Ingrese notas actualizadas'
+          placeholder={soepPlaceholder[soepSelected]}
           value={
             soepSelected === Soep.Subjetive
               ? soepText[0]
@@ -436,13 +455,16 @@ export default ({appointment}) => {
       </Grid>
     </div>
   )
+
   const soepSection = (
     <TextField
+      inputRef={focusMe_RefSOEP}
       disabled={isAppointmentDisabled}
       multiline
       rows='16'
       InputProps={{
         disableUnderline: true,
+        classes: { input: classes.input}
       }}
       style={{
         marginTop: '20px',
@@ -450,7 +472,7 @@ export default ({appointment}) => {
       }}
       fullWidth
       variant='outlined'
-      placeholder='Ingrese notas actualizadas'
+      placeholder={soepPlaceholder[soepSelected]}
       value={
         soepSelected === Soep.Subjetive
           ? soepText[0]
@@ -475,18 +497,16 @@ export default ({appointment}) => {
         </Typography>
       </Grid>
 
-      <Typography style={{ marginTop: '15px' }} variant='body2' color='textPrimary'>
+      <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
         Motivo Principal de la visita <span className='text-gray-500'>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
         style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
         }}
-        
-        classes={{
-          root: screenWidth > 1600 ? classes.textFieldPadding : classes.textFieldPaddingSmall,
-        }}
-        placeholder='Ej. Dolor de Cabeza'
+        classes={classes.textFieldPaddingSmall}
+        inputRef={mainReason_Ref}
+        placeholder='Ej: Dolor de cabeza prolongado'
         variant='outlined'
         value={mainReason}
         onChange={onChangeFilter}

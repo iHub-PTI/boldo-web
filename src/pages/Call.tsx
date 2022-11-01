@@ -1129,8 +1129,20 @@ const useStyles = makeStyles(theme => ({
       textTransform: 'none',
     },
   },
+  input:{
+    '&::placeholder': {
+      fontWeight: 'bold'
+    },
+    paddingInline: '5px'
+  }
 }))
 
+const soepPlaceholder = {
+  'Subjetivo': 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
+  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
+}
 
 function SOEP({ appointment }: { appointment: any }) {
   const [value, setValue] = useState(0)
@@ -1696,16 +1708,11 @@ function SOEP({ appointment }: { appointment: any }) {
                 <TextField
                   fullWidth
                   disabled={disableMainReason || isAppointmentDisabled}
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
+                  autoFocus
+                  variant='outlined'
                   placeholder={' Ej: Dolor de cabeza prolongado'}
                   style={{
                     background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
-                    border: '2px solid #e3e8ef',
-                    boxSizing: 'border-box',
-                    borderRadius: '4px',
-                    paddingLeft: '10px',
                   }}
                   value={mainReason}
                   onChange={event => {
@@ -1759,6 +1766,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
+                        classes: { input: classes.input}
                       }}
                       style={{
                         borderRadius: '4px',
@@ -1768,6 +1776,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setSubjective(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Subjetivo']}
                       required
                     />
                   </AccordionDetails>
@@ -1818,6 +1827,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
+                        classes: { input: classes.input}
                       }}
                       style={{
                         background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
@@ -1830,6 +1840,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setObjective(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Objetivo']}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -1879,6 +1890,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
+                        classes: { input: classes.input}
                       }}
                       style={{
                         background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
@@ -1891,6 +1903,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setEvaluation(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Evaluacion']}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -1940,6 +1953,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
+                        classes: { input: classes.input}
                       }}
                       style={{
                         background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
@@ -1952,6 +1966,7 @@ function SOEP({ appointment }: { appointment: any }) {
                       onChange={event => {
                         setPlan(event.target.value)
                       }}
+                      placeholder={soepPlaceholder['Plan']}
                     />
                   </AccordionDetails>
                 </Accordion>
