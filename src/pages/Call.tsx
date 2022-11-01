@@ -48,11 +48,29 @@ import {
   withStyles,
 } from '@material-ui/core'
 import Modal from '../components/Modal'
+import { Icons } from 'material-table';
+import { forwardRef } from 'react';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import AddBox from '@material-ui/icons/AddBox';
+import Check from '@material-ui/icons/Check';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import Clear from '@material-ui/icons/Clear';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
+import Edit from '@material-ui/icons/Edit';
+import FilterList from '@material-ui/icons/FilterList';
+import FirstPage from '@material-ui/icons/FirstPage';
+import LastPage from '@material-ui/icons/LastPage';
+import Remove from '@material-ui/icons/Remove';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import Search from '@material-ui/icons/Search';
+import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
+import useWindowDimensions from '../util/useWindowDimensions'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -338,6 +356,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
+  const { width: screenWidth } = useWindowDimensions()
+
+  //console.log(screenWidth)
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -375,6 +396,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
           />
           <ChildButton
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+            </svg>
+            }
+            background='#323030'
+            size={50}
+            onClick={() => setSideBarAction(3)}
+          />
+          <ChildButton
             icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
             background='#323030'
             size={50}
@@ -386,15 +416,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             background='#323030'
             size={50}
             onClick={() => setSideBarAction(0)}
-          />
-          <ChildButton
-            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-            </svg>
-            }
-            background='#323030'
-            size={50}
-            onClick={() => setSideBarAction(3)}
           />
         </FloatingMenu>
       </>
@@ -419,7 +440,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full h-full xl:h-screen bg-cool-gray-50'>
+    <div ref={container} className='flex w-full bg-cool-gray-50' style={{height: `${screenWidth > 1535 ? ' 100vh ': 'calc( 100vh - 64px )'}`}}>
       <div className='relative flex-1'>
         <Stream
           ref={stream}
@@ -622,7 +643,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             style={{
               position: 'fixed',
               bottom: '0',
-              right: '27%',
+              right: '34%',
+              marginBottom: '20px',
+              zIndex: 1
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
@@ -652,7 +675,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           </div>
         )}
       </div>
-      <Grid container item lg={3} md={3} sm={4} xs={4} style={{ display: 'grid' }}>
+      <Grid container item xs={4} style={{ display: 'grid' }}>
         <SidebarContainer
           sideBarAction={sideBarAction}
           appointment={appointment}
@@ -993,10 +1016,9 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
           {appointment.patient.photoUrl !== undefined && (
             <div className='flex justify-center w-full  '>
               <img
-                className='rounded-full center'
-                style={{ width: '100px', height: '100px' }}
+                className='object-cover w-24 h-24 rounded-full'
                 src={appointment.patient.photoUrl}
-                alt='user image'
+                alt='Foto de perfil del paciente'
               />
             </div>
           )}
@@ -1153,16 +1175,43 @@ function SOEP({ appointment }: { appointment: any }) {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
 
+  const tableIcons: Icons = {
+    SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
+  }
+
+  console.log("🚀 ~ file: Call.tsx ~ line 1187 ~ load ~ appointment", appointment)
+  useEffect(()=>{
+    
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+          setAppointmentDisabled(true)
+          setDisableMainReason(true)
+        } else {
+          setAppointmentDisabled(false)
+          setDisableMainReason(false)
+        }
+  }, [appointment])
+
   useEffect(() => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        const { diagnosis, instructions, prescriptions, mainReason, status = '' } = res.data.encounter
-        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-          setAppointmentDisabled(true)
-        } else {
-          setAppointmentDisabled(false)
-        }
+        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
@@ -1653,7 +1702,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>(obligatorio)</span>
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
                 </Typography>
 
                 <TextField
@@ -1662,6 +1711,9 @@ function SOEP({ appointment }: { appointment: any }) {
                   autoFocus
                   variant='outlined'
                   placeholder={' Ej: Dolor de cabeza prolongado'}
+                  style={{
+                    background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                  }}
                   value={mainReason}
                   onChange={event => {
                     setMainReason(event.target.value)
@@ -1717,8 +1769,8 @@ function SOEP({ appointment }: { appointment: any }) {
                         classes: { input: classes.input}
                       }}
                       style={{
-                        background: '#FFFFFF',
                         borderRadius: '4px',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                       }}
                       value={subjective}
                       onChange={event => {
@@ -1778,7 +1830,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         classes: { input: classes.input}
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1841,7 +1893,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         classes: { input: classes.input}
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1904,7 +1956,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         classes: { input: classes.input}
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -1933,13 +1985,37 @@ function SOEP({ appointment }: { appointment: any }) {
                   </Typography>
 
                   <MaterialTable
+                    title='Seleccionar consulta'
+                    icons={tableIcons}
+                    localization={{
+                      body: {
+                        emptyDataSourceMessage: 'No hay datos por mostrar',
+                      },
+                      pagination: {
+                        firstAriaLabel: 'Primera página',
+                        firstTooltip: 'Primera página',
+                        labelDisplayedRows: '{from}-{to} de {count}',
+                        labelRowsPerPage: 'Filas por página:',
+                        labelRowsSelect: 'filas',
+                        lastAriaLabel: 'Ultima página',
+                        lastTooltip: 'Ultima página',
+                        nextAriaLabel: 'Pagina siguiente',
+                        nextTooltip: 'Pagina siguiente',
+                        previousAriaLabel: 'Pagina anterior',
+                        previousTooltip: 'Pagina anterior',
+                     },
+                     toolbar: {
+                      searchPlaceholder: 'Buscar',
+                      searchTooltip: 'Buscar',
+                    },
+                    }}
                     columns={[
                       {
                         title: 'Fecha',
                         field: 'startTimeDate',
                       },
                       {
-                        title: 'motivo de visita',
+                        title: 'Motivo de visita',
                         field: 'mainReason',
                       },
                       // {
@@ -1968,12 +2044,11 @@ function SOEP({ appointment }: { appointment: any }) {
                       setSelectedRow(selectedRow)
                     }
                     options={{
-                      search: false,
-
-                      toolbar: false,
-                      paging: false,
+                      search: true,
+                      toolbar: true,
+                      paging: true,
                       draggable: false,
-
+                      pageSize: 5,
                       rowStyle: rowData => ({
                         backgroundColor:
                           // @ts-ignore

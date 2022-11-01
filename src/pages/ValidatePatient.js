@@ -214,7 +214,7 @@ const ValidatePatient = () => {
           <Card elevation={6} style={{ borderRadius: '15px' }}>
             <CardContent>
               <Typography style={{ color: '#27BEC2' }} gutterBottom variant='h4' component='h2'>
-                Registro de Pacientes
+                Validar registro de pacientes
               </Typography>
               <Grid style={{ marginTop: '10px' }} container direction='row' alignItems='center'>
                 <Grid style={{ paddingLeft: '5px', marginTop: '5px' }} item>

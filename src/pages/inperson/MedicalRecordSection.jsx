@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
-import { useRouteMatch, useHistory } from 'react-router-dom'
+import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 
 import useStyles from './style'
-import useWindowDimensions from '../../util/useWindowDimensions'
 import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
@@ -24,7 +23,7 @@ const soepPlaceholder = {
   'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
 }
 
-export default () => {
+export default ({appointment}) => {
   const classes = useStyles()
   const { addErrorToast, addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
@@ -51,6 +50,14 @@ export default () => {
   const mainReason_Ref = useRef(undefined)
 
   useEffect(() => {
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setAppointmentDisabled(true)
+    } else {
+      setAppointmentDisabled(false)
+    }
+  }, [appointment])
+
+  useEffect(() => {
     const load = async () => {
       try {
         const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
@@ -62,11 +69,6 @@ export default () => {
           partOfEncounterId = '',
           status = '',
         } = res.data.encounter
-        if (status === 'finished' || status === 'locked' || status === 'cancelled') {
-          setAppointmentDisabled(true)
-        } else {
-          setAppointmentDisabled(false)
-        }
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
@@ -434,6 +436,7 @@ export default () => {
           }}
           style={{
             marginTop: '20px',
+            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
           }}
           fullWidth
           variant='outlined'
@@ -465,6 +468,7 @@ export default () => {
       }}
       style={{
         marginTop: '20px',
+        backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
       }}
       fullWidth
       variant='outlined'
@@ -494,13 +498,14 @@ export default () => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
-        Motivo Principal de la visita <span className='text-gray-500'>(obligatorio)</span>
+        Motivo Principal de la visita <span className='text-gray-500'>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-        inputRef={mainReason_Ref}
-        style={{ minWidth: '100%' }}
+        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
+        }}
         classes={classes.textFieldPaddingSmall}
+        inputRef={mainReason_Ref}
         placeholder='Ej: Dolor de cabeza prolongado'
         variant='outlined'
         value={mainReason}

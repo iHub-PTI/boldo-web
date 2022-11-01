@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Avatar, Button, Card, CardContent, Grid, Typography } from '@material-ui/core'
+import { Avatar, Button, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import MaterialTable from 'material-table'
@@ -10,22 +10,23 @@ import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import Modal from '../../components/Modal'
 import loading from '../../assets/loading.gif'
-import { Patient } from '../../decs';
-
-// const mapSexo = gender => {
-//   switch ((gender || 'male').trim().toLowerCase()) {
-//     case 'female':
-//       return 'Femenino'
-//     case 'f':
-//       return 'Femenino'
-//     case 'male':
-//       return 'Masculino'
-//     case 'm':
-//       return 'Masculino'
-//     default:
-//       return gender
-//   }
-// }
+import { Icons } from 'material-table';
+import { forwardRef } from 'react';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import AddBox from '@material-ui/icons/AddBox';
+import Check from '@material-ui/icons/Check';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import Clear from '@material-ui/icons/Clear';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
+import Edit from '@material-ui/icons/Edit';
+import FilterList from '@material-ui/icons/FilterList';
+import FirstPage from '@material-ui/icons/FirstPage';
+import LastPage from '@material-ui/icons/LastPage';
+import Remove from '@material-ui/icons/Remove';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import Search from '@material-ui/icons/Search';
+import ViewColumn from '@material-ui/icons/ViewColumn';
 
 const PatientRecord = props => {
 
@@ -41,15 +42,34 @@ const PatientRecord = props => {
   const history = useHistory()
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const classes = useStyles()
+
+  const tableIcons: Icons = {
+    SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
+  }
+
   useEffect(() => {
-    if (status === 'finished' || status === 'locked' || status === 'cancelled') {
+    if (props.appointment === undefined || props.appointment.status === 'locked' || props.appointment.status === 'upcoming') {
       setAppointmentDisabled(true);
     } else {
       setAppointmentDisabled(false);
-    }
-
-    // eslint-disable-next-line
-  }, [])
+    }    
+  }, [props.appointment]);
 
   useEffect(() => {
     if (screenWidth < 900) {
@@ -249,13 +269,36 @@ const PatientRecord = props => {
           </Typography>
 
           <MaterialTable
+          title='Seleccionar consulta'
+           localization={{
+                      body: {
+                        emptyDataSourceMessage: 'No hay datos por mostrar',
+                      },
+                      pagination: {
+                        firstAriaLabel: 'Primera página',
+                        firstTooltip: 'Primera página',
+                        labelDisplayedRows: '{from}-{to} de {count}',
+                        labelRowsPerPage: 'Filas por página:',
+                        labelRowsSelect: 'filas',
+                        lastAriaLabel: 'Ultima página',
+                        lastTooltip: 'Ultima página',
+                        nextAriaLabel: 'Pagina siguiente',
+                        nextTooltip: 'Pagina siguiente',
+                        previousAriaLabel: 'Pagina anterior',
+                        previousTooltip: 'Pagina anterior',
+                     },
+                     toolbar: {
+                      searchPlaceholder: 'Buscar',
+                      searchTooltip: 'Buscar',
+                    }}}
+            icons={tableIcons}
             columns={[
               {
                 title: "Fecha",
                 field: "startTimeDate",
               },
               {
-                title: "motivo de visita",
+                title: "Motivo de visita",
                 field: "mainReason"
               },
               // {
@@ -286,11 +329,11 @@ const PatientRecord = props => {
               setSelectedRow(selectedRow)
             }
             options={{
-              search: false,
-
-              toolbar: false,
-              paging: false,
+              search: true,
+              toolbar: true,
+              paging: true,
               draggable: false,
+              pageSize: 5,
 
               rowStyle: (rowData) => ({
                 backgroundColor:
@@ -348,7 +391,7 @@ export default (props) => {
         boxShadow: 'none',
       }}
     >
-      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} /> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
+      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} appointment={appointment}/> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
         <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
           <svg
             className='w-6 h-6 text-secondary-500 animate-spin'
