@@ -10,6 +10,7 @@ import { validateDate } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
+import * as Sentry from '@sentry/react'
 
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
@@ -32,6 +33,11 @@ export const upload = async (file: File | string) => {
     })
     if (ress.status === 201) return res.data.location
   } catch (err) {
+    Sentry.withScope(function(scope) {
+      // group errors together based on their request and response
+      scope.setFingerprint(['get', '/presigned', String(err.response?.data.message)]);
+      Sentry.captureException(err);
+    });
     console.log(err)
   }
 }
@@ -168,6 +174,11 @@ const Settings = (props: Props) => {
         }
       } catch (err) {
         console.log(err)
+        Sentry.withScope(function(scope) {
+          // group errors together based on their request and response
+          scope.setFingerprint(['get', '/profile/doctor', String(err.response?.data.message)]);
+          Sentry.captureException(err);
+        });
         if (mounted) {
           setError('ERROR: Fallo en la carga de datos iniciales')
           setShow(true)
@@ -229,6 +240,11 @@ const Settings = (props: Props) => {
           new: false,
         })
       } catch (err) {
+        Sentry.withScope(function(scope) {
+          // group errors together based on their request and response
+          scope.setFingerprint(['post', '/profile/doctor', String(err.response?.data.message)]);
+          Sentry.captureException(err);
+        });
         setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
         console.log(err)
       }
