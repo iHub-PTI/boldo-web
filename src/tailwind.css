@@ -218,6 +218,17 @@ Events
 /* End Class of the Study Order Text */
 
 /* Scrollbard Class */
+
+.scrollbar{
+  scrollbar-width: thin;
+  scrollbar-color: #A0AEC0 #E5E7EB;
+}
+
+.scrollbar:hover {
+  scrollbar-width: thin;
+  scrollbar-color: #13a5a9 #E5E7EB;
+}
+
 .scrollbar::-webkit-scrollbar {
   width: 12px;
   height: 12px;

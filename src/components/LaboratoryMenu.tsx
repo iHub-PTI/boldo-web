@@ -67,6 +67,8 @@ export function LaboratoryMenu(props) {
     const [issuedStudiesData, setIssuedStudiesData] = useState([])
     const [loadingIssued, setLoadingIssued] = useState(false)
     const [selectedRowIssued, setSelectedRowIssued] = useState(undefined)
+    //disabled issuedOrder button
+    const [disabledButton, setDisabledButton] = useState(true)
 
     const tableIcons: Icons = {
         SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -109,6 +111,14 @@ export function LaboratoryMenu(props) {
         if (appointment)
             load()
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointment])
+
+    useEffect(() => {
+      if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+        setDisabledButton(true)
+      } else {
+        setDisabledButton(false)
+      }
     }, [appointment])
 
 
@@ -237,16 +247,31 @@ export function LaboratoryMenu(props) {
                               archivos subidos por el paciente, laboratorios o dispositivos médicos
                           </Typography>
                       </Grid>
-                      <button className="btn bg-primary-600 text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2"
+                      <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
                       onClick={() => setShowMakeOrder(true)}
+                      disabled={disabledButton}
                       >
                           <div>Emitir orden de estudio</div>
                           <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
                       </button>
                   </div>
                   <div className="flex flex-row flex-no-wrap w-full justify-end">
-                      <div className="flex w-96">
-                          <div className="flex flex-row w-full">
+                    <div className="flex w-96">
+                    <div className="flex flex-row w-full">
+                        <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                          style={{ width: '100%', height: '3rem' }}
+                        >
+                          <button
+                            className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                            onClick={() => {
+                              setToggleStudies(false)
+                            }}
+                          >
+                            Órdenes de estudio
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex flex-row w-full">
                         <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
                           style={{ width: '100%', height: '3rem' }}
                         >
@@ -260,22 +285,8 @@ export function LaboratoryMenu(props) {
                           </button>
                         </div>
                       </div>
-                      <div className="flex flex-row w-full">
-                        <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                          style={{ width: '100%', height: '3rem' }}
-                        >
-                          <button
-                            className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                            onClick={() => {
-                              setToggleStudies(false)
-                            }}
-                          >
-                            Estudios Emitidos
-                          </button>
-                        </div>
-                      </div>
-                      </div>
                     </div>
+                  </div>
                   {toggleStudies && loading === false && studiesData === undefined && <Grid className="grid mt-20 place-items-center"  >
                       <NoResults />
                   </Grid>
