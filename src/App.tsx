@@ -58,11 +58,7 @@ const App = () => {
         const res = await axios.get('/profile/doctor')
         setUser(res.data)
         //console.log(res.data)
-        Sentry.setUser(
-          { username: res.data.familyName.concat(` ${res.data.givenName}`),
-            id: res.data.id,
-            email: res.data.email
-          })
+        Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
         if (err?.response?.status !== 401) setError(true)
@@ -92,7 +88,6 @@ const App = () => {
                 <Route exact path='/'>
                   <Dashboard />
                 </Route>
-
                 <Route exact path='/home'>
                   <Home />
                 </Route>
