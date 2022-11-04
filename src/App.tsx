@@ -16,6 +16,7 @@ import { ToastProvider } from './components/Toast'
 import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
+import * as Sentry from "@sentry/react";
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -56,6 +57,12 @@ const App = () => {
       try {
         const res = await axios.get('/profile/doctor')
         setUser(res.data)
+        //console.log(res.data)
+        Sentry.setUser(
+          { username: res.data.familyName.concat(` ${res.data.givenName}`),
+            id: res.data.id,
+            email: res.data.email
+          })
       } catch (err) {
         console.log(err)
         if (err?.response?.status !== 401) setError(true)
