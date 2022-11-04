@@ -16,6 +16,7 @@ import soepReducer from './redux/reducers/soepReducer.js';
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY,
+    autoSessionTracking: true,
     integrations: [new Integrations.BrowserTracing(),
       new RewriteFramesIntegration(),
       new DebugIntegration(),
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'production')
         }
       ),
       new ReportingObserverIntegration()],
+      tracesSampleRate: 1.0,
   })
 
 const configureStore = createStore(soepReducer);
