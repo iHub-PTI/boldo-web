@@ -15,7 +15,7 @@ import App from './App'
 import soepReducer from './redux/reducers/soepReducer.js';
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
-    dsn: "https://7d847dd3f51d4c8a9b99913cffece274@o1301148.ingest.sentry.io/4504090880573440",
+    dsn: process.env.REACT_APP_SENTRY,
     integrations: [new Integrations.BrowserTracing(),
       new RewriteFramesIntegration(),
       new DebugIntegration(),
