@@ -8,6 +8,8 @@ import useStyles from './style'
 import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
+import _ from 'lodash'
+import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -17,15 +19,16 @@ const Soep = {
 }
 
 const soepPlaceholder = {
-  'Subjetivo': 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
-  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
-  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
-  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
+  Subjetivo: 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  Objetivo:
+    'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  Evaluacion: 'Impresión diagnóstica o presunción diagnóstica.',
+  Plan: 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.',
 }
 
-export default ({appointment}) => {
+export default ({ appointment }) => {
   const classes = useStyles()
-  const { addErrorToast, addToast } = useToasts()
+  const { addErrorToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
@@ -46,16 +49,22 @@ export default ({appointment}) => {
   let match = useRouteMatch('/appointments/:id/inperson')
   const id = match?.params.id
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  const [soepDisabled, setSoepDisabled] = useState(false)
   const focusMe_RefSOEP = useRef(undefined)
+  const focusMe_RefSOEPC = useRef(undefined)
+  //appointment current
   const mainReason_Ref = useRef(undefined)
+  //autosaved
+  const [errorSave, setErrorSave] = useState(false)
+  const [succes, setSucces] = useState(false)
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
       setAppointmentDisabled(true)
-    } else {
+    } else if(!initialLoad){
       setAppointmentDisabled(false)
     }
-  }, [appointment])
+  }, [appointment, initialLoad])
 
   useEffect(() => {
     const load = async () => {
@@ -67,7 +76,7 @@ export default ({appointment}) => {
           prescriptions,
           mainReason = '',
           partOfEncounterId = '',
-          status = '',
+          //status = '',
         } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
@@ -98,8 +107,7 @@ export default ({appointment}) => {
   }, [])
 
   useEffect(() => {
-    if (mainReason_Ref.current && (!disableMainReason || !isAppointmentDisabled))
-      mainReason_Ref.current.focus();
+    if (mainReason_Ref.current && (!disableMainReason || !isAppointmentDisabled)) mainReason_Ref.current.focus()
   }, [isAppointmentDisabled, disableMainReason])
 
   useEffect(() => {
@@ -124,10 +132,16 @@ export default ({appointment}) => {
   }, [recordSoepSelected, encounterHistory, soepSelected])
 
   useEffect(() => {
-    if(focusMe_RefSOEP.current && !isAppointmentDisabled && mainReason?.trim() !== '')
-      focusMe_RefSOEP.current.focus()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [soepSelected, isAppointmentDisabled]);
+    if (focusMe_RefSOEP.current && !isAppointmentDisabled && mainReason?.trim() !== '') focusMe_RefSOEP.current.focus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soepSelected, isAppointmentDisabled])
+
+  useEffect(() => {
+    if (focusMe_RefSOEPC.current && !isAppointmentDisabled){
+      focusMe_RefSOEPC.current.focus()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soepSelected, isAppointmentDisabled])
 
   const showSoepDataDynamic = counter => {
     switch (soepSelected) {
@@ -155,7 +169,6 @@ export default ({appointment}) => {
   useEffect(() => {
     if (encounterHistory.length > 0) {
       //disable mainReason and show first mainReason record
-
       setDisableMainReason(true)
       setMainReason(encounterHistory[0].mainReason)
     }
@@ -183,7 +196,7 @@ export default ({appointment}) => {
           }
           setInitialLoad(false)
         } catch (err) {
-          console.log(err)
+          //console.log(err)
           setInitialLoad(false)
           //@ts-ignore
           addErrorToast(err)
@@ -195,99 +208,104 @@ export default ({appointment}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
-  const saveConsultation = async () => {
-    try {
-      let copyStrings = [...soepText]
-      let encounter = {}
+  useEffect(() => {
+    //if the main reason is empty then the soep is not allowed to complete
+    if (mainReason?.trim() === '' || mainReason === '') {
+      setSoepDisabled(true)
+    } else {
+      setSoepDisabled(false)
+    }
+  }, [mainReason, soepText])
 
-      if(mainReason?.trim() === ''){
-        addToast({ type: 'warning', title: '¡El motivo de la consulta no puede quedar vacío!', text: '' })
-        return
-      }
-
-      if (partOfEncounterId !== '' && mainReason !== undefined && mainReason?.trim() !== '') {
-        encounter = {
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            partOfEncounterId: partOfEncounterId,
-            encounterClass: 'A',
-            soep: {
-              subjective: copyStrings[0],
-              objective: copyStrings[1],
-              evaluation: copyStrings[2],
-              plan: copyStrings[3],
-            },
-          },
+  const debounce = useCallback(
+    _.debounce(async _encounter => {
+        try {
+          setIsLoading(true)
+          setSucces(false)
+          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+          if (res.data === 'OK') {
+            setIsLoading(false)
+            setSucces(true)
+            setErrorSave(false)
+          }
+        } catch (error) {
+          setIsLoading(false)
+          setErrorSave(true)
+          addErrorToast(error)
         }
-      } else {
-        encounter = {
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            encounterClass: 'A',
-            soep: {
-              subjective: copyStrings[0],
-              objective: copyStrings[1],
-              evaluation: copyStrings[2],
-              plan: copyStrings[3],
-            },
+    }, 1000),
+    []
+  )
+
+  const debounceSoepText = (mainReasonData, soepTexts) => {
+    let copyStrings = [...soepTexts]
+
+    if (partOfEncounterId !== '' && mainReasonData !== undefined && mainReasonData?.trim() !== '') {
+      debounce({
+        encounterData: {
+          diagnosis: diagnose,
+          instructions: instructions,
+          prescriptions: selectedMedication,
+          mainReason: mainReasonData,
+          partOfEncounterId: partOfEncounterId,
+          encounterClass: 'A',
+          soep: {
+            subjective: copyStrings[0],
+            objective: copyStrings[1],
+            evaluation: copyStrings[2],
+            plan: copyStrings[3],
           },
-        }
-      }
-
-      setIsLoading(true)
-      const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
-      if (res.data === 'OK') {
-        addToast({ type: 'success', title: 'Datos guardados correctamente', text: '' })
-      } else {
-        addErrorToast('Algo salió mal vuelva a intentarlo más tarde')
-      }
-
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      console.log(error)
-      addErrorToast(error)
+        },
+      })
+    } else if (mainReasonData !== undefined && mainReasonData?.trim() !== '') {
+      debounce({
+        encounterData: {
+          diagnosis: diagnose,
+          instructions: instructions,
+          prescriptions: selectedMedication,
+          mainReason: mainReasonData,
+          encounterClass: 'A',
+          soep: {
+            subjective: copyStrings[0],
+            objective: copyStrings[1],
+            evaluation: copyStrings[2],
+            plan: copyStrings[3],
+          },
+        },
+      })
     }
   }
 
-  const onChangeFilter = useCallback(event => {
+  const onChangeFilter = event => {
     setMainReason(event.target.value)
-  }, [])
+    debounceSoepText(event.target.value, soepText)
+  }
 
-  const onChangeSoepText = useCallback(
-    event => {
-      let copyStrings = [...soepText]
-      switch (soepSelected) {
-        case Soep.Subjetive:
-          copyStrings[0] = event.target.value
-          break
+  const onChangeSoepText = event => {
+    let copyStrings = [...soepText]
+    switch (soepSelected) {
+      case Soep.Subjetive:
+        copyStrings[0] = event.target.value
+        break
 
-        case Soep.Objective:
-          copyStrings[1] = event.target.value
-          break
+      case Soep.Objective:
+        copyStrings[1] = event.target.value
+        break
 
-        case Soep.Evalutation:
-          copyStrings[2] = event.target.value
-          break
+      case Soep.Evalutation:
+        copyStrings[2] = event.target.value
+        break
 
-        case Soep.Plan:
-          copyStrings[3] = event.target.value
-          break
+      case Soep.Plan:
+        copyStrings[3] = event.target.value
+        break
 
-        default:
-          break
-      }
-      setSoepText(copyStrings)
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [soepSelected]
-  )
+      default:
+        break
+    }
+    setSoepText(copyStrings)
+    debounceSoepText(mainReason, copyStrings)
+  }
 
   const showSoepHeadersRecords = () => {
     const tempArray = []
@@ -302,6 +320,7 @@ export default ({appointment}) => {
           case 0:
             tempArray.push(
               <button
+                key={i}
                 style={{
                   height: '35px',
                   maxWidth: '130px',
@@ -309,7 +328,7 @@ export default ({appointment}) => {
                   backgroundColor: recordSoepSelected === 0 ? '#4299E1' : '#EDF2F7',
                   color: recordSoepSelected === 0 ? 'white' : 'black',
                 }}
-                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
                 onClick={() => setRecordSoepSelected(0)}
               >
                 <svg
@@ -334,6 +353,7 @@ export default ({appointment}) => {
           case 1:
             tempArray.push(
               <button
+                key={i}
                 style={{
                   height: '35px',
                   maxWidth: '130px',
@@ -341,7 +361,7 @@ export default ({appointment}) => {
                   backgroundColor: recordSoepSelected === 1 ? '#4299E1' : '#EDF2F7',
                   color: recordSoepSelected === 1 ? 'white' : 'black',
                 }}
-                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
                 onClick={() => setRecordSoepSelected(1)}
               >
                 <svg
@@ -366,6 +386,7 @@ export default ({appointment}) => {
           case 2:
             tempArray.push(
               <button
+                key={i}
                 style={{
                   height: '35px',
                   maxWidth: '130px',
@@ -373,7 +394,7 @@ export default ({appointment}) => {
                   backgroundColor: recordSoepSelected === 2 ? '#4299E1' : '#EDF2F7',
                   color: recordSoepSelected === 2 ? 'white' : 'black',
                 }}
-                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
+                className='rounded-full px-1 inline-flex items-center w-full text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
                 onClick={() => setRecordSoepSelected(2)}
               >
                 <svg
@@ -402,10 +423,10 @@ export default ({appointment}) => {
     }
     return tempArray
   }
- 
+
   const soepWithRecord = (
     <div className='flex  mt-6'>
-      <Grid xs={12} md={5}>
+      <Grid xs={12} md={5} item>
         <div className='flex'>{showSoepHeadersRecords()}</div>
         <TextField
           disabled
@@ -417,26 +438,25 @@ export default ({appointment}) => {
           // }}
           style={{
             marginTop: '20px',
+            backgroundColor: '#e5e7eb'
           }}
           variant='outlined'
           value={soepRecordDesc}
         />
       </Grid>
 
-      <Grid xs={12} md={7} className='ml-6'>
+      <Grid xs={12} md={7} item style={{ marginLeft: '1.5rem' }}>
         <Typography variant='h6' color='textPrimary'>
           Consulta Actual
         </Typography>
         <TextField
+          inputRef={focusMe_RefSOEPC}
           disabled={isAppointmentDisabled}
           multiline
           rows='20'
-          InputProps={{
-            disableUnderline: true,
-          }}
           style={{
             marginTop: '20px',
-            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
+            backgroundColor: `${isAppointmentDisabled ? '#e5e7eb' : ''}`,
           }}
           fullWidth
           variant='outlined'
@@ -459,16 +479,16 @@ export default ({appointment}) => {
   const soepSection = (
     <TextField
       inputRef={focusMe_RefSOEP}
-      disabled={isAppointmentDisabled}
+      disabled={isAppointmentDisabled || soepDisabled}
       multiline
       rows='16'
       InputProps={{
         disableUnderline: true,
-        classes: { input: classes.input}
+        classes: { input: classes.input },
       }}
       style={{
         marginTop: '20px',
-        backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`
+        backgroundColor: `${isAppointmentDisabled || disableMainReason || soepDisabled ? '#e5e7eb' : ''}`,
       }}
       fullWidth
       variant='outlined'
@@ -498,13 +518,16 @@ export default ({appointment}) => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
-        Motivo Principal de la visita <span className='text-gray-500'>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
+        Motivo Principal de la visita{' '}
+        <span className={`${initialLoad || !soepDisabled ? 'text-gray-500' : 'text-red-600'}`}>
+          {appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked'
+            ? ''
+            : '(obligatorio)'}
+        </span>
       </Typography>
       <TextField
         disabled={disableMainReason || isAppointmentDisabled}
-        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
-        }}
-        classes={classes.textFieldPaddingSmall}
+        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}` }}
         inputRef={mainReason_Ref}
         placeholder='Ej: Dolor de cabeza prolongado'
         variant='outlined'
@@ -549,7 +572,6 @@ export default ({appointment}) => {
           {showHover === Soep.Objective &&
             ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })}
         </button>
-
         <button
           style={{
             height: '35',
@@ -568,7 +590,6 @@ export default ({appointment}) => {
           {showHover === Soep.Evalutation &&
             ShowSoepHelper({ title: Soep.Evalutation, isBlackColor: soepSelected === Soep.Evalutation ? false : true })}
         </button>
-
         <button
           style={{
             height: '35',
@@ -612,7 +633,7 @@ export default ({appointment}) => {
       ) : (
         soepSection
       )}
-
+      { mainReason?.trim() !== '' && <LoadingAutoSaved loading={isLoading} success={succes} error={errorSave} />}
       <div
         style={{
           position: 'relative',
@@ -621,47 +642,7 @@ export default ({appointment}) => {
       >
         <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={id} />
       </div>
-
       <div className='flex flex-row-reverse mt-6'>
-        <div className='ml-6'>
-          <Button
-            disabled={initialLoad || isAppointmentDisabled}
-            className={classes.muiButtonContained}
-            type='submit'
-            variant='contained'
-            endIcon={
-              isLoading ? (
-                <svg
-                  className='w-5 h-5 mr-3 ml-3 text-indigo-700 animate-spin'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='white' strokeWidth='4'></circle>
-                  <path
-                    className='opacity-75'
-                    fill='white'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-              ) : (
-                <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                  <path
-                    d='M5 13L9 17L19 7'
-                    stroke='white'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  />
-                </svg>
-              )
-            }
-            onClick={saveConsultation}
-          >
-            Guardar Consulta
-          </Button>
-        </div>
-
         <div className='ml-6'>
           <Button
             disabled={isAppointmentDisabled}
@@ -690,16 +671,10 @@ export default ({appointment}) => {
             Cancelar cita
           </Button>
         </div>
-        
-        {/* <div className='ml-6'>
-          <Button className={classes.muiButtonOutlined} variant='outlined' onClick={() => history.replace(`/`)}>
-            Minimizar
-          </Button>
-        </div> */}
       </div>
       <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
         Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
-        </Typography>
+      </Typography>
     </Grid>
   )
 }
