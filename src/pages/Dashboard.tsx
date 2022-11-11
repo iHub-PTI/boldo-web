@@ -16,6 +16,7 @@ import { UserContext } from '../App'
 import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
+import moment from 'moment'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -358,6 +359,7 @@ export default function Dashboard() {
                 expandRows={true}
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+                scrollTime={moment().format('HH:00:00')}
               />
             </div>
           </>
