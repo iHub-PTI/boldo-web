@@ -57,6 +57,8 @@ export default ({ appointment }) => {
   //autosaved
   const [errorSave, setErrorSave] = useState(false)
   const [succes, setSucces] = useState(false)
+  //button cancel appointment
+  const [disableBCancel, setDisableBCancel] = useState(true)
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -65,6 +67,13 @@ export default ({ appointment }) => {
       setAppointmentDisabled(false)
     }
   }, [appointment, initialLoad])
+
+  useEffect(() => {
+    if (appointment === undefined) return
+    console.log("status", appointment.status)
+    if (appointment?.status === 'upcoming') setDisableBCancel(false)
+    else setDisableBCancel(true)
+  }, [appointment])
 
   useEffect(() => {
     const load = async () => {
@@ -483,7 +492,7 @@ export default ({ appointment }) => {
       multiline
       rows='16'
       InputProps={{
-        disableUnderline: true,
+        //disableUnderline: true,
         classes: { input: classes.input },
       }}
       style={{
@@ -645,7 +654,7 @@ export default ({ appointment }) => {
       <div className='flex flex-row-reverse mt-6'>
         <div className='ml-6'>
           <Button
-            disabled={isAppointmentDisabled}
+            disabled={disableBCancel}
             className={classes.muiButtonOutlined}
             variant='outlined'
             onClick={() => {
