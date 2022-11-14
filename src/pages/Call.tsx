@@ -91,6 +91,8 @@ const Gate = () => {
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
+  // this help us for identify the selected button
+  const [selectedButton, setSelectedButton] = useState(0)
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -219,6 +221,7 @@ const Gate = () => {
   const useTooltipStyles = makeStyles(() => ({
     tooltip: {
       margin: 20,
+      
     },
   }));
 
@@ -254,6 +257,7 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(false)
+
     return (
       <div>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
@@ -283,9 +287,12 @@ const Gate = () => {
                 </svg>
               </Tooltip>
             }
-            background='#323030'
+            background={selectedButton == 3 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(3)}
+            onClick={() => {
+              setSideBarAction(3); 
+              setSelectedButton(3);
+            }}
           />
           <ChildButton
             icon={
@@ -293,9 +300,12 @@ const Gate = () => {
                 <PillIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background='#323030'
+            background={selectedButton == 2 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(2)}
+            onClick={() => {
+              setSideBarAction(2); 
+              setSelectedButton(2);
+            }}
           />
           <ChildButton 
             icon={
@@ -303,9 +313,12 @@ const Gate = () => {
                 <RecordIcon />
               </Tooltip>
             } 
-            background='#323030' 
+            background={selectedButton == 1 ? '#667EEA' : '#323030'}
             size={50} 
-            onClick={() => setSideBarAction(1)} 
+            onClick={() => {
+              setSideBarAction(1); 
+              setSelectedButton(1);
+            }}
           />
           <ChildButton
             icon={
@@ -313,9 +326,12 @@ const Gate = () => {
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background='#323030'
+            background={selectedButton == 0 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(0)}
+            onClick={() => {
+              setSideBarAction(0); 
+              setSelectedButton(0);
+            }}
           />
         </FloatingMenu>
       </div>
