@@ -259,8 +259,16 @@ const Gate = () => {
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
           <MainButton
             isOpen={isOpen}
-            iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
-            iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
+            iconResting={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdAdd style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            iconActive={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdClose style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
             background='#323030'
             onClick={() => {
               setIsOpen(prev => !prev)
