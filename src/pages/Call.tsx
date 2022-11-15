@@ -256,7 +256,7 @@ const Gate = () => {
 
 
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
 
     return (
       <div>
@@ -443,7 +443,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }));
 
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
     return (
       <>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
