@@ -1028,8 +1028,8 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
 
-            <Typography variant='subtitle1' color='textSecondary'>
-              {appointment.patient.identifier}
+            <Typography variant='subtitle1' color='textSecondary' align='center'>
+              CI {appointment.patient.identifier}
             </Typography>
           </Grid>
 
