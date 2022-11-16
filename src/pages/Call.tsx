@@ -1029,7 +1029,9 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
             </Typography>
 
             <Typography variant='subtitle1' color='textSecondary' align='center'>
-              CI {appointment.patient.identifier}
+              {appointment.patient.identifier == null || appointment.patient.identifier.includes('-') 
+                ? 'Paciente sin cédula' 
+                : 'CI ' + appointment.patient.identifier}
             </Typography>
           </Grid>
 
