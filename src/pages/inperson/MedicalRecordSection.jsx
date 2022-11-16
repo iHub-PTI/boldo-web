@@ -519,7 +519,7 @@ export default ({ appointment }) => {
     <Grid style={{ marginInline: '30px' }}>
       <Grid>
         <Typography variant='h5' color='textPrimary'>
-          Notas médicas
+          Notas Médicas
         </Typography>
         <Typography variant='body2' color='textSecondary'>
           SOEP
@@ -527,7 +527,7 @@ export default ({ appointment }) => {
       </Grid>
 
       <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
-        Motivo Principal de la visita{' '}
+        Motivo principal de la visita{' '}
         <span className={`${initialLoad || !soepDisabled ? 'text-gray-500' : 'text-red-600'}`}>
           {appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked'
             ? ''
