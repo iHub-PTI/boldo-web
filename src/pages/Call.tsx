@@ -1053,7 +1053,7 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
 
           <Grid style={{ paddingTop: '20px' }}>
             <Typography variant='subtitle1' color='textSecondary'>
-              Telefono
+              Teléfono
             </Typography>
             <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.phone || '-'}
