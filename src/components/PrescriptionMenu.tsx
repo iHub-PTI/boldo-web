@@ -176,9 +176,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 <div className='w-full px-8'>
                 { mainReasonRequired && !isAppointmentDisabled && <span className="text-red-700 mt-7">Obs.: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
                     <div className="mt-3">
-                        <label htmlFor='Diagnostico' className='block text-sm font-medium leading-5 text-gray-600'>
+                        <Typography variant='body1' color='textPrimary'>
                             Diagnóstico
-                        </label>
+                        </Typography>
 
                         <div className='rounded-md shadow-sm'>
                             <textarea
@@ -194,9 +194,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         </div>
                     </div>
                     <div className='mt-6'>
-                        <label htmlFor='Indicationes' className='block text-sm font-medium leading-5 text-gray-600'>
+                        <Typography variant='body1' color='textPrimary'>
                             Observaciones
-                        </label>
+                        </Typography>
 
                         <div className='rounded-md shadow-sm'>
                             <textarea
@@ -227,7 +227,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
               }} /> */}
                     </div>
                     <div className='mt-6'>
-                        <p className='block text-sm font-medium leading-5 text-gray-700'>Medicamentos</p>
+                        <Typography variant='body1' color='textPrimary'>
+                            Medicamentos
+                        </Typography>
                         <div className='h-px mt-2 mb-4 bg-gray-200'></div>
                         {selectedMedication &&
                             selectedMedication.map((e: any) => (
