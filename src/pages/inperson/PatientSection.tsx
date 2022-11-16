@@ -191,7 +191,7 @@ const PatientRecord = props => {
 
       <Grid item style={{ marginTop: '20px' }}>
         <Typography variant='body2' color='textSecondary'>
-          Nacimiento
+          Edad
         </Typography>
         <Typography variant='body1' color='textPrimary'>
           {/* 33 años */}
