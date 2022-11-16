@@ -185,7 +185,9 @@ const PatientRecord = props => {
           {givenName} {' '} {familyName}
         </Typography>
         <Typography variant='body1' color='textSecondary'>
-          CI {identifier}
+        {identifier == null || identifier.includes('-') 
+                ? 'Paciente sin cédula' 
+                : 'CI ' + identifier}
         </Typography>
       </Grid>
 
