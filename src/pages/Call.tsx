@@ -1024,7 +1024,7 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
           )}
 
           <Grid style={{ paddingTop: '10px' }}>
-            <Typography variant='h6' color='textPrimary'>
+            <Typography variant='h6' color='textPrimary' align='center'>
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
 
