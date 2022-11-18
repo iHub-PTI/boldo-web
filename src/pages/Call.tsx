@@ -1,11 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-// import { Transition } from '@headlessui/react'
 import axios from 'axios'
-import DeleteIcon from '@material-ui/icons/Delete';
-
-import IconButton from '@material-ui/core/IconButton';
 import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
 
@@ -14,14 +10,14 @@ import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert'
 import MdClose from '@material-ui/icons/Clear'
 import PersonIcon from '@material-ui/icons/Person'
-// import { ReactComponent as SoepIcon } from '../assets/soep.svg'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
-import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
-import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
-import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
-import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
-import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
-import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
+// TODO: Clear comments
+// import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
+// import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
+// import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
+// import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
+// import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
+// import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
 import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
 import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
@@ -34,8 +30,6 @@ import AccordionDetails from '@material-ui/core/AccordionDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Tooltip from '@material-ui/core/Tooltip'
 import _ from 'lodash'
-import moment from 'moment'
-import loading from '../assets/loading.gif'
 import { MainButton, ChildButton, FloatingMenu, Directions } from 'react-floating-button-menu'
 import {
   Card,
@@ -43,31 +37,32 @@ import {
   Grid,
   Typography,
   CardHeader,
-  Tab,
-  Tabs,
+  //Tab,
+  //Tabs,
   TextField,
   makeStyles,
   withStyles,
 } from '@material-ui/core'
-import Modal from '../components/Modal'
-import { Icons } from 'material-table';
-import { forwardRef } from 'react';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import AddBox from '@material-ui/icons/AddBox';
-import Check from '@material-ui/icons/Check';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import Clear from '@material-ui/icons/Clear';
-import DeleteOutline from '@material-ui/icons/DeleteOutline';
-import Edit from '@material-ui/icons/Edit';
-import FilterList from '@material-ui/icons/FilterList';
-import FirstPage from '@material-ui/icons/FirstPage';
-import LastPage from '@material-ui/icons/LastPage';
-import Remove from '@material-ui/icons/Remove';
-import SaveAlt from '@material-ui/icons/SaveAlt';
-import Search from '@material-ui/icons/Search';
-import ViewColumn from '@material-ui/icons/ViewColumn';
-import MaterialTable from 'material-table'
+// TODO: Clear comments
+// import Modal from '../components/Modal'
+// import { Icons } from 'material-table';
+// import { forwardRef } from 'react';
+// import ArrowUpward from '@material-ui/icons/ArrowUpward';
+// import AddBox from '@material-ui/icons/AddBox';
+// import Check from '@material-ui/icons/Check';
+// import ChevronLeft from '@material-ui/icons/ChevronLeft';
+// import ChevronRight from '@material-ui/icons/ChevronRight';
+// import Clear from '@material-ui/icons/Clear';
+// import DeleteOutline from '@material-ui/icons/DeleteOutline';
+// import Edit from '@material-ui/icons/Edit';
+// import FilterList from '@material-ui/icons/FilterList';
+// import FirstPage from '@material-ui/icons/FirstPage';
+// import LastPage from '@material-ui/icons/LastPage';
+// import Remove from '@material-ui/icons/Remove';
+// import SaveAlt from '@material-ui/icons/SaveAlt';
+// import Search from '@material-ui/icons/Search';
+// import ViewColumn from '@material-ui/icons/ViewColumn';
+// import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
@@ -287,7 +282,7 @@ const Gate = () => {
                 </svg>
               </Tooltip>
             }
-            background={selectedButton == 3 ? '#667EEA' : '#323030'}
+            background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(3); 
@@ -300,7 +295,7 @@ const Gate = () => {
                 <PillIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background={selectedButton == 2 ? '#667EEA' : '#323030'}
+            background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(2); 
@@ -313,7 +308,7 @@ const Gate = () => {
                 <RecordIcon />
               </Tooltip>
             } 
-            background={selectedButton == 1 ? '#667EEA' : '#323030'}
+            background={selectedButton === 1 ? '#667EEA' : '#323030'}
             size={50} 
             onClick={() => {
               setSideBarAction(1); 
@@ -326,7 +321,7 @@ const Gate = () => {
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background={selectedButton == 0 ? '#667EEA' : '#323030'}
+            background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(0); 
@@ -340,8 +335,6 @@ const Gate = () => {
   return (
     <Layout>
       {instance === 0 ? (
-        // remote dating screen
-        // <div className='flex flex-col h-full md:flex-row'>
         <Grid container className='flex  h-full flex-row'>
           <Grid container item xs={8}>
             {/* daiting screen here */}
@@ -473,7 +466,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 </svg>
               </Tooltip>
             }
-            background={selectedButton == 3 ? '#667EEA' : '#323030'}
+            background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(3); 
@@ -486,7 +479,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 <PillIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background={selectedButton == 2 ? '#667EEA' : '#323030'}
+            background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(2); 
@@ -499,7 +492,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 <RecordIcon />
               </Tooltip>
             } 
-            background={selectedButton == 1 ? '#667EEA' : '#323030'}
+            background={selectedButton === 1 ? '#667EEA' : '#323030'}
             size={50} 
             onClick={() => {
               setSideBarAction(1); 
@@ -512,7 +505,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
               </Tooltip>
             }
-            background={selectedButton == 0 ? '#667EEA' : '#323030'}
+            background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
               setSideBarAction(0); 
@@ -1195,12 +1188,17 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 }
+
+/* 
+  // It was decided to hide the implementation of the first and follow-up query. 
+  // Because it's not very clear to the doctors 
+  // TODO: Clear comments
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   }
-}
+} */
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -1255,11 +1253,11 @@ function SOEP({ appointment }: { appointment: any }) {
   const [evaluation, setEvaluation] = useState('')
   const [plan, setPlan] = useState('')
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-  const [soepHistory, setSoepHistory] = useState<any[]>([])
+  //const [soepHistory, setSoepHistory] = useState<any[]>([])
   const [diagnose, setDiagnose] = useState<string>('')
   const [instructions, setInstructions] = useState<string>('')
   const [initialLoad, setInitialLoad] = useState(true)
-  const [showEditModal, setShowEditModal] = useState(false)
+  //const [showEditModal, setShowEditModal] = useState(false)
   const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
@@ -1277,7 +1275,7 @@ function SOEP({ appointment }: { appointment: any }) {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
 
-  const tableIcons: Icons = {
+  /* const tableIcons: Icons = {
     SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -1295,9 +1293,8 @@ function SOEP({ appointment }: { appointment: any }) {
     Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
-  }
+  } */
 
-  console.log("🚀 ~ file: Call.tsx ~ line 1187 ~ load ~ appointment", appointment)
   useEffect(()=>{
     
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -1337,9 +1334,14 @@ function SOEP({ appointment }: { appointment: any }) {
     }
 
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors 
+    // TODO: Clear comments
+    useEffect(() => {
     if (encounterId !== '' && showEditModal === false) {
       const load = async () => {
         try {
@@ -1365,7 +1367,7 @@ function SOEP({ appointment }: { appointment: any }) {
       load()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [encounterId, showEditModal, appointment])
+  }, [encounterId, showEditModal, appointment]) */
 
   useEffect(() => {
     if (initialLoad === false) {
@@ -1423,6 +1425,10 @@ function SOEP({ appointment }: { appointment: any }) {
     }
   }, [mainReason])
 
+ /*
+  // It was decided to hide the implementation of the first and follow-up query. 
+  // Because it's not very clear to the doctors   
+  // TODO: Clear comments
   useEffect(() => {
     if (showEditModal === true) {
       // get encounters list
@@ -1439,7 +1445,7 @@ function SOEP({ appointment }: { appointment: any }) {
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               tempArray.push(data)
             }
-            console.log("a ver ", tempArray)
+            //console.log("a ver ", tempArray)
             setSoepHistory(tempArray)
           }
         } catch (error) {
@@ -1452,7 +1458,7 @@ function SOEP({ appointment }: { appointment: any }) {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showEditModal, appointment, encounterId])
+  }, [showEditModal, appointment, encounterId]) */
 
   useEffect(() => {
     //send encounter selected to server
@@ -1495,21 +1501,28 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
 
-  useEffect(() => {
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors 
+    // TODO: Clear comments
+    useEffect(() => {
     if (showEditModal === false) {
       //go to first tab
       setValue(0)
     }
-  }, [showEditModal])
+  }, [showEditModal]) */
 
-  useEffect(() => {
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
+    useEffect(() => {
     if (encounterHistory.length > 0) {
       //disable mainReason and show first mainReason record
-
       setDisableMainReason(true)
       setMainReason(encounterHistory[0].mainReason)
     }
-  }, [encounterHistory])
+  }, [encounterHistory]) */
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
@@ -1543,6 +1556,10 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const CustomToolTip = withStyles(theme => ({
     tooltip: {
       backgroundColor: '#EDF2F7',
@@ -1550,7 +1567,7 @@ function SOEP({ appointment }: { appointment: any }) {
       maxWidth: 220,
       fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip)
+  }))(Tooltip) */
 
   const ToolTipSoepHelper = withStyles(theme => ({
     tooltip: {
@@ -1565,6 +1582,10 @@ function SOEP({ appointment }: { appointment: any }) {
     },
   }))(Tooltip)
 
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const toolTipData = ({
     iconItem,
     date,
@@ -1599,7 +1620,7 @@ function SOEP({ appointment }: { appointment: any }) {
         </Grid>
       </React.Fragment>
     )
-  }
+  } */
   const showSoepHelper = ({ title }: { title: String }) => {
     var description = ''
     switch (title) {
@@ -1628,6 +1649,10 @@ function SOEP({ appointment }: { appointment: any }) {
       </ToolTipSoepHelper>
     )
   }
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const showSoepRecords = ({ title }: { title: String }) => {
     const tempArray = []
     if (encounterHistory.length > 0) {
@@ -1695,7 +1720,7 @@ function SOEP({ appointment }: { appointment: any }) {
       }
     }
     return tempArray
-  }
+  } */
   const classes = useStyles()
   if (initialLoad)
     return (
@@ -1758,49 +1783,54 @@ function SOEP({ appointment }: { appointment: any }) {
                   Ci: {appointment.patient.identifier}
                 </Typography>
               </Grid>
-
-              <Grid style={{ marginTop: '25px' }}>
-                <Tabs
-                  classes={{
-                    root: classes.tabHeight,
-                  }}
-                  TabIndicatorProps={{
-                    style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
-                  }}
-                  value={value}
-                  onChange={handleChange}
-                >
-                  <Tab
-                    style={{
-                      backgroundColor: '#27BEC2',
-                      borderStartStartRadius: '10px',
-                      borderBottomLeftRadius: '10px',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '15px',
+              
+              {/* 
+                  // It was decided to hide the implementation of the first and follow-up query. 
+                  // Because it's not very clear to the doctors
+                  // TODO: Clear comments
+                <Grid style={{ marginTop: '25px' }}>
+                  <Tabs
+                    classes={{
+                      root: classes.tabHeight,
                     }}
-                    label='1ra consulta'
-                    {...a11yProps(0)}
-                  />
-                  <Tab
-                    disabled={isAppointmentDisabled}
-                    onClick={() => {
-                      setShowEditModal(true)
+                    TabIndicatorProps={{
+                      style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
                     }}
-                    label='Seguimiento'
-                    style={{
-                      borderTopRightRadius: '10px',
-                      borderBottomRightRadius: '10px',
-                      borderWidth: '1px',
-                      borderColor: '#27BEC2',
-                      borderStyle: 'solid',
-                      fontWeight: 'bold',
-                      fontSize: '15px',
-                    }}
-                    {...a11yProps(1)}
-                  />
-                </Tabs>
-              </Grid>
+                    value={value}
+                    onChange={handleChange}
+                  >
+                    <Tab
+                      style={{
+                        backgroundColor: '#27BEC2',
+                        borderStartStartRadius: '10px',
+                        borderBottomLeftRadius: '10px',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                      }}
+                      label='1ra consulta'
+                      {...a11yProps(0)}
+                    />
+                    <Tab
+                      disabled={isAppointmentDisabled}
+                      onClick={() => {
+                        setShowEditModal(true)
+                      }}
+                      label='Seguimiento'
+                      style={{
+                        borderTopRightRadius: '10px',
+                        borderBottomRightRadius: '10px',
+                        borderWidth: '1px',
+                        borderColor: '#27BEC2',
+                        borderStyle: 'solid',
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                      }}
+                      {...a11yProps(1)}
+                    />
+                  </Tabs>
+                </Grid> 
+              */}
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
@@ -1857,7 +1887,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Subjetivo' })}{' '}
+                      {/* {showSoepRecords({ title: 'Subjetivo' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1918,7 +1948,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Objetivo' })}{' '}
+                      {/* {showSoepRecords({ title: 'Objetivo' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1981,7 +2011,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Evaluacion' })}{' '}
+                      {/* {showSoepRecords({ title: 'Evaluacion' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -2044,7 +2074,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Plan' })}{' '}
+                      {/* {showSoepRecords({ title: 'Plan' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -2073,6 +2103,10 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionDetails>
                 </Accordion>
               </TabPanel>
+              {/* 
+                // It was decided to hide the implementation of the first and follow-up query. 
+                // Because it's not very clear to the doctors 
+                // TODO: Clear comments
               <TabPanel value={value} index={1}>
                 <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'>
                   <Typography variant='body1' color='textSecondary'>
@@ -2159,7 +2193,7 @@ function SOEP({ appointment }: { appointment: any }) {
                     }}
                   />
                 </Modal>
-              </TabPanel>
+              </TabPanel> */}
             </Grid>
           )}
         </CardContent>
