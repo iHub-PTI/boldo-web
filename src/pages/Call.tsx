@@ -1261,16 +1261,16 @@ function SOEP({ appointment }: { appointment: any }) {
   const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
-  const [encounterHistory, setEncounterHistory] = useState<any[]>([])
-  const [selectedRow, setSelectedRow] = useState()
+  //const [encounterHistory, setEncounterHistory] = useState<any[]>([])
+  //const [selectedRow, setSelectedRow] = useState()
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  //const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
-  const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
-    setValue(newValue)
-  }
+  // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
+  //   setValue(newValue)
+  // }
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -1460,7 +1460,7 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showEditModal, appointment, encounterId]) */
 
-  useEffect(() => {
+  /* useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
       setIsLoading(true)
@@ -1500,7 +1500,7 @@ function SOEP({ appointment }: { appointment: any }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
-
+ */
   /* 
     // It was decided to hide the implementation of the first and follow-up query. 
     // Because it's not very clear to the doctors 
@@ -1527,13 +1527,13 @@ function SOEP({ appointment }: { appointment: any }) {
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       try {
-        setIsLoading(true)
+        //setIsLoading(true)
         const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
         console.log('response', res.data)
-        setIsLoading(false)
+        //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
       } catch (error) {
-        setIsLoading(false)
+        //setIsLoading(false)
         console.log(error)
         //@ts-ignore
         addErrorToast(error)
