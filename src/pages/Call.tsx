@@ -1126,12 +1126,14 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
           )}
 
           <Grid style={{ paddingTop: '10px' }}>
-            <Typography variant='h6' color='textPrimary'>
+            <Typography variant='h6' color='textPrimary' align='center'>
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
 
-            <Typography variant='subtitle1' color='textSecondary'>
-              {appointment.patient.identifier}
+            <Typography variant='subtitle1' color='textSecondary' align='center'>
+              {appointment.patient.identifier == null || appointment.patient.identifier.includes('-') 
+                ? 'Paciente sin cédula' 
+                : 'CI ' + appointment.patient.identifier}
             </Typography>
           </Grid>
 
@@ -1155,7 +1157,7 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
 
           <Grid style={{ paddingTop: '20px' }}>
             <Typography variant='subtitle1' color='textSecondary'>
-              Telefono
+              Teléfono
             </Typography>
             <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.phone || '-'}
