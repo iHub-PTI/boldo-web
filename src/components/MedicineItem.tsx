@@ -29,6 +29,7 @@ export default function MedicineItem({
               placeholder=''
               onChange={e => changeDescriptionCallback(e.target.value)}
               value={medicine.instructions ? medicine.instructions : ''}
+              style={{fontSize:14}}
             />
           </div>
         </div>
