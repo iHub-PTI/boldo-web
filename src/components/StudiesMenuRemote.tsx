@@ -521,7 +521,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
             {!selectedRow && issueOrder === false && (
                 <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
                     <Tooltip 
-                        title={<h1 style={{ fontSize: 16 }}>{disabledButton ? 'La emisión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' : ''}</h1>}
+                        title={<h1 style={{ fontSize: 16 }}>{disabledButton ? 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' : 'Aquí puede gestionar las órdenes de estudio y emitirlas'}</h1>}
                         arrow
                         placement="top-end"
                         enterDelay={200}
