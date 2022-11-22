@@ -26,6 +26,8 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
