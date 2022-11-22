@@ -16,6 +16,7 @@ import { UserContext } from '../App'
 import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
+import moment from 'moment'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -116,18 +117,54 @@ export default function Dashboard() {
   const { user } = useContext(UserContext)
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
+
+
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
     setAppointments(arg0)
     setDateRange(range => ({ ...range, refetch: true }))
   }
-
+  
+  // The function updates the calendar events similar to the function 
+  // for the calendar with the EventSourceFunc component of the Fullcalendar 
+  // but this case to update directly with the calendarAPI reference
+  const loadEventsSourcesCalendar = () => {
+    const calendarAPI = calendar.current.getApi()
+    const start = calendarAPI.view.activeStart
+    const end = calendarAPI.view.activeEnd
+    axios
+      .get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+      )
+      .then(res => {
+        //console.log("🚀 res appointment", res.data)
+        const events = res.data.appointments.map(event => eventDataTransform(event))
+        const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
+        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+        setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+        setAppointments([...events, ...openHourDatesTransformed])
+        calendarAPI.removeAllEvents()
+        calendarAPI.addEventSource([...events, ...openHourDatesTransformed])
+      })
+      .catch(err => {
+        console.log(err)
+        addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
+      })
+  }
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
       setIsOpen(true);
     }
   }, [])
+
+  // the calendar will be updated every minute
+  useEffect(()=>{
+    const timer = setInterval(()=>{
+      loadEventsSourcesCalendar()
+    }, 60000)
+    return () => clearInterval(timer)
+  })
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -358,6 +395,7 @@ export default function Dashboard() {
                 expandRows={true}
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+                scrollTime={moment().format('HH:00:00')}
               />
             </div>
           </>

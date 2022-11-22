@@ -15,7 +15,7 @@ export default ({ setDynamicMenuSelector }) => {
   return (
     <Grid
       container
-      Item
+      item
       className='h-full flex-wrap items-center justify-center'
       style={{
         backgroundColor: '#EDF2F7',

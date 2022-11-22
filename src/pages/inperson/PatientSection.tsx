@@ -1,75 +1,79 @@
 import React, { useEffect, useState } from 'react'
-import { Avatar, Button, Grid, Typography } from '@material-ui/core'
+import { Avatar, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
-import { useHistory, useRouteMatch } from 'react-router-dom'
-import MaterialTable from 'material-table'
+import { useRouteMatch } from 'react-router-dom'
+//import MaterialTable from 'material-table'
 import moment from 'moment'
-import useStyles from './style'
+//import useStyles from './style'
 
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
-import Modal from '../../components/Modal'
-import loading from '../../assets/loading.gif'
-import { Icons } from 'material-table';
-import { forwardRef } from 'react';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import AddBox from '@material-ui/icons/AddBox';
-import Check from '@material-ui/icons/Check';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import Clear from '@material-ui/icons/Clear';
-import DeleteOutline from '@material-ui/icons/DeleteOutline';
-import Edit from '@material-ui/icons/Edit';
-import FilterList from '@material-ui/icons/FilterList';
-import FirstPage from '@material-ui/icons/FirstPage';
-import LastPage from '@material-ui/icons/LastPage';
-import Remove from '@material-ui/icons/Remove';
-import SaveAlt from '@material-ui/icons/SaveAlt';
-import Search from '@material-ui/icons/Search';
-import ViewColumn from '@material-ui/icons/ViewColumn';
+// import Modal from '../../components/Modal'
+// import loading from '../../assets/loading.gif'
+// import { Icons } from 'material-table';
+// import { forwardRef } from 'react';
+// import ArrowUpward from '@material-ui/icons/ArrowUpward';
+// import AddBox from '@material-ui/icons/AddBox';
+// import Check from '@material-ui/icons/Check';
+// import ChevronLeft from '@material-ui/icons/ChevronLeft';
+// import ChevronRight from '@material-ui/icons/ChevronRight';
+// import Clear from '@material-ui/icons/Clear';
+// import DeleteOutline from '@material-ui/icons/DeleteOutline';
+// import Edit from '@material-ui/icons/Edit';
+// import FilterList from '@material-ui/icons/FilterList';
+// import FirstPage from '@material-ui/icons/FirstPage';
+// import LastPage from '@material-ui/icons/LastPage';
+// import Remove from '@material-ui/icons/Remove';
+// import SaveAlt from '@material-ui/icons/SaveAlt';
+// import Search from '@material-ui/icons/Search';
+// import ViewColumn from '@material-ui/icons/ViewColumn';
 
 const PatientRecord = props => {
 
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
-  const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
+  //const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
   const { width: screenWidth } = useWindowDimensions()
-  const { addErrorToast, addToast } = useToasts()
+  //const { addErrorToast, addToast } = useToasts()
   const [imgSize, setImgSize] = useState(180)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [soepHistory, setSoepHistory] = useState<any[]>([]);
-  const [selectedRow, setSelectedRow] = useState();
-  const [isLoading, setIsLoading] = useState(false)
-  const history = useHistory()
-  const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
-  const classes = useStyles()
 
-  const tableIcons: Icons = {
-    SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
-    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
-  }
+  // It was decided to hide the implementation of the first and follow-up query. 
+  // Because it's not very clear to the doctors 
+  // TODO: Clear comments
+  //const [showEditModal, setShowEditModal] = useState(false)
+  //const [soepHistory, setSoepHistory] = useState<any[]>([]);
+  //const [selectedRow, setSelectedRow] = useState();
+  //const [isLoading, setIsLoading] = useState(false)
+  //const history = useHistory()
+  //const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
+  //const classes = useStyles()
 
-  useEffect(() => {
+  // const tableIcons: Icons = {
+  //   SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
+  //   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+  //   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+  //   Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+  //   Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+  //   DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+  //   Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+  //   Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+  //   Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+  //   FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+  //   LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+  //   NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+  //   PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+  //   ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+  //   Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+  //   ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+  //   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
+  // }
+
+  /* useEffect(() => {
     if (props.appointment === undefined || props.appointment.status === 'locked' || props.appointment.status === 'upcoming') {
       setAppointmentDisabled(true);
     } else {
       setAppointmentDisabled(false);
     }    
-  }, [props.appointment]);
+  }, [props.appointment]); */
 
   useEffect(() => {
     if (screenWidth < 900) {
@@ -81,7 +85,7 @@ const PatientRecord = props => {
     }
   }, [screenWidth])
 
-  useEffect(() => {
+  /* useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
       setIsLoading(true)
@@ -117,9 +121,9 @@ const PatientRecord = props => {
       send()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRow])
+  }, [selectedRow]) */
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (showEditModal === true) {
       // get encounters list
       const load = async () => {
@@ -147,7 +151,7 @@ const PatientRecord = props => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showEditModal])
+  }, [showEditModal]) */
 
   return (
     <Grid style={{ padding: '15px' }}>
@@ -185,13 +189,15 @@ const PatientRecord = props => {
           {givenName} {' '} {familyName}
         </Typography>
         <Typography variant='body1' color='textSecondary'>
-          CI {identifier}
+        {identifier == null || identifier.includes('-') 
+                ? 'Paciente sin cédula' 
+                : 'CI ' + identifier}
         </Typography>
       </Grid>
 
       <Grid item style={{ marginTop: '20px' }}>
         <Typography variant='body2' color='textSecondary'>
-          Nacimiento
+          Edad
         </Typography>
         <Typography variant='body1' color='textPrimary'>
           {/* 33 años */}
@@ -216,7 +222,7 @@ const PatientRecord = props => {
           {city}
         </Typography>
       </Grid>
-      <Grid container
+      {/* <Grid container
         direction="column"
         justifyContent="center"
         alignItems="center"
@@ -343,7 +349,7 @@ const PatientRecord = props => {
             }}
           />
         </Modal>
-      </Grid>
+      </Grid> */}
     </Grid>
   )
 }
@@ -352,7 +358,7 @@ const PatientRecord = props => {
 export default (props) => {
 
   const { appointment } = props;
-  const history = useHistory()
+  //const history = useHistory()
   const { addErrorToast } = useToasts()
   const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')

@@ -1,9 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-// import { Transition } from '@headlessui/react'
 import axios from 'axios'
-
 import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
 
@@ -12,14 +10,14 @@ import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert'
 import MdClose from '@material-ui/icons/Clear'
 import PersonIcon from '@material-ui/icons/Person'
-// import { ReactComponent as SoepIcon } from '../assets/soep.svg'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
-import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
-import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
-import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
-import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
-import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
-import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
+// TODO: Clear comments
+// import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
+// import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
+// import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
+// import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
+// import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
+// import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
 import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
 import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
 import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
@@ -32,8 +30,6 @@ import AccordionDetails from '@material-ui/core/AccordionDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Tooltip from '@material-ui/core/Tooltip'
 import _ from 'lodash'
-import moment from 'moment'
-import loading from '../assets/loading.gif'
 import { MainButton, ChildButton, FloatingMenu, Directions } from 'react-floating-button-menu'
 import {
   Card,
@@ -41,31 +37,32 @@ import {
   Grid,
   Typography,
   CardHeader,
-  Tab,
-  Tabs,
+  //Tab,
+  //Tabs,
   TextField,
   makeStyles,
   withStyles,
 } from '@material-ui/core'
-import Modal from '../components/Modal'
-import { Icons } from 'material-table';
-import { forwardRef } from 'react';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import AddBox from '@material-ui/icons/AddBox';
-import Check from '@material-ui/icons/Check';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import Clear from '@material-ui/icons/Clear';
-import DeleteOutline from '@material-ui/icons/DeleteOutline';
-import Edit from '@material-ui/icons/Edit';
-import FilterList from '@material-ui/icons/FilterList';
-import FirstPage from '@material-ui/icons/FirstPage';
-import LastPage from '@material-ui/icons/LastPage';
-import Remove from '@material-ui/icons/Remove';
-import SaveAlt from '@material-ui/icons/SaveAlt';
-import Search from '@material-ui/icons/Search';
-import ViewColumn from '@material-ui/icons/ViewColumn';
-import MaterialTable from 'material-table'
+// TODO: Clear comments
+// import Modal from '../components/Modal'
+// import { Icons } from 'material-table';
+// import { forwardRef } from 'react';
+// import ArrowUpward from '@material-ui/icons/ArrowUpward';
+// import AddBox from '@material-ui/icons/AddBox';
+// import Check from '@material-ui/icons/Check';
+// import ChevronLeft from '@material-ui/icons/ChevronLeft';
+// import ChevronRight from '@material-ui/icons/ChevronRight';
+// import Clear from '@material-ui/icons/Clear';
+// import DeleteOutline from '@material-ui/icons/DeleteOutline';
+// import Edit from '@material-ui/icons/Edit';
+// import FilterList from '@material-ui/icons/FilterList';
+// import FirstPage from '@material-ui/icons/FirstPage';
+// import LastPage from '@material-ui/icons/LastPage';
+// import Remove from '@material-ui/icons/Remove';
+// import SaveAlt from '@material-ui/icons/SaveAlt';
+// import Search from '@material-ui/icons/Search';
+// import ViewColumn from '@material-ui/icons/ViewColumn';
+// import MaterialTable from 'material-table'
 import PrivateComments from '../components/PrivateComments'
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
@@ -89,6 +86,8 @@ const Gate = () => {
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(0)
   const token = appointment?.token || ''
+  // this help us for identify the selected button
+  const [selectedButton, setSelectedButton] = useState(0)
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -214,6 +213,13 @@ const Gate = () => {
     [addToast, token, id, socket]
   )
 
+  const useTooltipStyles = makeStyles(() => ({
+    tooltip: {
+      margin: 20,
+      
+    },
+  }));
+
   if (!id) return null
 
   if (!appointment)
@@ -242,15 +248,26 @@ const Gate = () => {
         return <Sidebar appointment={appointment} />
     }
   }
+
+
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
+
     return (
       <div>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
           <MainButton
             isOpen={isOpen}
-            iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
-            iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
+            iconResting={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdAdd style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            iconActive={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdClose style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
             background='#323030'
             onClick={() => {
               setIsOpen(prev => !prev)
@@ -258,26 +275,58 @@ const Gate = () => {
             size={50}
           />
           <ChildButton
-            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-            </svg>
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                </svg>
+              </Tooltip>
             }
-            background='#323030'
+            background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(3)}
+            onClick={() => {
+              setSideBarAction(3); 
+              setSelectedButton(3);
+            }}
           />
           <ChildButton
-            icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
-            background='#323030'
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(2)}
+            onClick={() => {
+              setSideBarAction(2); 
+              setSelectedButton(2);
+            }}
           />
-          <ChildButton icon={<RecordIcon />} background='#323030' size={50} onClick={() => setSideBarAction(1)} />
+          <ChildButton 
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <RecordIcon />
+              </Tooltip>
+            } 
+            background={selectedButton === 1 ? '#667EEA' : '#323030'}
+            size={50} 
+            onClick={() => {
+              setSideBarAction(1); 
+              setSelectedButton(1);
+            }}
+          />
           <ChildButton
-            icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
-            background='#323030'
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(0)}
+            onClick={() => {
+              setSideBarAction(0); 
+              setSelectedButton(0);
+            }}
           />
         </FloatingMenu>
       </div>
@@ -286,8 +335,6 @@ const Gate = () => {
   return (
     <Layout>
       {instance === 0 ? (
-        // remote dating screen
-        // <div className='flex flex-col h-full md:flex-row'>
         <Grid container className='flex  h-full flex-row'>
           <Grid container item xs={8}>
             {/* daiting screen here */}
@@ -357,7 +404,8 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
   const { width: screenWidth } = useWindowDimensions()
-
+  // this help us for identify the selected button
+  const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
 
   const muteAudio = () => {
@@ -380,15 +428,30 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
     })
   }
 
+  const useTooltipStyles = makeStyles(() => ({
+    tooltip: {
+      margin: 20,
+      
+    },
+  }));
+
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
     return (
       <>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
           <MainButton
             isOpen={isOpen}
-            iconResting={<MdAdd style={{ fontSize: 20, color: 'white' }} />}
-            iconActive={<MdClose style={{ fontSize: 20, color: 'white' }} />}
+            iconResting={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdAdd style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            iconActive={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <MdClose style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
             background='#323030'
             onClick={() => {
               setIsOpen(prev => !prev)
@@ -396,26 +459,58 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             size={50}
           />
           <ChildButton
-            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-            </svg>
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                </svg>
+              </Tooltip>
             }
-            background='#323030'
+            background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(3)}
+            onClick={() => {
+              setSideBarAction(3); 
+              setSelectedButton(3);
+            }}
           />
           <ChildButton
-            icon={<PillIcon style={{ fontSize: 20, color: 'white' }} />}
-            background='#323030'
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(2)}
+            onClick={() => {
+              setSideBarAction(2); 
+              setSelectedButton(2);
+            }}
           />
-          <ChildButton icon={<RecordIcon />} background='#323030' size={50} onClick={() => setSideBarAction(1)} />
+          <ChildButton 
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <RecordIcon />
+              </Tooltip>
+            } 
+            background={selectedButton === 1 ? '#667EEA' : '#323030'}
+            size={50} 
+            onClick={() => {
+              setSideBarAction(1); 
+              setSelectedButton(1);
+            }}
+          />
           <ChildButton
-            icon={<PersonIcon style={{ fontSize: 20, color: 'white' }} />}
-            background='#323030'
+            icon={
+              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
+                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
+              </Tooltip>
+            }
+            background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
-            onClick={() => setSideBarAction(0)}
+            onClick={() => {
+              setSideBarAction(0); 
+              setSelectedButton(0);
+            }}
           />
         </FloatingMenu>
       </>
@@ -1024,12 +1119,14 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
           )}
 
           <Grid style={{ paddingTop: '10px' }}>
-            <Typography variant='h6' color='textPrimary'>
+            <Typography variant='h6' color='textPrimary' align='center'>
               {appointment.patient.givenName} {appointment.patient.familyName}
             </Typography>
 
-            <Typography variant='subtitle1' color='textSecondary'>
-              {appointment.patient.identifier}
+            <Typography variant='subtitle1' color='textSecondary' align='center'>
+              {appointment.patient.identifier == null || appointment.patient.identifier.includes('-') 
+                ? 'Paciente sin cédula' 
+                : 'CI ' + appointment.patient.identifier}
             </Typography>
           </Grid>
 
@@ -1053,7 +1150,7 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
 
           <Grid style={{ paddingTop: '20px' }}>
             <Typography variant='subtitle1' color='textSecondary'>
-              Telefono
+              Teléfono
             </Typography>
             <Typography variant='subtitle2' color='textPrimary'>
               {appointment.patient.phone || '-'}
@@ -1093,12 +1190,17 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 }
+
+/* 
+  // It was decided to hide the implementation of the first and follow-up query. 
+  // Because it's not very clear to the doctors 
+  // TODO: Clear comments
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   }
-}
+} */
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -1153,29 +1255,29 @@ function SOEP({ appointment }: { appointment: any }) {
   const [evaluation, setEvaluation] = useState('')
   const [plan, setPlan] = useState('')
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-  const [soepHistory, setSoepHistory] = useState<any[]>([])
+  //const [soepHistory, setSoepHistory] = useState<any[]>([])
   const [diagnose, setDiagnose] = useState<string>('')
   const [instructions, setInstructions] = useState<string>('')
   const [initialLoad, setInitialLoad] = useState(true)
-  const [showEditModal, setShowEditModal] = useState(false)
+  //const [showEditModal, setShowEditModal] = useState(false)
   const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
-  const [encounterHistory, setEncounterHistory] = useState<any[]>([])
-  const [selectedRow, setSelectedRow] = useState()
+  //const [encounterHistory, setEncounterHistory] = useState<any[]>([])
+  //const [selectedRow, setSelectedRow] = useState()
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  //const [isLoading, setIsLoading] = useState(false)
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
-  const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
-    setValue(newValue)
-  }
+  // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
+  //   setValue(newValue)
+  // }
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
 
-  const tableIcons: Icons = {
+  /* const tableIcons: Icons = {
     SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -1193,9 +1295,8 @@ function SOEP({ appointment }: { appointment: any }) {
     Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
-  }
+  } */
 
-  console.log("🚀 ~ file: Call.tsx ~ line 1187 ~ load ~ appointment", appointment)
   useEffect(()=>{
     
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -1235,9 +1336,14 @@ function SOEP({ appointment }: { appointment: any }) {
     }
 
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors 
+    // TODO: Clear comments
+    useEffect(() => {
     if (encounterId !== '' && showEditModal === false) {
       const load = async () => {
         try {
@@ -1263,7 +1369,7 @@ function SOEP({ appointment }: { appointment: any }) {
       load()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [encounterId, showEditModal, appointment])
+  }, [encounterId, showEditModal, appointment]) */
 
   useEffect(() => {
     if (initialLoad === false) {
@@ -1321,6 +1427,10 @@ function SOEP({ appointment }: { appointment: any }) {
     }
   }, [mainReason])
 
+ /*
+  // It was decided to hide the implementation of the first and follow-up query. 
+  // Because it's not very clear to the doctors   
+  // TODO: Clear comments
   useEffect(() => {
     if (showEditModal === true) {
       // get encounters list
@@ -1337,7 +1447,7 @@ function SOEP({ appointment }: { appointment: any }) {
               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
               tempArray.push(data)
             }
-            console.log("a ver ", tempArray)
+            //console.log("a ver ", tempArray)
             setSoepHistory(tempArray)
           }
         } catch (error) {
@@ -1350,9 +1460,9 @@ function SOEP({ appointment }: { appointment: any }) {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showEditModal, appointment, encounterId])
+  }, [showEditModal, appointment, encounterId]) */
 
-  useEffect(() => {
+  /* useEffect(() => {
     //send encounter selected to server
     if (selectedRow) {
       setIsLoading(true)
@@ -1392,33 +1502,40 @@ function SOEP({ appointment }: { appointment: any }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
-
-  useEffect(() => {
+ */
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors 
+    // TODO: Clear comments
+    useEffect(() => {
     if (showEditModal === false) {
       //go to first tab
       setValue(0)
     }
-  }, [showEditModal])
+  }, [showEditModal]) */
 
-  useEffect(() => {
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
+    useEffect(() => {
     if (encounterHistory.length > 0) {
       //disable mainReason and show first mainReason record
-
       setDisableMainReason(true)
       setMainReason(encounterHistory[0].mainReason)
     }
-  }, [encounterHistory])
+  }, [encounterHistory]) */
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       try {
-        setIsLoading(true)
+        //setIsLoading(true)
         const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
         console.log('response', res.data)
-        setIsLoading(false)
+        //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
       } catch (error) {
-        setIsLoading(false)
+        //setIsLoading(false)
         console.log(error)
         //@ts-ignore
         addErrorToast(error)
@@ -1441,6 +1558,10 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const CustomToolTip = withStyles(theme => ({
     tooltip: {
       backgroundColor: '#EDF2F7',
@@ -1448,7 +1569,7 @@ function SOEP({ appointment }: { appointment: any }) {
       maxWidth: 220,
       fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip)
+  }))(Tooltip) */
 
   const ToolTipSoepHelper = withStyles(theme => ({
     tooltip: {
@@ -1463,6 +1584,10 @@ function SOEP({ appointment }: { appointment: any }) {
     },
   }))(Tooltip)
 
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const toolTipData = ({
     iconItem,
     date,
@@ -1497,7 +1622,7 @@ function SOEP({ appointment }: { appointment: any }) {
         </Grid>
       </React.Fragment>
     )
-  }
+  } */
   const showSoepHelper = ({ title }: { title: String }) => {
     var description = ''
     switch (title) {
@@ -1526,6 +1651,10 @@ function SOEP({ appointment }: { appointment: any }) {
       </ToolTipSoepHelper>
     )
   }
+  /* 
+    // It was decided to hide the implementation of the first and follow-up query. 
+    // Because it's not very clear to the doctors
+    // TODO: Clear comments
   const showSoepRecords = ({ title }: { title: String }) => {
     const tempArray = []
     if (encounterHistory.length > 0) {
@@ -1593,7 +1722,7 @@ function SOEP({ appointment }: { appointment: any }) {
       }
     }
     return tempArray
-  }
+  } */
   const classes = useStyles()
   if (initialLoad)
     return (
@@ -1656,49 +1785,54 @@ function SOEP({ appointment }: { appointment: any }) {
                   Ci: {appointment.patient.identifier}
                 </Typography>
               </Grid>
-
-              <Grid style={{ marginTop: '25px' }}>
-                <Tabs
-                  classes={{
-                    root: classes.tabHeight,
-                  }}
-                  TabIndicatorProps={{
-                    style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
-                  }}
-                  value={value}
-                  onChange={handleChange}
-                >
-                  <Tab
-                    style={{
-                      backgroundColor: '#27BEC2',
-                      borderStartStartRadius: '10px',
-                      borderBottomLeftRadius: '10px',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '15px',
+              
+              {/* 
+                  // It was decided to hide the implementation of the first and follow-up query. 
+                  // Because it's not very clear to the doctors
+                  // TODO: Clear comments
+                <Grid style={{ marginTop: '25px' }}>
+                  <Tabs
+                    classes={{
+                      root: classes.tabHeight,
                     }}
-                    label='1ra consulta'
-                    {...a11yProps(0)}
-                  />
-                  <Tab
-                    disabled={isAppointmentDisabled}
-                    onClick={() => {
-                      setShowEditModal(true)
+                    TabIndicatorProps={{
+                      style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
                     }}
-                    label='Seguimiento'
-                    style={{
-                      borderTopRightRadius: '10px',
-                      borderBottomRightRadius: '10px',
-                      borderWidth: '1px',
-                      borderColor: '#27BEC2',
-                      borderStyle: 'solid',
-                      fontWeight: 'bold',
-                      fontSize: '15px',
-                    }}
-                    {...a11yProps(1)}
-                  />
-                </Tabs>
-              </Grid>
+                    value={value}
+                    onChange={handleChange}
+                  >
+                    <Tab
+                      style={{
+                        backgroundColor: '#27BEC2',
+                        borderStartStartRadius: '10px',
+                        borderBottomLeftRadius: '10px',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                      }}
+                      label='1ra consulta'
+                      {...a11yProps(0)}
+                    />
+                    <Tab
+                      disabled={isAppointmentDisabled}
+                      onClick={() => {
+                        setShowEditModal(true)
+                      }}
+                      label='Seguimiento'
+                      style={{
+                        borderTopRightRadius: '10px',
+                        borderBottomRightRadius: '10px',
+                        borderWidth: '1px',
+                        borderColor: '#27BEC2',
+                        borderStyle: 'solid',
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                      }}
+                      {...a11yProps(1)}
+                    />
+                  </Tabs>
+                </Grid> 
+              */}
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
@@ -1755,7 +1889,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Subjetivo' })}{' '}
+                      {/* {showSoepRecords({ title: 'Subjetivo' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1816,7 +1950,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Objetivo' })}{' '}
+                      {/* {showSoepRecords({ title: 'Objetivo' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1879,7 +2013,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Evaluacion' })}{' '}
+                      {/* {showSoepRecords({ title: 'Evaluacion' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1942,7 +2076,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         borderRadius: '5px',
                       }}
                     >
-                      {showSoepRecords({ title: 'Plan' })}{' '}
+                      {/* {showSoepRecords({ title: 'Plan' })}{' '} */}
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -1971,6 +2105,10 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionDetails>
                 </Accordion>
               </TabPanel>
+              {/* 
+                // It was decided to hide the implementation of the first and follow-up query. 
+                // Because it's not very clear to the doctors 
+                // TODO: Clear comments
               <TabPanel value={value} index={1}>
                 <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'>
                   <Typography variant='body1' color='textSecondary'>
@@ -2057,7 +2195,7 @@ function SOEP({ appointment }: { appointment: any }) {
                     }}
                   />
                 </Modal>
-              </TabPanel>
+              </TabPanel> */}
             </Grid>
           )}
         </CardContent>

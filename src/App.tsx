@@ -85,19 +85,13 @@ const App = () => {
           <RoomsProvider>
             <div className='antialiased App'>
               <Switch>
+                
                 <Route exact path='/'>
                   <Dashboard />
                 </Route>
-                <Route exact path='/home'>
-                  <Home />
-                </Route>
-
+                
                 <Route exact path='/settings'>
                   <Settings />
-                </Route>
-
-                <Route exact path='/settingsnew'>
-                  <SettingsNew />
                 </Route>
 
                 <Route exact path='/validate'>
@@ -115,12 +109,23 @@ const App = () => {
                 <Route exact path='/boldo-app-privacy-policy'>
                   <PrivacyPolicy />
                 </Route>
+
                 <Route exact path='/download'>
                   <Download />
                 </Route>
+
                 <Route>
                   <Redirect to='/' />
                 </Route>
+                
+                {/* <Route exact path='/settingsnew'>
+                  <SettingsNew />
+                </Route>
+
+                <Route exact path='/home'>
+                  <Home />
+                </Route> */}
+
               </Switch>
             </div>
           </RoomsProvider>
