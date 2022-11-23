@@ -519,25 +519,20 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                 </Grid>
             </Grid>
             {!selectedRow && issueOrder === false && (
-                <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
-                    <Tooltip 
-                        title={<h1 style={{ fontSize: 16 }}>{disabledButton ? 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' : 'Aquí puede gestionar las órdenes de estudio y emitirlas'}</h1>}
-                        arrow
-                        placement="top-end"
-                        enterDelay={200}
-                        leaveDelay={100}
+                <div 
+                    className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4" 
+                    title={disabledButton ? 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' : 'Aquí puede gestionar las órdenes de estudio y emitirlas'}
+                >
+                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
+                        onClick={() => {
+                            setIssueOrder(true)
+                            setFilterHide(false)
+                        }}
+                        disabled={disabledButton}
                     >
-                        <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
-                            onClick={() => {
-                                setIssueOrder(true)
-                                setFilterHide(false)
-                            }}
-                            disabled={disabledButton}
-                        >
-                            <div>Emitir orden de estudio</div>
-                            <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
-                        </button>
-                    </Tooltip>
+                        <div>Emitir orden de estudio</div>
+                        <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
+                    </button>
                 </div>
             )}
         </div>
