@@ -9,8 +9,7 @@ import {
     Typography,
     FormControl,
     MenuItem,
-    Select,
-    Tooltip
+    Select
 } from '@material-ui/core';
 import { forwardRef } from 'react';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
