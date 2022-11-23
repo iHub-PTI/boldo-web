@@ -16,6 +16,7 @@ import { ToastProvider } from './components/Toast'
 import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
+import * as Sentry from "@sentry/react";
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -56,6 +57,8 @@ const App = () => {
       try {
         const res = await axios.get('/profile/doctor')
         setUser(res.data)
+        //console.log(res.data)
+        Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
         if (err?.response?.status !== 401) setError(true)
@@ -82,20 +85,13 @@ const App = () => {
           <RoomsProvider>
             <div className='antialiased App'>
               <Switch>
+                
                 <Route exact path='/'>
                   <Dashboard />
                 </Route>
-
-                <Route exact path='/home'>
-                  <Home />
-                </Route>
-
+                
                 <Route exact path='/settings'>
                   <Settings />
-                </Route>
-
-                <Route exact path='/settingsnew'>
-                  <SettingsNew />
                 </Route>
 
                 <Route exact path='/validate'>
@@ -113,12 +109,23 @@ const App = () => {
                 <Route exact path='/boldo-app-privacy-policy'>
                   <PrivacyPolicy />
                 </Route>
+
                 <Route exact path='/download'>
                   <Download />
                 </Route>
+
                 <Route>
                   <Redirect to='/' />
                 </Route>
+                
+                {/* <Route exact path='/settingsnew'>
+                  <SettingsNew />
+                </Route>
+
+                <Route exact path='/home'>
+                  <Home />
+                </Route> */}
+
               </Switch>
             </div>
           </RoomsProvider>
