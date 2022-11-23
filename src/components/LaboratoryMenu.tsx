@@ -256,13 +256,15 @@ export function LaboratoryMenu(props) {
                         enterDelay={200}
                         leaveDelay={100}
                       >
-                        <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
-                          onClick={() => setShowMakeOrder(true)}
-                          disabled={disabledButton}
-                        >
-                            <div>Emitir orden de estudio</div>
-                            <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
-                        </button>
+                        <span>
+                          <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
+                            onClick={() => setShowMakeOrder(true)}
+                            disabled={disabledButton}
+                          >
+                              <div>Emitir orden de estudio</div>
+                              <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
+                          </button>
+                        </span>
                       </Tooltip>
                   </div>
                   <div className="flex flex-row flex-no-wrap w-full justify-end">
