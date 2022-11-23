@@ -582,11 +582,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     }
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-
-                                    hace {
-                                        days_diff
-
-                                    } días
+                                  {
+                                    days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
+                                  }
                                 </Typography>
                             </Grid>
                         </Grid>
@@ -799,7 +797,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
               }}
             >
               <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                Solicitado en fecha:
+                Solicitado en fecha
               </Typography>
               <Grid container>
                 <Calendar />
@@ -810,7 +808,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     }
                   </Typography>
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-                    hace {days_diff} días
+                    {
+                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                    }
                   </Typography>
                 </Grid>
               </Grid>
