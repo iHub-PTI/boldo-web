@@ -517,7 +517,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </Grid>}
                 </Grid>
             </Grid>
-            {!selectedRow && issueOrder === false && (
+            {!selectedRow && issueOrder === false && appointment && (
                 <div 
                     className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4" 
                     title={
