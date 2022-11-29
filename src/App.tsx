@@ -5,9 +5,7 @@ import io from 'socket.io-client'
 
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
-import Home from './pages/Home'
 import Settings from './pages/Settings'
-import SettingsNew from './pages/Settingsnew'
 import ValidatePatient from './pages/ValidatePatient'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import Error from './components/Error'
@@ -17,6 +15,7 @@ import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
 import * as Sentry from "@sentry/react";
+import OrganizationProvider from "./contexts/organizationContext"
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -81,44 +80,44 @@ const App = () => {
   return (
     <ToastProvider>
       <UserContext.Provider value={{ user, updateUser }}>
-        <SocketsProvider>
-          <RoomsProvider>
-            <div className='antialiased App'>
-              <Switch>
-                
-                <Route exact path='/'>
-                  <Dashboard />
-                </Route>
-                
-                <Route exact path='/settings'>
-                  <Settings />
-                </Route>
+        <OrganizationProvider>
+          <SocketsProvider>
+            <RoomsProvider>
+              <div className='antialiased App'>
+                <Switch>
+                  <Route exact path='/'>
+                    <Dashboard />
+                  </Route>
 
-                <Route exact path='/validate'>
-                  <ValidatePatient />
-                </Route>
+                  <Route exact path='/settings'>
+                    <Settings />
+                  </Route>
 
-                <Route exact path='/appointments/:id/call'>
-                  <Call />
-                </Route>
+                  <Route exact path='/validate'>
+                    <ValidatePatient />
+                  </Route>
 
-                <Route exact path='/appointments/:id/inperson'>
-                  <InPersonAppoinment />
-                </Route>
+                  <Route exact path='/appointments/:id/call'>
+                    <Call />
+                  </Route>
 
-                <Route exact path='/boldo-app-privacy-policy'>
-                  <PrivacyPolicy />
-                </Route>
+                  <Route exact path='/appointments/:id/inperson'>
+                    <InPersonAppoinment />
+                  </Route>
 
-                <Route exact path='/download'>
-                  <Download />
-                </Route>
+                  <Route exact path='/boldo-app-privacy-policy'>
+                    <PrivacyPolicy />
+                  </Route>
 
-                <Route>
-                  <Redirect to='/' />
-                </Route>
-                
-                {/* <Route exact path='/settingsnew'>
+                  <Route exact path='/download'>
+                    <Download />
+                  </Route>
+
+                  <Route>
+                    <Redirect to='/' />
+                  </Route>
+
+                  {/* <Route exact path='/settingsnew'>
                   <SettingsNew />
                 </Route>
 
@@ -126,10 +125,11 @@ const App = () => {
                   <Home />
                 </Route> */}
 
-              </Switch>
-            </div>
-          </RoomsProvider>
-        </SocketsProvider>
+                </Switch>
+              </div>
+            </RoomsProvider>
+          </SocketsProvider>
+        </OrganizationProvider>
       </UserContext.Provider>
     </ToastProvider>
   )

@@ -17,6 +17,8 @@ import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
+import ListboxColor from '../components/ListboxColor'
+import { OrganizationContext } from '../contexts/organizationContext'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -117,7 +119,13 @@ export default function Dashboard() {
   const { user } = useContext(UserContext)
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
-
+  // Context API Organization Boldo MultiOrganization
+  const {Organization, setOrganization} = useContext(OrganizationContext)
+  const data = [
+    {id: "1", value: "1", name: 'Hospital maria de los Angeles caballero', colorCode: 'blue', color: 'blue', active: true, type: 'CORE'},
+    {id: "2", value: "2", name: 'Hospital IPS', colorCode:'red', color: 'red', active: true, type: 'CORE'},
+    {id: "3", value: "3", name: 'Clinicas', colorCode: 'green', color: 'green', active: true, type: 'CORE'},
+  ]
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
@@ -137,20 +145,27 @@ export default function Dashboard() {
         `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
       )
       .then(res => {
-        //console.log("🚀 res appointment", res.data)
+        console.log("🚀 res appointment", res.data)
         const events = res.data.appointments.map(event => eventDataTransform(event))
-        const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
+        setAppointments([...events])
         calendarAPI.removeAllEvents()
-        calendarAPI.addEventSource([...events, ...openHourDatesTransformed])
+        calendarAPI.addEventSource([...events])
       })
       .catch(err => {
         console.log(err)
         addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
       })
   }
+
+  useEffect(()=>{
+    setOrganization(data[0])
+  },[])
+
+  useEffect(()=>{
+    console.log("=> ", Organization)
+    console.log("=> ap", appointments)
+  }, [Organization])
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
@@ -230,14 +245,10 @@ export default function Dashboard() {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
         
         const events = res.data.appointments.map(event => eventDataTransform(event))
-
-        const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-
         setDateRange({ start, end, refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
+        setAppointments([...events])
         console.log({ start, end, refetch: false })
-        console.log([...events, ...openHourDatesTransformed])
+        console.log([...events])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
       })
       .catch(err => {
@@ -333,8 +344,14 @@ export default function Dashboard() {
                 <div className='flex-1 min-w-0'>
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
+                <div className='w-60'>
+                  <ListboxColor data={data} 
+                    label='Espacio de Trabajo'
+                    onChange={value => setOrganization(data.find((d) => d.value === value))}>
+                  </ListboxColor>
+                </div>
                 <div className='flex mt-4 md:mt-0 md:ml-4'>
-                  <span className='ml-3 rounded-md shadow-sm'>
+                  <span className='pt-5 ml-3 rounded-md shadow-sm'>
                     <button
                       type='button'
                       className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
@@ -396,6 +413,7 @@ export default function Dashboard() {
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
                 scrollTime={moment().format('HH:00:00')}
+                eventColor={Organization?.colorCode}
               />
             </div>
           </>
