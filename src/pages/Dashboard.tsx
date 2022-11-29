@@ -17,6 +17,7 @@ import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
+import AppointmentCard from '../components/calendar/AppointmentCard'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
