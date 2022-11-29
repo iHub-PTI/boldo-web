@@ -355,6 +355,8 @@ export default function Dashboard() {
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
                 eventClick={handleEventClick}
+                eventContent={AppointmentCard}
+                eventBackgroundColor={'#FFFFFF'}
                 height='100%'
                 stickyHeaderDates={true}
                 slotDuration={'00:15:00'}
