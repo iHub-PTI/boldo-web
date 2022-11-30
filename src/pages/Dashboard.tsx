@@ -358,6 +358,7 @@ export default function Dashboard() {
                 eventClick={handleEventClick}
                 eventContent={AppointmentCard}
                 eventBackgroundColor={'#FFFFFF'}
+                eventTextColor={'#000000'}
                 height='100%'
                 stickyHeaderDates={true}
                 slotDuration={'00:15:00'}
