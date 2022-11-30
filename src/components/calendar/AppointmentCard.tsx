@@ -39,8 +39,8 @@ function AppointmentCard(eventInfo) {
         </div>
         {/* name of the patient */}
         <div className="flex mt-1">
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0] ?? ''}</p>
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0] ?? ''}</p>
         </div>
         {/* icon */}
         <div>
