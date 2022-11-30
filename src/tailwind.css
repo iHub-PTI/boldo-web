@@ -249,3 +249,7 @@ Events
   background: #13a5a9;
 }
 /* end scrollbard class*/
+
+.fc .fc-timegrid-slot {
+  height: 6em;
+}
