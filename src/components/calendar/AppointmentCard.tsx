@@ -3,9 +3,12 @@ import { ReactComponent as Close } from '../../assets/close-orange.svg';
 import { ReactComponent as TimeSlot } from '../../assets/time-slot.svg';
 import { ReactComponent as Check } from '../../assets/check-small.svg';
 import { ReactComponent as VirtualIcon } from '../../assets/virtual-appointment.svg';
+import { ReactComponent as NowVirtualIcon } from '../../assets/now-virtual-appointment.svg';
 import { ReactComponent as PresentialIcon } from '../../assets/presential-appointment.svg';
+import { ReactComponent as LockPresentialIcon } from '../../assets/lock-presential-appointment.svg';
 import { ReactComponent as CancelVirtualIcon } from '../../assets/cancel-virtual-appointment.svg';
 import { ReactComponent as CancelPresentialIcon } from '../../assets/cancel-presential-appointment.svg';
+import { ReactComponent as Now } from '../../assets/now.svg';
 
 
 function AppointmentCard(eventInfo) {
