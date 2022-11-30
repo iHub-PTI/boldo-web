@@ -13,13 +13,38 @@ function AppointmentCard(eventInfo) {
     /* this sentence is very important for prevent bug what show event at 07 o'clock*/
     eventInfo.timeText !== "" 
       ? <div className="card-container">
-        <div className="header-container">
+        {/* header of the container */}
+        <div className="flex">
           {
             eventInfo.event.extendedProps.status === 'cancelled'
-              ? <Close /> 
+              ? <div className='mt-1 ml-1 mr-1'><Close /></div> 
               : eventInfo.event.extendedProps.status === 'locked'
-                ? <Check />
-                : <TimeSlot />
+                ? <div className='mt-1 ml-1 mr-1'><Check /></div>
+                : <div className='mt-1 ml-1 mr-1'><TimeSlot /></div>
+          }
+          {
+            eventInfo.event.extendedProps.status === 'cancelled'
+              ? <p className="ml-1 text-orange-600">Cita cancelada</p> 
+              : eventInfo.event.extendedProps.status === 'locked'
+                ? <p className="ml-1 text-teal-400">Cita atendida</p>
+                : <p className='ml-1'>{eventInfo.timeText}</p>
+          }
+        </div>
+        {/* name of the patient */}
+        <div className="flex mt-1">
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
+        </div>
+        {/* icon */}
+        <div>
+          {
+            eventInfo.event.extendedProps.status === 'cancelled'
+              ? eventInfo.event.extendedProps.appointmentType === 'V'
+                ? <div className='mt-1 ml-1 mr-1'><CancelVirtualIcon /></div> 
+                : <div className='mt-1 ml-1 mr-1'><CancelPresentialIcon /></div> 
+              : eventInfo.event.extendedProps.appointmentType === 'V'
+                ? <div className='mt-1 ml-1 mr-1'><VirtualIcon /></div>
+                : <div className='mt-1 ml-1 mr-1'><PresentialIcon /></div>
           }
         </div>
       </div>
