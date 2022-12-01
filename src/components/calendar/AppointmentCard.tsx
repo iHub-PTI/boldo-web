@@ -15,6 +15,13 @@ function AppointmentCard(eventInfo) {
 
   let borderColor = 'red';
 
+  // this functions get the time in format HH:MM
+  function getTime(timeString) {
+    let date = new Date(timeString);
+
+    return date.getHours() + ':' + date.getMinutes();
+  }
+
   return (
     /* timeText is very important for prevent bug what show event at 07 o'clock*/
     /* dont show PrivateEvent */
