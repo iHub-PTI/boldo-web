@@ -12,14 +12,20 @@ import { ReactComponent as Now } from '../../assets/now.svg';
 
 
 function AppointmentCard(eventInfo) {
+
+  let borderColor = 'red';
+
   return (
     /* timeText is very important for prevent bug what show event at 07 o'clock*/
     /* dont show PrivateEvent */
     eventInfo.timeText !== "" && eventInfo.event.extendedProps.type !== "PrivateEvent"
-      ? <div className="h-full w-full rounded-r-3xl border-2 border-gray-200 hover:border-gray-400 ...">
+      ? <div 
+          className="h-full w-full rounded-r-3xl ..."
+          style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }}  
+        >
         {/* header of the container */}
         <div className="flex">
-          {
+          { 
             eventInfo.event.extendedProps.status === 'cancelled'
               ? <div className='mt-1 ml-1 mr-1'><Close /></div> 
               : eventInfo.event.extendedProps.status === 'open' 
