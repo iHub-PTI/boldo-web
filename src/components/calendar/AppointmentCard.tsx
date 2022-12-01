@@ -13,9 +13,10 @@ import { ReactComponent as Now } from '../../assets/now.svg';
 
 function AppointmentCard(eventInfo) {
   return (
-    /* this sentence is very important for prevent bug what show event at 07 o'clock*/
-    eventInfo.timeText !== "" 
-      ? <div className="card-container">
+    /* timeText is very important for prevent bug what show event at 07 o'clock*/
+    /* dont show PrivateEvent */
+    eventInfo.timeText !== "" && eventInfo.event.extendedProps.type !== "PrivateEvent"
+      ? <div className="h-full w-full rounded-r-3xl border-2 border-gray-200 hover:border-gray-400 ...">
         {/* header of the container */}
         <div className="flex">
           {
@@ -39,8 +40,8 @@ function AppointmentCard(eventInfo) {
         </div>
         {/* name of the patient */}
         <div className="flex mt-1">
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0] ?? ''}</p>
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0] ?? ''}</p>
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
+          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
         </div>
         {/* icon */}
         <div>
