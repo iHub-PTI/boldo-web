@@ -156,9 +156,9 @@ Events
 }
 
 .event-private {
-  background-color: theme('colors.gray.400');
-  border-color: theme('colors.gray.500');
-  color: theme('colors.gray.900');
+  /* both are necessary to avoid the default background of the calendar */
+  background: transparent;
+  border-width: 0px;
 }
 
 .event-cancel {
