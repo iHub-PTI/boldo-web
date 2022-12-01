@@ -9,6 +9,7 @@ import { ReactComponent as LockPresentialIcon } from '../../assets/lock-presenti
 import { ReactComponent as CancelVirtualIcon } from '../../assets/cancel-virtual-appointment.svg';
 import { ReactComponent as CancelPresentialIcon } from '../../assets/cancel-presential-appointment.svg';
 import { ReactComponent as Now } from '../../assets/now.svg';
+import { ReactComponent as NowTeal } from '../../assets/now-white.svg';
 
 
 function AppointmentCard(eventInfo) {
@@ -75,7 +76,30 @@ function AppointmentCard(eventInfo) {
           }
         </div>
       </div>
-      : null
+      : eventInfo.event.extendedProps.type === "PrivateEvent"
+        ? <div 
+          className="h-full w-full bg-teal-400 rounded-r-3xl ..."
+          style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }} 
+        >
+          {/* header of the container */}
+          <div className="flex">
+            <div className='mt-1 ml-1 mr-1'><NowTeal /></div>
+            <p className="font-medium ml-1 text-white all:overflow-auto">
+              {getTime(eventInfo.event.startStr)}-{getTime(eventInfo.event.endStr)}
+              {console.log(eventInfo.event)}
+            </p> 
+          </div>
+          {/* name and description of the event */}
+          <div className="mt-1 ml-1">
+            <p className="text-white lg:overflow-auto xl:overflow-auto md:overflow-hidden sm:overflow-hidden">
+              {eventInfo.event.extendedProps.name ?? 'Evento Privado'} 
+            </p>
+            <p className="text-white lg:overflow-auto xl:overflow-auto md:overflow-hidden sm:overflow-hidden">
+              {eventInfo.event.extendedProps.description ?? 'Descripción vacía'}
+            </p>
+          </div>
+        </div>
+        : null
   );
 }
 
