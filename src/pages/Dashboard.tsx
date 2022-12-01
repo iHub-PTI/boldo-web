@@ -357,7 +357,9 @@ export default function Dashboard() {
                 events={{ events: loadEvents, id: 'server' }}
                 eventClick={handleEventClick}
                 eventContent={AppointmentCard}
-                eventBackgroundColor={'#FFFFFF'}
+                // we define it in tailwind.css
+                // eventBackgroundColor={'#FFFFFF'}
+                eventBorderColor={'#e5e7eb'}
                 eventTextColor={'#000000'}
                 height='100%'
                 stickyHeaderDates={true}
