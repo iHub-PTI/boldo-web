@@ -278,23 +278,22 @@ Events
  
 /* this overrides the indicator of the calendar */
 .fc .fc-timegrid-now-indicator-arrow {
-  position: absolute;
-  z-index: 4;
-  border-style: solid;
-  border-color: #DF6D51;
-
-  /* this control the arrow size */
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 8px solid #DF6D51;
+  display: none;
 }
-  
+
 /* styles for time indicator */
 .fc .fc-timegrid-now-indicator-line {
+  /* border-color: #DF6D51;
+  background-color: #DF6D51; */
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.line {
   border-style: solid;
   border-color: #DF6D51;
   background-color: #DF6D51;
-  border-width: 3px;
+  border-width: 1px;
   border-radius: 100px;
 }
 
