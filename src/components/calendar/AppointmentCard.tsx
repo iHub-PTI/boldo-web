@@ -20,7 +20,7 @@ function AppointmentCard(eventInfo) {
   function getTime(timeString) {
     let date = new Date(timeString);
 
-    return date.getHours() + ':' + date.getMinutes();
+    return (date.getHours()<10?'0':'') + date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes();
   }
 
   return (
