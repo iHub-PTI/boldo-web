@@ -275,3 +275,30 @@ Events
 .fc .fc-event-main {
   border-width: 0px;
 }
+ 
+/* this overrides the indicator of the calendar */
+.fc .fc-timegrid-now-indicator-arrow {
+  position: absolute;
+  z-index: 4;
+  border-style: solid;
+  border-color: #DF6D51;
+
+  /* this control the arrow size */
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #DF6D51;
+}
+  
+/* styles for time indicator */
+.fc .fc-timegrid-now-indicator-line {
+  border-style: solid;
+  border-color: #DF6D51;
+  background-color: #DF6D51;
+  border-width: 3px;
+  border-radius: 100px;
+}
+
+/* opacity when hover the indicator */
+.fc .fc-timegrid-now-indicator-line:hover {
+   opacity: 0.3;
+}
