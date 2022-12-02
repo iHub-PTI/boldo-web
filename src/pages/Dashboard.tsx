@@ -18,6 +18,7 @@ import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
 import AppointmentCard from '../components/calendar/AppointmentCard'
+import NowIndicatorContent from '../components/calendar/NowIndicatorContent'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -368,6 +369,7 @@ export default function Dashboard() {
                 plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
                 initialView='timeGridWeek'
                 nowIndicator={true}
+                nowIndicatorContent={NowIndicatorContent} 
                 locale={esLocale}
                 dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
                 dayHeaderContent={({ text, isToday }) => {

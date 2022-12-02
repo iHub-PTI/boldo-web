@@ -84,17 +84,17 @@ function AppointmentCard(eventInfo) {
           {/* header of the container */}
           <div className="flex">
             <div className='mt-1 ml-1 mr-1'><NowTeal /></div>
-            <p className="font-medium ml-1 text-white all:overflow-auto">
+            <p className="font-medium ml-1 text-white">
               {getTime(eventInfo.event.startStr)}-{getTime(eventInfo.event.endStr)}
               {console.log(eventInfo.event)}
             </p> 
           </div>
           {/* name and description of the event */}
           <div className="mt-1 ml-1">
-            <p className="text-white lg:overflow-auto xl:overflow-auto md:overflow-hidden sm:overflow-hidden">
+            <p className="text-white">
               {eventInfo.event.extendedProps.name ?? 'Evento Privado'} 
             </p>
-            <p className="text-white lg:overflow-auto xl:overflow-auto md:overflow-hidden sm:overflow-hidden">
+            <p className="text-white">
               {eventInfo.event.extendedProps.description ?? 'Descripción vacía'}
             </p>
           </div>
