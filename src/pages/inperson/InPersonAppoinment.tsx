@@ -17,6 +17,9 @@ export default function Dashboard() {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
 
+  const [selectedMedication, setSelectedMedication] = useState([]);
+
+
   useEffect(() => {
     let mounted = true
 
@@ -41,6 +44,22 @@ export default function Dashboard() {
       mounted = false
     }
   }, [id])
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+        console.log("res",res.data)
+        setSelectedMedication(res.data.encounter.prescriptions);
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMedication])
+
   return (
     <Layout>
       <Grid className='p-3' style={{height: '53px'}}>
@@ -57,9 +76,14 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-            <SelectorSection setDynamicMenuSelector={(elem: any) => {
-              setDynamicMenuSelector(elem)
-            }} />
+            {selectedMedication &&
+              <SelectorSection 
+                setDynamicMenuSelector={(elem: any) => {
+                  setDynamicMenuSelector(elem)
+                }} 
+                selectedMedication={selectedMedication}  
+              />
+            }
           </Grid>
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
