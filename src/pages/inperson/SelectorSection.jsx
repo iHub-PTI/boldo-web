@@ -1,16 +1,19 @@
 import React, { useState } from 'react'
-import { Grid } from '@material-ui/core'
-import ShowSoepHelper from '../../components/TooltipSoep'
+import { Grid } from '@material-ui/core';
+import ShowSoepHelper from '../../components/TooltipSoep';
+import Print from '../../components/icons/Print';
 
-export default ({ setDynamicMenuSelector }) => {
-  const [activeColor, setActiveColor] = useState('M')
-  const [showHover, setShowHover] = useState('')
+export default ({ setDynamicMenuSelector, selectedMedication }) => {
+  const [activeColor, setActiveColor] = useState('M');
+  const [showHover, setShowHover] = useState('');
+
 
   const soep = {
     studies: 'Estudios',
     note: 'Nota',
     prescription: 'Receta',
   }
+  
 
   return (
     <Grid
@@ -29,7 +32,7 @@ export default ({ setDynamicMenuSelector }) => {
     >
       <button
         style={{ backgroundColor: `${activeColor === 'M' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
-        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
+        className='flex items-center justify-center ml-1 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
           setDynamicMenuSelector('M')
           setActiveColor('M')
@@ -52,7 +55,7 @@ export default ({ setDynamicMenuSelector }) => {
 
       <button
         style={{ backgroundColor: `${activeColor === 'P' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
-        className='flex items-center mt-3 justify-center rounded-full focus:outline-none focus:bg-gray-600'
+        className='flex items-center ml-1 mt-3 justify-center rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
           setDynamicMenuSelector('P')
           setActiveColor('P')
@@ -78,7 +81,7 @@ export default ({ setDynamicMenuSelector }) => {
       </button>
       <button
         style={{ backgroundColor: `${activeColor === 'L' ? '#667EEA' : 'grey'}`, height: '4rem', width: '4rem' }}
-        className='flex items-center justify-center mt-3 rounded-full focus:outline-none focus:bg-gray-600'
+        className='flex items-center justify-center ml-1 mt-3 rounded-full focus:outline-none focus:bg-gray-600'
         onClick={() => {
           setDynamicMenuSelector('L')
           setActiveColor('L')
@@ -94,6 +97,17 @@ export default ({ setDynamicMenuSelector }) => {
         </svg>
 
         {showHover === soep.studies && ShowSoepHelper({ title: soep.studies, isBlackColor: false })}
+      </button>
+      <button
+        className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
+        onClick={() => console.log(selectedMedication)
+
+        }
+      >
+        <Print 
+          bgColor={selectedMedication.length > 0 ? "#27BEC2" : "#F7F4F4"}
+          iconColor={selectedMedication.length > 0 ? "#FFFFFF" : "#ABAFB6"}
+        />
       </button>
     </Grid>
   )
