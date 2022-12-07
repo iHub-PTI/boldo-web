@@ -9,6 +9,7 @@ import SelectorSection from './SelectorSection'
 import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 import { useRouteMatch } from 'react-router-dom'
 import axios from 'axios'
+import PrescriptionState from '../../contexts/Prescription/PrescriptionState'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 export default function Dashboard() {
@@ -16,8 +17,6 @@ export default function Dashboard() {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
-
-  const [selectedMedication, setSelectedMedication] = useState([]);
 
 
   useEffect(() => {
@@ -45,21 +44,6 @@ export default function Dashboard() {
     }
   }, [id])
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
-        console.log("res",res.data)
-        setSelectedMedication(res.data.encounter.prescriptions);
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-    load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMedication])
-
   return (
     <Layout>
       <Grid className='p-3' style={{height: '53px'}}>
@@ -76,14 +60,16 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-            {selectedMedication &&
-              <SelectorSection 
-                setDynamicMenuSelector={(elem: any) => {
-                  setDynamicMenuSelector(elem)
-                }} 
-                selectedMedication={selectedMedication}  
-              />
-            }
+            <PrescriptionState>
+              {appointment && 
+                <SelectorSection 
+                  setDynamicMenuSelector={(elem: any) => {
+                    setDynamicMenuSelector(elem)
+                  }}
+                  appointmentId={appointment.id}
+                />
+              }
+            </PrescriptionState>
           </Grid>
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
