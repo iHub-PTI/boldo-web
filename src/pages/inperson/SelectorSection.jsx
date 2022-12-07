@@ -1,12 +1,20 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Grid } from '@material-ui/core';
 import ShowSoepHelper from '../../components/TooltipSoep';
 import Print from '../../components/icons/Print';
+import PrescriptionContext from '../../contexts/Prescription/PrescriptionContext';
 
-export default ({ setDynamicMenuSelector, selectedMedication }) => {
+export default ({ setDynamicMenuSelector, appointmentId }) => {
   const [activeColor, setActiveColor] = useState('M');
   const [showHover, setShowHover] = useState('');
 
+  const prescriptionContext = useContext(PrescriptionContext);
+
+  useEffect(() => {
+    console.log(appointmentId);
+    prescriptionContext.getPrescriptions(appointmentId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const soep = {
     studies: 'Estudios',
@@ -100,13 +108,13 @@ export default ({ setDynamicMenuSelector, selectedMedication }) => {
       </button>
       <button
         className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
-        onClick={() => console.log(selectedMedication)
+        onClick={() => console.log(prescriptionContext.prescriptions)
 
         }
       >
         <Print 
-          bgColor={selectedMedication.length > 0 ? "#27BEC2" : "#F7F4F4"}
-          iconColor={selectedMedication.length > 0 ? "#FFFFFF" : "#ABAFB6"}
+          bgColor={prescriptionContext?.prescriptions.length > 0 ? "#27BEC2" : "#F7F4F4"}
+          iconColor={prescriptionContext?.prescriptions.length > 0 ? "#FFFFFF" : "#ABAFB6"}
         />
       </button>
     </Grid>
