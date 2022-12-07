@@ -1,0 +1,1 @@
+export const GET_PRESCRIPTION = 'GET_PRESCRIPTION';
