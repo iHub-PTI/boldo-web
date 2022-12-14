@@ -68,6 +68,7 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
+import Print from '../components/icons/Print'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -253,6 +254,14 @@ const Gate = () => {
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
 
+    // const {prescriptionContext} = useContext(PrescriptionContext);
+
+    // useEffect(() => {
+    //   console.log(appointment.id);
+    //   prescriptionContext.getPrescriptions(appointment.id);
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
+
     return (
       <div>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
@@ -273,6 +282,16 @@ const Gate = () => {
               setIsOpen(prev => !prev)
             }}
             size={50}
+          />
+          <ChildButton 
+            icon={
+              <Print bgColor='transparent' iconColor='white' fromVirtual={true}/>
+            }
+            background={selectedButton === 3 ? '#667EEA' : '#323030'}
+            size={50}
+            onClick={() => {
+              console.log(appointment);
+            }}
           />
           <ChildButton
             icon={
@@ -354,7 +373,7 @@ const Gate = () => {
                 zIndex: 1
               }}
             >
-              <TogleMenu />
+                <TogleMenu />
             </Grid>
           </Grid>
           <Grid container item xs={4} style={{ display: 'grid' }}>
@@ -436,7 +455,16 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }));
 
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(true);
+
+    // const {prescriptionContext} = useContext(PrescriptionContext);
+
+    // useEffect(() => {
+    //   console.log(appointment.id);
+    //   prescriptionContext.getPrescriptions(appointment.id);
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
+
     return (
       <>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
@@ -744,7 +772,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
+                <TogleMenu />
             </Grid>
           </Grid>
         
