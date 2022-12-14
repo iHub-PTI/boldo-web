@@ -9,7 +9,7 @@ import SelectorSection from './SelectorSection'
 import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 import { useRouteMatch } from 'react-router-dom'
 import axios from 'axios'
-import PrescriptionState from '../../contexts/Prescription/PrescriptionState'
+import { usePrescriptionContext } from '../../contexts/Prescriptions/PrescriptionContext';
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 export default function Dashboard() {
@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
-
+  const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
   useEffect(() => {
     let mounted = true
@@ -44,6 +44,10 @@ export default function Dashboard() {
     }
   }, [id])
 
+  useEffect(() => {
+    updatePrescriptions(id);
+  }, []);
+
   return (
     <Layout>
       <Grid className='p-3' style={{height: '53px'}}>
@@ -60,16 +64,14 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-            <PrescriptionState>
               {appointment && 
                 <SelectorSection 
                   setDynamicMenuSelector={(elem: any) => {
                     setDynamicMenuSelector(elem)
                   }}
-                  appointmentId={appointment.id}
+                  prescriptions={prescriptions}
                 />
               }
-            </PrescriptionState>
           </Grid>
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
