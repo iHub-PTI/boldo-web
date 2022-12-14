@@ -70,7 +70,6 @@ export default ({ appointment }) => {
 
   useEffect(() => {
     if (appointment === undefined) return
-    console.log("status", appointment.status)
     if (appointment?.status === 'upcoming') setDisableBCancel(false)
     else setDisableBCancel(true)
   }, [appointment])

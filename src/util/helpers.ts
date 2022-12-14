@@ -1,4 +1,5 @@
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from '@material-ui/core'
+import moment from 'moment'
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -23,4 +24,28 @@ export const validateTime = (timeInput: string) => {
 export const avatarPlaceholder = (profession: string, gender?: string) => {
   let genderShort = gender === 'male' ? 'm' : 'f'
   return `/img/${profession}-${genderShort}.svg`
+}
+
+export const toUpperLowerCase = (sentence: string) => {
+  const words = sentence.split(' ')
+
+  return words
+    .map(word => {
+      return word[0].toUpperCase() + word.substring(1).toLowerCase()
+    })
+    .join(' ')
+}
+
+//count the days
+export const countDays = (days: string) => {
+  const currentDate = moment(new Date())
+  const days_diff = currentDate.diff(moment(days), 'days')
+  switch(days_diff) {
+    case 0: 
+      return 'Hoy'
+    case 1:
+      return 'Ayer'
+    default:
+      return `Hace ${days_diff} días`
+  }
 }
