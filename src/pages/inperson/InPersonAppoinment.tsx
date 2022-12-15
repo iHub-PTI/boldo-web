@@ -70,6 +70,7 @@ export default function Dashboard() {
                     setDynamicMenuSelector(elem)
                   }}
                   prescriptions={prescriptions}
+                  appointmentId={appointment.id}
                 />
               }
           </Grid>
