@@ -35,13 +35,11 @@ export async function getReports(appointmentId) {
       responseType: 'blob'
     });
     console.log("res: ", res);
-    console.log("data: ", res.data);
-    console.log("name: ", res.headers['content-disposition']);
-    const filename = 'prueba';
+    const filename = 'prescription';
     const blob = new Blob([res.data], { type: 'application/pdf' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = `${filename}-${+new Date()}.pdf`;
+    link.download = filename;
     link.click();
   } catch(err) {
     console.log(err);
