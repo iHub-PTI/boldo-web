@@ -70,6 +70,7 @@ import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
 import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
+import { getReports } from '../util/helpers'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -289,7 +290,11 @@ const Gate = () => {
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
             size={50}
             onClick={() => {
-              console.log(prescriptions); 
+              if (prescriptions?.length > 0) {
+                getReports(appointment.id);
+              } else {
+                console.log("there is not prescriptions");
+              }
             }}
           />
           <ChildButton

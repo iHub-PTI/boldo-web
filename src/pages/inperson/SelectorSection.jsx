@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { Grid, makeStyles } from '@material-ui/core';
 import Tooltip from '@material-ui/core/Tooltip';
 import Print from '../../components/icons/Print';
+import { getReports } from '../../util/helpers';
 
 
-
-export default ({ setDynamicMenuSelector, prescriptions }) => {
+export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
   const [ activeColor, setActiveColor ] = useState('M');
 
   const soep = {
@@ -115,7 +115,13 @@ export default ({ setDynamicMenuSelector, prescriptions }) => {
         <button
           className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
           onClick={() => 
-            console.log(prescriptions)
+            {
+              if (prescriptions?.length > 0) {
+                getReports(appointmentId);
+              } else {
+                console.log("there is not prescriptions");
+              }
+            }
           }
         >
           <Print 
