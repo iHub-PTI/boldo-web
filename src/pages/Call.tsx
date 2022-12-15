@@ -69,6 +69,7 @@ import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
 import Print from '../components/icons/Print'
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -253,14 +254,12 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
-    // const {prescriptionContext} = useContext(PrescriptionContext);
 
-    // useEffect(() => {
-    //   console.log(appointment.id);
-    //   prescriptionContext.getPrescriptions(appointment.id);
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
+    useEffect(() => {
+      updatePrescriptions(id);
+    }, []);
 
     return (
       <div>
@@ -287,10 +286,10 @@ const Gate = () => {
             icon={
               <Print bgColor='transparent' iconColor='white' fromVirtual={true}/>
             }
-            background={selectedButton === 3 ? '#667EEA' : '#323030'}
+            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
             size={50}
             onClick={() => {
-              console.log(appointment);
+              console.log(prescriptions); 
             }}
           />
           <ChildButton
