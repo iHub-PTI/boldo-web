@@ -1,5 +1,5 @@
-import { makeStyles } from "@material-ui/core"
-import axios from "axios"
+import axios from "axios";
+import * as Sentry from "@sentry/react";
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -27,8 +27,9 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
 }
 
 export async function getReports(appointmentId) {
+  const url = `/profile/doctor/appointments/${appointmentId}/encounter/reports`;
   try {
-    const res = await axios.get(`https://boldo-dev.pti.org.py/api/profile/doctor/appointments/${appointmentId}/encounter/reports`, {
+    const res = await axios.get(url, {
       params: { 
         'reports': 'prescriptions',
       },
@@ -43,5 +44,11 @@ export async function getReports(appointmentId) {
     link.click();
   } catch(err) {
     console.log(err);
+    Sentry.configureScope(function(scope) {
+      scope.setTag("appointment_id", appointmentId);
+      scope.setTag("endpoint", url);
+    });
+    Sentry.captureException(err);
+
   }
 }
