@@ -3,6 +3,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import Tooltip from '@material-ui/core/Tooltip';
 import Print from '../../components/icons/Print';
 import { getReports } from '../../util/helpers';
+import * as Sentry from "@sentry/react";
 
 
 export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
@@ -112,25 +113,25 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
       
       { 
         <Tooltip title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-        <button
-          className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
-          onClick={() => 
-            {
-              if (prescriptions?.length > 0) {
-                getReports(appointmentId);
-              } else {
-                console.log("there is not prescriptions");
+          <button
+            className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
+            onClick={() => 
+              {
+                if (prescriptions?.length > 0) {
+                  getReports(appointmentId);
+                } else {
+                  console.log("there is not prescriptions");
+                }
               }
             }
-          }
-        >
-          <Print 
-            bgColor={prescriptions?.length > 0 ? "#27BEC2" : "#F7F4F4"}
-            iconColor={prescriptions?.length > 0 ? "#FFFFFF" : "#ABAFB6"}
-            fromVirtual={false}
-          />
-        </button>
-      </Tooltip>
+          >
+            <Print 
+              bgColor={prescriptions?.length > 0 ? "#27BEC2" : "#F7F4F4"}
+              iconColor={prescriptions?.length > 0 ? "#FFFFFF" : "#ABAFB6"}
+              fromVirtual={false}
+            />
+          </button>
+        </Tooltip>
       }
     
     </Grid>

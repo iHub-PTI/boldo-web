@@ -1,5 +1,5 @@
-import axios from "axios";
-import * as Sentry from "@sentry/react";
+import axios from 'axios'
+import * as Sentry from '@sentry/react'
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -28,27 +28,29 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
 
 export async function getReports(appointmentId) {
   const url = `/profile/doctor/appointments/${appointmentId}/encounter/reports`;
-  try {
-    const res = await axios.get(url, {
-      params: { 
-        'reports': 'prescriptions',
-      },
-      responseType: 'blob'
-    });
-    console.log("res: ", res);
-    const filename = 'prescription';
-    const blob = new Blob([res.data], { type: 'application/pdf' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-  } catch(err) {
-    console.log(err);
-    Sentry.configureScope(function(scope) {
-      scope.setTag("appointment_id", appointmentId);
-      scope.setTag("endpoint", url);
-    });
-    Sentry.captureException(err);
 
-  }
+  axios
+    .get(url, {
+      params: {
+        reports: 'prescriptions',
+      },
+      responseType: 'blob',
+    })
+    .then(function (res) {
+      console.log('res: ', res);
+      const filename = 'prescription';
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    })
+    .catch(function (err) {
+      console.log(err);
+      Sentry.configureScope(function (scope) {
+        scope.setTag('appointment_id', appointmentId);
+        scope.setTag('endpoint', url);
+      });
+      Sentry.captureException(err);
+    })
 }
