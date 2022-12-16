@@ -47,10 +47,23 @@ export async function getReports(appointmentId) {
     })
     .catch(function (err) {
       console.log(err);
-      Sentry.configureScope(function (scope) {
-        scope.setTag('appointment_id', appointmentId);
-        scope.setTag('endpoint', url);
-      });
+      Sentry.setTag('appointment_id', appointmentId);
+      Sentry.setTag('endpoint', url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
       Sentry.captureException(err);
     })
 }
