@@ -1,14 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
 import Tooltip from '@material-ui/core/Tooltip';
 import Print from '../../components/icons/Print';
 import { getReports } from '../../util/helpers';
-import * as Sentry from "@sentry/react";
+import { useToasts } from '../../components/Toast';
 
 
 export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
   const [ activeColor, setActiveColor ] = useState('M');
-
+  const { addToast } = useToasts();
   const soep = {
     studies: 'Estudios',
     note: 'Notas médicas',
@@ -121,6 +121,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
                   getReports(appointmentId);
                 } else {
                   console.log("there is not prescriptions");
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
                 }
               }
             }

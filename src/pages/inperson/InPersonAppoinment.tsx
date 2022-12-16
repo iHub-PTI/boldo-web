@@ -46,6 +46,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     updatePrescriptions(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (

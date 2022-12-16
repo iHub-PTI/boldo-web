@@ -294,6 +294,7 @@ const Gate = () => {
                 getReports(appointment.id);
               } else {
                 console.log("there is not prescriptions");
+                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
               }
             }}
           />
