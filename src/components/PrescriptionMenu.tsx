@@ -43,7 +43,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     
     useEffect(() => {
         updatePrescriptions(id, selectedMedication);
-    }, [selectedMedication]);
+    }, [id, selectedMedication]);
     
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {

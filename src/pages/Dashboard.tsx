@@ -17,6 +17,8 @@ import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
+
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -118,6 +120,7 @@ export default function Dashboard() {
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
 
+  const { updatePrescriptions } = usePrescriptionContext();
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
@@ -274,6 +277,10 @@ export default function Dashboard() {
         .reduce((a, b) => a + b) === 0
     )
   }, [openHours])
+
+  useEffect(() => {
+    updatePrescriptions("", []);
+  }, []);
 
   return (
     <>

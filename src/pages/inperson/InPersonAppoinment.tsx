@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     updatePrescriptions(id);
-  }, []);
+  }, [id]);
 
   return (
     <Layout>
