@@ -26,9 +26,9 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
   return `/img/${profession}-${genderShort}.svg`
 }
 
-export async function getReports(appointmentId) {
+export async function getReports(appointmentId, setLoading) {
   const url = `/profile/doctor/appointments/${appointmentId}/encounter/reports`;
-
+  setLoading(true);
   axios
     .get(url, {
       params: {
@@ -49,7 +49,8 @@ export async function getReports(appointmentId) {
         // here we free an existing object URL we create previously
         window.URL.revokeObjectURL(link.href);
         document.body.removeChild(link);
-    }, 0)
+      }, 0)
+      setLoading(false); 
     })
     .catch(function (err) {
       console.log(err);
