@@ -91,6 +91,7 @@ const Gate = () => {
   const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
+  const [ loading, setLoading ] = useState(false);
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -297,8 +298,10 @@ const Gate = () => {
             size={50}
             onClick={() => {
               if (prescriptions?.length > 0) {
-                addToast({ type: 'info', text: 'Descargando receta...' });
-                getReports(appointment.id);
+                if (!loading) {
+                  addToast({ type: 'info', text: 'Descargando receta...' });
+                  getReports(id, setLoading);
+                }
               } else {
                 console.log("there is not prescriptions");
                 addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
