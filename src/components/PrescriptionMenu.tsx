@@ -21,7 +21,8 @@ import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionCo
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext()
+    const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
