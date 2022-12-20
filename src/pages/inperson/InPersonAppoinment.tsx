@@ -65,20 +65,24 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-              {appointment && 
-                <SelectorSection 
-                  setDynamicMenuSelector={(elem: any) => {
-                    setDynamicMenuSelector(elem)
-                  }}
-                  prescriptions={prescriptions}
-                  appointmentId={appointment.id}
-                />
-              }
+            {appointment && 
+              <SelectorSection 
+                setDynamicMenuSelector={(elem: any) => {
+                  setDynamicMenuSelector(elem)
+                }}
+                prescriptions={prescriptions}
+                appointmentId={appointment.id}
+              />
+            }
           </Grid>
         </Grid>
         <Grid item lg={8} md={8} sm={8} xs={12} className='h-full overflow-y-auto'>
           {
-            DynamicMenuSelector === 'P' ? <PrescriptionMenu appointment={appointment} isFromInperson={true} /> : DynamicMenuSelector === 'M' ? <MedicalRecordSection appointment={appointment} /> : <LaboratoryMenu appointment={appointment} isFromInperson={true} />
+            DynamicMenuSelector === 'P' 
+              ? <PrescriptionMenu appointment={appointment} isFromInperson={true} /> 
+              : DynamicMenuSelector === 'M' 
+                ? <MedicalRecordSection appointment={appointment} /> 
+                : <LaboratoryMenu appointment={appointment} isFromInperson={true} />
           }
         </Grid>
       </Grid>

@@ -111,7 +111,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
         </button>
       </Tooltip>
       
-      { 
+      {
         <Tooltip title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
           <button
             className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
