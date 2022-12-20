@@ -41,9 +41,15 @@ export async function getReports(appointmentId) {
       const filename = 'prescription';
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const link = document.createElement('a');
+      document.body.appendChild(link);
       link.href = window.URL.createObjectURL(blob);
       link.download = filename;
       link.click();
+      setTimeout(() => {
+        // here we free an existing object URL we create previously
+        window.URL.revokeObjectURL(link.href);
+        document.body.removeChild(link);
+    }, 0)
     })
     .catch(function (err) {
       console.log(err);
