@@ -80,63 +80,61 @@ const App = () => {
   return (
     <ToastProvider>
       <UserContext.Provider value={{ user, updateUser }}>
-        
-          <SocketsProvider>
-            <RoomsProvider>
-              <div className='antialiased App'>
-                <Switch>
-                  
-                  <Route exact path='/'>
-                    <PrescriptionContextProvider>
-                      <Dashboard />
-                    </PrescriptionContextProvider>
-                  </Route>
-                  
-                  <Route exact path='/settings'>
-                    <Settings />
-                  </Route>
+        <SocketsProvider>
+          <RoomsProvider>
+            <div className='antialiased App'>
+              <Switch>
+                
+                <Route exact path='/'>
+                  <PrescriptionContextProvider>
+                    <Dashboard />
+                  </PrescriptionContextProvider>
+                </Route>
+                
+                <Route exact path='/settings'>
+                  <Settings />
+                </Route>
 
-                  <Route exact path='/validate'>
-                    <ValidatePatient />
-                  </Route>
+                <Route exact path='/validate'>
+                  <ValidatePatient />
+                </Route>
 
-                  <Route exact path='/appointments/:id/call'>
-                    <PrescriptionContextProvider>
+                <Route exact path='/appointments/:id/call'>
+                  <PrescriptionContextProvider>
                     <Call />
-                    </PrescriptionContextProvider>
-                  </Route>
+                  </PrescriptionContextProvider>
+                </Route>
 
-                  <Route exact path='/appointments/:id/inperson'>
-                    <PrescriptionContextProvider>
-                      <InPersonAppoinment />
-                    </PrescriptionContextProvider>
-                  </Route>
+                <Route exact path='/appointments/:id/inperson'>
+                  <PrescriptionContextProvider>
+                    <InPersonAppoinment />
+                  </PrescriptionContextProvider>
+                </Route>
 
-                  <Route exact path='/boldo-app-privacy-policy'>
-                    <PrivacyPolicy />
-                  </Route>
+                <Route exact path='/boldo-app-privacy-policy'>
+                  <PrivacyPolicy />
+                </Route>
 
-                  <Route exact path='/download'>
-                    <Download />
-                  </Route>
+                <Route exact path='/download'>
+                  <Download />
+                </Route>
 
-                  <Route>
-                    <Redirect to='/' />
-                  </Route>
-                  
-                  {/* <Route exact path='/settingsnew'>
-                    <SettingsNew />
-                  </Route>
+                <Route>
+                  <Redirect to='/' />
+                </Route>
+                
+                {/* <Route exact path='/settingsnew'>
+                  <SettingsNew />
+                </Route>
 
-                  <Route exact path='/home'>
-                    <Home />
-                  </Route> */}
+                <Route exact path='/home'>
+                  <Home />
+                </Route> */}
 
-                </Switch>
-              </div>
-            </RoomsProvider>
-          </SocketsProvider>
-        
+              </Switch>
+            </div>
+          </RoomsProvider>
+        </SocketsProvider>
       </UserContext.Provider>
     </ToastProvider>
   )
