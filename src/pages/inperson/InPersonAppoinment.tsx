@@ -65,13 +65,13 @@ export default function Dashboard() {
         </Grid>
         <Grid item lg={1} md={1} sm={1} xs={2}>
           <Grid item className='h-full'>
-            {appointment && 
+            { 
               <SelectorSection 
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
                 }}
                 prescriptions={prescriptions}
-                appointmentId={appointment.id}
+                appointmentId={id}
               />
             }
           </Grid>
