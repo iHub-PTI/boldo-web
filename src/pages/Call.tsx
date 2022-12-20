@@ -1287,7 +1287,7 @@ const soepPlaceholder = {
 }
 
 function SOEP({ appointment }: { appointment: any }) {
-  const [value, setValue] = useState(0)
+  const [value] = useState(0)
   const [mainReason, setMainReason] = useState('')
   const [disableMainReason, setDisableMainReason] = useState(false)
   const [subjective, setSubjective] = useState('')
