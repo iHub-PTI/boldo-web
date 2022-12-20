@@ -82,14 +82,16 @@ const App = () => {
   return (
     <ToastProvider>
       <UserContext.Provider value={{ user, updateUser }}>
-        <PrescriptionContextProvider>
+        
           <SocketsProvider>
             <RoomsProvider>
               <div className='antialiased App'>
                 <Switch>
                   
                   <Route exact path='/'>
-                    <Dashboard />
+                    <PrescriptionContextProvider>
+                      <Dashboard />
+                    </PrescriptionContextProvider>
                   </Route>
                   
                   <Route exact path='/settings'>
@@ -101,11 +103,15 @@ const App = () => {
                   </Route>
 
                   <Route exact path='/appointments/:id/call'>
+                    <PrescriptionContextProvider>
                     <Call />
+                    </PrescriptionContextProvider>
                   </Route>
 
                   <Route exact path='/appointments/:id/inperson'>
-                    <InPersonAppoinment />
+                    <PrescriptionContextProvider>
+                      <InPersonAppoinment />
+                    </PrescriptionContextProvider>
                   </Route>
 
                   <Route exact path='/boldo-app-privacy-policy'>
@@ -132,7 +138,7 @@ const App = () => {
               </div>
             </RoomsProvider>
           </SocketsProvider>
-        </PrescriptionContextProvider>
+        
       </UserContext.Provider>
     </ToastProvider>
   )
