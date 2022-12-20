@@ -280,6 +280,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     updatePrescriptions("", []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -629,27 +630,27 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-  const type = useMemo(() => {
-    let type = ''
-    switch (appointment.type) {
-      case 'PrivateEvent':
-        type = 'Evento Privado'
-        break
+  // const type = useMemo(() => {
+  //   let type = ''
+  //   switch (appointment.type) {
+  //     case 'PrivateEvent':
+  //       type = 'Evento Privado'
+  //       break
 
-      case 'CustomAppointment':
-        type = 'Custom Patient Consultation'
-        break
+  //     case 'CustomAppointment':
+  //       type = 'Custom Patient Consultation'
+  //       break
 
-      case 'Appointment':
-        type = 'Scheduled Patient Consultation'
-        break
+  //     case 'Appointment':
+  //       type = 'Scheduled Patient Consultation'
+  //       break
 
-      default:
-        type = 'Other'
-        break
-    }
-    return type
-  }, [appointment])
+  //     default:
+  //       type = 'Other'
+  //       break
+  //   }
+  //   return type
+  // }, [appointment])
 
   const hasPicture = appointment.type === 'Appointment'
 
