@@ -8,6 +8,7 @@ import { useToasts } from '../../components/Toast';
 
 export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
   const [ activeColor, setActiveColor ] = useState('M');
+  const [ loading, setLoading ] = useState(false);
   const { addToast } = useToasts();
   const soep = {
     studies: 'Estudios',
