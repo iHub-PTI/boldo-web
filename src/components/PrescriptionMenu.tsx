@@ -43,6 +43,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     
     useEffect(() => {
         updatePrescriptions(id, selectedMedication);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, selectedMedication]);
     
     useEffect(() => {
