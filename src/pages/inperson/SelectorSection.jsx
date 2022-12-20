@@ -112,28 +112,31 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
         </button>
       </Tooltip>
       
-      {
+      { appointmentId &&
         <Tooltip title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-          <button
-            className='flex items-center justify-center mt-3 rounded-full focus:outline-none'
-            onClick={() => 
-              {
-                if (prescriptions?.length > 0) {
-                  addToast({ type: 'info', text: 'Descargando receta...' });
-                  getReports(appointmentId);
-                } else {
-                  console.log("there is not prescriptions");
-                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+          <span>
+            <button
+              className='flex items-center justify-center mt-3 rounded-full focus:outline-none disabled:cursor-not-allowed'
+              disabled = {loading}
+              onClick={() => 
+                {
+                  if (prescriptions?.length > 0) {
+                    addToast({ type: 'info', text: 'Descargando receta...' });
+                    getReports(appointmentId, setLoading);
+                  } else {
+                    console.log("there is not prescriptions");
+                    addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                  }
                 }
               }
-            }
-          >
-            <Print 
-              bgColor={prescriptions?.length > 0 ? "#27BEC2" : "#F7F4F4"}
-              iconColor={prescriptions?.length > 0 ? "#FFFFFF" : "#ABAFB6"}
-              fromVirtual={false}
-            />
-          </button>
+            >
+              <Print 
+                bgColor={prescriptions?.length > 0 ? "#27BEC2" : "#F7F4F4"}
+                iconColor={prescriptions?.length > 0 ? "#FFFFFF" : "#ABAFB6"}
+                fromVirtual={false}
+              />
+            </button>
+          </span>
         </Tooltip>
       }
     
