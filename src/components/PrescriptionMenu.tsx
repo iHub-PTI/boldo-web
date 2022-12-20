@@ -39,7 +39,6 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
-    const { updatePrescriptions } = usePrescriptionContext();
 
     
     useEffect(() => {
