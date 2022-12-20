@@ -7,7 +7,6 @@ import {
   useContext, 
 } from "react";
 import PrescriptionReducer from './PrescriptionReducer';
-import { GET_PRESCRIPTION } from '../types';
 import * as Sentry from '@sentry/react';
 
 
@@ -45,10 +44,10 @@ export function PrescriptionContextProvider({
     const url = `/profile/doctor/appointments/${id}/encounter`;
     try {
       if (payload) {
-        dispatch({ type: GET_PRESCRIPTION, payload: payload });
+        dispatch({ type: 'GET_PRESCRIPTION', payload: payload });
       } else {
         const res = await axios.get(url);
-        dispatch({ type: GET_PRESCRIPTION, payload: res.data.encounter.prescriptions });
+        dispatch({ type: 'GET_PRESCRIPTION', payload: res.data.encounter.prescriptions });
       }
     } catch(err) {
       console.log(err);

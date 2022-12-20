@@ -1,15 +1,12 @@
-import { GET_PRESCRIPTION } from "../types";
+type ACTIONTYPE = { type: 'GET_PRESCRIPTION'; payload: Array<any> };
 
+export default (state, action: ACTIONTYPE) => {
 
-export default (state, action) => {
-  // payload is the data
-  const { payload, type } = action;
-
-  switch (type) {
-    case GET_PRESCRIPTION:
+  switch (action.type) {
+    case 'GET_PRESCRIPTION':
       return {
         ...state,
-        prescriptions: payload,
+        prescriptions: action.payload,
       };
     default:
       return state;
