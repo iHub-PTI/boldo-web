@@ -286,7 +286,12 @@ const Gate = () => {
           />
           <ChildButton 
             icon={
-              <Print bgColor='transparent' iconColor='white' fromVirtual={true}/>
+              <Print 
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : '' }`} 
+                bgColor='transparent' 
+                iconColor='white' 
+                fromVirtual={true}
+              />
             }
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
             size={50}
