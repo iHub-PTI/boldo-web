@@ -291,6 +291,7 @@ const Gate = () => {
             size={50}
             onClick={() => {
               if (prescriptions?.length > 0) {
+                addToast({ type: 'info', text: 'Descargando receta...' });
                 getReports(appointment.id);
               } else {
                 console.log("there is not prescriptions");

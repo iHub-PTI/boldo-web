@@ -118,6 +118,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
             onClick={() => 
               {
                 if (prescriptions?.length > 0) {
+                  addToast({ type: 'info', text: 'Descargando receta...' });
                   getReports(appointmentId);
                 } else {
                   console.log("there is not prescriptions");
