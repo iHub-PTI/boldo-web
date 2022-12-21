@@ -33,6 +33,7 @@ function AppointmentCard(eventInfo) {
           style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }}  
         >
         {/* header of the container */}
+        {console.log("elementos ", eventInfo.event.extendedProps)}
         <div className="flex">
           { 
             eventInfo.event.extendedProps.status === 'cancelled'
@@ -55,26 +56,39 @@ function AppointmentCard(eventInfo) {
                 : <p className="ml-1 text-orange-600">Cita abierta</p> 
           }
         </div>
-        {/* name of the patient */}
-        <div className="flex mt-1">
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
-          <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
-        </div>
-        {/* icon */}
-        <div>
-          {
-            eventInfo.event.extendedProps.status === 'cancelled'
-              ? eventInfo.event.extendedProps.appointmentType === 'V'
-                ? <div className='mt-1 ml-1 mr-1'><CancelVirtualIcon /></div> 
-                : <div className='mt-1 ml-1 mr-1'><CancelPresentialIcon /></div> 
-              : eventInfo.event.extendedProps.appointmentType === 'V'
-                ? eventInfo.event.extendedProps.status === 'open'
-                  ? <div className='mt-1 ml-1 mr-1'><NowVirtualIcon /></div>
-                  : <div className='mt-1 ml-1 mr-1'><VirtualIcon /></div>
-                : eventInfo.event.extendedProps.status === 'locked'
-                  ? <div className='mt-1 ml-1 mr-1'><LockPresentialIcon /></div>
-                  : <div className='mt-1 ml-1 mr-1'><PresentialIcon /></div>
+        <div className='flex'>
+          { eventInfo.event.extendedProps.patient.photoUrl && 
+            <div className='content-center justify-items-center'>
+              <img
+                className='object-cover w-12 h-12 sm:h-8 md:h-12 lg:h-12 xl:h-12 rounded-full mt-2 ml-1 mr-1 ...'
+                src={eventInfo.event.extendedProps.patient.photoUrl}
+                alt='Foto de perfil del paciente' 
+              />
+            </div>
           }
+          <div>
+            {/* name of the patient */}
+            <div className="flex mt-1">
+              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
+              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
+            </div>
+            {/* icon */}
+            <div>
+              {
+                eventInfo.event.extendedProps.status === 'cancelled'
+                  ? eventInfo.event.extendedProps.appointmentType === 'V'
+                    ? <div className='mt-1 ml-1 mr-1'><CancelVirtualIcon /></div> 
+                    : <div className='mt-1 ml-1 mr-1'><CancelPresentialIcon /></div> 
+                  : eventInfo.event.extendedProps.appointmentType === 'V'
+                    ? eventInfo.event.extendedProps.status === 'open'
+                      ? <div className='mt-1 ml-1 mr-1'><NowVirtualIcon /></div>
+                      : <div className='mt-1 ml-1 mr-1'><VirtualIcon /></div>
+                    : eventInfo.event.extendedProps.status === 'locked'
+                      ? <div className='mt-1 ml-1 mr-1'><LockPresentialIcon /></div>
+                      : <div className='mt-1 ml-1 mr-1'><PresentialIcon /></div>
+              }
+            </div>
+          </div>
         </div>
       </div>
       : eventInfo.event.extendedProps.type === "PrivateEvent"
