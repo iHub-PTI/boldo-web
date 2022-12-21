@@ -28,7 +28,8 @@ function AppointmentCard(eventInfo) {
     /* dont show PrivateEvent */
     eventInfo.timeText !== "" && eventInfo.event.extendedProps.type !== "PrivateEvent"
       ? <div 
-          className="h-full w-full rounded-r-3xl ..."
+          className={
+            `h-full w-full rounded-r-3xl hover:shadow-outline-gray overflow-hidden ...`}
           style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }}  
         >
         {/* header of the container */}
