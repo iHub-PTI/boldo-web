@@ -299,7 +299,7 @@ const Gate = () => {
             onClick={() => {
               if (prescriptions?.length > 0) {
                 if (!loading) {
-                  addToast({ type: 'info', text: 'Descargando receta...' });
+                  addToast({ type: 'success', text: 'Descargando receta...' });
                   getReports(id, setLoading);
                 }
               } else {
