@@ -268,9 +268,7 @@ Events
 * this overrides the background color of the calendar 
 * so that we can apply more styles to the events
 */
-.fc .fc-bg-event {
-  background: white;
-}
+
 
 .fc .fc-event-main {
   border-width: 0px;

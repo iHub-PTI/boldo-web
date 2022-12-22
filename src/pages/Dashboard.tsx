@@ -141,12 +141,12 @@ export default function Dashboard() {
       .then(res => {
         //console.log("🚀 res appointment", res.data)
         const events = res.data.appointments.map(event => eventDataTransform(event))
-        const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+        //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
+        //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
+        setAppointments([...events])
         calendarAPI.removeAllEvents()
-        calendarAPI.addEventSource([...events, ...openHourDatesTransformed])
+        calendarAPI.addEventSource([...events])
       })
       .catch(err => {
         console.log(err)
@@ -233,13 +233,13 @@ export default function Dashboard() {
         
         const events = res.data.appointments.map(event => eventDataTransform(event))
 
-        const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+       // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
+        //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
 
         setDateRange({ start, end, refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
-        console.log({ start, end, refetch: false })
-        console.log([...events, ...openHourDatesTransformed])
+        setAppointments([...events])
+        //console.log({ start, end, refetch: false })
+        //console.log([...events])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
       })
       .catch(err => {
@@ -312,7 +312,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <div className='flex flex-col h-full text-cool-gray-700'>
+            <div className='flex flex-col h-full text-cool-gray-700 overflow-x-auto' style={{minWidth:'1200px'}}>
               {openHoursEmpty && (
                 <div className='relative bg-secondary-500'>
                   <div className='px-3 py-3 mx-auto max-w-7xl sm:px-6 lg:px-8'>
