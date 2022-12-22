@@ -6,7 +6,7 @@ import { getReports } from '../../util/helpers';
 import { useToasts } from '../../components/Toast';
 
 
-export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
+export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
   const [ activeColor, setActiveColor ] = useState('M');
   const [ loading, setLoading ] = useState(false);
   const { addToast } = useToasts();
@@ -15,9 +15,6 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
     note: 'Notas médicas',
     prescription: 'Recetas',
   }
-  
-  
-
   const useTooltipStyles = makeStyles(() => ({
     tooltip: {
       margin: 5,
@@ -112,7 +109,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
         </button>
       </Tooltip>
       
-      { appointmentId &&
+      {
         <Tooltip title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
           <span>
             <button
@@ -122,7 +119,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointmentId }) => {
                 {
                   if (prescriptions?.length > 0) {
                     addToast({ type: 'success', text: 'Descargando receta...' });
-                    getReports(appointmentId, setLoading);
+                    getReports(appointment, setLoading);
                   } else {
                     console.log("there is not prescriptions");
                     addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
