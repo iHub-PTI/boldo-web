@@ -1,4 +1,5 @@
-import { makeStyles } from "@material-ui/core"
+import axios from 'axios'
+import * as Sentry from '@sentry/react'
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -23,4 +24,57 @@ export const validateTime = (timeInput: string) => {
 export const avatarPlaceholder = (profession: string, gender?: string) => {
   let genderShort = gender === 'male' ? 'm' : 'f'
   return `/img/${profession}-${genderShort}.svg`
+}
+
+export async function getReports(appointment, setLoading) {
+  const url = `/profile/doctor/appointments/${appointment.id}/encounter/reports`;
+  setLoading(true);
+  axios
+    .get(url, {
+      params: {
+        reports: 'prescriptions',
+      },
+      responseType: 'blob',
+    })
+    .then(function (res) {
+      console.log('res: ', res);
+      const date = new Date(appointment.start);
+      const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`;
+      const appointmentDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+      const appointmentTime = `${date.getHours() < 10 ? '0'+date.getHours() : date.getHours() }-${date.getMinutes()}`;
+      const filename = `consulta_${patientName}_${appointmentDate}_${appointmentTime}`;
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      document.body.appendChild(link);
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      setTimeout(() => {
+        // here we free an existing object URL we create previously
+        window.URL.revokeObjectURL(link.href);
+        document.body.removeChild(link);
+      }, 0)
+      setLoading(false); 
+    })
+    .catch(function (err) {
+      console.log(err);
+      Sentry.setTag('appointment_id', appointment.id);
+      Sentry.setTag('endpoint', url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
+      Sentry.captureException(err);
+    })
 }

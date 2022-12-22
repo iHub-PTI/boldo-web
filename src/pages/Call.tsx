@@ -68,6 +68,9 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
+import Print from '../components/icons/Print'
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
+import { getReports } from '../util/helpers'
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -88,6 +91,7 @@ const Gate = () => {
   const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
+  const [ loading, setLoading ] = useState(false);
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -252,6 +256,13 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
+
+
+    useEffect(() => {
+      updatePrescriptions(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
       <div>
@@ -273,6 +284,29 @@ const Gate = () => {
               setIsOpen(prev => !prev)
             }}
             size={50}
+          />
+          <ChildButton 
+            icon={
+              <Print 
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : '' }`} 
+                bgColor='transparent' 
+                iconColor='white' 
+                fromVirtual={true}
+              />
+            }
+            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
+            size={50}
+            onClick={() => {
+              if (prescriptions?.length > 0) {
+                if (!loading && appointment !== undefined) {
+                  addToast({ type: 'success', text: 'Descargando receta...' });
+                  getReports(appointment, setLoading);
+                }
+              } else {
+                console.log("there is not prescriptions");
+                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+              }
+            }}
           />
           <ChildButton
             icon={
@@ -354,7 +388,7 @@ const Gate = () => {
                 zIndex: 1
               }}
             >
-              <TogleMenu />
+                <TogleMenu />
             </Grid>
           </Grid>
           <Grid container item xs={4} style={{ display: 'grid' }}>
@@ -436,7 +470,16 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }));
 
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(true);
+
+    // const {prescriptionContext} = useContext(PrescriptionContext);
+
+    // useEffect(() => {
+    //   console.log(appointment.id);
+    //   prescriptionContext.getPrescriptions(appointment.id);
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
+
     return (
       <>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
@@ -744,7 +787,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
+                <TogleMenu />
             </Grid>
           </Grid>
         
@@ -1247,7 +1290,7 @@ const soepPlaceholder = {
 }
 
 function SOEP({ appointment }: { appointment: any }) {
-  const [value, setValue] = useState(0)
+  const [value] = useState(0)
   const [mainReason, setMainReason] = useState('')
   const [disableMainReason, setDisableMainReason] = useState(false)
   const [subjective, setSubjective] = useState('')

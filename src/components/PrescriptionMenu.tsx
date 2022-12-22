@@ -16,10 +16,13 @@ import DoneIcon from '@material-ui/icons/Done';
 import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
+import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
+
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext()
+    const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
@@ -37,6 +40,11 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
 
+    
+    useEffect(() => {
+        updatePrescriptions(id, selectedMedication);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, selectedMedication]);
     
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -128,6 +136,8 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
     
+    
+
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -330,6 +340,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                         <div className='flex justify-items-center items-center mt-2 text-sm text-gray-600 sm:mt-0 sm:mr-2'>
                                             <DoneIcon fontSize="small" style={{ marginRight: '0.5rem' }} />
                                             Guardado.
+                                            {console.log("estado actual: ", selectedMedication)}
                                         </div>
                                     )
                                 }

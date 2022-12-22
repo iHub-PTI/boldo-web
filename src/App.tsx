@@ -5,9 +5,7 @@ import io from 'socket.io-client'
 
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
-import Home from './pages/Home'
 import Settings from './pages/Settings'
-import SettingsNew from './pages/Settingsnew'
 import ValidatePatient from './pages/ValidatePatient'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import Error from './components/Error'
@@ -17,6 +15,7 @@ import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
 import * as Sentry from "@sentry/react";
+import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -87,7 +86,9 @@ const App = () => {
               <Switch>
                 
                 <Route exact path='/'>
-                  <Dashboard />
+                  <PrescriptionContextProvider>
+                    <Dashboard />
+                  </PrescriptionContextProvider>
                 </Route>
                 
                 <Route exact path='/settings'>
@@ -99,11 +100,15 @@ const App = () => {
                 </Route>
 
                 <Route exact path='/appointments/:id/call'>
-                  <Call />
+                  <PrescriptionContextProvider>
+                    <Call />
+                  </PrescriptionContextProvider>
                 </Route>
 
                 <Route exact path='/appointments/:id/inperson'>
-                  <InPersonAppoinment />
+                  <PrescriptionContextProvider>
+                    <InPersonAppoinment />
+                  </PrescriptionContextProvider>
                 </Route>
 
                 <Route exact path='/boldo-app-privacy-policy'>

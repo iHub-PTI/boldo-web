@@ -152,7 +152,6 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
         return true
     }
 
-    const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
     const sendOrderToServer = async () => {
@@ -175,7 +174,6 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             });
             console.log(ordersCopy)
             try {
-                setShowError(false)
                 setSendStudyLoading(true)
                 const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
                 console.log("server response", res)
@@ -200,7 +198,6 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                     addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
                 }
                 setSendStudyLoading(false)
-                setShowError(true)
             }
         }
     }
