@@ -26,8 +26,8 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
   return `/img/${profession}-${genderShort}.svg`
 }
 
-export async function getReports(appointmentId, setLoading) {
-  const url = `/profile/doctor/appointments/${appointmentId}/encounter/reports`;
+export async function getReports(appointment, setLoading) {
+  const url = `/profile/doctor/appointments/${appointment.id}/encounter/reports`;
   setLoading(true);
   axios
     .get(url, {
@@ -38,7 +38,11 @@ export async function getReports(appointmentId, setLoading) {
     })
     .then(function (res) {
       console.log('res: ', res);
-      const filename = 'prescription';
+      const date = new Date(appointment.start);
+      const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`;
+      const appointmentDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+      const appointmentTime = `${date.getHours() < 10 ? '0'+date.getHours() : date.getHours() }-${date.getMinutes()}`;
+      const filename = `consulta_${patientName}_${appointmentDate}_${appointmentTime}`;
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const link = document.createElement('a');
       document.body.appendChild(link);
@@ -54,7 +58,7 @@ export async function getReports(appointmentId, setLoading) {
     })
     .catch(function (err) {
       console.log(err);
-      Sentry.setTag('appointment_id', appointmentId);
+      Sentry.setTag('appointment_id', appointment.id);
       Sentry.setTag('endpoint', url);
       if (err.response) {
         // La respuesta fue hecha y el servidor respondió con un código de estado
