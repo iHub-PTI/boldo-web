@@ -172,7 +172,7 @@ export default function Dashboard() {
         setData([...res.data, ...fakeData]);
         setOrganization(res.data[0]);
       } else if (res.status === 204) {
-        addToast({ type: 'warning', title: 'No se pudieron obtener los centros asistenciales.'})
+        addToast({ type: 'warning', title: 'Ocurrió un error.', text: 'No se pudieron obtener los centros asistenciales.'})
       }
     })
     .catch(function (err) {
