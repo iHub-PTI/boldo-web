@@ -123,6 +123,12 @@ export default function Dashboard() {
   // Context API Organization Boldo MultiOrganization
   const {Organization, setOrganization} = useContext(OrganizationContext)
   const [ data, setData ] = useState<any[]>([]);
+  const fakeData = [
+    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
+    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
+    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
+  ]
+
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
