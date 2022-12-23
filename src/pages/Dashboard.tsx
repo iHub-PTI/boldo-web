@@ -169,7 +169,7 @@ export default function Dashboard() {
     .then(function (res) {
       console.log("response: ", res);
       if (res.status === 200) {
-        setData(res.data);
+        setData([...res.data, ...fakeData]);
         setOrganization(res.data[0]);
       } else if (res.status === 204) {
         addToast({ type: 'warning', title: 'No se pudieron obtener los centros asistenciales.'})
