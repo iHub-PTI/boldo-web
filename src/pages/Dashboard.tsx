@@ -5,6 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
 import esLocale from '@fullcalendar/core/locales/es'
 import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
+import * as Sentry from '@sentry/react'
 import axios from 'axios'
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
 import { Link, useHistory } from 'react-router-dom'
@@ -121,11 +122,7 @@ export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false)
   // Context API Organization Boldo MultiOrganization
   const {Organization, setOrganization} = useContext(OrganizationContext)
-  const data = [
-    {id: "1", value: "1", name: 'Hospital maria de los Angeles caballero', colorCode: 'blue', color: 'blue', active: true, type: 'CORE'},
-    {id: "2", value: "2", name: 'Hospital IPS', colorCode:'red', color: 'red', active: true, type: 'CORE'},
-    {id: "3", value: "3", name: 'Clinicas', colorCode: 'green', color: 'green', active: true, type: 'CORE'},
-  ]
+  const [ data, setData ] = useState<any[]>([]);
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
@@ -158,9 +155,42 @@ export default function Dashboard() {
       })
   }
 
-  useEffect(()=>{
-    setOrganization(data[0])
-  },[])
+  useEffect(() => {
+    const url = '/profile/doctor/organizations';
+    axios.get(
+      url
+    )
+    .then(function (res) {
+      console.log("response: ", res);
+      if (res.status === 200) {
+        setData(res.data);
+        setOrganization(res.data[0]);
+      } else if (res.status === 204) {
+        addToast({ type: 'warning', title: 'No se pudieron obtener los centros asistenciales.'})
+      }
+    })
+    .catch(function (err) {
+      console.log("when obtain organizations ", err);
+      Sentry.setTag("endpoint", url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   useEffect(()=>{
     console.log("=> ", Organization)
