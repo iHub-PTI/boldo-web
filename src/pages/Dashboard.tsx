@@ -381,10 +381,12 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  <ListboxColor data={data} 
-                    label='Espacio de Trabajo'
-                    onChange={value => setOrganization(data.find((d) => d.value === value))}>
-                  </ListboxColor>
+                  { data.length > 0 &&
+                    <ListboxColor data={data} 
+                      label='Espacio de Trabajo'
+                      onChange={value => setOrganization(data.find((d) => d.id === value))}>
+                    </ListboxColor>
+                  }
                 </div>
                 <div className='flex mt-4 md:mt-0 md:ml-4'>
                   <span className='pt-5 ml-3 rounded-md shadow-sm'>
