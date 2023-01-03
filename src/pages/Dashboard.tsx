@@ -160,6 +160,13 @@ export default function Dashboard() {
           setAppointments([...events])
           calendarAPI.removeAllEvents()
           calendarAPI.addEventSource([...events])
+        } else if (res.status === 204) {
+          // there is not appointments
+          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+          setAppointments([])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([])
+        }
       })
       .catch(err => {
         console.log(err)
