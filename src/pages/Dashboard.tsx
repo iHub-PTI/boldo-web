@@ -154,11 +154,12 @@ export default function Dashboard() {
       )
       .then(res => {
         console.log("🚀 res appointment", res.data)
-        const events = res.data.appointments.map(event => eventDataTransform(event))
-        setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-        setAppointments([...events])
-        calendarAPI.removeAllEvents()
-        calendarAPI.addEventSource([...events])
+        if (res.status === 200) {
+          const events = res.data.appointments.map(event => eventDataTransform(event))
+          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+          setAppointments([...events])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([...events])
       })
       .catch(err => {
         console.log(err)
