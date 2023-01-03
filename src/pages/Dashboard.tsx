@@ -143,9 +143,14 @@ export default function Dashboard() {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
+    const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+        url, {
+          params: {
+            organizationId: Organization.id
+          }
+        }
       )
       .then(res => {
         console.log("🚀 res appointment", res.data)
