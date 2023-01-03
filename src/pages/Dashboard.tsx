@@ -177,6 +177,7 @@ export default function Dashboard() {
           if (err.response.status === 400) {
             // console.log(err)
             addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
+            setAppointments([])
             calendarAPI.removeAllEvents()
             calendarAPI.addEventSource([])
           } else if (err.response.status === 500) {
