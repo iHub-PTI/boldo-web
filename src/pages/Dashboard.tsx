@@ -116,7 +116,7 @@ export default function Dashboard() {
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithPatient | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
+  const [loadingAppointment, setLoadingAppointment] = useState(false)
   const { user } = useContext(UserContext)
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
@@ -144,6 +144,8 @@ export default function Dashboard() {
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
     const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+
+    setLoadingAppointment(true)
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
@@ -167,6 +169,7 @@ export default function Dashboard() {
           calendarAPI.removeAllEvents()
           calendarAPI.addEventSource([])
         }
+        setLoadingAppointment(false)
       })
       .catch(err => {
         Sentry.setTag('appointment_id', appointment.id);
@@ -196,6 +199,7 @@ export default function Dashboard() {
           console.log('Error', err.message)
         }
         Sentry.captureException(err)
+        setLoadingAppointment(false)
       })
   }
 
@@ -321,6 +325,7 @@ export default function Dashboard() {
     const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
+    setLoadingAppointment(true)
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
@@ -342,6 +347,7 @@ export default function Dashboard() {
           setDateRange({ start, end, refetch: false })
           setAppointments([])
         }
+        setLoadingAppointment(false)
       })
       .catch(err => {
         Sentry.setTag('appointment_id', appointment.id);
@@ -370,6 +376,7 @@ export default function Dashboard() {
           console.log('Error', err.message)
         }
         Sentry.captureException(err)
+        setLoadingAppointment(false)
       })
   }
 
@@ -484,7 +491,14 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
-              
+              {/* this is the container of the appointment loading */}
+              <div className={`${loadingAppointment ? `flex` : `hidden` } w-full h-full justify-items-center align-middle z-1 fixed left-20 top-20`}>
+                <div className='m-auto flex-col justify-items-center align-middle'>
+                  {/* this is the spinner */}
+                  <div className='loader ml-8'></div>
+                  <p>Cargando citas...</p>
+                </div>
+              </div>
               <FullCalendar
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
