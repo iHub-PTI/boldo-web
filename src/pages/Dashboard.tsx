@@ -318,11 +318,16 @@ export default function Dashboard() {
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
+    const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
+        url, {
+          params: {
+            organizationId: Organization?.id
+          }
+        }
       )
       .then(res => {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
