@@ -530,7 +530,8 @@ export default function Dashboard() {
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
                 scrollTime={moment().format('HH:00:00')}
-                eventColor={Organization?.colorCode}
+                // don't tuch this, fix a visual bug when organization change
+                // eventColor={Organization?.colorCode}
               />
             </div>
           </>
