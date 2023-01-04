@@ -331,18 +331,45 @@ export default function Dashboard() {
       )
       .then(res => {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        
-        const events = res.data.appointments.map(event => eventDataTransform(event))
-        setDateRange({ start, end, refetch: false })
-        setAppointments([...events])
-        console.log({ start, end, refetch: false })
-        console.log([...events])
-        // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+        if (res.status === 200) {
+          const events = res.data.appointments.map(event => eventDataTransform(event))
+          setDateRange({ start, end, refetch: false })
+          setAppointments([...events])
+          console.log({ start, end, refetch: false })
+          console.log([...events])
+          // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+        } else if (res.status === 204) {
+          setDateRange({ start, end, refetch: false })
+          setAppointments([])
+        }
       })
       .catch(err => {
-        console.log(err)
-        addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
-        failureCallback(err)
+        Sentry.setTag('appointment_id', appointment.id);
+        Sentry.setTag('endpoint', url);
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          if (err.response.status === 400) {
+            // console.log(err)
+            addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
+            setDateRange({ start, end, refetch: false })
+            setAppointments([])
+          } else if (err.response.status === 500) {
+            addErrorToast('No fue posible cargar las citas. Por favor, vuelva a intentar luego.')
+          }
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request)
+          console.log(err.request)
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message)
+          console.log('Error', err.message)
+        }
+        Sentry.captureException(err)
       })
   }
 
