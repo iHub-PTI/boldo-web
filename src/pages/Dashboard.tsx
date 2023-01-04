@@ -255,6 +255,15 @@ export default function Dashboard() {
     return () => clearInterval(timer)
   })
 
+  // useEffect to render the calendar events
+  useEffect(() => {
+    const load = () => {
+      loadEventsSourcesCalendar()
+    }
+    if (Organization !== undefined && Organization !== null) load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Organization])
+
   const isNew = useMemo(() => {
     return appointment.id === 'new'
   }, [appointment.id])
