@@ -19,6 +19,10 @@ export default function Dashboard() {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
 
+  /*FIXME: Medical Records Section
+   When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
+  const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
+
   useEffect(() => {
     let mounted = true
 
@@ -51,7 +55,7 @@ export default function Dashboard() {
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
         <div className='flex flex-row flex-no-wrap flex-grow'>
-          <div className='flex flex-col w-3/12 min-w-max-content sticky top-0 left-0'>
+          <div className='flex flex-col w-80' style={{ maxWidth: '20rem', minWidth: '20rem' }}>
             {appointment !== null && (
               <PatientSection
                 appointment={appointment}
@@ -59,6 +63,7 @@ export default function Dashboard() {
                 showPatientRecord={() => {
                   setOutpatientRecordShow(!outpatientRecordShow)
                 }}
+                disabledRedcordButton={disabledRedcordButton}
               />
             )}
           </div>
@@ -87,11 +92,11 @@ export default function Dashboard() {
                 }}
               />
             </div>
-            <div className='h-full w-11/12'>
+            <div className='aboslute h-full w-11/12'>
               {DynamicMenuSelector === 'P' ? (
                 <PrescriptionMenu appointment={appointment} isFromInperson={true} />
               ) : DynamicMenuSelector === 'M' ? (
-                <MedicalRecordSection appointment={appointment} />
+                <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />
               ) : (
                 <LaboratoryMenu appointment={appointment} isFromInperson={true} />
               )}

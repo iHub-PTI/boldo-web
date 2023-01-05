@@ -14,6 +14,8 @@ import { countDays, toUpperLowerCase } from '../util/helpers'
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
 import _ from 'lodash'
 import loadGif from '../assets/loading.gif'
+import * as Sentry from '@sentry/react'
+import { useToasts } from './Toast'
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
@@ -63,7 +65,9 @@ type OffsetType = {
 
 export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () => {}, ...props }) => {
   const patientId = props.appointment.patientId
-  console.log('🚀 ~ file: RecordsOutPatient.tsx:66 ~ patientId', patientId)
+  const { addErrorToast } = useToasts()
+  // error page
+  const [error, setError] = useState(false)
   const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
   const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
   const [loading, setLoading] = useState(false)
@@ -93,6 +97,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
   }
 
   const getRecordsPatient = async ({ doctorId = '', content = '', count = countPage, offset = 1, order = 'DESC' }) => {
+    setError(false)
     setLoading(true)
     setDetailRecordPatient(null)
     await axios
@@ -114,7 +119,16 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         setTotalRecordsPatient(res.data.total)
         setLoading(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+        setError(true)
+      })
   }
 
   const debounce = useCallback(
@@ -134,7 +148,16 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         setDetailRecordPatient(res.data)
         setLoadingDetail(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
+        console.error(err)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+      })
   }
 
   const getRecordsPatientOnScroll = async ({
@@ -156,13 +179,20 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         },
       })
       .then(res => {
-        //console.log('total scroll', res.data.total)
-        //console.log('total restante scroll', res.data.items.length)
         setRecordsPatient([...recordsPatient, ...res.data.items])
         setOffsetPage({ offset: offset, total: Math.ceil(res.data.total / countPage) })
         setLoadingScroll(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err)
+        addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+      })
   }
 
   const onScrollEnd = () => {
@@ -236,6 +266,25 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     console.log('records', recordsPatient)
     console.log({ ...offsetPage })
   }, [recordsPatient]) */
+
+  if (error)
+    return (
+      <div className='flex flex-col w-full h-full items-center justify-center'>
+        <div className='mt-6 text-center sm:mt-5'>
+          <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
+            Ha ocurrido un error al traer los registros
+          </h3>
+        </div>
+        <div className='flex justify-center w-full mt-6 sm:mt-8'>
+          <button
+            className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+            onClick={() => getRecordsPatient({ offset: offsetPage.offset, count: countPage })}
+          >
+            Inténtar de nuevo
+          </button>
+        </div>
+      </div>
+    )
 
   return (
     <div className='flex flex-col px-5 pt-5 w-full'>

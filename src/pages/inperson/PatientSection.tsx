@@ -353,8 +353,10 @@ const PatientRecord = (props) => {
       </Grid> */}
       <div className='flex justify-center mt-10'>
         <button 
-          className='focus:outline-none p-2 hover:bg-cool-gray-100 transition-colors delay-200'
+          className='focus:outline-none p-2 hover:bg-cool-gray-100 transition-colors delay-200 disabled:cursor-not-allowed'
           onClick= {() => props.showPatientRecord()}
+          //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
+          disabled={props.disabledRedcordButton}
         >
           <div className={`text-gray-500 flex flex-row justify-center items-center ${props.outpatientRecord && 'text-primary-600 font-semibold'}`}> <UserCircle fill={`${props.outpatientRecord ? '#13A5A9': '#6B7280'}`}className='mr-1'/>  Registro Ambulatorio</div>
         </button>
@@ -397,7 +399,7 @@ export default (props) => {
 
   return (
     <Grid
-      className='h-full flex-wrap items-center justify-center'
+      className='h-full items-center justify-center'
       style={{
         backgroundColor: '#F4F5F7',
         borderTopLeftRadius: '0px',
@@ -415,6 +417,7 @@ export default (props) => {
           appointment={appointment}
           outpatientRecord={props.outpatientRecord}
           showPatientRecord={props.showPatientRecord}
+          disabledRedcordButton={props.disabledRedcordButton}
         /> :
         <div className='flex h-full justify-center items-center'>
           <div className='bg-gray-100 rounded-full'>
