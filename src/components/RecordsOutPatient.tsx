@@ -16,6 +16,7 @@ import _ from 'lodash'
 import loadGif from '../assets/loading.gif'
 import * as Sentry from '@sentry/react'
 import { useToasts } from './Toast'
+import moment from 'moment'
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
@@ -66,26 +67,35 @@ type OffsetType = {
 export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () => {}, ...props }) => {
   const patientId = props.appointment.patientId
   const { addErrorToast } = useToasts()
+
   // error page
   const [error, setError] = useState(false)
   const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
+
   const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
   const [loading, setLoading] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
+
   // pagination parameters
   const countPage = 10
   const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
+
   //Detail activated
   const [activeID, setActiveID] = useState('')
+
   //Filters
   const [inputContent, setInputContent] = useState('')
-  //filter order
-  const [filterOrder, setFilterOrder] = useState()
-  // all doctors or current doctor
-  const [filterCurrentDoctor, setFilterCurrentDoctor] = useState()
+
+  //filter order ASC or DESC
+  const [filterOrder, setFilterOrder] = useState('DESC')
+
+  // all doctors or current doctor doctor.id or ALL doctors
+  const [filterDoctor, setFilterDoctor] = useState('ALL')
+
   // reference to listen to scroll event
   const scrollEvent = useRef<HTMLDivElement>()
+
   // Scroll Trigger loading
   const [loadingScroll, setLoadingScroll] = useState(false)
 
@@ -96,14 +106,14 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     lastName: props.appointment?.doctor.familyName.split(' ')[0],
   }
 
-  const getRecordsPatient = async ({ doctorId = '', content = '', count = countPage, offset = 1, order = 'DESC' }) => {
+  const getRecordsPatient = async ({ doctorId = 'ALL', content = '', count = 10, offset = 1, order = 'DESC' }) => {
     setError(false)
     setLoading(true)
     setDetailRecordPatient(null)
     await axios
       .get(`/profile/doctor/patient/${patientId}/encounters`, {
         params: {
-          doctorId: doctorId,
+          doctorId: doctorId === 'ALL' ? '' : doctor.id,
           content: content,
           count: count,
           offset: offset,
@@ -133,45 +143,23 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
 
   const debounce = useCallback(
     _.debounce(_searchContent => {
-      getRecordsPatient({ content: _searchContent, doctorId: filterCurrentDoctor ? doctor.id : '' })
-      setOffsetPage({ ...offsetPage, offset: 1 })
+      getRecordsPatient({ content: _searchContent, offset: 1, order: filterOrder, doctorId: filterDoctor })
     }, 500),
-    [filterCurrentDoctor]
+    [filterDoctor, filterOrder]
   )
 
-  const getRecordPatientDetail = async (id: string) => {
-    setLoadingDetail(true)
-    await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
-      .then(res => {
-        //console.log('data record patient details', res.data)
-        setDetailRecordPatient(res.data)
-        setLoadingDetail(false)
-      })
-      .catch(err => {
-        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
-        console.error(err)
-        Sentry.setTags({
-          'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
-          'Doctor Id session': doctor.id,
-        })
-        Sentry.captureException(err)
-      })
-  }
-
   const getRecordsPatientOnScroll = async ({
-    doctorId = '',
-    content = '',
+    doctorId = filterDoctor,
+    content = inputContent,
     count = countPage,
     offset = 1,
-    order = 'DESC',
+    order = filterOrder,
   }) => {
     setLoadingScroll(true)
     await axios
       .get(`/profile/doctor/patient/${patientId}/encounters`, {
         params: {
-          doctorId: doctorId,
+          doctorId: doctorId === 'ALL' ? '' : doctor.id,
           content: content,
           count: count,
           offset: offset,
@@ -203,69 +191,57 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
       if (scrollTop + clientHeight === scrollHeight) {
         // TO SOMETHING HERE
         getRecordsPatientOnScroll({
-          content: inputContent,
-          doctorId: filterCurrentDoctor ? doctor.id : '',
           offset: offsetPage.offset + 1,
         })
       }
     }
   }
 
-  useEffect(() => {
-    getRecordsPatient({ offset: offsetPage.offset, count: countPage })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const getRecordPatientDetail = async (id: string) => {
+    //avoid double request when clicking
+    if (id === activeID) return
+    setLoadingDetail(true)
+    await axios
+      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
+      .then(res => {
+        //console.log('data record patient details', res.data)
+        setDetailRecordPatient(res.data)
+        setLoadingDetail(false)
+      })
+      .catch(err => {
+        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
+        console.error(err)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+      })
+  }
 
   useEffect(() => {
-    if (filterCurrentDoctor) {
-      getRecordsPatient({ doctorId: doctor.id, content: inputContent })
-      setOffsetPage({ ...offsetPage, offset: 1 })
-    } else if (filterCurrentDoctor === false) {
-      getRecordsPatient({ content: inputContent })
-      setOffsetPage({ ...offsetPage, offset: 1 })
+    if (!show) {
+      if (recordsPatient.length === 0) {
+        setInputContent('')
+        setFilterDoctor('ALL')
+        setFilterOrder('DESC')
+      }
+      return
     }
+    if (show && recordsPatient.length === 0)
+      getRecordsPatient({ offset: 1, count: countPage, order: 'DESC', doctorId: 'ALL' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterCurrentDoctor, doctor.id])
+  }, [show])
 
   useEffect(() => {
-    switch (filterOrder) {
-      case 'asc':
-        //console.log('asc')
-        setRecordsPatient([
-          ...recordsPatient.sort((a, b) => {
-            let first = new Date(a.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            let second = new Date(b.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            return first - second
-          }),
-        ])
-        break
-      case 'desc':
-        //console.log('desc')
-        setRecordsPatient([
-          ...recordsPatient.sort((a, b) => {
-            let first = new Date(a.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            let second = new Date(b.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            return second - first
-          }),
-        ])
-        break
-      case '':
-        setRecordsPatient([
-          ...recordsPatient.sort((a, b) => {
-            let first = new Date(a.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            let second = new Date(b.encounterDto.finishTimeDate.split('T')[0]).valueOf()
-            return first - second
-          }),
-        ])
-        break
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterOrder])
+    console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterOrder', filterOrder)
+    console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterDoctor', filterDoctor)
+  }, [filterDoctor, filterOrder])
 
-  /* useEffect(() => {
-    console.log('records', recordsPatient)
-    console.log({ ...offsetPage })
-  }, [recordsPatient]) */
+  useEffect(() => {
+    setActiveID('')
+  }, [recordsPatient])
 
   if (error)
     return (
@@ -278,7 +254,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         <div className='flex justify-center w-full mt-6 sm:mt-8'>
           <button
             className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
-            onClick={() => getRecordsPatient({ offset: offsetPage.offset, count: countPage })}
+            onClick={() => getRecordsPatient({ offset: 1, count: countPage })}
           >
             Inténtar de nuevo
           </button>
@@ -328,7 +304,14 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
             }}
           />
         </div>
-        <QueryFilter currentDoctor={doctor} onChangeAuthor={setFilterCurrentDoctor} setOrder={setFilterOrder} />
+        <QueryFilter
+          currentDoctor={doctor}
+          setFilterAuthor={setFilterDoctor}
+          setOrder={setFilterOrder}
+          getApiCall={getRecordsPatient}
+          inputContent={inputContent}
+          countPage={countPage}
+        />
       </div>
 
       {/* body */}
@@ -436,7 +419,7 @@ const PatientRecord = ({
         </div>
         <div className='flex flex-row gap-2'>
           <div className='font-normal' style={{ color: '#364152' }}>
-            {patientRecord.encounterDto.finishTimeDate.split('T')[0]}
+            {moment(patientRecord.encounterDto.finishTimeDate.split('T')[0]).format('DD/MM/YYYY')}
           </div>
           <div className='text-gray-500'>{countDays(patientRecord.encounterDto.finishTimeDate.split('T')[0])}</div>
         </div>
@@ -513,55 +496,78 @@ const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientP
 
 const QueryFilter = ({
   currentDoctor = {} as { id: string; name: string; lastName: string },
-  onChangeAuthor,
+  setFilterAuthor,
   setOrder,
+  getApiCall,
+  inputContent,
+  countPage,
 }) => {
   //Current Doctor or all Doctors [ 'all' || 'current' ]
-  const [author, setAuthor] = useState('')
+  const [author, setAuthor] = useState('ALL')
   //Asc or Desc [ 'asc' || 'desc' ]
-  const [sequence, setSequence] = useState('')
+  const [sequence, setSequence] = useState('DESC')
 
   const AUTHOR_STATE = {
-    current: 'current' === author,
-    all: 'all' === author,
+    current: 'CURRENT' === author,
+    all: 'ALL' === author,
   }
 
   const SEQUENCE_STATE = {
-    asc: 'asc' === sequence,
-    desc: 'desc' === sequence,
+    asc: 'ASC' === sequence,
+    desc: 'DESC' === sequence,
   }
 
   const onClickCurrentDoctor = () => {
-    if (author !== 'current') {
-      setAuthor('current')
-      onChangeAuthor(true)
-    } else {
-      setAuthor('')
-      onChangeAuthor(false)
-    }
+    setAuthor('CURRENT')
+    getApiCall({
+      doctorId: 'CURRENT',
+      content: inputContent,
+      count: countPage,
+      offset: 1,
+      order: sequence,
+    })
   }
 
   const onClickAllDoctor = () => {
-    if (author !== 'all') setAuthor('all')
-    else setAuthor('')
-    // All doctor is ''
-    onChangeAuthor(false)
+    setAuthor('ALL')
+    getApiCall({
+      doctorId: 'ALL',
+      content: inputContent,
+      count: countPage,
+      offset: 1,
+      order: sequence,
+    })
   }
 
   const onClickSequenceAsc = () => {
-    if (sequence !== 'asc') setSequence('asc')
-    else setSequence('')
+    setSequence('ASC')
+    console.log(author)
+    getApiCall({
+      doctorId: author,
+      content: inputContent,
+      count: countPage,
+      offset: 1,
+      order: 'ASC',
+    })
   }
 
   const onClickSequenceDesc = () => {
-    if (sequence !== 'desc') setSequence('desc')
-    else setSequence('')
+    setSequence('DESC')
+    console.log(author)
+    getApiCall({
+      doctorId: author,
+      content: inputContent,
+      count: countPage,
+      offset: 1,
+      order: 'DESC',
+    })
   }
 
   useEffect(() => {
     setOrder(sequence)
+    setFilterAuthor(author)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequence])
+  }, [sequence, author])
 
   return (
     <Popover className='relative'>
