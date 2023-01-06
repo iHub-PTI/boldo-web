@@ -28,3 +28,12 @@ export interface Appointment extends iHub.Appointment {
   status: 'upcoming' | 'open' | 'closed' | 'locked' | 'cancelled'
   appointmentType:string
 }
+
+//Boldo Multi-Organizations
+export interface Organization {
+  active: boolean,
+  id: string,
+  name: string,
+  type: string,
+  colorCode: string
+}

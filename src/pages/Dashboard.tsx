@@ -5,6 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
 import esLocale from '@fullcalendar/core/locales/es'
 import { EventInput, EventSourceFunc, EventClickArg } from '@fullcalendar/common'
+import * as Sentry from '@sentry/react'
 import axios from 'axios'
 import { addDays, differenceInDays, differenceInMinutes, differenceInSeconds, parseISO } from 'date-fns'
 import { Link, useHistory } from 'react-router-dom'
@@ -19,6 +20,8 @@ import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
 import AppointmentCard from '../components/calendar/AppointmentCard'
 import NowIndicatorContent from '../components/calendar/NowIndicatorContent'
+import ListboxColor from '../components/ListboxColor'
+import { OrganizationContext } from '../contexts/organizationContext'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -115,10 +118,18 @@ export default function Dashboard() {
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithPatient | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
+  const [loadingAppointment, setLoadingAppointment] = useState(false)
   const { user } = useContext(UserContext)
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
+  // Context API Organization Boldo MultiOrganization
+  const {Organization, setOrganization} = useContext(OrganizationContext)
+  const [ data, setData ] = useState<any[]>([]);
+  const fakeData = [
+    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
+    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
+    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
+  ]
 
 
   // FIXME: Can this be improved?
@@ -134,9 +145,16 @@ export default function Dashboard() {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
+    const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+
+    setLoadingAppointment(true)
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+        url, {
+          params: {
+            organizationId: Organization.id
+          }
+        }
       )
       .then(res => {
         //console.log("🚀 res appointment", res.data)
@@ -147,12 +165,95 @@ export default function Dashboard() {
         setAppointments([...events])
         calendarAPI.removeAllEvents()
         calendarAPI.addEventSource([...events])
+        console.log("🚀 res appointment", res.data)
+        if (res.status === 200) {
+          const events = res.data.appointments.map(event => eventDataTransform(event))
+          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+          setAppointments([...events])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([...events])
+        } else if (res.status === 204) {
+          // there is not appointments
+          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+          setAppointments([])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([])
+        }
+        setLoadingAppointment(false)
       })
       .catch(err => {
-        console.log(err)
-        addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
+        Sentry.setTag('appointment_id', appointment.id);
+        Sentry.setTag('endpoint', url);
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          if (err.response.status === 400) {
+            // console.log(err)
+            addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
+            setAppointments([])
+            calendarAPI.removeAllEvents()
+            calendarAPI.addEventSource([])
+          } else if (err.response.status === 500) {
+            addErrorToast('No fue posible cargar las citas. Por favor, vuelva a intentar luego.')
+          }
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request)
+          console.log(err.request)
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message)
+          console.log('Error', err.message)
+        }
+        Sentry.captureException(err)
+        setLoadingAppointment(false)
       })
   }
+
+  useEffect(() => {
+    const url = '/profile/doctor/organizations';
+    axios.get(
+      url
+    )
+    .then(function (res) {
+      console.log("response: ", res);
+      if (res.status === 200) {
+        setData([...res.data, ...fakeData]);
+        setOrganization(res.data[0]);
+      } else if (res.status === 204) {
+        addToast({ type: 'warning', title: 'Ocurrió un error.', text: 'No se pudieron obtener los centros asistenciales.'})
+      }
+    })
+    .catch(function (err) {
+      console.log("when obtain organizations ", err);
+      Sentry.setTag("endpoint", url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+  useEffect(()=>{
+    console.log("=> ", Organization)
+    console.log("=> ap", appointments)
+  }, [Organization])
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
@@ -167,6 +268,15 @@ export default function Dashboard() {
     }, 60000)
     return () => clearInterval(timer)
   })
+
+  // useEffect to render the calendar events
+  useEffect(() => {
+    const load = () => {
+      loadEventsSourcesCalendar()
+    }
+    if (Organization !== undefined && Organization !== null) load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Organization])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -222,30 +332,69 @@ export default function Dashboard() {
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
+    const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
+    setLoadingAppointment(true)
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
+        url, {
+          params: {
+            organizationId: Organization?.id
+          }
+        }
       )
       .then(res => {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        
         const events = res.data.appointments.map(event => eventDataTransform(event))
-
        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-
         setDateRange({ start, end, refetch: false })
         setAppointments([...events])
         //console.log({ start, end, refetch: false })
         //console.log([...events])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+        if (res.status === 200) {
+          const events = res.data.appointments.map(event => eventDataTransform(event))
+          setDateRange({ start, end, refetch: false })
+          setAppointments([...events])
+          console.log({ start, end, refetch: false })
+          console.log([...events])
+          // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+        } else if (res.status === 204) {
+          setDateRange({ start, end, refetch: false })
+          setAppointments([])
+        }
+        setLoadingAppointment(false)
       })
       .catch(err => {
-        console.log(err)
-        addErrorToast(`No se cargaron las citas. Detalles: ${err}`)
-        failureCallback(err)
+        Sentry.setTag('appointment_id', appointment.id);
+        Sentry.setTag('endpoint', url);
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          if (err.response.status === 400) {
+            // console.log(err)
+            addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
+            setDateRange({ start, end, refetch: false })
+            setAppointments([])
+          } else if (err.response.status === 500) {
+            addErrorToast('No fue posible cargar las citas. Por favor, vuelva a intentar luego.')
+          }
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request)
+          console.log(err.request)
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message)
+          console.log('Error', err.message)
+        }
+        Sentry.captureException(err)
+        setLoadingAppointment(false)
       })
   }
 
@@ -335,8 +484,16 @@ export default function Dashboard() {
                 <div className='flex-1 min-w-0'>
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
+                <div className='w-60'>
+                  { data.length > 0 &&
+                    <ListboxColor data={data} 
+                      label='Espacio de Trabajo'
+                      onChange={value => setOrganization(data.find((d) => d.id === value))}>
+                    </ListboxColor>
+                  }
+                </div>
                 <div className='flex mt-4 md:mt-0 md:ml-4'>
-                  <span className='ml-3 rounded-md shadow-sm'>
+                  <span className='pt-5 ml-3 rounded-md shadow-sm'>
                     <button
                       type='button'
                       className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
@@ -352,7 +509,14 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
-              
+              {/* this is the container of the appointment loading */}
+              <div className={`${loadingAppointment ? `flex` : `hidden` } w-full h-full justify-items-center align-middle z-1 fixed left-20 top-20`}>
+                <div className='m-auto flex-col justify-items-center align-middle'>
+                  {/* this is the spinner */}
+                  <div className='loader ml-8'></div>
+                  <p>Cargando citas...</p>
+                </div>
+              </div>
               <FullCalendar
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
@@ -404,6 +568,8 @@ export default function Dashboard() {
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
                 scrollTime={moment().format('HH:00:00')}
+                // don't tuch this, fix a visual bug when organization change
+                // eventColor={Organization?.colorCode}
               />
             </div>
           </>

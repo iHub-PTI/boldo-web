@@ -299,3 +299,14 @@ Events
 .fc .fc-timegrid-now-indicator-line:hover {
    opacity: 0.3;
 }
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 8px solid #ddd;
+  border-top: 8px solid #13A5A9;
+  border-bottom: 8px solid #13A5A9;
+  border-radius: 50%;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
