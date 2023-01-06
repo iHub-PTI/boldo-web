@@ -754,7 +754,15 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
               )}
               <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                 <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Tipo</dt>
-                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.appointmentType === 'V'?'Consulta virtual':'Consulta Presencial'}</dd>
+                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+                  { 
+                    appointment.appointmentType === 'E' 
+                      ? 'Evento privado'
+                      : appointment.appointmentType === 'V'
+                        ?'Consulta virtual'
+                        :'Consulta Presencial'
+                  }
+                </dd>
               </div>
               {status && (
                 <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
