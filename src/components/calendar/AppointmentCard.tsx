@@ -12,9 +12,9 @@ import { ReactComponent as Now } from '../../assets/now.svg';
 import { ReactComponent as NowTeal } from '../../assets/now-white.svg';
 
 
-function AppointmentCard(eventInfo) {
+function AppointmentCard(eventInfo, color) {
 
-  let borderColor = 'red';
+  let borderColor = color;
 
   // this functions get the time in format HH:MM
   function getTime(timeString) {

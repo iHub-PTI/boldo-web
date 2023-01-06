@@ -510,7 +510,7 @@ export default function Dashboard() {
                 </div>
               </div>
               {/* this is the container of the appointment loading */}
-              <div className={`${loadingAppointment ? `flex` : `hidden` } w-full h-full justify-items-center align-middle z-1 fixed left-20 top-20`}>
+              <div className={`${loadingAppointment ? `flex` : `hidden` } w-full h-full justify-items-center align-middle z-50 fixed left-20 top-20`}>
                 <div className='m-auto flex-col justify-items-center align-middle'>
                   {/* this is the spinner */}
                   <div className='loader ml-8'></div>
@@ -521,7 +521,7 @@ export default function Dashboard() {
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
                 eventClick={handleEventClick}
-                eventContent={AppointmentCard}
+                eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization.colorCode)}
                 // we define it in tailwind.css
                 // eventBackgroundColor={'#FFFFFF'}
                 eventBorderColor={'#e5e7eb'}
