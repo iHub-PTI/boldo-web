@@ -259,6 +259,8 @@ export default function Dashboard() {
 
     if (info.event.extendedProps.status === 'cancelled') {
 
+    } else if (info.event.extendedProps.type === 'PrivateEvent') {
+      setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
     } else
       if (info.event.extendedProps.appointmentType === 'V' && info.event.extendedProps.status !== 'locked') {
         return history.push(`/appointments/${info.event.extendedProps.id}/call`)
