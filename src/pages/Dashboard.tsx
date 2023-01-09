@@ -161,10 +161,8 @@ export default function Dashboard() {
         const events = res.data.appointments.map(event => eventDataTransform(event))
         //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-        setAppointments([...events])
-        calendarAPI.removeAllEvents()
-        calendarAPI.addEventSource([...events])
+        
+        
         console.log("🚀 res appointment", res.data)
         if (res.status === 200) {
           const events = res.data.appointments.map(event => eventDataTransform(event))
@@ -272,6 +270,7 @@ export default function Dashboard() {
   // useEffect to render the calendar events
   useEffect(() => {
     const load = () => {
+      setAppointments([])
       loadEventsSourcesCalendar()
     }
     if (Organization !== undefined && Organization !== null) load()
@@ -346,18 +345,17 @@ export default function Dashboard() {
       )
       .then(res => {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        const events = res.data.appointments.map(event => eventDataTransform(event))
+        
        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        setDateRange({ start, end, refetch: false })
-        setAppointments([...events])
+        
         //console.log({ start, end, refetch: false })
         //console.log([...events])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
-          setAppointments([...events])
+          setAppointments([events])
           console.log({ start, end, refetch: false })
           console.log([...events])
           // successCallback(events) // Don't use it here to fix a bug with FullCalendar
