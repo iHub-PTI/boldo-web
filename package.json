@@ -8,7 +8,7 @@
     "@fullcalendar/list": "^5.3.1",
     "@fullcalendar/react": "^5.3.1",
     "@fullcalendar/timegrid": "^5.3.1",
-    "@headlessui/react": "^0.2.0",
+    "@headlessui/react": "^1.7.5",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@sentry/integrations": "^5.29.0",

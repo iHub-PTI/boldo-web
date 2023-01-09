@@ -1,3 +1,4 @@
+import moment from 'moment'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
 
@@ -26,9 +27,33 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
   return `/img/${profession}-${genderShort}.svg`
 }
 
+export const toUpperLowerCase = (sentence: string) => {
+  const words = sentence.split(' ')
+
+  return words
+    .map(word => {
+      return word[0].toUpperCase() + word.substring(1).toLowerCase()
+    })
+    .join(' ')
+}
+
+//count the days
+export const countDays = (days: string) => {
+  const currentDate = moment(new Date())
+  const days_diff = currentDate.diff(moment(days), 'days')
+  switch (days_diff) {
+    case 0:
+      return 'Hoy'
+    case 1:
+      return 'Ayer'
+    default:
+      return `Hace ${days_diff} días`
+  }
+}
+
 export async function getReports(appointment, setLoading) {
-  const url = `/profile/doctor/appointments/${appointment.id}/encounter/reports`;
-  setLoading(true);
+  const url = `/profile/doctor/appointments/${appointment.id}/encounter/reports`
+  setLoading(true)
   axios
     .get(url, {
       params: {
@@ -37,44 +62,44 @@ export async function getReports(appointment, setLoading) {
       responseType: 'blob',
     })
     .then(function (res) {
-      console.log('res: ', res);
-      const date = new Date(appointment.start);
-      const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`;
-      const appointmentDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
-      const appointmentTime = `${date.getHours() < 10 ? '0'+date.getHours() : date.getHours() }-${date.getMinutes()}`;
-      const filename = `consulta_${patientName}_${appointmentDate}_${appointmentTime}`;
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      document.body.appendChild(link);
-      link.href = window.URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
+      console.log('res: ', res)
+      const date = new Date(appointment.start)
+      const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`
+      const appointmentDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
+      const appointmentTime = `${date.getHours() < 10 ? '0' + date.getHours() : date.getHours()}-${date.getMinutes()}`
+      const filename = `consulta_${patientName}_${appointmentDate}_${appointmentTime}`
+      const blob = new Blob([res.data], { type: 'application/pdf' })
+      const link = document.createElement('a')
+      document.body.appendChild(link)
+      link.href = window.URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
       setTimeout(() => {
         // here we free an existing object URL we create previously
-        window.URL.revokeObjectURL(link.href);
-        document.body.removeChild(link);
+        window.URL.revokeObjectURL(link.href)
+        document.body.removeChild(link)
       }, 0)
-      setLoading(false); 
+      setLoading(false)
     })
     .catch(function (err) {
-      console.log(err);
-      Sentry.setTag('appointment_id', appointment.id);
-      Sentry.setTag('endpoint', url);
+      console.log(err)
+      Sentry.setTag('appointment_id', appointment.id)
+      Sentry.setTag('endpoint', url)
       if (err.response) {
         // La respuesta fue hecha y el servidor respondió con un código de estado
         // que esta fuera del rango de 2xx
-        Sentry.setTag('data', err.response.data);
-        Sentry.setTag('headers', err.response.headers);
-        Sentry.setTag('status_code', err.response.status);
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
       } else if (err.request) {
         // La petición fue hecha pero no se recibió respuesta
-        Sentry.setTag('request', err.request);
-        console.log(err.request);
+        Sentry.setTag('request', err.request)
+        console.log(err.request)
       } else {
         // Algo paso al preparar la petición que lanzo un Error
-        Sentry.setTag('message', err.message);
-        console.log('Error', err.message);
+        Sentry.setTag('message', err.message)
+        console.log('Error', err.message)
       }
-      Sentry.captureException(err);
+      Sentry.captureException(err)
     })
 }

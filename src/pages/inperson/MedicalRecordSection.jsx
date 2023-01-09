@@ -26,7 +26,7 @@ const soepPlaceholder = {
   Plan: 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.',
 }
 
-export default ({ appointment }) => {
+export default ({ appointment, setDisabledRedcordButton }) => {
   const classes = useStyles()
   const { addErrorToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
@@ -63,14 +63,13 @@ export default ({ appointment }) => {
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
       setAppointmentDisabled(true)
-    } else if(!initialLoad){
+    } else if (!initialLoad) {
       setAppointmentDisabled(false)
     }
   }, [appointment, initialLoad])
 
   useEffect(() => {
     if (appointment === undefined) return
-    console.log("status", appointment.status)
     if (appointment?.status === 'upcoming') setDisableBCancel(false)
     else setDisableBCancel(true)
   }, [appointment])
@@ -146,7 +145,7 @@ export default ({ appointment }) => {
   }, [soepSelected, isAppointmentDisabled])
 
   useEffect(() => {
-    if (focusMe_RefSOEPC.current && !isAppointmentDisabled){
+    if (focusMe_RefSOEPC.current && !isAppointmentDisabled) {
       focusMe_RefSOEPC.current.focus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,6 +180,7 @@ export default ({ appointment }) => {
       setDisableMainReason(true)
       setMainReason(encounterHistory[0].mainReason)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterHistory])
 
   useEffect(() => {
@@ -210,6 +210,9 @@ export default ({ appointment }) => {
           //@ts-ignore
           addErrorToast(err)
           setInitialLoad(false)
+        } finally {
+          //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
+          setDisabledRedcordButton(false)
         }
       }
       load()
@@ -228,20 +231,20 @@ export default ({ appointment }) => {
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
-        try {
-          setIsLoading(true)
-          setSucces(false)
-          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
-          if (res.data === 'OK') {
-            setIsLoading(false)
-            setSucces(true)
-            setErrorSave(false)
-          }
-        } catch (error) {
+      try {
+        setIsLoading(true)
+        setSucces(false)
+        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        if (res.data === 'OK') {
           setIsLoading(false)
-          setErrorSave(true)
-          addErrorToast(error)
+          setSucces(true)
+          setErrorSave(false)
         }
+      } catch (error) {
+        setIsLoading(false)
+        setErrorSave(true)
+        addErrorToast(error)
+      }
     }, 1000),
     []
   )
@@ -447,7 +450,7 @@ export default ({ appointment }) => {
           // }}
           style={{
             marginTop: '20px',
-            backgroundColor: '#e5e7eb'
+            backgroundColor: '#e5e7eb',
           }}
           variant='outlined'
           value={soepRecordDesc}
@@ -516,174 +519,182 @@ export default ({ appointment }) => {
   )
 
   return (
-    <Grid style={{ marginInline: '30px' }}>
-      <Grid>
-        <Typography variant='h5' color='textPrimary'>
-          Notas Médicas
+    <div className='relative'>
+      <Grid style={{ marginInline: '30px' }}>
+        <Grid>
+          <Typography variant='h5' color='textPrimary'>
+            Notas Médicas
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            SOEP
+          </Typography>
+        </Grid>
+
+        <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
+          Motivo principal de la visita{' '}
+          <span className={`${initialLoad || !soepDisabled ? 'text-gray-500' : 'text-red-600'}`}>
+            {appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked'
+              ? ''
+              : '(obligatorio)'}
+          </span>
         </Typography>
-        <Typography variant='body2' color='textSecondary'>
-          SOEP
-        </Typography>
-      </Grid>
+        <TextField
+          disabled={disableMainReason || isAppointmentDisabled}
+          style={{
+            minWidth: '100%',
+            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
+          }}
+          inputRef={mainReason_Ref}
+          placeholder='Ej: Dolor de cabeza prolongado'
+          variant='outlined'
+          value={mainReason}
+          onChange={onChangeFilter}
+        />
 
-      <Typography style={{ marginTop: '15px' }} variant='h6' color='textPrimary'>
-        Motivo principal de la visita{' '}
-        <span className={`${initialLoad || !soepDisabled ? 'text-gray-500' : 'text-red-600'}`}>
-          {appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked'
-            ? ''
-            : '(obligatorio)'}
-        </span>
-      </Typography>
-      <TextField
-        disabled={disableMainReason || isAppointmentDisabled}
-        style={{ minWidth: '100%', backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}` }}
-        inputRef={mainReason_Ref}
-        placeholder='Ej: Dolor de cabeza prolongado'
-        variant='outlined'
-        value={mainReason}
-        onChange={onChangeFilter}
-      />
-
-      <Grid style={{ marginTop: '15px' }} container>
-        <button
-          style={{
-            height: '35',
-            backgroundColor: soepSelected === Soep.Subjetive ? '#27BEC2' : '#F9FAFB',
-            color: soepSelected === Soep.Subjetive ? 'white' : 'black',
-          }}
-          type='button'
-          className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-          onClick={e => {
-            setSoepSelected(Soep.Subjetive)
-          }}
-          onMouseEnter={() => setShowHover(Soep.Subjetive)}
-          onMouseLeave={() => setShowHover('')}
-        >
-          Subjetivo
-          {showHover === Soep.Subjetive &&
-            ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })}
-        </button>
-        <button
-          style={{
-            height: '35',
-            backgroundColor: soepSelected === Soep.Objective ? '#27BEC2' : '#F9FAFB',
-            color: soepSelected === Soep.Objective ? 'white' : 'black',
-          }}
-          type='button'
-          className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-          onClick={e => {
-            setSoepSelected(Soep.Objective)
-          }}
-          onMouseEnter={() => setShowHover(Soep.Objective)}
-          onMouseLeave={() => setShowHover('')}
-        >
-          Objetivo
-          {showHover === Soep.Objective &&
-            ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })}
-        </button>
-        <button
-          style={{
-            height: '35',
-            backgroundColor: soepSelected === Soep.Evalutation ? '#27BEC2' : '#F9FAFB',
-            color: soepSelected === Soep.Evalutation ? 'white' : 'black',
-          }}
-          type='button'
-          className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-          onClick={e => {
-            setSoepSelected(Soep.Evalutation)
-          }}
-          onMouseEnter={() => setShowHover(Soep.Evalutation)}
-          onMouseLeave={() => setShowHover('')}
-        >
-          Evaluación
-          {showHover === Soep.Evalutation &&
-            ShowSoepHelper({ title: Soep.Evalutation, isBlackColor: soepSelected === Soep.Evalutation ? false : true })}
-        </button>
-        <button
-          style={{
-            height: '35',
-            backgroundColor: soepSelected === Soep.Plan ? '#27BEC2' : '#F9FAFB',
-            color: soepSelected === Soep.Plan ? 'white' : 'black',
-          }}
-          type='button'
-          className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
-          onClick={e => {
-            setSoepSelected(Soep.Plan)
-          }}
-          onMouseEnter={() => setShowHover(Soep.Plan)}
-          onMouseLeave={() => setShowHover('')}
-        >
-          Plan
-          {showHover === Soep.Plan &&
-            ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })}
-        </button>
-      </Grid>
-
-      {initialLoad ? (
-        <div className='flex items-center justify-center w-full h-full py-32'>
-          <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-            <svg
-              className='w-6 h-6 text-secondary-500 animate-spin'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-            >
-              <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-              <path
-                className='opacity-75'
-                fill='currentColor'
-                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-              ></path>
-            </svg>
-          </div>
-        </div>
-      ) : isRecordSoepAvailable ? (
-        soepWithRecord
-      ) : (
-        soepSection
-      )}
-      { mainReason?.trim() !== '' && <LoadingAutoSaved loading={isLoading} success={succes} error={errorSave} />}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={id} />
-      </div>
-      <div className='flex flex-row-reverse mt-6'>
-        <div className='ml-6'>
-          <Button
-            disabled={disableBCancel}
-            className={classes.muiButtonOutlined}
-            variant='outlined'
-            onClick={() => {
-              setIsOpen(true)
+        <Grid style={{ marginTop: '15px' }} container>
+          <button
+            style={{
+              height: '35',
+              backgroundColor: soepSelected === Soep.Subjetive ? '#27BEC2' : '#F9FAFB',
+              color: soepSelected === Soep.Subjetive ? 'white' : 'black',
             }}
-            endIcon={
+            type='button'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            onClick={e => {
+              setSoepSelected(Soep.Subjetive)
+            }}
+            onMouseEnter={() => setShowHover(Soep.Subjetive)}
+            onMouseLeave={() => setShowHover('')}
+          >
+            Subjetivo
+            {showHover === Soep.Subjetive &&
+              ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })}
+          </button>
+          <button
+            style={{
+              height: '35',
+              backgroundColor: soepSelected === Soep.Objective ? '#27BEC2' : '#F9FAFB',
+              color: soepSelected === Soep.Objective ? 'white' : 'black',
+            }}
+            type='button'
+            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            onClick={e => {
+              setSoepSelected(Soep.Objective)
+            }}
+            onMouseEnter={() => setShowHover(Soep.Objective)}
+            onMouseLeave={() => setShowHover('')}
+          >
+            Objetivo
+            {showHover === Soep.Objective &&
+              ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })}
+          </button>
+          <button
+            style={{
+              height: '35',
+              backgroundColor: soepSelected === Soep.Evalutation ? '#27BEC2' : '#F9FAFB',
+              color: soepSelected === Soep.Evalutation ? 'white' : 'black',
+            }}
+            type='button'
+            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            onClick={e => {
+              setSoepSelected(Soep.Evalutation)
+            }}
+            onMouseEnter={() => setShowHover(Soep.Evalutation)}
+            onMouseLeave={() => setShowHover('')}
+          >
+            Evaluación
+            {showHover === Soep.Evalutation &&
+              ShowSoepHelper({
+                title: Soep.Evalutation,
+                isBlackColor: soepSelected === Soep.Evalutation ? false : true,
+              })}
+          </button>
+          <button
+            style={{
+              height: '35',
+              backgroundColor: soepSelected === Soep.Plan ? '#27BEC2' : '#F9FAFB',
+              color: soepSelected === Soep.Plan ? 'white' : 'black',
+            }}
+            type='button'
+            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            onClick={e => {
+              setSoepSelected(Soep.Plan)
+            }}
+            onMouseEnter={() => setShowHover(Soep.Plan)}
+            onMouseLeave={() => setShowHover('')}
+          >
+            Plan
+            {showHover === Soep.Plan &&
+              ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })}
+          </button>
+        </Grid>
+
+        {initialLoad ? (
+          <div className='flex items-center justify-center w-full h-full py-32'>
+            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
               <svg
+                className='w-6 h-6 text-secondary-500 animate-spin'
                 xmlns='http://www.w3.org/2000/svg'
-                className='h-6 w-6'
                 fill='none'
                 viewBox='0 0 24 24'
-                stroke='currentColor'
               >
+                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
                 <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                />
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                ></path>
               </svg>
-            }
-          >
-            Cancelar cita
-          </Button>
+            </div>
+          </div>
+        ) : isRecordSoepAvailable ? (
+          soepWithRecord
+        ) : (
+          soepSection
+        )}
+        {mainReason?.trim() !== '' && <LoadingAutoSaved loading={isLoading} success={succes} error={errorSave} />}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={id} />
         </div>
-      </div>
-      <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
-        Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
-      </Typography>
-    </Grid>
+        <div className='flex flex-row-reverse mt-6'>
+          <div className='ml-6'>
+            <Button
+              disabled={disableBCancel}
+              className={classes.muiButtonOutlined}
+              variant='outlined'
+              onClick={() => {
+                setIsOpen(true)
+              }}
+              endIcon={
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                  />
+                </svg>
+              }
+            >
+              Cancelar cita
+            </Button>
+          </div>
+        </div>
+        <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
+          Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
+        </Typography>
+      </Grid>
+    </div>
   )
 }
