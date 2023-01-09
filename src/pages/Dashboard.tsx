@@ -17,6 +17,8 @@ import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
+
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -118,6 +120,7 @@ export default function Dashboard() {
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
 
+  const { updatePrescriptions } = usePrescriptionContext();
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
@@ -274,6 +277,11 @@ export default function Dashboard() {
         .reduce((a, b) => a + b) === 0
     )
   }, [openHours])
+
+  useEffect(() => {
+    updatePrescriptions("", []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -622,27 +630,27 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-  const type = useMemo(() => {
-    let type = ''
-    switch (appointment.type) {
-      case 'PrivateEvent':
-        type = 'Evento Privado'
-        break
+  // const type = useMemo(() => {
+  //   let type = ''
+  //   switch (appointment.type) {
+  //     case 'PrivateEvent':
+  //       type = 'Evento Privado'
+  //       break
 
-      case 'CustomAppointment':
-        type = 'Custom Patient Consultation'
-        break
+  //     case 'CustomAppointment':
+  //       type = 'Custom Patient Consultation'
+  //       break
 
-      case 'Appointment':
-        type = 'Scheduled Patient Consultation'
-        break
+  //     case 'Appointment':
+  //       type = 'Scheduled Patient Consultation'
+  //       break
 
-      default:
-        type = 'Other'
-        break
-    }
-    return type
-  }, [appointment])
+  //     default:
+  //       type = 'Other'
+  //       break
+  //   }
+  //   return type
+  // }, [appointment])
 
   const hasPicture = appointment.type === 'Appointment'
 

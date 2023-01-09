@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-
+import { usePrescriptionContext } from '../../contexts/Prescriptions/PrescriptionContext';
 import Layout from '../../components/Layout'
 import PatientSection from './PatientSection'
 import MedicalRecordSection from './MedicalRecordSection'
@@ -11,6 +11,7 @@ import axios from 'axios'
 import { RecordsOutPatient } from '../../components/RecordsOutPatient'
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
+
 export default function Dashboard() {
   const [DynamicMenuSelector, setDynamicMenuSelector] = useState('M')
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
+  const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
@@ -47,6 +49,12 @@ export default function Dashboard() {
       mounted = false
     }
   }, [id])
+
+  useEffect(() => {
+    updatePrescriptions(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
 
   return (
     <Layout>
@@ -80,9 +88,8 @@ export default function Dashboard() {
             )}
           </div>
           <div
-            className={`flex flex-row h-full w-full left-3/12 bg-white ${
-              outpatientRecordShow && 'absolute inset-0 left-10/12'
-            } z-10`}
+            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12'
+              } z-10`}
             style={{ transition: 'left 0.5s linear' }}
           >
             <div className='w-1/12' style={{ width: '5rem' }}>
@@ -90,6 +97,8 @@ export default function Dashboard() {
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
                 }}
+                prescriptions={prescriptions}
+                appointment={appointment}
               />
             </div>
             <div className='aboslute h-full w-11/12'>
