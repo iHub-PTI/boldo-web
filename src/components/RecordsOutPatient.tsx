@@ -64,7 +64,7 @@ type OffsetType = {
   total: number
 }
 
-export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () => {}, ...props }) => {
+export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () => { }, ...props }) => {
   const patientId = props.appointment.patientId
   const { addErrorToast } = useToasts()
 
@@ -188,12 +188,15 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     if (offsetPage.offset === offsetPage.total) return
     if (scrollEvent.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollEvent.current
-      if (scrollTop + clientHeight === scrollHeight) {
+      if (Math.trunc(scrollTop + clientHeight) === scrollHeight) {
         // TO SOMETHING HERE
         getRecordsPatientOnScroll({
           offset: offsetPage.offset + 1,
         })
       }
+      //console.log("🚀 scrollTop + clientHeight", scrollTop + clientHeight)
+      //console.log("🚀 scrollHeight", scrollHeight)
+
     }
   }
 
@@ -315,11 +318,10 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
       </div>
 
       {/* body */}
-      <div className='flex flex-row w-full overflow-x-auto justify-center gap-3' style={{ minWidth: '600px' }}>
+      <div className='flex flex-row w-full overflow-x-auto justify-center gap-3 relative overflow-y-hidden' style={{ minWidth: '600px' }}>
         <div
-          className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${
-            loading && 'justify-center items-center w-full'
-          }`}
+          className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${loading && 'justify-center items-center w-full'
+            }`}
           style={{ height: 'calc(100vh - 380px)' }}
           ref={scrollEvent}
           onScroll={() => onScrollEnd()}
@@ -335,11 +337,6 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
                 onActiveID={setActiveID}
               />
             ))}
-          <div className={`relative h-15 ${!loadingScroll && 'invisible'}`}>
-            <div className='absolute flex flex-row items-center w-full justify-center inset-y-1'>
-              <img className='w-15 h-15' src={loadGif} alt='loading gif' />
-            </div>
-          </div>
         </div>
         <div
           className={`flex flex-col w-full overflow-y-auto scrollbar ${loadingDetail && 'items-center justify-center'}`}
@@ -349,7 +346,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
             <div className='h-full w-full flex items-center justify-center text-gray-200    font-bold text-3xl'>
               {loadingDetail ? (
                 <SpinnerLoading />
-              ) : totalRecordsPatient === 0 ? (
+              ) : !loading && totalRecordsPatient === 0 ? (
                 'No se han encontrado registros'
               ) : (
                 'Seleccione un elemento para mostrar'
@@ -361,6 +358,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
             <SpinnerLoading />
           )}
         </div>
+        <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50 left-28`} src={loadGif} alt='loading gif' style={{ bottom: '-1rem' }} />
       </div>
     </div>
   )
@@ -369,8 +367,8 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
 const PatientRecord = ({
   selected = false,
   patientRecord = {} as PatientRecord,
-  getRecordPatientDetail = (id: string) => {},
-  onActiveID = (id: string) => {},
+  getRecordPatientDetail = (id: string) => { },
+  onActiveID = (id: string) => { },
   ...props
 }) => {
   return (
@@ -586,9 +584,8 @@ const QueryFilter = ({
                 <div className='font-semibold text-gray-500 mb-1'>Autor</div>
                 <div className='flex flex-col w-full mb-2'>
                   <button
-                    className={`flex flex-row items-center gap-2 cursor-pointer ${
-                      AUTHOR_STATE['current'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
-                    } p-3 rounded-t-2xl focus:outline-none`}
+                    className={`flex flex-row items-center gap-2 cursor-pointer ${AUTHOR_STATE['current'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
+                      } p-3 rounded-t-2xl focus:outline-none`}
                     onClick={() => onClickCurrentDoctor()}
                   >
                     <PersonIcon className='mr-1' active={AUTHOR_STATE['current']} />
@@ -597,9 +594,8 @@ const QueryFilter = ({
                     </div>
                   </button>
                   <button
-                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${
-                      AUTHOR_STATE['all'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
-                    } p-3 rounded-b-2xl`}
+                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${AUTHOR_STATE['all'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
+                      } p-3 rounded-b-2xl`}
                     onClick={() => onClickAllDoctor()}
                   >
                     <StethoscopeIcon className='mr-1' active={AUTHOR_STATE['all']} />
@@ -611,9 +607,8 @@ const QueryFilter = ({
                 <div className='font-semibold text-gray-500 mb-1'>Orden</div>
                 <div className='flex flex-col w-full mb-2'>
                   <button
-                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${
-                      SEQUENCE_STATE['desc'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
-                    } p-3 rounded-t-2xl`}
+                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${SEQUENCE_STATE['desc'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
+                      } p-3 rounded-t-2xl`}
                     onClick={() => onClickSequenceDesc()}
                   >
                     <ArrowDownWardIcon className='mr-1' active={SEQUENCE_STATE['desc']} />
@@ -622,9 +617,8 @@ const QueryFilter = ({
                     </div>
                   </button>
                   <button
-                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${
-                      SEQUENCE_STATE['asc'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
-                    } p-3 rounded-b-2xl`}
+                    className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${SEQUENCE_STATE['asc'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
+                      } p-3 rounded-b-2xl`}
                     onClick={() => onClickSequenceAsc()}
                   >
                     <ArrowUpWardIcon className='mr-1' active={SEQUENCE_STATE['asc']} />
