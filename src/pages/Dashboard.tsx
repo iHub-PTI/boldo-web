@@ -17,6 +17,8 @@ import { useToasts } from '../components/Toast'
 import DateFormatted from '../components/DateFormatted'
 import RotateScreenModal from '../components/RotateScreenModal'
 import moment from 'moment'
+
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -120,13 +122,14 @@ export default function Dashboard() {
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
 
+  const { updatePrescriptions } = usePrescriptionContext();
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
     setAppointments(arg0)
     setDateRange(range => ({ ...range, refetch: true }))
   }
-  
+
   // The function updates the calendar events similar to the function 
   // for the calendar with the EventSourceFunc component of the Fullcalendar 
   // but this case to update directly with the calendarAPI reference
@@ -139,14 +142,20 @@ export default function Dashboard() {
         `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
       )
       .then(res => {
-        //console.log("🚀 res appointment", res.data)
-        const events = res.data.appointments.map(event => eventDataTransform(event))
-        const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
-        calendarAPI.removeAllEvents()
-        calendarAPI.addEventSource([...events, ...openHourDatesTransformed])
+        if (res.status === 204) {
+          setAppointments([])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([])
+        } else if (res.status === 200) {
+          console.log("🚀 res appointment", res.data)
+          const events = res.data.appointments.map(event => eventDataTransform(event))
+          const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
+          const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
+          setAppointments([...events, ...openHourDatesTransformed])
+          calendarAPI.removeAllEvents()
+          calendarAPI.addEventSource([...events, ...openHourDatesTransformed])
+        }
       })
       .catch(err => {
         console.log(err)
@@ -161,8 +170,8 @@ export default function Dashboard() {
   }, [])
 
   // the calendar will be updated every minute
-  useEffect(()=>{
-    const timer = setInterval(()=>{
+  useEffect(() => {
+    const timer = setInterval(() => {
       loadEventsSourcesCalendar()
     }, 60000)
     return () => clearInterval(timer)
@@ -230,17 +239,21 @@ export default function Dashboard() {
       )
       .then(res => {
         console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        
-        const events = res.data.appointments.map(event => eventDataTransform(event))
 
-        const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
-        const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+        if (res.status === 204) {
+          setAppointments([])
+        } else if (res.status === 200) {
+          const events = res.data.appointments.map(event => eventDataTransform(event))
 
-        setDateRange({ start, end, refetch: false })
-        setAppointments([...events, ...openHourDatesTransformed])
-        console.log({ start, end, refetch: false })
-        console.log([...events, ...openHourDatesTransformed])
-        // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+          const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
+          const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
+
+          setDateRange({ start, end, refetch: false })
+          setAppointments([...events, ...openHourDatesTransformed])
+          console.log({ start, end, refetch: false })
+          console.log([...events, ...openHourDatesTransformed])
+          // successCallback(events) // Don't use it here to fix a bug with FullCalendar
+        }
       })
       .catch(err => {
         console.log(err)
@@ -278,6 +291,11 @@ export default function Dashboard() {
         .reduce((a, b) => a + b) === 0
     )
   }, [openHours])
+
+  useEffect(() => {
+    updatePrescriptions("", []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -354,7 +372,7 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
-              
+
               <FullCalendar
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
@@ -412,7 +430,7 @@ export default function Dashboard() {
             zIndex: 1,
           }} >
 
-          <RotateScreenModal   isOpen={isOpen} setIsOpen={setIsOpen} />
+          <RotateScreenModal isOpen={isOpen} setIsOpen={setIsOpen} />
         </div>
       </>
       <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
@@ -626,27 +644,27 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-  const type = useMemo(() => {
-    let type = ''
-    switch (appointment.type) {
-      case 'PrivateEvent':
-        type = 'Evento Privado'
-        break
+  // const type = useMemo(() => {
+  //   let type = ''
+  //   switch (appointment.type) {
+  //     case 'PrivateEvent':
+  //       type = 'Evento Privado'
+  //       break
 
-      case 'CustomAppointment':
-        type = 'Custom Patient Consultation'
-        break
+  //     case 'CustomAppointment':
+  //       type = 'Custom Patient Consultation'
+  //       break
 
-      case 'Appointment':
-        type = 'Scheduled Patient Consultation'
-        break
+  //     case 'Appointment':
+  //       type = 'Scheduled Patient Consultation'
+  //       break
 
-      default:
-        type = 'Other'
-        break
-    }
-    return type
-  }, [appointment])
+  //     default:
+  //       type = 'Other'
+  //       break
+  //   }
+  //   return type
+  // }, [appointment])
 
   const hasPicture = appointment.type === 'Appointment'
 
@@ -769,7 +787,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
                   <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
                     Estado
                   </dt>
-                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.status === 'cancelled' &&'Cancelado'}</dd>
+                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.status === 'cancelled' && 'Cancelado'}</dd>
                 </div>
               )}
               {/* <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>

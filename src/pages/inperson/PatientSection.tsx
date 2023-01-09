@@ -8,6 +8,7 @@ import moment from 'moment'
 
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
+import UserCircle from "../../components/icons/patient-register/UserCircle"; 
 // import Modal from '../../components/Modal'
 // import loading from '../../assets/loading.gif'
 // import { Icons } from 'material-table';
@@ -28,7 +29,7 @@ import useWindowDimensions from '../../util/useWindowDimensions'
 // import Search from '@material-ui/icons/Search';
 // import ViewColumn from '@material-ui/icons/ViewColumn';
 
-const PatientRecord = props => {
+const PatientRecord = (props) => {
 
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
   //const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
@@ -350,9 +351,20 @@ const PatientRecord = props => {
           />
         </Modal>
       </Grid> */}
+      <div className='flex justify-center mt-10'>
+        <button 
+          className='focus:outline-none p-2 hover:bg-cool-gray-100 transition-colors delay-200 disabled:cursor-not-allowed'
+          onClick= {() => props.showPatientRecord()}
+          //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
+          disabled={props.disabledRedcordButton}
+        >
+          <div className={`text-gray-500 flex flex-row justify-center items-center ${props.outpatientRecord && 'text-primary-600 font-semibold'}`}> <UserCircle fill={`${props.outpatientRecord ? '#13A5A9': '#6B7280'}`}className='mr-1'/>  Registro Ambulatorio</div>
+        </button>
+      </div>
     </Grid>
   )
 }
+
 
 
 export default (props) => {
@@ -387,7 +399,7 @@ export default (props) => {
 
   return (
     <Grid
-      className='h-full flex-wrap items-center justify-center'
+      className='h-full items-center justify-center'
       style={{
         backgroundColor: '#F4F5F7',
         borderTopLeftRadius: '0px',
@@ -397,23 +409,33 @@ export default (props) => {
         boxShadow: 'none',
       }}
     >
-      {appointment !== undefined && encounter !== undefined ? <PatientRecord patient={appointment.patient} encounter={encounter} id={id} appointment={appointment}/> : <div style={{ width: '300px' }} className='flex items-center justify-center pr-15 py-64'>
-        <div className='flex items-center justify-center  mx-auto bg-gray-100 rounded-full'>
-          <svg
-            className='w-6 h-6 text-secondary-500 animate-spin'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-          >
-            <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
-            <path
-              className='opacity-75'
-              fill='currentColor'
-              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-            ></path>
-          </svg>
-        </div>
-      </div>}
+      {appointment !== undefined && encounter !== undefined ?
+        <PatientRecord
+          patient={appointment.patient}
+          encounter={encounter}
+          id={id}
+          appointment={appointment}
+          outpatientRecord={props.outpatientRecord}
+          showPatientRecord={props.showPatientRecord}
+          disabledRedcordButton={props.disabledRedcordButton}
+        /> :
+        <div className='flex h-full justify-center items-center'>
+          <div className='bg-gray-100 rounded-full'>
+            <svg
+              className='w-6 h-6 text-secondary-500 animate-spin'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+            >
+              <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='2'></circle>
+              <path
+                className='opacity-75'
+                fill='currentColor'
+                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              ></path>
+            </svg>
+          </div>
+        </div>}
     </Grid>
   )
 
