@@ -39,7 +39,7 @@ const ListboxComponent: React.FC<Props> = ({ data, label, id, onChange }) => {
                 <div className={`absolute inset-y-0 left-0 flex items-center pl-1.5 ml-1`}>
                   <div
                     className='h-4 w-2'
-                    style={{ backgroundColor: data.find(item => item.id === selected)?.colorCode }}
+                    style={{ backgroundColor: data.find(item => item.id === selected)?.colorCode ?? '#27BEC2' }}
                   ></div>
                 </div>
                 <span className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
@@ -77,7 +77,7 @@ const ListboxComponent: React.FC<Props> = ({ data, label, id, onChange }) => {
                           {item.name}
                         </span>
                         <div className={`absolute inset-y-0 left-0 flex items-center pl-1.5 ml-1`}>
-                          <div className='h-4 w-2' style={{ backgroundColor: item.colorCode }}></div>
+                          <div className='h-4 w-2' style={{ backgroundColor: item.colorCode ?? '#27BEC2' }}></div>
                         </div>
                       </div>
                     )}
