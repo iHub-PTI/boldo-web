@@ -2,6 +2,8 @@ import { Box, Card, CardContent, Grid, TextField, Typography } from '@material-u
 import MaterialTable from 'material-table'
 // import tableIcons from "./MaterialTableIcons";
 import axios from 'axios'
+import * as Sentry from '@sentry/react'
+import { useToasts } from '../components/Toast'
 
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
@@ -14,6 +16,8 @@ import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
 const formatter = buildFormatter(spanishStrings)
 
 const ValidatePatient = () => {
+  const { addToast } = useToasts()
+
   const [data, setData] = useState([])
 
   const [PatientsList, setPatientsList] = useState([])
@@ -27,7 +31,7 @@ const ValidatePatient = () => {
   useEffect(() => {
     const effect = async () => {
       try {
-        const res = await axios.get('/inactive')
+        const res = await axios.get('/profile/doctor/inactivePatients')
         var count = Object.keys(res.data).length
         for (var i = 0; i < count; i++) {
           const patient = res.data[i]
@@ -159,16 +163,24 @@ const ValidatePatient = () => {
       },
       render: rowData => {
         const handleValidate = async () => {
-          try {
-            const payload = {
-              username: rowData.username,
-            }
-            await axios.post(`/user/validate`, payload)
-          } catch (err) {
-            console.log(err)
-            // if (err?.response?.status !== 401) setError(true)
-          }
+          await axios
+            .put(`/profile/doctor/validatePatient?username=${rowData.username}`)
+            .then(res => {
+              if (res.status === 200)
+                addToast({ type: 'success', title: `¡El usuario ${rowData.username} ha sido habilitado con éxito!` })
+            })
+            .catch(err => {
+              console.log(err)
+              Sentry.setTags({
+                Mehod: 'PUT',
+                URL: '/profile/doctor/validatePatient',
+                'PARAMS [username]': rowData.username,
+              })
+              Sentry.captureException(err)
+              addToast({ type: 'error', title: 'Ha ocurrido un error', text: err.message })
+            })
         }
+
         return showCounter === rowData.username ? (
           <Countdown
             setDataCallback={elem => {
