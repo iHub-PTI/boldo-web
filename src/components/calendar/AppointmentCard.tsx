@@ -12,7 +12,7 @@ import { ReactComponent as Now } from '../../assets/now.svg';
 import { ReactComponent as NowTeal } from '../../assets/now-white.svg';
 
 
-function AppointmentCard(eventInfo, color) {
+function AppointmentCard(eventInfo, color = "#27BEC2") {
 
   let borderColor = color;
 
@@ -33,7 +33,6 @@ function AppointmentCard(eventInfo, color) {
           style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }}  
         >
         {/* header of the container */}
-        {console.log("elementos ", eventInfo.event.extendedProps)}
         <div className="flex">
           { 
             eventInfo.event.extendedProps.status === 'cancelled'
@@ -101,7 +100,7 @@ function AppointmentCard(eventInfo, color) {
             <div className='mt-1 ml-1 mr-1'><NowTeal /></div>
             <p className="font-medium ml-1 text-white">
               {getTime(eventInfo.event.startStr)}-{getTime(eventInfo.event.endStr)}
-              {console.log(eventInfo.event)}
+              
             </p> 
           </div>
           {/* name and description of the event */}
