@@ -39,6 +39,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
+    const [ width, setWidth ] = useState(window.innerWidth)
 
     
     useEffect(() => {
@@ -136,7 +137,12 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
     
-    
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
 
     if (initialLoad)
         return (
