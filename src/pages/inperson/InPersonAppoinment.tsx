@@ -69,7 +69,7 @@ export default function Dashboard() {
                 appointment={appointment}
                 outpatientRecord={outpatientRecordShow}
                 showPatientRecord={() => {
-                  setOutpatientRecordShow(!outpatientRecordShow)
+                  setOutpatientRecordShow(true)
                 }}
                 disabledRedcordButton={disabledRedcordButton}
               />
@@ -88,11 +88,12 @@ export default function Dashboard() {
             )}
           </div>
           <div
-            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12'
+            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12 opacity-25 cursor-default'
               } z-10`}
-            style={{ transition: 'left 0.5s linear' }}
+            style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
+            onClick={() => outpatientRecordShow && setOutpatientRecordShow(false)}
           >
-            <div className='w-1/12' style={{ width: '5rem' }}>
+            <div className='w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
               <SelectorSection
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
@@ -101,7 +102,7 @@ export default function Dashboard() {
                 appointment={appointment}
               />
             </div>
-            <div className='aboslute h-full w-11/12'>
+            <div className='aboslute h-full w-11/12' style={{ pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
               {DynamicMenuSelector === 'P' ? (
                 <PrescriptionMenu appointment={appointment} isFromInperson={true} />
               ) : DynamicMenuSelector === 'M' ? (
