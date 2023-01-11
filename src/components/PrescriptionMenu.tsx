@@ -39,6 +39,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
+    const [ width, setWidth ] = useState(window.innerWidth)
 
     
     useEffect(() => {
@@ -136,7 +137,12 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
     
-    
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
 
     if (initialLoad)
         return (
@@ -160,8 +166,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         )
     
     return (
-        <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-            <Grid>
+        <div className='flex flex-col bg-white shadow-xl'>
+            <div 
+                style={{
+                    height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)' }`,
+                    overflowY: "auto"
+                }}
+            >
 
                 {!isFromInperson ?
                     <>
@@ -418,7 +429,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         }}
                     />
                 </div>
-            </Grid>
+            </div>
         </div>
     )
 }
