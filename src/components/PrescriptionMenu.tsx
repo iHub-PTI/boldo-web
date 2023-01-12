@@ -16,10 +16,13 @@ import DoneIcon from '@material-ui/icons/Done';
 import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
+import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
+
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext()
+    const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
@@ -36,7 +39,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
+    const [ width, setWidth ] = useState(window.innerWidth)
 
+    
+    useEffect(() => {
+        updatePrescriptions(id, selectedMedication);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, selectedMedication]);
     
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -128,6 +137,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
     
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
+
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -150,8 +166,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         )
     
     return (
-        <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-            <Grid>
+        <div className='flex flex-col bg-white shadow-xl'>
+            <div 
+                style={{
+                    height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)' }`,
+                    overflowY: "auto"
+                }}
+            >
 
                 {!isFromInperson ?
                     <>
@@ -330,6 +351,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                         <div className='flex justify-items-center items-center mt-2 text-sm text-gray-600 sm:mt-0 sm:mr-2'>
                                             <DoneIcon fontSize="small" style={{ marginRight: '0.5rem' }} />
                                             Guardado.
+                                            {console.log("estado actual: ", selectedMedication)}
                                         </div>
                                     )
                                 }
@@ -407,7 +429,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         }}
                     />
                 </div>
-            </Grid>
+            </div>
         </div>
     )
 }

@@ -22,6 +22,8 @@ import AppointmentCard from '../components/calendar/AppointmentCard'
 import NowIndicatorContent from '../components/calendar/NowIndicatorContent'
 import ListboxColor from '../components/ListboxColor'
 import { OrganizationContext } from '../contexts/organizationContext'
+
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -33,7 +35,9 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
     return 'event-other'
   }
   return {
-    title: `${event.patient?.givenName} ${event.patient?.familyName}` || event.name,
+    title: event.type !== 'PrivateEvent'
+      ? `${event.patient?.givenName} ${event.patient?.familyName}` 
+      : event.name,
     start: event.start,
     end: event.end,
     classNames: [getColorClass(event.type), 'boldo-event'],
@@ -41,6 +45,7 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const calculateOpenHours = (openHours: Boldo.OpenHours, start: Date, end: Date) => {
   // Create list of days
   const days = differenceInDays(end, start)
@@ -125,19 +130,22 @@ export default function Dashboard() {
   // Context API Organization Boldo MultiOrganization
   const {Organization, setOrganization} = useContext(OrganizationContext)
   const [ data, setData ] = useState<any[]>([]);
+  // used for testing
   const fakeData = [
-    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
-    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
-    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
+    // {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
+    // {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
+    // {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
   ]
 
+  const { updatePrescriptions } = usePrescriptionContext();
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
+    console.log("arg0: " + arg0);
     setAppointments(arg0)
     setDateRange(range => ({ ...range, refetch: true }))
   }
-  
+
   // The function updates the calendar events similar to the function 
   // for the calendar with the EventSourceFunc component of the Fullcalendar 
   // but this case to update directly with the calendarAPI reference
@@ -158,7 +166,7 @@ export default function Dashboard() {
       )
       .then(res => {
         //console.log("🚀 res appointment", res.data)
-        const events = res.data.appointments.map(event => eventDataTransform(event))
+        // const events = res.data.appointments.map(event => eventDataTransform(event))
         //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         
@@ -204,7 +212,7 @@ export default function Dashboard() {
         } else {
           // Algo paso al preparar la petición que lanzo un Error
           Sentry.setTag('message', err.message)
-          console.log('Error', err.message)
+          console.log('Error', err)
         }
         Sentry.captureException(err)
         setLoadingAppointment(false)
@@ -217,16 +225,17 @@ export default function Dashboard() {
       url
     )
     .then(function (res) {
-      console.log("response: ", res);
       if (res.status === 200) {
+        // delete fakedata when doesn't necessarily
         setData([...res.data, ...fakeData]);
         setOrganization(res.data[0]);
       } else if (res.status === 204) {
-        addToast({ type: 'warning', title: 'Ocurrió un error.', text: 'No se pudieron obtener los centros asistenciales.'})
+        addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.'})
       }
     })
     .catch(function (err) {
       console.log("when obtain organizations ", err);
+      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.'})
       Sentry.setTag("endpoint", url);
       if (err.response) {
         // La respuesta fue hecha y el servidor respondió con un código de estado
@@ -249,9 +258,9 @@ export default function Dashboard() {
 
 
   useEffect(()=>{
-    console.log("=> ", Organization)
+    console.log("=> ", Organization?.name)
     console.log("=> ap", appointments)
-  }, [Organization])
+  })
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
@@ -260,8 +269,8 @@ export default function Dashboard() {
   }, [])
 
   // the calendar will be updated every minute
-  useEffect(()=>{
-    const timer = setInterval(()=>{
+  useEffect(() => {
+    const timer = setInterval(() => {
       loadEventsSourcesCalendar()
     }, 60000)
     return () => clearInterval(timer)
@@ -270,7 +279,6 @@ export default function Dashboard() {
   // useEffect to render the calendar events
   useEffect(() => {
     const load = () => {
-      setAppointments([])
       loadEventsSourcesCalendar()
     }
     if (Organization !== undefined && Organization !== null) load()
@@ -348,16 +356,13 @@ export default function Dashboard() {
         
        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        
-        //console.log({ start, end, refetch: false })
-        //console.log([...events])
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
-          setAppointments([events])
-          console.log({ start, end, refetch: false })
-          console.log([...events])
+          setAppointments([...events])
+          // console.log({ start, end, refetch: false })
+          // console.log([...events])
           // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         } else if (res.status === 204) {
           setDateRange({ start, end, refetch: false })
@@ -406,6 +411,8 @@ export default function Dashboard() {
 
     if (info.event.extendedProps.status === 'cancelled') {
 
+    } else if (info.event.extendedProps.type === 'PrivateEvent') {
+      setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
     } else
       if (info.event.extendedProps.appointmentType === 'V' && info.event.extendedProps.status !== 'locked') {
         return history.push(`/appointments/${info.event.extendedProps.id}/call`)
@@ -423,6 +430,11 @@ export default function Dashboard() {
         .reduce((a, b) => a + b) === 0
     )
   }, [openHours])
+
+  useEffect(() => {
+    updatePrescriptions("", []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -580,7 +592,7 @@ export default function Dashboard() {
             zIndex: 1,
           }} >
 
-          <RotateScreenModal   isOpen={isOpen} setIsOpen={setIsOpen} />
+          <RotateScreenModal isOpen={isOpen} setIsOpen={setIsOpen} />
         </div>
       </>
       <Modal show={showEditModal} setShow={setShowEditModal} size='xl' noPadding>
@@ -794,27 +806,27 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
-  const type = useMemo(() => {
-    let type = ''
-    switch (appointment.type) {
-      case 'PrivateEvent':
-        type = 'Evento Privado'
-        break
+  // const type = useMemo(() => {
+  //   let type = ''
+  //   switch (appointment.type) {
+  //     case 'PrivateEvent':
+  //       type = 'Evento Privado'
+  //       break
 
-      case 'CustomAppointment':
-        type = 'Custom Patient Consultation'
-        break
+  //     case 'CustomAppointment':
+  //       type = 'Custom Patient Consultation'
+  //       break
 
-      case 'Appointment':
-        type = 'Scheduled Patient Consultation'
-        break
+  //     case 'Appointment':
+  //       type = 'Scheduled Patient Consultation'
+  //       break
 
-      default:
-        type = 'Other'
-        break
-    }
-    return type
-  }, [appointment])
+  //     default:
+  //       type = 'Other'
+  //       break
+  //   }
+  //   return type
+  // }, [appointment])
 
   const hasPicture = appointment.type === 'Appointment'
 
@@ -922,14 +934,22 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
               )}
               <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                 <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Tipo</dt>
-                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.appointmentType === 'V'?'Consulta virtual':'Consulta Presencial'}</dd>
+                <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
+                  { 
+                    appointment.appointmentType === 'E' 
+                      ? 'Evento privado'
+                      : appointment.appointmentType === 'V'
+                        ?'Consulta virtual'
+                        :'Consulta Presencial'
+                  }
+                </dd>
               </div>
               {status && (
                 <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                   <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>
                     Estado
                   </dt>
-                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.status === 'cancelled' &&'Cancelado'}</dd>
+                  <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>{appointment.status === 'cancelled' && 'Cancelado'}</dd>
                 </div>
               )}
               {/* <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>

@@ -16,6 +16,7 @@ import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
 import * as Sentry from "@sentry/react";
 import OrganizationProvider from "./contexts/organizationContext"
+import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -86,7 +87,9 @@ const App = () => {
               <div className='antialiased App'>
                 <Switch>
                   <Route exact path='/'>
-                    <Dashboard />
+                    <PrescriptionContextProvider>
+                      <Dashboard />
+                    </PrescriptionContextProvider>
                   </Route>
 
                   <Route exact path='/settings'>
@@ -98,11 +101,15 @@ const App = () => {
                   </Route>
 
                   <Route exact path='/appointments/:id/call'>
-                    <Call />
+                    <PrescriptionContextProvider>
+                      <Call />
+                    </PrescriptionContextProvider>
                   </Route>
 
                   <Route exact path='/appointments/:id/inperson'>
-                    <InPersonAppoinment />
+                    <PrescriptionContextProvider>
+                      <InPersonAppoinment />
+                    </PrescriptionContextProvider>
                   </Route>
 
                   <Route exact path='/boldo-app-privacy-policy'>
