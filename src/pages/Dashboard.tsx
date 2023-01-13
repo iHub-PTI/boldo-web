@@ -137,6 +137,8 @@ export default function Dashboard() {
     // {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
   ]
 
+  const loadingAppoimentRef = useRef<HTMLDivElement>()
+
   const { updatePrescriptions } = usePrescriptionContext();
 
   // FIXME: Can this be improved?
@@ -149,18 +151,18 @@ export default function Dashboard() {
   // The function updates the calendar events similar to the function 
   // for the calendar with the EventSourceFunc component of the Fullcalendar 
   // but this case to update directly with the calendarAPI reference
-  const loadEventsSourcesCalendar = () => {
+  const loadEventsSourcesCalendar = (idOrganization:string) => {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
     const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
 
     setLoadingAppointment(true)
-    Organization && axios
+    axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
         params: {
-          organizationId: Organization.id
+          organizationId: idOrganization
         }
       }
       )
@@ -265,21 +267,10 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      loadEventsSourcesCalendar()
+      loadEventsSourcesCalendar(Organization.id)
     }, 60000)
     return () => clearInterval(timer)
   })
-
-  // useEffect to render the calendar events
-  useEffect(() => {
-    const load = () => {
-      //reset calendar events
-      setAppointments([])
-      loadEventsSourcesCalendar()
-    }
-    if (Organization !== undefined && Organization !== null) load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Organization])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -344,12 +335,16 @@ export default function Dashboard() {
   // FC automaticall rerenders when appointmens[] has changed.
   // Check why it doesn't work like that.
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
+   
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
     const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
-    setLoadingAppointment(true)
+    let loadingDiv = loadingAppoimentRef.current
+
+    if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
+
     Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
@@ -374,7 +369,7 @@ export default function Dashboard() {
           setDateRange({ start, end, refetch: false })
           setAppointments([])
         }
-        setLoadingAppointment(false)
+        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
       .catch(err => {
         Sentry.setTag('appointment_id', appointment.id);
@@ -403,7 +398,7 @@ export default function Dashboard() {
           console.log('Error', err.message)
         }
         Sentry.captureException(err)
-        setLoadingAppointment(false)
+        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
   }
 
@@ -504,7 +499,9 @@ export default function Dashboard() {
                   {data.length > 0 &&
                     <ListboxColor data={data}
                       label='Espacio de Trabajo'
-                      onChange={value => setOrganization(data.find((d) => d.id === value))}>
+                      onChange={value => {setOrganization(data.find((d) => d.id === value))
+                        loadEventsSourcesCalendar(value)
+                      }}>
                     </ListboxColor>
                   }
                 </div>
@@ -526,7 +523,7 @@ export default function Dashboard() {
                 </div>
               </div>
               {/* this is the container of the appointment loading */}
-              <div className={`${loadingAppointment ? `flex` : `hidden`} w-full h-full justify-items-center align-middle z-50 fixed left-20 top-20`}>
+              <div ref={loadingAppoimentRef} className={`${loadingAppointment ? `flex` : `hidden`} w-full h-full justify-items-center align-middle z-50 fixed left-20 top-20`}>
                 <div className='m-auto flex-col justify-items-center align-middle'>
                   {/* this is the spinner */}
                   <div className='loader ml-8'></div>
