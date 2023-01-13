@@ -156,7 +156,7 @@ export default function Dashboard() {
     const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
 
     setLoadingAppointment(true)
-    axios
+    Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
           params: {
@@ -166,13 +166,12 @@ export default function Dashboard() {
       )
       .then(res => {
         //console.log("🚀 res appointment", res.data)
-        // const events = res.data.appointments.map(event => eventDataTransform(event))
+        //const events = res.data.appointments.map(event => eventDataTransform(event))
         //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         
-        
-        console.log("🚀 res appointment", res.data)
         if (res.status === 200) {
+          //console.log("🚀 res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
           setAppointments([...events])
@@ -219,6 +218,7 @@ export default function Dashboard() {
       })
   }
 
+  // Get organization
   useEffect(() => {
     const url = '/profile/doctor/organizations';
     axios.get(
@@ -256,12 +256,6 @@ export default function Dashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  useEffect(()=>{
-    console.log("=> ", Organization?.name)
-    console.log("=> ap", appointments)
-  })
-
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
       setIsOpen(true);
@@ -279,6 +273,8 @@ export default function Dashboard() {
   // useEffect to render the calendar events
   useEffect(() => {
     const load = () => {
+      //reset calendar events
+      setAppointments([])
       loadEventsSourcesCalendar()
     }
     if (Organization !== undefined && Organization !== null) load()
@@ -343,7 +339,7 @@ export default function Dashboard() {
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     setLoadingAppointment(true)
-    axios
+    Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
           params: {
@@ -352,12 +348,11 @@ export default function Dashboard() {
         }
       )
       .then(res => {
-        console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        
-       // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
+        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
+          console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
           setAppointments([...events])
