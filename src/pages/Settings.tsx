@@ -163,7 +163,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
 
     case 'AddOpenHour': {
       let idOrganization = action.org
-      console.log("idOrganization => ", idOrganization)
+      // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
       const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
       
@@ -188,7 +188,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
 
     case 'RemoveOpenHour': {
       let idOrganization = action.org
-      console.log("idOrganization => ", idOrganization)
+      // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
       const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
       const day = block.openHours[action.value.day].filter((_, i) => i !== action.value.index)
@@ -209,7 +209,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
 
     case 'ChangeOpenHour': {
       let idOrganization = action.org
-      console.log("idOrganization => ", idOrganization)
+      // console.log("idOrganization => ", idOrganization)
       const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
       
       const day = block.openHours[action.value.day].map((interval, i) =>
@@ -217,10 +217,10 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       )
 
       const openHours = {...block.openHours, [action.value.day]: day}
-      console.log("openHours => ", openHours)
+      // console.log("openHours => ", openHours)
       // will always be an array of length one
       const newBlock = [{  openHours, idOrganization }] as Array<Boldo.Block>
-      console.log("newBlock => ", newBlock)
+      // console.log("newBlock => ", newBlock)
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
         if (state.blocks[index].idOrganization === idOrganization) {
