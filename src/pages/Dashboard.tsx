@@ -240,7 +240,8 @@ export default function Dashboard() {
     } else if ( Organizations.length === 0 ) {
       addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.'})
     }  
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
