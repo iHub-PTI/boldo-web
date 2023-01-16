@@ -11,9 +11,10 @@ import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
 import * as Sentry from '@sentry/react'
-import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
+// Uncomment if necessary
+// import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
-import { doctorData } from '../components/LoadAppointments'
+// import { doctorData } from '../components/LoadAppointments'
 import { useToasts } from '../components/Toast'
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
@@ -253,7 +254,8 @@ const Settings = (props: Props) => {
   const [show, setShow] = useState(false)
 
   const { updateUser } = useContext(UserContext)
-  const { Organization } = useContext(OrganizationContext)
+  // Uncomment if necessary
+  // const { Organization } = useContext(OrganizationContext)
   const { Organizations } = useContext(AllOrganizationContext)
 
   const { addToast } = useToasts();

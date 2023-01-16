@@ -24,7 +24,7 @@ import ListboxColor from '../components/ListboxColor'
 import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
-import { type } from 'os'
+// import { type } from 'os'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -135,11 +135,11 @@ export default function Dashboard() {
   const { Organizations } = useContext(AllOrganizationContext)
   // const [ data, setData ] = useState<any[]>([]);
   // used for testing
-  const fakeData = [
-    // {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
-    // {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
-    // {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
-  ]
+  // const fakeData = [
+  //    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
+  //    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
+  //    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
+  // ]
 
   const { updatePrescriptions } = usePrescriptionContext();
 
@@ -224,15 +224,16 @@ export default function Dashboard() {
   }
 
 
-  // useEffect(()=>{
-  //   console.log("blocks: ", user.blocks)
-  //   console.log("org: ", Organization)
-  //   if (Organization) {
-  //     let bloc = user.blocks.find((bloc) => bloc.idOrganization === Organization.id)
-  //     console.log("bloc: ", bloc)
-  //     if (bloc) setOpenHours(bloc.openHours)
-  //   }
-  // }, [Organization])
+  useEffect(()=>{
+    // console.log("blocks: ", user.blocks)
+    // console.log("org: ", Organization)
+    if (Organization) {
+      let bloc = user.blocks.find((bloc) => bloc.idOrganization === Organization.id)
+      console.log("bloc: ", bloc)
+      if (bloc) setOpenHours(bloc.openHours)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Organization])
 
   useEffect(()=>{
     if ( Organizations === undefined ) {
@@ -252,7 +253,7 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      loadEventsSourcesCalendar()
+      if (Organizations.length > 0) loadEventsSourcesCalendar()
     }, 60000)
     return () => clearInterval(timer)
   })
@@ -262,7 +263,7 @@ export default function Dashboard() {
     const load = () => {
       loadEventsSourcesCalendar()
     }
-    if (Organization !== undefined && Organization !== null) load()
+    if (Organization !== undefined && Organization !== null && Organizations.length > 0) load()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Organization])
 
