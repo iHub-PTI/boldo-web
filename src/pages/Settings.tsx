@@ -355,7 +355,8 @@ const Settings = (props: Props) => {
               <h3 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate'>
                 Mi cuenta
               </h3>
-              <div className='flex flex-col-reverse items-center sm:flex-row'>
+              {/* prevent show submit buttom on top of the screen */}
+              {/* <div className='flex flex-col-reverse items-center sm:flex-row'>
                 {error && <span className='mt-2 text-sm text-red-600 sm:mt-0 sm:mr-2'>{error}</span>}
                 {success && <span className='mt-2 text-sm text-green-600 sm:mt-0 sm:mr-2'>{success}</span>}
                 <span className='flex w-full rounded-md shadow-sm sm:w-auto'>
