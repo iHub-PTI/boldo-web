@@ -13,6 +13,10 @@ import {Provider} from 'react-redux'
 import {createStore} from 'redux'
 import App from './App'
 import soepReducer from './redux/reducers/soepReducer.js';
+
+import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
+import OrganizationProvider from "../src/contexts/Organizations/organizationSelectedContext"
+
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY,
@@ -34,10 +38,14 @@ const configureStore = createStore(soepReducer);
 
 ReactDOM.render(
   <Provider store={configureStore}>
-   <BrowserRouter>
-      <App />
+    <BrowserRouter>
+      <AllOrganizationProvider>
+        <OrganizationProvider>
+          <App />
+        </OrganizationProvider>
+      </AllOrganizationProvider>
     </BrowserRouter>
-    </Provider>
+  </Provider>
   ,
   document.getElementById('root')
 )
