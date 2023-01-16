@@ -724,84 +724,92 @@ const Settings = (props: Props) => {
                     </p>
                   </div>
                 </div>
-                <div className='mt-5 md:mt-0 md:col-span-2'>
-                  <div className='overflow-hidden shadow sm:rounded-md'>
-                    {
-                      doctor.blocks.map((block, indexOrg) => {
-                        
-                        return <div className="w-full px-2 pt-4" key={indexOrg}>
-                          <div className="mx-auto w-full rounded-2xl bg-white p-2">
-                            <Disclosure>
-                              {({ open }) => (
-                                <>
-                                  <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                                    <span>{getOrganizationNameById(block.idOrganization)}</span>
-                                    <p>{open ? 'contraer' : 'expandir' }</p>
-                                  </Disclosure.Button>
-                                  <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
-                                    <div className=' bg-white sm:p-6'>
-                                      {
-                                        (Object.keys(weekDays) as Array<keyof typeof weekDays>).map(day => (
-                                          <fieldset key={day}>
-                                            <div className='flex items-center mb-3'>
-                                              <legend className='font-medium leading-5 text-gray-700 '>{weekDays[day]}</legend>
-                                              <button
-                                                className='flex items-center justify-center w-8 h-8 ml-1 rounded-full focus:outline-none focus:bg-cool-gray-100'
-                                                onClick={() => dispatch({ type: 'AddOpenHour', value: { day }, org: Organizations[indexOrg].id })}
-                                                type='button'
-                                              >
-                                                <svg
-                                                  className='w-6 h-6 text-cool-gray-500'
-                                                  fill='none'
-                                                  viewBox='0 0 24 24'
-                                                  stroke='currentColor'
-                                                >
-                                                  <path
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                    strokeWidth={2}
-                                                    d='M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-                                                  />
-                                                </svg>
-                                              </button>
-                                            </div>
-                                            {block?.openHours[day].length === 0
-                                              ? 'Cerrado'
-                                              : block?.openHours[day].map((interval: Interval, index: number) => (
-                                                <TimeInterval
-                                                  key={`${index}-${interval.start}-${interval.end}`}
-                                                  id={`${index}-${day}`}
-                                                  start={interval.start}
-                                                  end={interval.end}
-                                                  onDelete={() => dispatch({ type: 'RemoveOpenHour', value: { day, index } , org: Organizations[indexOrg].id})}
-                                                  onChange={interval =>
-                                                    dispatch({ type: 'ChangeOpenHour', value: { day, index, interval }, org: Organizations[indexOrg].id })
+                {
+                  Organizations?.length === 0
+                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
+                      <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
+                        No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
+                      </p>
+                    </div>
+                    : <div className='pl-2 mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
+                        <div className='overflow-hidden shadow sm:rounded-md'>
+                          {
+                            doctor.blocks.map((block, indexOrg) => {
+                              
+                              return <div className="w-full px-2 pt-4" key={indexOrg}>
+                                <div className="mx-auto w-full rounded-2xl bg-white p-2">
+                                  <Disclosure>
+                                    {({ open }) => (
+                                      <>
+                                        <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                                          <span>{getOrganizationNameById(block.idOrganization)}</span>
+                                          <p>{open ? 'contraer' : 'expandir' }</p>
+                                        </Disclosure.Button>
+                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
+                                          <div className=' bg-white sm:p-6'>
+                                            {
+                                              (Object.keys(weekDays) as Array<keyof typeof weekDays>).map(day => (
+                                                <fieldset key={day}>
+                                                  <div className='flex items-center mb-3'>
+                                                    <legend className='font-medium leading-5 text-gray-700 '>{weekDays[day]}</legend>
+                                                    <button
+                                                      className='flex items-center justify-center w-8 h-8 ml-1 rounded-full focus:outline-none focus:bg-cool-gray-100'
+                                                      onClick={() => dispatch({ type: 'AddOpenHour', value: { day }, org: Organizations[indexOrg].id })}
+                                                      type='button'
+                                                    >
+                                                      <svg
+                                                        className='w-6 h-6 text-cool-gray-500'
+                                                        fill='none'
+                                                        viewBox='0 0 24 24'
+                                                        stroke='currentColor'
+                                                      >
+                                                        <path
+                                                          strokeLinecap='round'
+                                                          strokeLinejoin='round'
+                                                          strokeWidth={2}
+                                                          d='M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
+                                                        />
+                                                      </svg>
+                                                    </button>
+                                                  </div>
+                                                  {block?.openHours[day].length === 0
+                                                    ? 'Cerrado'
+                                                    : block?.openHours[day].map((interval: Interval, index: number) => (
+                                                      <TimeInterval
+                                                        key={`${index}-${interval.start}-${interval.end}`}
+                                                        id={`${index}-${day}`}
+                                                        start={interval.start}
+                                                        end={interval.end}
+                                                        onDelete={() => dispatch({ type: 'RemoveOpenHour', value: { day, index } , org: Organizations[indexOrg].id})}
+                                                        onChange={interval =>
+                                                          dispatch({ type: 'ChangeOpenHour', value: { day, index, interval }, org: Organizations[indexOrg].id })
+                                                        }
+                                                        setModality={elem => {
+                                                          interval.appointmentType = elem
+                                                        }}
+                                                        modality={interval.appointmentType}
+                                                      />
+                                                    ))
                                                   }
-                                                  setModality={elem => {
-                                                    interval.appointmentType = elem
-                                                  }}
-                                                  modality={interval.appointmentType}
-                                                />
+                                                </fieldset>
                                               ))
                                             }
-                                          </fieldset>
-                                        ))
-                                      }
-                                    </div>
-                                  </Disclosure.Panel>
-                                </>
-                              )}
-                            </Disclosure>
+                                          </div>
+                                        </Disclosure.Panel>
+                                      </>
+                                    )}
+                                  </Disclosure>
+                                </div>
+                              </div>
+  
+                            })
+                          }
+                          <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
+                            <SaveButton error={error} success={success} loading={loading} />
                           </div>
                         </div>
-
-                      })
-                    }
-                    <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
-                    </div>
-                  </div>
-                </div>
+                      </div>
+                }
               </div>
             </div>
           </form>
