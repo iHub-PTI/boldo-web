@@ -1,7 +1,9 @@
 import { Box, Card, CardContent, Grid, TextField, Typography } from '@material-ui/core'
-import MaterialTable from 'material-table'
+import MaterialTable, { Column } from 'material-table'
 // import tableIcons from "./MaterialTableIcons";
 import axios from 'axios'
+import * as Sentry from '@sentry/react'
+import { useToasts } from '../components/Toast'
 
 import React, { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
@@ -14,6 +16,8 @@ import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
 const formatter = buildFormatter(spanishStrings)
 
 const ValidatePatient = () => {
+  const { addToast } = useToasts()
+
   const [data, setData] = useState([])
 
   const [PatientsList, setPatientsList] = useState([])
@@ -27,7 +31,7 @@ const ValidatePatient = () => {
   useEffect(() => {
     const effect = async () => {
       try {
-        const res = await axios.get('/inactive')
+        const res = await axios.get('/profile/doctor/inactivePatients')
         var count = Object.keys(res.data).length
         for (var i = 0; i < count; i++) {
           const patient = res.data[i]
@@ -35,9 +39,16 @@ const ValidatePatient = () => {
         }
       } catch (err) {
         console.log(err)
+        Sentry.setTags({
+          Mehod: 'GET',
+          URL: '/profile/doctor/inactivePatients',
+        })
+        Sentry.captureException(err)
+        addToast({ type: 'error', title: 'Ha ocurrido un error', text: err.message })
       }
     }
     effect()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -159,16 +170,24 @@ const ValidatePatient = () => {
       },
       render: rowData => {
         const handleValidate = async () => {
-          try {
-            const payload = {
-              username: rowData.username,
-            }
-            await axios.post(`/user/validate`, payload)
-          } catch (err) {
-            console.log(err)
-            // if (err?.response?.status !== 401) setError(true)
-          }
+          await axios
+            .put(`/profile/doctor/validatePatient?username=${rowData.username}`)
+            .then(res => {
+              if (res.status === 200)
+                addToast({ type: 'success', title: `¡El usuario ${rowData.username} ha sido habilitado con éxito!` })
+            })
+            .catch(err => {
+              console.log(err)
+              Sentry.setTags({
+                Mehod: 'PUT',
+                URL: '/profile/doctor/validatePatient',
+                'PARAMS [username]': rowData.username,
+              })
+              Sentry.captureException(err)
+              addToast({ type: 'error', title: 'Ha ocurrido un error', text: err.message })
+            })
         }
+
         return showCounter === rowData.username ? (
           <Countdown
             setDataCallback={elem => {
@@ -197,16 +216,8 @@ const ValidatePatient = () => {
         )
       },
     },
-  ]
+  ] as Column<any>[]
 
-  const prescriptionTextBox = {
-    background: '#FFFFFF',
-    border: '1px solid #E5E7EB',
-    boxSizing: 'border-box',
-    borderRadius: '8px',
-    width: '300px',
-    textAlign: 'center',
-  }
   return (
     <Layout>
       <Box display='flex' justifyContent='center' alignItems='center' style={{ marginTop: '10%' }}>
@@ -227,7 +238,14 @@ const ValidatePatient = () => {
                     disableUnderline: true,
                   }}
                   inputProps={{ style: { padding: '8px' } }}
-                  style={prescriptionTextBox}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E7EB',
+                    boxSizing: 'border-box',
+                    borderRadius: '8px',
+                    width: '300px',
+                    textAlign: 'center',
+                  }}
                   value={userFilter}
                   onChange={event => {
                     setUserFilter(event.target.value)
