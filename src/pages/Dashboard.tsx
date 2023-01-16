@@ -500,6 +500,8 @@ export default function Dashboard() {
                     <ListboxColor data={data}
                       label='Espacio de Trabajo'
                       onChange={value => {setOrganization(data.find((d) => d.id === value))
+                        //reset appointmets
+                        setAppointments([])
                         loadEventsSourcesCalendar(value)
                       }}>
                     </ListboxColor>
