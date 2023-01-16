@@ -6,7 +6,7 @@ import Layout from '../components/Layout'
 import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
-import { validateDate } from '../util/helpers'
+import { validateDate, validateOpenHours } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
@@ -14,6 +14,7 @@ import * as Sentry from '@sentry/react'
 import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { doctorData } from '../components/LoadAppointments'
+import { useToasts } from '../components/Toast'
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 
@@ -92,6 +93,17 @@ const initialBlock = {
   },
   idOrganization: ''
 } as Boldo.Block
+
+const errorTitle = 'Error al enviar el formulario.'
+
+const errorText = {
+  birthday: '¡Añada una fecha de nacimiento correcta!',
+  language: '¡Añada al menos un idioma!',
+  specialization: '¡Añada al menos una especialización!',
+  gender: '¡Seleccione un género!',
+  openHours: '¡Ingrese un horario correcto!',
+  photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.'
+}
 
 type Action =
   | { type: 'initial'; value: DoctorForm; organizations: Array<Boldo.Organization> }
@@ -244,6 +256,8 @@ const Settings = (props: Props) => {
   const { Organization } = useContext(OrganizationContext)
   const { Organizations } = useContext(AllOrganizationContext)
 
+  const { addToast } = useToasts();
+
 
   useEffect(() => {
     let mounted = true
@@ -295,23 +309,30 @@ const Settings = (props: Props) => {
 
     if (!validateDate(doctor.birthDate, 'past')) {
       validationError = true
-      setError('¡Fecha de nacimiento!')
+      addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
     }
 
     if (doctor.languages.length === 0) {
       validationError = true
-      setError('¡Añade al menos un idioma!')
+      addToast({ type: 'warning', title: errorTitle, text: errorText.language})
     }
 
     if (doctor.specializations.length === 0) {
       validationError = true
-      setError('¡Añade una especialización!')
+      addToast({ type: 'warning', title: errorTitle, text: errorText.specialization})
     }
 
     if (doctor.gender === 'unknown') {
       validationError = true
-      setError('¡Por favor seleccione un género!')
+      addToast({ type: 'warning', title: errorTitle, text: errorText.gender})
     }
+
+    doctor.blocks.forEach((block)=>{
+      if ( !validateOpenHours(block.openHours) ) {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.openHours})
+      }
+    })
 
     if (!validationError) {
       try {
@@ -319,7 +340,7 @@ const Settings = (props: Props) => {
         if (doctor.photoUrl) {
           photoUrl = await upload(doctor.photoUrl)
 
-          if (!photoUrl) return setError('Ha ocurrido un error con las imágenes! Intente de nuevo.')
+          if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
           dispatch({ type: 'default', value: { photoUrl } })
         }
 
@@ -390,7 +411,7 @@ const Settings = (props: Props) => {
                     Guardar
                   </button>
                 </span>
-              </div>
+              </div> */}
             </div>
             <div className='mt-6'>
               <div className='md:grid md:grid-cols-3 md:gap-6'>
