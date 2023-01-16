@@ -15,8 +15,9 @@ import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
 import * as Sentry from "@sentry/react";
-import OrganizationProvider from "./contexts/organizationContext"
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
+import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
+import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -34,6 +35,9 @@ export const UserContext = createContext<{
 const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
+  // Context API Organization Boldo MultiOrganization
+  const { setOrganization } = useContext(OrganizationContext)
+  const { setOrganizations } = useContext(AllOrganizationContext)
 
   useEffect(() => {
     if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
@@ -71,6 +75,45 @@ const App = () => {
     }
   }, [])
 
+  // load the organization
+  useEffect(() => {
+    const url = '/profile/doctor/organizations';
+    axios.get(
+      url
+    )
+    .then(function (res) {
+      if (res.status === 200) {
+        // set all the organizations in the context
+        setOrganizations([...res.data]);
+        // for default we use the first organization as the selectetd
+        setOrganization(res.data[0]);
+      } else if (res.status === 204) {
+        // when the response is 204 it means that there is no organization
+        setOrganizations([])
+      }
+    })
+    .catch(function (err) {
+      console.log("when obtain organizations ", err);
+      Sentry.setTag("endpoint", url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const updateUser = (arg: Partial<Boldo.Doctor>) => {
     setUser(user => (user ? { ...user, ...arg } : undefined))
   }
@@ -81,62 +124,60 @@ const App = () => {
   return (
     <ToastProvider>
       <UserContext.Provider value={{ user, updateUser }}>
-        <OrganizationProvider>
-          <SocketsProvider>
-            <RoomsProvider>
-              <div className='antialiased App'>
-                <Switch>
-                  <Route exact path='/'>
-                    <PrescriptionContextProvider>
-                      <Dashboard />
-                    </PrescriptionContextProvider>
-                  </Route>
-
-                  <Route exact path='/settings'>
-                    <Settings />
-                  </Route>
-
-                  <Route exact path='/validate'>
-                    <ValidatePatient />
-                  </Route>
-
-                  <Route exact path='/appointments/:id/call'>
-                    <PrescriptionContextProvider>
-                      <Call />
-                    </PrescriptionContextProvider>
-                  </Route>
-
-                  <Route exact path='/appointments/:id/inperson'>
-                    <PrescriptionContextProvider>
-                      <InPersonAppoinment />
-                    </PrescriptionContextProvider>
-                  </Route>
-
-                  <Route exact path='/boldo-app-privacy-policy'>
-                    <PrivacyPolicy />
-                  </Route>
-
-                  <Route exact path='/download'>
-                    <Download />
-                  </Route>
-
-                  <Route>
-                    <Redirect to='/' />
-                  </Route>
-
-                  {/* <Route exact path='/settingsnew'>
-                  <SettingsNew />
+        <SocketsProvider>
+          <RoomsProvider>
+            <div className='antialiased App'>
+              <Switch>
+                <Route exact path='/'>
+                  <PrescriptionContextProvider>
+                    <Dashboard />
+                  </PrescriptionContextProvider>
                 </Route>
 
-                <Route exact path='/home'>
-                  <Home />
-                </Route> */}
+                <Route exact path='/settings'>
+                  <Settings />
+                </Route>
 
-                </Switch>
-              </div>
-            </RoomsProvider>
-          </SocketsProvider>
-        </OrganizationProvider>
+                <Route exact path='/validate'>
+                  <ValidatePatient />
+                </Route>
+
+                <Route exact path='/appointments/:id/call'>
+                  <PrescriptionContextProvider>
+                    <Call />
+                  </PrescriptionContextProvider>
+                </Route>
+
+                <Route exact path='/appointments/:id/inperson'>
+                  <PrescriptionContextProvider>
+                    <InPersonAppoinment />
+                  </PrescriptionContextProvider>
+                </Route>
+
+                <Route exact path='/boldo-app-privacy-policy'>
+                  <PrivacyPolicy />
+                </Route>
+
+                <Route exact path='/download'>
+                  <Download />
+                </Route>
+
+                <Route>
+                  <Redirect to='/' />
+                </Route>
+
+                {/* <Route exact path='/settingsnew'>
+                <SettingsNew />
+              </Route>
+
+              <Route exact path='/home'>
+                <Home />
+              </Route> */}
+
+              </Switch>
+            </div>
+          </RoomsProvider>
+        </SocketsProvider>
       </UserContext.Provider>
     </ToastProvider>
   )
