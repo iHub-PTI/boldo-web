@@ -14,6 +14,25 @@ export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future'
   }
 }
 
+export const validateOpenHours = (openHours: Boldo.OpenHours) => {
+  // we need obtain the keys of the object
+  let days = Object.keys(openHours)
+  // for each key we have an array of intervals
+  for (let i = 0; i < days.length; i++) {
+    let interval = openHours[days[i]]
+    if (interval !== null && interval !== undefined) {
+      for (let j = 0; j < interval.length; j++) {
+        console.log("start => ", interval[j].start)
+        console.log("end => ", interval[j].end)
+        if( interval[j].start >= interval[j].end ) {
+          return false
+        }
+      }
+    }
+  }
+  return true
+}
+
 export const validateTime = (timeInput: string) => {
   const match = timeInput.match(/((\d{2}):(\d{2}))/)
 
