@@ -21,9 +21,10 @@ import moment from 'moment'
 import AppointmentCard from '../components/calendar/AppointmentCard'
 import NowIndicatorContent from '../components/calendar/NowIndicatorContent'
 import ListboxColor from '../components/ListboxColor'
-import { OrganizationContext } from '../contexts/organizationContext'
-
+import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
+import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
+// import { type } from 'os'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
@@ -125,17 +126,19 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false)
   const [loadingAppointment, setLoadingAppointment] = useState(false)
   const { user } = useContext(UserContext)
-  const { openHours, new: newUser } = user || {}
+  // dont delete setOpenHours. We use in one useEffect to change and show open hours in the current organization
+  const [ openHours, setOpenHours ] = useState(undefined as Boldo.OpenHours)
+  const newUser = user.new;
   const [isOpen, setIsOpen] = useState(false)
   // Context API Organization Boldo MultiOrganization
   const { Organization, setOrganization } = useContext(OrganizationContext)
-  const [data, setData] = useState<any[]>([]);
+  const { Organizations } = useContext(AllOrganizationContext)
   // used for testing
-  const fakeData = [
-    // {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
-    // {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
-    // {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
-  ]
+  // const fakeData = [
+  //    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
+  //    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
+  //    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
+  // ]
 
   const loadingAppoimentRef = useRef<HTMLDivElement>()
 
@@ -220,43 +223,27 @@ export default function Dashboard() {
       })
   }
 
-  // Get organization
-  useEffect(() => {
-    const url = '/profile/doctor/organizations';
-    axios.get(
-      url
-    )
-      .then(function (res) {
-        if (res.status === 200) {
-          // delete fakedata when doesn't necessarily
-          setData([...res.data, ...fakeData]);
-          setOrganization(res.data[0]);
-        } else if (res.status === 204) {
-          addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
-        }
-      })
-      .catch(function (err) {
-        console.log("when obtain organizations ", err);
-        addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
-        Sentry.setTag("endpoint", url);
-        if (err.response) {
-          // La respuesta fue hecha y el servidor respondió con un código de estado
-          // que esta fuera del rango de 2xx
-          Sentry.setTag('data', err.response.data);
-          Sentry.setTag('headers', err.response.headers);
-          Sentry.setTag('status_code', err.response.status);
-        } else if (err.request) {
-          // La petición fue hecha pero no se recibió respuesta
-          Sentry.setTag('request', err.request);
-          console.log(err.request);
-        } else {
-          // Algo paso al preparar la petición que lanzo un Error
-          Sentry.setTag('message', err.message);
-          console.log('Error', err.message);
-        }
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+  useEffect(()=>{
+    // console.log("blocks: ", user.blocks)
+    // console.log("org: ", Organization)
+    if (Organization) {
+      let bloc = user.blocks.find((bloc) => bloc.idOrganization === Organization.id)
+      // console.log("bloc: ", bloc)
+      if (bloc) setOpenHours(bloc.openHours)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Organization])
+
+  useEffect(()=>{
+    if ( Organizations === undefined ) {
+      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.'})
+    } else if ( Organizations.length === 0 ) {
+      addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.'})
+    }  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
@@ -267,10 +254,19 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      loadEventsSourcesCalendar(Organization.id)
+      if (Organizations.length > 0) loadEventsSourcesCalendar(Organization.id)
     }, 60000)
     return () => clearInterval(timer)
   })
+
+  // useEffect to render the calendar events
+  useEffect(() => {
+    const load = () => {
+      loadEventsSourcesCalendar(Organization.id)
+    }
+    if (Organization !== undefined && Organization !== null && Organizations.length > 0) load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Organization])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -341,7 +337,7 @@ export default function Dashboard() {
     const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
-    let loadingDiv = loadingAppoimentRef.current
+    let loadingDiv = Organization && loadingAppoimentRef.current
 
     if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
 
@@ -496,14 +492,11 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  {data.length > 0 &&
-                    <ListboxColor data={data}
+                  { Organizations.length > 0 &&
+                    <ListboxColor data={Organizations}
+                      id={Organization.id}
                       label='Espacio de Trabajo'
-                      onChange={value => {setOrganization(data.find((d) => d.id === value))
-                        //reset appointmets
-                        setAppointments([])
-                        loadEventsSourcesCalendar(value)
-                      }}>
+                      onChange={value => setOrganization(Organizations.find((d) => d.id === value))}>
                     </ListboxColor>
                   }
                 </div>
