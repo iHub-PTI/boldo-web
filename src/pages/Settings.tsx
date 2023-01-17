@@ -736,18 +736,24 @@ const Settings = (props: Props) => {
                         No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
                       </p>
                     </div>
-                    : <div className='pl-2 mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
+                    : <div className='bg-white mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
                         <div className='overflow-hidden shadow sm:rounded-md'>
                           {
                             doctor.blocks.map((block, indexOrg) => {
                               
                               return <div className="w-full px-2 pt-4" key={indexOrg}>
-                                <div className="mx-auto w-full rounded-2xl bg-white p-2">
+                                <div className="mx-auto w-full rounded-2xl p-2">
                                   <Disclosure>
                                     {({ open }) => (
                                       <>
                                         <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                                          <span>{getOrganizationNameById(block.idOrganization)}</span>
+                                          <div className='flex flex-row align-middle'>
+                                            <div
+                                              className='h-6 w-2'
+                                              style={{ backgroundColor: Organizations[indexOrg].colorCode ?? '#27BEC2' }}
+                                            ></div>
+                                            <span className='pl-2'>{getOrganizationNameById(block.idOrganization)}</span>
+                                          </div>
                                           <div className='pt-2 align-bottom'>
                                             {open ? <ArrowUp /> : <ArrowDown />}
                                           </div>
