@@ -22,8 +22,8 @@ export const validateOpenHours = (openHours: Boldo.OpenHours) => {
     let interval = openHours[days[i]]
     if (interval !== null && interval !== undefined) {
       for (let j = 0; j < interval.length; j++) {
-        console.log("start => ", interval[j].start)
-        console.log("end => ", interval[j].end)
+        //console.log("start => ", interval[j].start)
+        //console.log("end => ", interval[j].end)
         if( interval[j].start >= interval[j].end ) {
           return false
         }
