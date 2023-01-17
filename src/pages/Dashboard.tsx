@@ -36,7 +36,7 @@ const eventDataTransform = (event: AppointmentWithPatient) => {
   }
   return {
     title: event.type !== 'PrivateEvent'
-      ? `${event.patient?.givenName} ${event.patient?.familyName}` 
+      ? `${event.patient?.givenName} ${event.patient?.familyName}`
       : event.name,
     start: event.start,
     end: event.end,
@@ -128,14 +128,16 @@ export default function Dashboard() {
   const { openHours, new: newUser } = user || {}
   const [isOpen, setIsOpen] = useState(false)
   // Context API Organization Boldo MultiOrganization
-  const {Organization, setOrganization} = useContext(OrganizationContext)
-  const [ data, setData ] = useState<any[]>([]);
+  const { Organization, setOrganization } = useContext(OrganizationContext)
+  const [data, setData] = useState<any[]>([]);
   // used for testing
   const fakeData = [
     // {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
     // {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
     // {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
   ]
+
+  const loadingAppoimentRef = useRef<HTMLDivElement>()
 
   const { updatePrescriptions } = usePrescriptionContext();
 
@@ -149,7 +151,7 @@ export default function Dashboard() {
   // The function updates the calendar events similar to the function 
   // for the calendar with the EventSourceFunc component of the Fullcalendar 
   // but this case to update directly with the calendarAPI reference
-  const loadEventsSourcesCalendar = () => {
+  const loadEventsSourcesCalendar = (idOrganization:string) => {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
@@ -159,20 +161,19 @@ export default function Dashboard() {
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
-          params: {
-            organizationId: Organization.id
-          }
+        params: {
+          organizationId: idOrganization
         }
+      }
       )
       .then(res => {
         //console.log("🚀 res appointment", res.data)
-        // const events = res.data.appointments.map(event => eventDataTransform(event))
+        //const events = res.data.appointments.map(event => eventDataTransform(event))
         //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        
-        
-        console.log("🚀 res appointment", res.data)
+
         if (res.status === 200) {
+          //console.log("🚀 res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
           setAppointments([...events])
@@ -219,48 +220,43 @@ export default function Dashboard() {
       })
   }
 
+  // Get organization
   useEffect(() => {
     const url = '/profile/doctor/organizations';
     axios.get(
       url
     )
-    .then(function (res) {
-      if (res.status === 200) {
-        // delete fakedata when doesn't necessarily
-        setData([...res.data, ...fakeData]);
-        setOrganization(res.data[0]);
-      } else if (res.status === 204) {
-        addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.'})
-      }
-    })
-    .catch(function (err) {
-      console.log("when obtain organizations ", err);
-      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.'})
-      Sentry.setTag("endpoint", url);
-      if (err.response) {
-        // La respuesta fue hecha y el servidor respondió con un código de estado
-        // que esta fuera del rango de 2xx
-        Sentry.setTag('data', err.response.data);
-        Sentry.setTag('headers', err.response.headers);
-        Sentry.setTag('status_code', err.response.status);
-      } else if (err.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        Sentry.setTag('request', err.request);
-        console.log(err.request);
-      } else {
-        // Algo paso al preparar la petición que lanzo un Error
-        Sentry.setTag('message', err.message);
-        console.log('Error', err.message);
-      }
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+      .then(function (res) {
+        if (res.status === 200) {
+          // delete fakedata when doesn't necessarily
+          setData([...res.data, ...fakeData]);
+          setOrganization(res.data[0]);
+        } else if (res.status === 204) {
+          addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
+        }
+      })
+      .catch(function (err) {
+        console.log("when obtain organizations ", err);
+        addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
+        Sentry.setTag("endpoint", url);
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          Sentry.setTag('data', err.response.data);
+          Sentry.setTag('headers', err.response.headers);
+          Sentry.setTag('status_code', err.response.status);
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request);
+          console.log(err.request);
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message);
+          console.log('Error', err.message);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-
-  useEffect(()=>{
-    console.log("=> ", Organization?.name)
-    console.log("=> ap", appointments)
-  })
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
@@ -271,19 +267,10 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      loadEventsSourcesCalendar()
+      loadEventsSourcesCalendar(Organization.id)
     }, 60000)
     return () => clearInterval(timer)
   })
-
-  // useEffect to render the calendar events
-  useEffect(() => {
-    const load = () => {
-      loadEventsSourcesCalendar()
-    }
-    if (Organization !== undefined && Organization !== null) load()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Organization])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -310,10 +297,21 @@ export default function Dashboard() {
     if (validationError) return setLoading(false)
 
     try {
+      if (!Organization) {
+        addToast({
+          type: 'error',
+          title: 'Error',
+          text: 'No se pudo obtener la organización al que pertenece.',
+        })
+        setShowEditModal(false)
+        return
+      }
+
       const payload = {
         ...appointment,
         start: new Date(`${appointment.date}T${appointment.start}`).toISOString(),
         end: new Date(`${appointment.date}T${appointment.end}`).toISOString(),
+        idOrganization: Organization.id
       }
 
       const res = await axios.post(`/profile/doctor/appointments`, payload) // <Boldo.Appointment>
@@ -337,27 +335,30 @@ export default function Dashboard() {
   // FC automaticall rerenders when appointmens[] has changed.
   // Check why it doesn't work like that.
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
+   
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
     const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
-    setLoadingAppointment(true)
-    axios
+    let loadingDiv = loadingAppoimentRef.current
+
+    if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
+
+    Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
-          params: {
-            organizationId: Organization?.id
-          }
+        params: {
+          organizationId: Organization?.id
         }
+      }
       )
       .then(res => {
-        console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-        
-       // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
+        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
+          console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
           setAppointments([...events])
@@ -368,7 +369,7 @@ export default function Dashboard() {
           setDateRange({ start, end, refetch: false })
           setAppointments([])
         }
-        setLoadingAppointment(false)
+        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
       .catch(err => {
         Sentry.setTag('appointment_id', appointment.id);
@@ -397,7 +398,7 @@ export default function Dashboard() {
           console.log('Error', err.message)
         }
         Sentry.captureException(err)
-        setLoadingAppointment(false)
+        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
   }
 
@@ -471,7 +472,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <div className='flex flex-col h-full text-cool-gray-700 overflow-x-auto' style={{minWidth:'1200px'}}>
+            <div className='flex flex-col h-full text-cool-gray-700 overflow-x-auto' style={{ minWidth: '1200px' }}>
               {openHoursEmpty && (
                 <div className='relative bg-secondary-500'>
                   <div className='px-3 py-3 mx-auto max-w-7xl sm:px-6 lg:px-8'>
@@ -495,10 +496,14 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  { data.length > 0 &&
-                    <ListboxColor data={data} 
+                  {data.length > 0 &&
+                    <ListboxColor data={data}
                       label='Espacio de Trabajo'
-                      onChange={value => setOrganization(data.find((d) => d.id === value))}>
+                      onChange={value => {setOrganization(data.find((d) => d.id === value))
+                        //reset appointmets
+                        setAppointments([])
+                        loadEventsSourcesCalendar(value)
+                      }}>
                     </ListboxColor>
                   }
                 </div>
@@ -520,7 +525,7 @@ export default function Dashboard() {
                 </div>
               </div>
               {/* this is the container of the appointment loading */}
-              <div className={`${loadingAppointment ? `flex` : `hidden` } w-full h-full justify-items-center align-middle z-50 fixed left-20 top-20`}>
+              <div ref={loadingAppoimentRef} className={`${loadingAppointment ? `flex` : `hidden`} w-full h-full justify-items-center align-middle z-50 fixed left-20 top-20`}>
                 <div className='m-auto flex-col justify-items-center align-middle'>
                   {/* this is the spinner */}
                   <div className='loader ml-8'></div>
@@ -543,7 +548,7 @@ export default function Dashboard() {
                 plugins={[timeGridPlugin, dayGridPlugin, listPlugin]}
                 initialView='timeGridWeek'
                 nowIndicator={true}
-                nowIndicatorContent={NowIndicatorContent} 
+                nowIndicatorContent={NowIndicatorContent}
                 locale={esLocale}
                 dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
                 dayHeaderContent={({ text, isToday }) => {
@@ -578,8 +583,8 @@ export default function Dashboard() {
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
                 scrollTime={moment().format('HH:00:00')}
-                // don't tuch this, fix a visual bug when organization change
-                // eventColor={Organization?.colorCode}
+              // don't tuch this, fix a visual bug when organization change
+              // eventColor={Organization?.colorCode}
               />
             </div>
           </>
@@ -935,12 +940,12 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
               <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
                 <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Tipo</dt>
                 <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-                  { 
-                    appointment.appointmentType === 'E' 
+                  {
+                    appointment.appointmentType === 'E'
                       ? 'Evento privado'
                       : appointment.appointmentType === 'V'
-                        ?'Consulta virtual'
-                        :'Consulta Presencial'
+                        ? 'Consulta virtual'
+                        : 'Consulta Presencial'
                   }
                 </dd>
               </div>
