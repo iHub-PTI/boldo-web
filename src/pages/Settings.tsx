@@ -16,6 +16,9 @@ import * as Sentry from '@sentry/react'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 // import { doctorData } from '../components/LoadAppointments'
 import { useToasts } from '../components/Toast'
+import { ReactComponent as ArrowDown } from '../assets/keyboard-arrow-down.svg'
+import { ReactComponent as ArrowUp } from '../assets/keyboard-arrow-up.svg'
+
 
 export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 
@@ -745,7 +748,9 @@ const Settings = (props: Props) => {
                                       <>
                                         <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
                                           <span>{getOrganizationNameById(block.idOrganization)}</span>
-                                          <p>{open ? 'contraer' : 'expandir' }</p>
+                                          <div className='pt-2 align-bottom'>
+                                            {open ? <ArrowUp /> : <ArrowDown />}
+                                          </div>
                                         </Disclosure.Button>
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
                                           <div className=' bg-white sm:p-6'>
