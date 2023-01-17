@@ -127,7 +127,7 @@ export default function Dashboard() {
   const [loadingAppointment, setLoadingAppointment] = useState(false)
   const { user } = useContext(UserContext)
   // dont delete setOpenHours. We use in one useEffect to change and show open hours in the current organization
-  const [ openHours, setOpenHours ] = useState(undefined as Boldo.OpenHours)
+  const [openHours, setOpenHours] = useState(undefined as Boldo.OpenHours)
   const newUser = user.new;
   const [isOpen, setIsOpen] = useState(false)
   // Context API Organization Boldo MultiOrganization
@@ -154,7 +154,7 @@ export default function Dashboard() {
   // The function updates the calendar events similar to the function 
   // for the calendar with the EventSourceFunc component of the Fullcalendar 
   // but this case to update directly with the calendarAPI reference
-  const loadEventsSourcesCalendar = (idOrganization:string) => {
+  const loadEventsSourcesCalendar = (idOrganization: string) => {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
@@ -224,7 +224,7 @@ export default function Dashboard() {
   }
 
 
-  useEffect(()=>{
+  useEffect(() => {
     // console.log("blocks: ", user.blocks)
     // console.log("org: ", Organization)
     if (Organization) {
@@ -232,16 +232,16 @@ export default function Dashboard() {
       // console.log("bloc: ", bloc)
       if (bloc) setOpenHours(bloc.openHours)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Organization])
 
-  useEffect(()=>{
-    if ( Organizations === undefined ) {
-      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.'})
-    } else if ( Organizations.length === 0 ) {
-      addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.'})
-    }  
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (Organizations === undefined) {
+      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
+    } else if (Organizations.length === 0) {
+      addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
 
@@ -259,14 +259,6 @@ export default function Dashboard() {
     return () => clearInterval(timer)
   })
 
-  // useEffect to render the calendar events
-  useEffect(() => {
-    const load = () => {
-      loadEventsSourcesCalendar(Organization.id)
-    }
-    if (Organization !== undefined && Organization !== null && Organizations.length > 0) load()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Organization])
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -331,7 +323,7 @@ export default function Dashboard() {
   // FC automaticall rerenders when appointmens[] has changed.
   // Check why it doesn't work like that.
   const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
-   
+
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
     const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
@@ -339,7 +331,7 @@ export default function Dashboard() {
 
     let loadingDiv = Organization && loadingAppoimentRef.current
 
-    if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
+    if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
 
     Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
@@ -365,7 +357,7 @@ export default function Dashboard() {
           setDateRange({ start, end, refetch: false })
           setAppointments([])
         }
-        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
+        if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
       .catch(err => {
         Sentry.setTag('appointment_id', appointment.id);
@@ -394,7 +386,7 @@ export default function Dashboard() {
           console.log('Error', err.message)
         }
         Sentry.captureException(err)
-        if(loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
+        if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
   }
 
@@ -492,11 +484,16 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  { Organizations.length > 0 &&
+                  {Organizations.length > 0 &&
                     <ListboxColor data={Organizations}
                       id={Organization.id}
                       label='Espacio de Trabajo'
-                      onChange={value => setOrganization(Organizations.find((d) => d.id === value))}>
+                      onChange={value => {
+                        setOrganization(Organizations.find((d) => d.id === value))
+                        //reset appointmets
+                        setAppointments([])
+                        loadEventsSourcesCalendar(value)
+                      }}>
                     </ListboxColor>
                   }
                 </div>
