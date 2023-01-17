@@ -99,6 +99,7 @@ const initialBlock = {
 } as Boldo.Block
 
 const errorTitle = 'Error al enviar el formulario.'
+const errorSend = 'No se pudo enviar el formulario'
 
 const errorText = {
   birthday: '¡Añada una fecha de nacimiento correcta!',
@@ -106,7 +107,8 @@ const errorText = {
   specialization: '¡Añada al menos una especialización!',
   gender: '¡Seleccione un género!',
   openHours: '¡Ingrese un horario correcto!',
-  photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.'
+  photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.',
+  organizations: 'Debe tener asociado al menos un centro asistencial. Contáctese con soporte para ello.'
 }
 
 type Action =
@@ -312,57 +314,63 @@ const Settings = (props: Props) => {
 
     let validationError = false
 
-    if (!validateDate(doctor.birthDate, 'past')) {
-      validationError = true
-      addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
-    }
-
-    if (doctor.languages.length === 0) {
-      validationError = true
-      addToast({ type: 'warning', title: errorTitle, text: errorText.language})
-    }
-
-    if (doctor.specializations.length === 0) {
-      validationError = true
-      addToast({ type: 'warning', title: errorTitle, text: errorText.specialization})
-    }
-
-    if (doctor.gender === 'unknown') {
-      validationError = true
-      addToast({ type: 'warning', title: errorTitle, text: errorText.gender})
-    }
-
-    doctor.blocks.forEach((block)=>{
-      if ( !validateOpenHours(block.openHours) ) {
+    // the most important thing is that there is an associated organization
+    if (Organizations.length > 0) {
+      if (!validateDate(doctor.birthDate, 'past')) {
         validationError = true
-        addToast({ type: 'warning', title: errorTitle, text: errorText.openHours})
+        addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
       }
-    })
-
-    if (!validationError) {
-      try {
-        let photoUrl = doctor.photoUrl
-        if (doctor.photoUrl) {
-          photoUrl = await upload(doctor.photoUrl)
-
-          if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
-          dispatch({ type: 'default', value: { photoUrl } })
+  
+      if (doctor.languages.length === 0) {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.language})
+      }
+  
+      if (doctor.specializations.length === 0) {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.specialization})
+      }
+  
+      if (doctor.gender === 'unknown') {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.gender})
+      }
+  
+      doctor.blocks.forEach((block)=>{
+        if ( !validateOpenHours(block.openHours) ) {
+          validationError = true
+          addToast({ type: 'warning', title: errorTitle, text: errorText.openHours})
         }
-
-        await axios.put('/profile/doctor', { ...doctor, photoUrl })
-        setSuccess('Actualización exitosa!')
-        updateUser({
-          ...(typeof photoUrl === 'string' && { photoUrl }),
-          givenName: doctor.givenName,
-          familyName: doctor.familyName,
-          blocks: doctor.blocks,
-          new: false,
-        })
-      } catch (err) {
-        Sentry.captureException(err)
-        setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
-        console.log(err)
+      })
+  
+      if (!validationError) {
+        try {
+          let photoUrl = doctor.photoUrl
+          if (doctor.photoUrl) {
+            photoUrl = await upload(doctor.photoUrl)
+  
+            if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
+            dispatch({ type: 'default', value: { photoUrl } })
+          }
+  
+          await axios.put('/profile/doctor', { ...doctor, photoUrl })
+          setSuccess('Actualización exitosa!')
+          updateUser({
+            ...(typeof photoUrl === 'string' && { photoUrl }),
+            givenName: doctor.givenName,
+            familyName: doctor.familyName,
+            blocks: doctor.blocks,
+            new: false,
+          })
+        } catch (err) {
+          Sentry.captureException(err)
+          setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+          console.log(err)
+        }
       }
+    } else {
+      validationError = true
+      addToast({ type: 'warning', title: errorSend, text: errorText.organizations })
     }
 
     setLoading(false)
