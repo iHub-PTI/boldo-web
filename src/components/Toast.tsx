@@ -6,7 +6,7 @@ const Toast: React.FC<{ toast: Toast }> = ({ toast }) => {
   const [show, setShow] = useState(true)
 
   useEffect(() => {
-    const timeout = setTimeout(() => setShow(false), 5000)
+    const timeout = setTimeout(() => setShow(false), 10000)
     return () => clearTimeout(timeout)
   }, [])
 

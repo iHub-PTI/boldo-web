@@ -148,33 +148,42 @@ Events
  */
 
 .event-appointment {
-  background-color: theme('colors.primary.600');
-  border-color: theme('colors.primary.700');
+  background: #F1F5F9;
+  /* shadow-base */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0rem 1rem 1rem 0rem;
+  border-width:2px;
 }
+
 .event-private {
-  background-color: theme('colors.gray.400');
-  border-color: theme('colors.gray.500');
-  color: theme('colors.gray.900');
+  /* both are necessary to avoid the default background of the calendar */
+  background: transparent;
+  border-width: 0px;
 }
+
 .event-cancel {
-  /* background-color: #c2272f;
-  border-color: #c2272f;
-  color: #c2272f; */
-  background-color: gray;
-  border-color: gray;
-  color: #FAFAFA;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(241, 245, 249, 0.2) 5px,
+    rgba(241, 245, 249, 0.2) 10px,
+    #F1F5F9 10px,
+    #F1F5F9 15px
+  );
+  border-radius: 0px 25px 25px 0px;
 }
 
 .event-online {
-  background-color: theme('colors.primary.600');
-  border-color: theme('colors.primary.700');
-  color: #FAFAFA;
+  background: #F1F5F9;
+  /* shadow-base */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0px 25px 25px 0px;
 }
 
 .event-inperson {
-  background-color: #3150db;
-  border-color: #3150db;
-  color: #FAFAFA;
+  background: #F1F5F9;
+  /* shadow-base */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0px 25px 25px 0px;
 }
 
 .event-other {
@@ -249,3 +258,55 @@ Events
   background: #13a5a9;
 }
 /* end scrollbard class*/
+
+/* this change the height of the time slot */
+.fc .fc-timegrid-slot {
+  height: 6em;
+}
+
+/* 
+* this overrides the background color of the calendar 
+* so that we can apply more styles to the events
+*/
+
+
+.fc .fc-event-main {
+  border-width: 0px;
+}
+ 
+/* this overrides the indicator of the calendar */
+.fc .fc-timegrid-now-indicator-arrow {
+  display: none;
+}
+
+/* styles for time indicator */
+.fc .fc-timegrid-now-indicator-line {
+  /* border-color: #DF6D51;
+  background-color: #DF6D51; */
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.line {
+  border-style: solid;
+  border-color: #DF6D51;
+  background-color: #DF6D51;
+  border-width: 1px;
+  border-radius: 100px;
+}
+
+/* opacity when hover the indicator */
+.fc .fc-timegrid-now-indicator-line:hover {
+   opacity: 0.3;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 8px solid #ddd;
+  border-top: 8px solid #13A5A9;
+  border-bottom: 8px solid #13A5A9;
+  border-radius: 50%;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
