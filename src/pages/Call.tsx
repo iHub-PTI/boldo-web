@@ -441,6 +441,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
+  const [ loading, setLoading ] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -472,13 +473,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true);
 
-    // const {prescriptionContext} = useContext(PrescriptionContext);
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
-    // useEffect(() => {
-    //   console.log(appointment.id);
-    //   prescriptionContext.getPrescriptions(appointment.id);
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
+    useEffect(() => {
+      updatePrescriptions(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
       <>
@@ -500,6 +500,29 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               setIsOpen(prev => !prev)
             }}
             size={50}
+          />
+          <ChildButton 
+            icon={
+              <Print 
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : '' }`} 
+                bgColor='transparent' 
+                iconColor='white' 
+                fromVirtual={true}
+              />
+            }
+            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
+            size={50}
+            onClick={() => {
+              if (prescriptions?.length > 0) {
+                if (!loading && appointment !== undefined) {
+                  addToast({ type: 'success', text: 'Descargando receta...' });
+                  getReports(appointment, setLoading);
+                }
+              } else {
+                console.log("there is not prescriptions");
+                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+              }
+            }}
           />
           <ChildButton
             icon={
