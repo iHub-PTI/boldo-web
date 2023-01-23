@@ -311,6 +311,7 @@ const Settings = (props: Props) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
 
     let validationError = false
 
@@ -339,7 +340,7 @@ const Settings = (props: Props) => {
       doctor.blocks.forEach((block)=>{
         if ( !validateOpenHours(block.openHours) ) {
           validationError = true
-          const customOpenHoursError = errorText.openHours + ` en ${Organizations.find(element => element.id === block.idOrganization).name}`
+          const customOpenHoursError = errorText.openHours + ` en ${Organizations.find(element => element.id === block.idOrganization).name}!`
           addToast({ type: 'warning', title: errorTitle, text: customOpenHoursError})
         }
       })
