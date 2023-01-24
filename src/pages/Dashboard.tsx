@@ -310,8 +310,8 @@ export default function Dashboard() {
       dispatch({ type: 'reset' })
       addToast({
         type: 'success',
-        title: 'Cita creada',
-        text: '¡Se ha creado un cita con éxito!',
+        title: 'Evento privado',
+        text: '¡Se ha creado el evento privado con éxito!',
       })
     } catch (err) {
       setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
