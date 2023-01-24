@@ -110,6 +110,7 @@ const App = () => {
         Sentry.setTag('message', err.message);
         console.log('Error', err.message);
       }
+      Sentry.captureMessage("could not get organizations")
       Sentry.captureException(err)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
