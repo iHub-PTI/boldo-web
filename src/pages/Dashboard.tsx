@@ -236,7 +236,6 @@ export default function Dashboard() {
   }, [Organization])
 
   useEffect(() => {
-    debugger
     if (Organizations === undefined || Organizations === null) {
       addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
     } else if (Organizations?.length === 0) {
