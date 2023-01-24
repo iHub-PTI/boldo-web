@@ -236,9 +236,10 @@ export default function Dashboard() {
   }, [Organization])
 
   useEffect(() => {
-    if (Organizations === undefined) {
+    debugger
+    if (Organizations === undefined || Organizations === null) {
       addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
-    } else if (Organizations.length === 0) {
+    } else if (Organizations?.length === 0) {
       addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -254,7 +255,7 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      if (Organizations.length > 0) loadEventsSourcesCalendar(Organization.id)
+      if (Organizations?.length > 0) loadEventsSourcesCalendar(Organization.id)
     }, 60000)
     return () => clearInterval(timer)
   })
@@ -484,7 +485,7 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  {Organizations.length > 0 &&
+                  {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
                       id={Organization.id}
                       label='Espacio de Trabajo'
