@@ -192,7 +192,6 @@ export default function Dashboard() {
         setLoadingAppointment(false)
       })
       .catch(err => {
-        Sentry.setTag('appointment_id', appointment.id)
         Sentry.setTag('endpoint', url)
         Sentry.setTag('method', 'GET')
         if (err.response) {
@@ -286,6 +285,7 @@ export default function Dashboard() {
 
     if (validationError) return setLoading(false)
 
+    const url = `/profile/doctor/appointments`
     try {
       if (!Organization) {
         addToast({
@@ -304,7 +304,7 @@ export default function Dashboard() {
         idOrganization: Organization.id
       }
 
-      const res = await axios.post(`/profile/doctor/appointments`, payload) // <Boldo.Appointment>
+      const res = await axios.post(url, payload) // <Boldo.Appointment>
       setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
       setShowEditModal(false)
       dispatch({ type: 'reset' })
@@ -314,6 +314,25 @@ export default function Dashboard() {
         text: '¡Se ha creado el evento privado con éxito!',
       })
     } catch (err) {
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'POST')
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request)
+        console.log(err.request)
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message)
+        console.log('Error', err)
+      }
+      Sentry.captureMessage("Could not create the private event")
+      Sentry.captureException(err)
       setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
     }
 
@@ -362,7 +381,6 @@ export default function Dashboard() {
         if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
       .catch(err => {
-        Sentry.setTag('appointment_id', appointment.id);
         Sentry.setTag('endpoint', url);
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
