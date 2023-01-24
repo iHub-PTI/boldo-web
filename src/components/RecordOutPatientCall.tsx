@@ -1,18 +1,27 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Disclosure } from '@headlessui/react'
 import { toUpperLowerCase } from '../util/helpers';
 import ArrowDown from './icons/ArrowDown';
 import differenceInYears from 'date-fns/differenceInYears';
 import UserCircle from './icons/patient-register/UserCircle';
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+import SearchIcon from './icons/SearchIcon';
+import { AppointmentWithPatient, DescripcionRecordPatientProps, OffsetType, PatientRecord, QueryFilter } from './RecordsOutPatient';
+import axios from 'axios';
+import * as Sentry from '@sentry/react'
+import _ from 'lodash';
+
 
 type Props = {
   children: React.ReactNode;
   appointment: AppointmentWithPatient;
 }
 
+const stylePanelSidebar = {
+  background: 'rgba(107, 107, 107, 0.56)',
+  backdropFilter: 'blur(14px)'
+}
+
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
-  console.log(appointment)
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
   //const sidebarRef = useRef<HTMLDivElement>()
@@ -31,9 +40,165 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     setHoverSidebar(false)
   }
 
-  useEffect(() => {
-    console.log(hoverSidebar)
-  })
+  //current doctor
+  let doctor = {
+    id: appointment?.doctorId,
+    name: appointment?.doctor.givenName.split(' ')[0],
+    lastName: appointment?.doctor.familyName.split(' ')[0],
+  }
+
+  const patientId = appointment.patientId
+
+  // error page
+  const [error, setError] = useState(false)
+
+  // reference to listen to scroll event
+  const scrollEvent = useRef<HTMLDivElement>()
+
+  // Scroll Trigger loading
+  const [loadingScroll, setLoadingScroll] = useState(false)
+
+  const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
+
+  // pagination parameters
+  const countPage = 10
+  const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
+
+  //Detail activated
+  const [activeID, setActiveID] = useState('')
+
+  //Filters
+  const [inputContent, setInputContent] = useState('')
+
+  // all doctors or current doctor doctor.id or ALL doctors
+  const [filterDoctor, setFilterDoctor] = useState('ALL')
+
+  //filter order ASC or DESC
+  const [filterOrder, setFilterOrder] = useState('DESC')
+
+  const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
+  const [loading, setLoading] = useState(false)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
+
+  //methods
+  const getRecordsPatient = async ({ doctorId = 'ALL', content = '', count = 10, offset = 1, order = 'DESC' }) => {
+    setError(false)
+    setLoading(true)
+    setDetailRecordPatient(null)
+    await axios
+      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+        params: {
+          doctorId: doctorId === 'ALL' ? '' : doctor.id,
+          content: content,
+          count: count,
+          offset: offset,
+          order: order,
+        },
+      })
+      .then(res => {
+        setRecordsPatient(res.data.items)
+        // calculate max offset
+        setOffsetPage({ offset: offset, total: Math.ceil(res.data.total / countPage) })
+        //console.log('get total records', res.data.total)
+        // capture total patient records
+        setTotalRecordsPatient(res.data.total)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+        setError(true)
+      })
+  }
+
+  const debounce = useCallback(
+    _.debounce(_searchContent => {
+      getRecordsPatient({ content: _searchContent, offset: 1, order: filterOrder, doctorId: filterDoctor })
+    }, 500),
+    [filterDoctor, filterOrder]
+  )
+
+  const getRecordsPatientOnScroll = async ({
+    doctorId = filterDoctor,
+    content = inputContent,
+    count = countPage,
+    offset = 1,
+    order = filterOrder,
+  }) => {
+    setLoadingScroll(true)
+    await axios
+      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+        params: {
+          doctorId: doctorId === 'ALL' ? '' : doctor.id,
+          content: content,
+          count: count,
+          offset: offset,
+          order: order,
+        },
+      })
+      .then(res => {
+        setRecordsPatient([...recordsPatient, ...res.data.items])
+        setOffsetPage({ offset: offset, total: Math.ceil(res.data.total / countPage) })
+        setLoadingScroll(false)
+      })
+      .catch(err => {
+        console.error(err)
+        //addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+      })
+  }
+
+  const onScrollEnd = () => {
+    if (loading) return
+    if (offsetPage.offset === offsetPage.total) return
+    if (scrollEvent.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollEvent.current
+      if (Math.trunc(scrollTop + clientHeight) === scrollHeight) {
+        // TO SOMETHING HERE
+        getRecordsPatientOnScroll({
+          offset: offsetPage.offset + 1,
+        })
+      }
+      //console.log("🚀 scrollTop + clientHeight", scrollTop + clientHeight)
+      //console.log("🚀 scrollHeight", scrollHeight)
+
+    }
+  }
+
+  const getRecordPatientDetail = async (id: string) => {
+    //avoid double request when clicking
+    if (id === activeID) return
+    setLoadingDetail(true)
+    await axios
+      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
+      .then(res => {
+        //console.log('data record patient details', res.data)
+        setDetailRecordPatient(res.data)
+        setLoadingDetail(false)
+      })
+      .catch(err => {
+//        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
+        console.error(err)
+        Sentry.setTags({
+          'patient id': patientId,
+          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
+          'Doctor Id session': doctor.id,
+        })
+        Sentry.captureException(err)
+      })
+  }
+
 
   useEffect(() => {
     if (!recordOutPatientButton) return
@@ -98,8 +263,30 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center'>
           <span className='text-white font-medium text-sm truncate'>Registro de consultas ambulatorias</span>
         </div>
-        <div className={`flex flex-col flex-1 p-2`} style={{backgroundColor:'#6b6b6b', opacity:'56%', backdropFilter: 'blur(13px)'}}>
-          <span className='text-white'>hola</span>
+        <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
+          <div className='flex flex-row flew-no-wrap w-full items-center'>
+            <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
+              <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                <SearchIcon className='w-5 h-5' />
+              </div>
+              <input
+                className='p-3 pl-10 w-full outline-none hover:bg-cool-gray-100 transition-colors delay-200 rounded-lg'
+                type='search'
+                name='search'
+                placeholder='Motivo principal de la visita'
+                title='Escriba el motivo principal de la visita'
+                autoComplete='off'
+              />
+            </div>
+            <QueryFilter
+              currentDoctor={doctor}
+              setFilterAuthor={setFilterDoctor}
+              setOrder={setFilterOrder}
+              getApiCall={getRecordsPatient}
+              inputContent={inputContent}
+              countPage={countPage}
+            />
+          </div>
         </div>
       </div>
       {children}

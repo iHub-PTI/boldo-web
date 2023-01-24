@@ -18,7 +18,7 @@ import * as Sentry from '@sentry/react'
 import { useToasts } from './Toast'
 import moment from 'moment'
 
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+export type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
 type Props = {
   show?: boolean
@@ -26,12 +26,12 @@ type Props = {
   appointment?: AppointmentWithPatient
 }
 
-type Specialization = {
+export type Specialization = {
   id: string
   description: string
 }
 
-type Doctor = {
+export type Doctor = {
   active: boolean
   familyName: string
   gender: string
@@ -40,26 +40,26 @@ type Doctor = {
   photoUrl?: string
 }
 
-type Encounter = {
+export type Encounter = {
   diagnosis: string
   finishTimeDate: string
   id: string
   mainReason: string
 }
 
-type PatientRecord = {
+export type PatientRecord = {
   doctorDto: Doctor
   encounterDto: Encounter
 }
 
-type DescripcionRecordPatientProps = {
+export type DescripcionRecordPatientProps = {
   mainReason: string
   diagnosis: string
   prescriptions: any[]
   soep: any
 }
 
-type OffsetType = {
+export type OffsetType = {
   offset: number
   total: number
 }
@@ -70,6 +70,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
 
   // error page
   const [error, setError] = useState(false)
+
   const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
 
   const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
@@ -492,7 +493,7 @@ const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientP
   )
 }
 
-const QueryFilter = ({
+export const QueryFilter = ({
   currentDoctor = {} as { id: string; name: string; lastName: string },
   setFilterAuthor,
   setOrder,

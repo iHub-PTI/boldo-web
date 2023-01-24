@@ -73,7 +73,7 @@ import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionCo
 import { getReports } from '../util/helpers'
 import RecordOutPatientCall from '../components/RecordOutPatientCall'
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } &  { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
 
 const Gate = () => {
