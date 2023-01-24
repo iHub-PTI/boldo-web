@@ -192,8 +192,9 @@ export default function Dashboard() {
         setLoadingAppointment(false)
       })
       .catch(err => {
-        Sentry.setTag('appointment_id', appointment.id);
-        Sentry.setTag('endpoint', url);
+        Sentry.setTag('appointment_id', appointment.id)
+        Sentry.setTag('endpoint', url)
+        Sentry.setTag('method', 'GET')
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
           // que esta fuera del rango de 2xx
@@ -218,6 +219,7 @@ export default function Dashboard() {
           Sentry.setTag('message', err.message)
           console.log('Error', err)
         }
+        Sentry.captureMessage("Could not reload the appointments on the Dashboard")
         Sentry.captureException(err)
         setLoadingAppointment(false)
       })
