@@ -55,14 +55,10 @@ module.exports = {
   },
   variants: {
     textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
-    opacity: ['disabled', 'hover', 'group-hover'],
-    cursor: ['disabled', 'hover', 'group-hover'],
+    opacity: ['disabled'],
+    cursor: ['disabled'],
     backgroundColor: ['checked', 'disabled', 'hover'],
-    width: ['hover', 'group-hover'],
-    position: ['hover'],
-    display: ['group-hover'],
-    textOverflow: ['group-hover'],
-    visibility:['group-hover'],
+    width: ['hover'],
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }
