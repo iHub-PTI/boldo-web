@@ -58,13 +58,34 @@ const App = () => {
 
   useEffect(() => {
     const effect = async () => {
+      const url = '/profile/doctor'
       try {
-        const res = await axios.get('/profile/doctor')
+        const res = await axios.get(url)
         setUser(res.data)
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
+        Sentry.setTag("endpoint", url);
+        Sentry.setTag("method_used", "GET")
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          Sentry.setTag('data', err.response.data);
+          Sentry.setTag('headers', err.response.headers);
+          Sentry.setTag('status_code', err.response.status);
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request);
+          console.log(err.request);
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message);
+          console.log('Error', err.message);
+        }
+        Sentry.captureMessage("could not get the profile of the doctor")
+        Sentry.captureException(err)
+        // here the error is critical, therefore we show the Error component
         if (err?.response?.status !== 401) setError(true)
       }
     }
