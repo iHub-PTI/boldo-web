@@ -291,6 +291,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
           // Algo paso al preparar la petición que lanzo un Error
           Sentry.setTag('message', err.message);
         }
+        Sentry.captureMessage("could not update waiting room")
         Sentry.captureException(err)
       })
       
