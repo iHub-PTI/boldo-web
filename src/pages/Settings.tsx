@@ -99,7 +99,8 @@ const initialBlock = {
 } as Boldo.Block
 
 const errorTitle = 'Error al enviar el formulario.'
-const errorSend = 'No se pudo enviar el formulario'
+const errorSend = 'No se pudo enviar el formulario.'
+const errorUnknown = 'Ocurrió un error inesperado.'
 
 const errorText = {
   birthday: '¡Añada una fecha de nacimiento correcta!',
@@ -108,7 +109,8 @@ const errorText = {
   gender: '¡Seleccione un género!',
   openHours: '¡Ingrese un horario correcto!',
   photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.',
-  organizations: 'Debe tener asociado al menos un centro asistencial. Contáctese con soporte para ello.'
+  organizations: 'Debe tener asociado al menos un centro asistencial. Contáctese con soporte para ello.',
+  unknown: 'No pudimos obtener centros asistenciales asociados a su cuenta. Por favor, inténtelo nuevamente más tarde.'
 }
 
 type Action =
@@ -123,7 +125,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
   switch (action.type) {
     case 'initial': {
       const auxDoctor = action.value
-      if ( action.organizations.length > 0 ) {
+      if ( action.organizations?.length > 0 ) {
         if ( action.value.blocks.length === 0 ) {
           for ( let index = 0; index < action.organizations.length; index++ ) {
             // here we add the id of the organization
@@ -315,7 +317,10 @@ const Settings = (props: Props) => {
     let validationError = false
 
     // the most important thing is that there is an associated organization
-    if (Organizations.length > 0) {
+    if (Organizations !== undefined || Organizations !== null) {
+      validationError = true
+      addToast({ type: 'warning', title: errorUnknown, text: errorText.unknown })
+    } else if (Organizations.length > 0){
       if (!validateDate(doctor.birthDate, 'past')) {
         validationError = true
         addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
@@ -738,12 +743,18 @@ const Settings = (props: Props) => {
                   </div>
                 </div>
                 {
-                  Organizations?.length === 0
-                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
+                  Organizations === undefined || Organizations === null
+                   ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
                       <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
-                        No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
+                        No pudimos obtener centros asistenciales asociados a su cuenta, por favor, vuelva a intentarlo más tarde. Si el problema persiste, contáctese con soporte.
                       </p>
                     </div>
+                   : Organizations?.length === 0
+                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
+                        <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
+                          No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
+                        </p>
+                      </div>
                     : <div className='bg-white mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
                         <div className='overflow-hidden shadow sm:rounded-md'>
                           {
