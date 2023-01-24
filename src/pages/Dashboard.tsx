@@ -821,6 +821,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
+  const { addToast } = useToasts()
   // const type = useMemo(() => {
   //   let type = ''
   //   switch (appointment.type) {
@@ -872,16 +873,37 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
     if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) return
     setLoading(true)
     setError('')
+    const url = `/profile/doctor/appointments/${id}`
     try {
-      await axios.delete(`/profile/doctor/appointments/${id}`)
+      await axios.delete(url)
       setAppointmentsAndReload((appointments: EventInput[]) =>
         appointments.filter(appointment => appointment.extendedProps?.id !== id)
       )
       setLoading(false)
       setShow(false)
     } catch (err) {
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'DELETE')
+      Sentry.setTag('appointment_id', id)
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request)
+        console.log(err.request)
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message)
+        console.log('Error', err)
+      }
+      Sentry.captureMessage("Could not delete the private event")
+      Sentry.captureException(err)
       setLoading(false)
-      setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+      addToast({ type: 'warning', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
       console.log(err)
     }
   }
