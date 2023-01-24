@@ -238,7 +238,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (Organizations === undefined) {
-      addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
+      addToast({ type: 'error', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
     } else if (Organizations.length === 0) {
       addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
     }
@@ -325,15 +325,13 @@ export default function Dashboard() {
       } else if (err.request) {
         // La petición fue hecha pero no se recibió respuesta
         Sentry.setTag('request', err.request)
-        console.log(err.request)
       } else {
         // Algo paso al preparar la petición que lanzo un Error
         Sentry.setTag('message', err.message)
-        console.log('Error', err)
       }
       Sentry.captureMessage("Could not create the private event")
       Sentry.captureException(err)
-      setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+      addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No fue posible crear el evento privado. ¡Inténtelo nuevamente más tarde!' })
     }
 
     setLoading(false)
@@ -903,7 +901,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
       Sentry.captureMessage("Could not delete the private event")
       Sentry.captureException(err)
       setLoading(false)
-      addToast({ type: 'warning', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
+      addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
       console.log(err)
     }
   }
