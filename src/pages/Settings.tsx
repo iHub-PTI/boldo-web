@@ -317,7 +317,7 @@ const Settings = (props: Props) => {
     let validationError = false
 
     // the most important thing is that there is an associated organization
-    if (Organizations !== undefined || Organizations !== null) {
+    if (Organizations === undefined || Organizations === null) {
       validationError = true
       addToast({ type: 'warning', title: errorUnknown, text: errorText.unknown })
     } else if (Organizations.length > 0){
@@ -742,6 +742,7 @@ const Settings = (props: Props) => {
                     </p>
                   </div>
                 </div>
+                {console.log(Organizations)}
                 {
                   Organizations === undefined || Organizations === null
                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
