@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/react'
 
 const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
     const history = useHistory();
-    const { addToast, addErrorToast } = useToasts();
+    const { addToast } = useToasts();
     return (<Modal show={isOpen} setShow={setIsOpen} size='sm' >
         <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
             <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
