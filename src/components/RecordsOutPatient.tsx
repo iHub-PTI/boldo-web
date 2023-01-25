@@ -371,15 +371,18 @@ export const PatientRecord = ({
   getRecordPatientDetail = (id: string) => { },
   onActiveID = (id: string) => { },
   darkMode = false,
+  onShowDetail = () => { },
+  isCall = false,
   ...props
 }) => {
   return (
     <div
-      className={`flex flex-row pl-1 pt-1 w-64 h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1`}
+      className={`flex flex-row pl-1 pt-1 ${isCall ? 'w-full' : 'w-64'} h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1`}
       style={{ backgroundColor: selected ? darkMode ? 'rgba(248, 255, 255, 0.15)' : '#EDF2F7' : '', minHeight: '102px' }}
       onClick={() => {
         getRecordPatientDetail(patientRecord.encounterDto.id)
         onActiveID(patientRecord.encounterDto.id)
+        onShowDetail()
       }}
       {...props}
     >
@@ -427,23 +430,23 @@ export const PatientRecord = ({
   )
 }
 
-const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientProps, ...props }) => {
+export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientProps, darkMode = false, isCall = true, ...props }) => {
   return (
     <div className='flex flex-col w-full h-full gap-5'>
       <div>
-        <div className='font-normal text-primary-500'>Motivo Principal de la visita</div>
-        <div className='font-semibold'>{data.mainReason}</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Motivo Principal de la visita</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.mainReason}</div>
       </div>
       <div>
-        <div className='font-normal text-primary-500'>Impresión diagnóstica</div>
-        <div className='font-semibold'>{data.diagnosis}</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Impresión diagnóstica</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.diagnosis}</div>
       </div>
       {/* Prescriptions */}
       <div>
-        <div className='font-normal text-primary-500'>Prescripciones</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
         <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
           {data.prescriptions.map((prescription, index) => (
-            <div key={index} className='flex flex-row bg-gray-100 rounded-md w-10/12'>
+            <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
               <div className='flex flex-col p-2 w-6/12'>
                 <div className='text-black'>{prescription.medicationName}</div>
                 <div className='text-gray-500'>{prescription.medicationDto.form}</div>
@@ -458,16 +461,16 @@ const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientP
       {/* SOEP */}
       {Object.keys(data.soep).length > 0 && (
         <div>
-          <div className='font-normal text-primary-500'>Plan</div>
-          <p className='w-10/12'>{data.soep.plan}</p>
+          <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Plan</div>
+          <p className={`w-10/12  ${darkMode ? 'text-white font-semibold' : ''}`}>{data.soep.plan}</p>
           <Disclosure>
             {({ open }) => (
               <>
-                <Disclosure.Button className='mt-3 p-2 flex flex-row focus:outline-none hover:bg-gray-100 transition-colors delay-200 rounded-md text-primary-500'>
+                <Disclosure.Button className={`mt-3 p-2 flex flex-row focus:outline-none hover:bg-gray-100 transition-colors delay-200 rounded-md ${darkMode ? 'text-gray-100 hover:bg-opacity-25' : 'text-primary-500'}`}>
                   {open ? 'ocultar' : 'más anotaciones'}{' '}
-                  <ArrowDown fill='#13A5A9' className={`${open ? 'rotate-180 transform' : ''}`} />
+                  <ArrowDown fill={darkMode ? '#FFFFFF' : '#13A5A9'} className={`${open ? 'rotate-180 transform' : ''}`} />
                 </Disclosure.Button>
-                <Disclosure.Panel className='my-2 w-10/12'>
+                <Disclosure.Panel className={`my-2 ${isCall ? 'w-full' : 'w-10/12'}`}>
                   <div className='flex flex-col p-2 bg-gray-100 rounded-md gap-2'>
                     <div>
                       <div className='font-semibold'>Subjetivo</div>

@@ -7,10 +7,11 @@ import UserCircle from './icons/patient-register/UserCircle';
 import SearchIcon from './icons/SearchIcon';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
 import loadGif from '../assets/loading.gif'
-import { AppointmentWithPatient, DescripcionRecordPatientProps, OffsetType, PatientRecord, QueryFilter } from './RecordsOutPatient';
+import { AppointmentWithPatient, DescripcionRecordPatientDetail, DescripcionRecordPatientProps, OffsetType, PatientRecord, QueryFilter } from './RecordsOutPatient';
 import axios from 'axios';
 import * as Sentry from '@sentry/react'
 import _ from 'lodash';
+import ArrowBackIOS from './icons/ArrowBack-ios';
 
 
 type Props = {
@@ -26,7 +27,7 @@ const stylePanelSidebar = {
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
-  //const sidebarRef = useRef<HTMLDivElement>()
+
   const [hoverSidebar, setHoverSidebar] = useState(false)
 
   const onClickOutPatientRecord = () => {
@@ -78,7 +79,10 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   //filter order ASC or DESC
   const [filterOrder, setFilterOrder] = useState('DESC')
 
-  const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
+  //show Detail
+  const [showDetail, setShowDetail] = useState(false)
+
+  const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
   const [loading, setLoading] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
@@ -215,8 +219,11 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     if (recordOutPatientButton && recordsPatient.length === 0)
       getRecordsPatient({ offset: 1, count: countPage, order: 'DESC', doctorId: 'ALL' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    console.log(recordsPatient)
   }, [recordOutPatientButton])
+
+  useEffect(() => {
+    setActiveID('')
+  }, [recordsPatient])
 
   return (
     <div className='flex flex-no-wrap relative h-full'>
@@ -277,30 +284,37 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         </div>
         <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
           <div className='flex flex-row flew-no-wrap w-full items-center'>
-            <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
-              <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-                <SearchIcon className='w-5 h-5' />
-              </div>
-              <input
-                className='p-3 pl-10 w-full outline-none hover:bg-cool-gray-100 transition-colors delay-200 rounded-lg'
-                type='search'
-                name='search'
-                placeholder='Motivo principal de la visita'
-                title='Escriba el motivo principal de la visita'
-                autoComplete='off'
-              />
-            </div>
-            <QueryFilter
-              currentDoctor={doctor}
-              setFilterAuthor={setFilterDoctor}
-              setOrder={setFilterOrder}
-              getApiCall={getRecordsPatient}
-              inputContent={inputContent}
-              countPage={countPage}
-            />
+            {!showDetail &&
+              <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
+                <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                  <SearchIcon className='w-5 h-5' />
+                </div>
+                <input
+                  className='p-3 pl-10 w-full outline-none hover:bg-cool-gray-100 transition-colors delay-200 rounded-lg'
+                  type='search'
+                  name='search'
+                  placeholder='Motivo principal de la visita'
+                  title='Escriba el motivo principal de la visita'
+                  autoComplete='off'
+                  value={inputContent}
+                  onChange={e => {
+                    setInputContent(e.target.value)
+                    debounce(e.target.value.trim())
+                  }}
+                />
+              </div>}
+            {!showDetail &&
+              <QueryFilter
+                currentDoctor={doctor}
+                setFilterAuthor={setFilterDoctor}
+                setOrder={setFilterOrder}
+                getApiCall={getRecordsPatient}
+                inputContent={inputContent}
+                countPage={countPage}
+              />}
           </div>
-          <div
-            className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${loading && 'justify-center items-center w-full'
+          {!showDetail && <div
+            className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
               }`}
             style={{ height: 'calc(100vh - 230px)' }}
             ref={scrollEvent}
@@ -316,12 +330,37 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   selected={activeID === record.encounterDto.id}
                   onActiveID={setActiveID}
                   darkMode={true}
+                  onShowDetail={() => { setShowDetail(true) }}
+                  isCall={true}
                 />
               ))}
-          </div>
-          <div className='flex flex-row flex-no-wrap relative w-full justify-center'>
-            <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50`} src={loadGif} alt='loading gif' style={{ bottom: '-2rem' }} />
-          </div>
+          </div>}
+          {!showDetail &&
+            <div className='flex flex-row flex-no-wrap relative w-full justify-center'>
+              <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50`} src={loadGif} alt='loading gif' style={{ bottom: '-2rem' }} />
+            </div>
+          }
+
+          {showDetail &&
+            <div className='flex flex-col flex-no-wrap w-full flex-1'>
+              <div className="flex flex-row flex-no-wrap items-start">
+                <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setShowDetail(false)}>
+                  <ArrowBackIOS fill='#FFFFFF' style={{
+                    margin: '0 auto',
+                    transform: 'scale(.7)',
+                  }} /> atrás
+                </button>
+              </div>
+              <div
+                className={`flex flex-col w-full overflow-y-auto scrollbar items-center justify-center mt-5`}
+                style={{ height: 'calc(100vh - 230px)' }}
+              >
+
+                {loadingDetail && <SpinnerLoading />}
+                {!loadingDetail && <DescripcionRecordPatientDetail data={detailRecordPatient} darkMode={true} isCall={true} />}
+              </div>
+            </div>
+          }
         </div>
       </div>
       {children}
