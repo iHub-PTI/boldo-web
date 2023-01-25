@@ -48,10 +48,11 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import * as Sentry from '@sentry/react'
 
 
 export function LaboratoryMenu(props) {
-    const { addErrorToast } = useToasts()
+    const { addToast, addErrorToast } = useToasts()
     const { appointment } = props;
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
@@ -91,26 +92,52 @@ export function LaboratoryMenu(props) {
         }
 
     useEffect(() => {
-        const load = async () => {
-            try {
-                setLoading(true)
-
-                if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
-                    setStudiesData(res.data.items)
-                    setLoading(false)
-                }
-            } catch (err) {
-                addErrorToast(err)
-                // setLoading(false)
-                console.log(err)
-            } finally {
-                setLoading(false)
-            }
+      const load = async () => {
+        const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
+        try {
+          setLoading(true)
+          if (appointment !== undefined) {
+              const res = await axios.get(url)
+              setStudiesData(res.data.items)
+              setLoading(false)
+          }
+        } catch (err) {
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET',
+            'appointment_id': appointment.id,
+            'doctor_id': appointment.doctorId,
+            'patient_id': appointment.patientId
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the diagnostic report")
+          Sentry.captureException(err)
+          addToast({ 
+            type: 'error', 
+            title: 'Ha ocurrido un error.', 
+            text: 'No pudimos obtener los estudios. ¡Inténtelo nuevamente más tarde!' 
+          })
+          // setLoading(false)
+          console.log(err)
+        } finally {
+            setLoading(false)
         }
-        if (appointment)
-            load()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }
+      if (appointment)
+          load()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
 
     useEffect(() => {
