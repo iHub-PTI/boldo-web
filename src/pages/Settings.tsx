@@ -40,6 +40,7 @@ export const upload = async (file: File | string) => {
     })
     if (ress.status === 201) return res.data.location
   } catch (err) {
+    Sentry.captureMessage('Could not upload the doctor photo')
     Sentry.captureException(err)
     console.log(err)
   }
@@ -290,10 +291,11 @@ const Settings = (props: Props) => {
           setShow(true)
         }
       } catch (err) {
-        console.log(err)
+        // console.log(err)
+        Sentry.captureMessage('Could not get the doctor profile with the specializations')
         Sentry.captureException(err)
         if (mounted) {
-          setError('ERROR: Fallo en la carga de datos iniciales')
+          addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'Falló la carga inicial de los datos.' })
           setShow(true)
         }
       }
@@ -354,7 +356,8 @@ const Settings = (props: Props) => {
           }
   
           await axios.put('/profile/doctor', { ...doctor, photoUrl })
-          setSuccess('Actualización exitosa!')
+          // setSuccess('Actualización exitosa!')
+          addToast({ type: 'success', title: '¡Actualización exitosa!', text: 'La información de su perfil ha sido actualizada.' })
           updateUser({
             ...(typeof photoUrl === 'string' && { photoUrl }),
             givenName: doctor.givenName,
@@ -363,9 +366,27 @@ const Settings = (props: Props) => {
             new: false,
           })
         } catch (err) {
+          Sentry.setTag('endpoint', '/profile/doctor')
+          Sentry.setTag('method', 'PUT')
+          if (err.response) {
+            // La respuesta fue hecha y el servidor respondió con un código de estado
+            // que esta fuera del rango de 2xx
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // La petición fue hecha pero no se recibió respuesta
+            Sentry.setTag('request', err.request)
+            console.log(err.request)
+          } else {
+            // Algo paso al preparar la petición que lanzo un Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage('Could not update the doctor photo')
           Sentry.captureException(err)
-          setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
-          console.log(err)
+          addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo actualizar el perfil.' })
+          // setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+          // console.log(err)
         }
       }
     } else {
