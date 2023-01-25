@@ -255,7 +255,7 @@ const Settings = (props: Props) => {
   const [specializations, setSpecializations] = useState<List>([])
 
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  // const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [show, setShow] = useState(false)
 
@@ -594,7 +594,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -700,7 +700,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -735,7 +735,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -847,7 +847,7 @@ const Settings = (props: Props) => {
                             })
                           }
                           <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                            <SaveButton error={error} success={success} loading={loading} />
+                            <SaveButton error={error} loading={loading} />
                           </div>
                         </div>
                       </div>
@@ -865,15 +865,15 @@ export default Sentry.withProfiler(Settings)
 
 interface SaveButtonProps {
   error?: string
-  success?: string
+  // success?: string
   loading?: boolean
 }
 
-const SaveButton = ({ error, success, loading }: SaveButtonProps) => {
+const SaveButton = ({ error, loading }: SaveButtonProps) => {
   return (
     <>
       {error && <span className='mt-2 mr-2 text-sm text-red-600'>{error}</span>}
-      {success && <span className='mt-2 mr-2 text-sm text-green-600'>{success}</span>}
+      {/* {success && <span className='mt-2 mr-2 text-sm text-green-600'>{success}</span>} */}
 
       <span className='inline-flex rounded-md shadow-sm'>
         <button
