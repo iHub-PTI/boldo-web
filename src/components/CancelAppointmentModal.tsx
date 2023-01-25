@@ -3,6 +3,9 @@ import React from "react"
 import Modal from "./Modal"
 import { useHistory } from 'react-router-dom'
 import { useToasts } from "./Toast"
+import * as Sentry from '@sentry/react'
+
+
 const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
     const history = useHistory();
     const { addToast, addErrorToast } = useToasts();
@@ -29,9 +32,11 @@ const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
                 <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
                     <button
                         type='button'
+                        className=' inline-flex justify-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
                         onClick={async () => {
+                            const url = `/profile/doctor/appointments/cancel/${appointmentId}`
                             try {
-                                const res = await axios.post(`/profile/doctor/appointments/cancel/${appointmentId}`)
+                                const res = await axios.post(url)
                                 console.log('respuesta ', res)
                                 if (res.data != null) {
                                     addToast({ type: 'success', title: 'Cita cancelada con éxito', })
@@ -39,13 +44,31 @@ const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
                                 }
 
                             } catch (err) {
-                                console.log("Error al cancelar cita", err)
-                                addErrorToast('No se pudo borrar la cita, intente nuevamente.')
-
+                                Sentry.setTag('endpoint', url)
+                                Sentry.setTag('method', 'POST')
+                                if (err.response) {
+                                // The response was made and the server responded with a 
+                                // status code that is outside the 2xx range.
+                                Sentry.setTag('data', err.response.data)
+                                Sentry.setTag('headers', err.response.headers)
+                                Sentry.setTag('status_code', err.response.status)
+                                } else if (err.request) {
+                                // The request was made but no response was received
+                                Sentry.setTag('request', err.request)
+                                } else {
+                                // Something happened while preparing the request that threw an Error
+                                Sentry.setTag('message', err.message)
+                                }
+                                Sentry.captureMessage("Could not delete the appointment")
+                                Sentry.captureException(err)
+                                addToast({ 
+                                    type: 'error', 
+                                    title: 'Ha ocurrido un error.', 
+                                    text: 'No fue posible cancelar la cita. ¡Inténtelo nuevamente más tarde!' 
+                                })
                             }
 
                         }}
-                        className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
                     >
                         Confirmar
                     </button>
