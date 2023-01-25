@@ -222,6 +222,11 @@ export default function Dashboard() {
         Sentry.captureMessage("Could not reload the appointments on the Dashboard")
         Sentry.captureException(err)
         setLoadingAppointment(false)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible recargar automáticamente las citas.'
+        })
       })
   }
 
@@ -408,6 +413,11 @@ export default function Dashboard() {
         }
         Sentry.captureMessage("Could not load the events")
         Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible cargar las citas.'
+        })
         if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
   }
