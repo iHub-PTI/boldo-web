@@ -236,25 +236,47 @@ export function LaboratoryMenu(props) {
 
 
     useEffect(() => {
-        const load = async () => {
-            try {
-
-                if (selectedRow !== undefined) {
-                    //@ts-ignore
-                    const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-                    setStudyDetail(res.data)
-                }
-            } catch (err) {
-                console.log(err)
-                addErrorToast(err)
-                setSelectedRow(undefined)
-            } finally {
-                // setInitialLoad(false)
-            }
+      const load = async () => {
+        try {
+          if (selectedRow !== undefined) {
+              //@ts-ignore
+              const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+              setStudyDetail(res.data)
+          }
+        } catch (err) {
+          if (selectedRow !== undefined) { 
+            //@ts-ignore
+            Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+          }
+          Sentry.setTag('method', 'GET')
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the study description")
+          Sentry.captureException(err)
+          setSelectedRow(undefined)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error',
+            text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+          })
+        } finally {
+            // setInitialLoad(false)
         }
-        selectedRow !== undefined &&
-            load()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }
+      selectedRow !== undefined &&
+          load()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
 
