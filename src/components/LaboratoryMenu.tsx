@@ -127,7 +127,7 @@ export function LaboratoryMenu(props) {
           addToast({ 
             type: 'error', 
             title: 'Ha ocurrido un error.', 
-            text: 'No pudimos obtener los estudios. ¡Inténtelo nuevamente más tarde!' 
+            text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
           })
           // setLoading(false)
           console.log(err)
@@ -151,27 +151,54 @@ export function LaboratoryMenu(props) {
 
     useEffect(() => {
       const loadIssued = async () => {
-        try {
+      const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
+      try {
+        setLoadingIssued(true)
+        if (appointment !== undefined) {
           setLoadingIssued(true)
-          if (appointment !== undefined) {
-            setLoadingIssued(true)
-            const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
-            console.log("response issueds", res)
-            if (res.status === 200)
-              setIssuedStudiesData(res.data.items)
-            if (res.status === 204)
-              setIssuedStudiesData([])
-            setLoadingIssued(false)
-          }
-        } catch (err) {
-          addErrorToast(err)
-          console.log(err)
-        } finally {
+          const res = await axios.get(url)
+          console.log("response issueds", res)
+          if (res.status === 200)
+            setIssuedStudiesData(res.data.items)
+          if (res.status === 204)
+            setIssuedStudiesData([])
           setLoadingIssued(false)
         }
+      } catch (err) {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': appointment.id,
+          'doctor_id': appointment.doctorId,
+          'patient_id': appointment.patientId
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the study orders")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error',
+          text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+        })
+      } finally {
+        setLoadingIssued(false)
       }
-      if (appointment && !showMakeOrder) 
-        loadIssued()
+    }
+    if (appointment && !showMakeOrder) 
+      loadIssued()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showMakeOrder, appointment, addErrorToast])
 
 
