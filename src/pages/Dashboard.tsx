@@ -194,6 +194,7 @@ export default function Dashboard() {
       .catch(err => {
         Sentry.setTag('endpoint', url)
         Sentry.setTag('method', 'GET')
+        Sentry.setTag('organization_id', idOrganization)
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
           // que esta fuera del rango de 2xx
@@ -380,6 +381,8 @@ export default function Dashboard() {
       })
       .catch(err => {
         Sentry.setTag('endpoint', url);
+        Sentry.setTag('method', 'GET')
+        Sentry.setTag('organization_id', Organization?.id)
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
           // que esta fuera del rango de 2xx
@@ -403,6 +406,7 @@ export default function Dashboard() {
           Sentry.setTag('message', err.message)
           console.log('Error', err.message)
         }
+        Sentry.captureMessage("Could not load the events")
         Sentry.captureException(err)
         if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
