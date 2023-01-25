@@ -365,17 +365,18 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
   )
 }
 
-const PatientRecord = ({
+export const PatientRecord = ({
   selected = false,
   patientRecord = {} as PatientRecord,
   getRecordPatientDetail = (id: string) => { },
   onActiveID = (id: string) => { },
+  darkMode = false,
   ...props
 }) => {
   return (
     <div
-      className='flex flex-row pl-1 pt-1 w-64 h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1'
-      style={{ backgroundColor: selected ? '#EDF2F7' : '', minHeight: '102px' }}
+      className={`flex flex-row pl-1 pt-1 w-64 h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1`}
+      style={{ backgroundColor: selected ? darkMode ? 'rgba(248, 255, 255, 0.15)' : '#EDF2F7' : '', minHeight: '102px' }}
       onClick={() => {
         getRecordPatientDetail(patientRecord.encounterDto.id)
         onActiveID(patientRecord.encounterDto.id)
@@ -395,8 +396,7 @@ const PatientRecord = ({
       </div>
       <div className='flex flex-col w-full truncate'>
         <div
-          className='font-semibold text-base truncate w-full'
-          style={{ color: '#364152' }}
+          className={`font-semibold text-base truncate w-full ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
           title={toUpperLowerCase(patientRecord.doctorDto.givenName + ' ' + patientRecord.doctorDto.familyName)}
         >
           {`${patientRecord.doctorDto.gender === 'male' ? 'Dr.' : 'Dra.'} ${toUpperLowerCase(
@@ -404,25 +404,24 @@ const PatientRecord = ({
           )} ${toUpperLowerCase(patientRecord.doctorDto.familyName.split(' ')[0])}`}
         </div>
         <div
-          className='text-base mb-1 text-gra text-gray-700 truncate'
-          style={{ color: '#364152' }}
+          className={`text-base pb-1 truncate ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
           title={toUpperLowerCase(patientRecord.doctorDto.specializations.map(c => c.description).join(', '))}
         >
           {toUpperLowerCase(patientRecord.doctorDto.specializations.map(c => c.description).join(', '))}
         </div>
         <div
-          className='text-gray-500 font-normal w-44 truncate mb-1 group-hover:text-primary-500'
+          className={`font-normal w-44 truncate mb-1 group-hover:text-primary-500 ${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}
           title={patientRecord.encounterDto.mainReason}
         >
           {patientRecord.encounterDto.mainReason}
         </div>
         <div className='flex flex-row gap-2'>
-          <div className='font-normal' style={{ color: '#364152' }}>
+          <div className={`font-normal ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}>
             {moment(patientRecord.encounterDto.finishTimeDate.split('T')[0]).format('DD/MM/YYYY')}
           </div>
-          <div className='text-gray-500'>{countDays(patientRecord.encounterDto.finishTimeDate.split('T')[0])}</div>
+          <div className={`${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}>{countDays(patientRecord.encounterDto.finishTimeDate.split('T')[0])}</div>
         </div>
-        <span className='w-full h-0 border-b border-gray-100'></span>
+        <span className='w-full h-0' style={{ borderBottom: darkMode ? '1px solid rgba(247, 244, 244, 0.2)' : '1px solid #F7F4F4' }}></span>
       </div>
     </div>
   )

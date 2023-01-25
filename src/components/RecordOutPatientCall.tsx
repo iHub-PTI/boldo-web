@@ -5,6 +5,8 @@ import ArrowDown from './icons/ArrowDown';
 import differenceInYears from 'date-fns/differenceInYears';
 import UserCircle from './icons/patient-register/UserCircle';
 import SearchIcon from './icons/SearchIcon';
+import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
+import loadGif from '../assets/loading.gif'
 import { AppointmentWithPatient, DescripcionRecordPatientProps, OffsetType, PatientRecord, QueryFilter } from './RecordsOutPatient';
 import axios from 'axios';
 import * as Sentry from '@sentry/react'
@@ -188,7 +190,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         setLoadingDetail(false)
       })
       .catch(err => {
-//        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
+        //        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
@@ -201,9 +203,19 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
 
   useEffect(() => {
-    if (!recordOutPatientButton) return
-    handleSidebarHoverOff()
+    if (!recordOutPatientButton) {
+      handleSidebarHoverOff()
+      if (recordsPatient.length === 0) {
+        setInputContent('')
+        setFilterDoctor('ALL')
+        setFilterOrder('DESC')
+      }
+      return
+    }
+    if (recordOutPatientButton && recordsPatient.length === 0)
+      getRecordsPatient({ offset: 1, count: countPage, order: 'DESC', doctorId: 'ALL' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    console.log(recordsPatient)
   }, [recordOutPatientButton])
 
   return (
@@ -286,6 +298,29 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
               inputContent={inputContent}
               countPage={countPage}
             />
+          </div>
+          <div
+            className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${loading && 'justify-center items-center w-full'
+              }`}
+            style={{ height: 'calc(100vh - 230px)' }}
+            ref={scrollEvent}
+            onScroll={() => onScrollEnd()}
+          >
+            {loading && <SpinnerLoading />}
+            {!loading &&
+              recordsPatient.map((record, index) => (
+                <PatientRecord
+                  key={index}
+                  patientRecord={record}
+                  getRecordPatientDetail={getRecordPatientDetail}
+                  selected={activeID === record.encounterDto.id}
+                  onActiveID={setActiveID}
+                  darkMode={true}
+                />
+              ))}
+          </div>
+          <div className='flex flex-row flex-no-wrap relative w-full justify-center'>
+            <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50`} src={loadGif} alt='loading gif' style={{ bottom: '-2rem' }} />
           </div>
         </div>
       </div>
