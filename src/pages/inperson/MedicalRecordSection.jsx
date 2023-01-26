@@ -10,6 +10,8 @@ import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import _ from 'lodash'
 import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
+import * as Sentry from '@sentry/react'
+
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -28,7 +30,7 @@ const soepPlaceholder = {
 
 export default ({ appointment, setDisabledRedcordButton }) => {
   const classes = useStyles()
-  const { addErrorToast } = useToasts()
+  const { addToast ,addErrorToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
@@ -76,8 +78,9 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+        const res = await axios.get(url)
         const {
           diagnosis = '',
           instructions = '',
@@ -103,7 +106,31 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
         // setInitialLoad(false)
       } catch (err) {
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo cargar la cita. ¡Inténtelo nuevamente más tarde!'
+        })
         setInitialLoad(false)
         //@ts-ignore
         // addErrorToast(err)
