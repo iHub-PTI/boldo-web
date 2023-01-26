@@ -861,7 +861,7 @@ const Settings = (props: Props) => {
   )
 }
 
-export default Sentry.withProfiler(Settings) 
+export default Settings 
 
 interface SaveButtonProps {
   error?: string
