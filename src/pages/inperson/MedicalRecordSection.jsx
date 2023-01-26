@@ -212,10 +212,11 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     if (encounterId !== '') {
+      const url = `/profile/doctor/relatedEncounters/${encounterId}`
       const load = async () => {
         try {
           //get related encounters records
-          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`)
+          const res = await axios.get(url)
           if (res.data.encounter !== undefined) {
             var count = Object.keys(res.data.encounter.items).length
             const tempArray = []
@@ -233,10 +234,33 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           setInitialLoad(false)
         } catch (err) {
           //console.log(err)
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET',
+            'encounter_id': encounterId
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the history of encounters")
+          Sentry.captureException(err)
           setInitialLoad(false)
-          //@ts-ignore
-          addErrorToast(err)
           setInitialLoad(false)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'No hemos podido obtener el historial de las citas relacionadas. ¡Inténtelo nuevamente más tarde!'
+          })
         } finally {
           //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
           setDisabledRedcordButton(false)
