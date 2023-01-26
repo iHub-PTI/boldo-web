@@ -337,7 +337,7 @@ export default function Dashboard() {
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
         params: {
-          organizationId: Organization?.id
+          organizationId: Organization.id
         }
       }
       )
@@ -462,11 +462,11 @@ export default function Dashboard() {
           <>
             <div className='flex flex-col h-full text-cool-gray-700 overflow-x-auto' style={{ minWidth: '1200px' }}>
               {openHoursEmpty && (
-                <div className='relative bg-secondary-500'>
+                <div className='relative' style={{ backgroundColor: Organization?.colorCode ? Organization.colorCode : '#27BEC2' }}>
                   <div className='px-3 py-3 mx-auto max-w-7xl sm:px-6 lg:px-8'>
                     <div className='pr-16 sm:text-center sm:px-16'>
                       <p className='font-medium text-white'>
-                        <span>Aún no tienes configurado el horario de apertura.</span>
+                        { Organization && <span>Aún no tienes configurado el horario de apertura en {Organization.name}.</span> }
                         <span className='block sm:ml-2 sm:inline-block'>
                           <Link to='/settings' className='font-bold text-white underline'>
                             {' '}
@@ -526,7 +526,7 @@ export default function Dashboard() {
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
                 eventClick={handleEventClick}
-                eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization.colorCode)}
+                eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization?.colorCode)}
                 // we define it in tailwind.css
                 // eventBackgroundColor={'#FFFFFF'}
                 eventBorderColor={'#e5e7eb'}
