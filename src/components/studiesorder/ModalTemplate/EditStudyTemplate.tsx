@@ -10,6 +10,7 @@ import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from '../../Toast'
 import axios from 'axios'
 import { CategoriesContext } from '../Provider'
+import * as Sentry from '@sentry/react'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }) => {
   const study = studies.find(data => data.id === id)
@@ -104,6 +105,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
   }
 
   const saveTemplate = async () => {
+    const url = `/profile/doctor/studyOrderTemplate/${id}`
     try {
       let details = []
       studyArray.forEach(obj => {
@@ -136,7 +138,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
       if (validateEditTemplate(dataTemplate)) {
         setLoading(true)
         console.log("id template", id)
-        const res = await axios.put(`/profile/doctor/studyOrderTemplate/${id}`, dataTemplate)
+        const res = await axios.put(url, dataTemplate)
         let index = studies.findIndex(el => el.id === res.data.id)
         studies[index] = {
           id: res.data.id,
@@ -151,8 +153,28 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editada con exito!' })
       }
     } catch (err) {
-      console.log(err)
-      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'PUT')
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not update the study order template")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No fue posible editar la plantilla de orden de estudios. ¡Inténtelo de nuevo más tarde!'
+      })
       setLoading(false)
     }
   }
