@@ -110,6 +110,8 @@ const App = () => {
         Sentry.setTag('message', err.message);
         console.log('Error', err.message);
       }
+      Sentry.captureMessage('Could not get organizations')
+      Sentry.captureException(err)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -227,6 +229,8 @@ export const RoomsProvider: React.FC = ({ children }) => {
   const appointments = useRef<AppointmentWithPatient[]>()
   const token = useRef<string>()
   const socket = useContext(SocketContext)
+    // Context API Organization Boldo MultiOrganization
+    const { Organization } = useContext(OrganizationContext)
 
   useEffect(() => {
     if (!socket) return
@@ -266,7 +270,11 @@ export const RoomsProvider: React.FC = ({ children }) => {
 
     const load = async () => {
       const res = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        '/profile/doctor/appointments?status=open'
+        '/profile/doctor/appointments?status=open', {
+          params: {
+            organizationId: Organization.id
+          }
+        }
       )
       token.current = res.data.token
       appointments.current = res.data.appointments
@@ -275,11 +283,11 @@ export const RoomsProvider: React.FC = ({ children }) => {
       }
     }
 
-    load()
+    Organization && load()
 
     const timer = setInterval(() => load(), 60800)
     return () => clearInterval(timer)
-  }, [socket])
+  }, [socket, Organization])
 
   const value = useMemo(() => ({ rooms }), [rooms])
 
