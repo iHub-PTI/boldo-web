@@ -13,6 +13,7 @@ import * as Sentry from '@sentry/react'
 import _ from 'lodash';
 import ArrowBackIOS from './icons/ArrowBack-ios';
 import { useToasts } from './Toast';
+import CloseButton from './icons/CloseButton';
 
 
 type Props = {
@@ -282,8 +283,15 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         className={`opacity-0 ${recordOutPatientButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
         style={{ width: recordOutPatientButton ? '21.6rem' : '0px' }}
       >
-        <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center'>
+        <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
           <span className='text-white font-medium text-sm truncate'>Registro de consultas ambulatorias</span>
+          <button className='focus:outline-none' onClick={() => {
+            setRecordOutPatientButton(false)
+            setShowDetail(false)
+            setActiveID('')
+          }}>
+            <CloseButton />
+          </button>
         </div>
         <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
           <div className='flex flex-row flew-no-wrap w-full items-center'>
