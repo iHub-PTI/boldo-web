@@ -14,6 +14,7 @@ import _ from 'lodash';
 import ArrowBackIOS from './icons/ArrowBack-ios';
 import { useToasts } from './Toast';
 import CloseButton from './icons/CloseButton';
+import NoProfilePicture from './icons/NoProfilePicture';
 
 
 type Props = {
@@ -253,8 +254,10 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           onMouseLeave={() => handleSidebarHoverOff()}
         >
           <div className='flex flex-col w-full flex-no-wrap mt-10 items-center'>
-            <img src={appointment.patient.photoUrl} alt='Foto de Perfil'
-              className='border-1 border-white rounded-full w-15 h-15 object-cover' />
+            {appointment.patient.photoUrl ? <img src={appointment.patient.photoUrl} alt='Foto de Perfil'
+              className='border-1 border-white rounded-full w-15 h-15 object-cover' /> :
+              <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15' />
+            }
           </div>
           <Disclosure>
             {({ open }) => (
