@@ -71,6 +71,9 @@ import useWindowDimensions from '../util/useWindowDimensions'
 import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 import { getReports } from '../util/helpers'
+import * as Sentry from '@sentry/react'
+
+
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -98,18 +101,41 @@ const Gate = () => {
       setInstance(0)
       if (!status) return
 
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        if (['closed', 'open'].includes(status)) await axios.post(`/profile/doctor/appointments/${id}`, { status })
+        if (['closed', 'open'].includes(status)) await axios.post(url, { status })
         setAppointment(appointment => {
           if (!appointment || !status) return
           return { ...appointment, status: status }
         })
       } catch (err) {
-        console.log(err)
-        addErrorToast('No se actualizó el estado de cita.')
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'POST'
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not delete the appointment")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo actualizar el estado de la cita.'
+        })
       }
     },
-    [addErrorToast, id]
+    [addToast, id]
   )
 
   useEffect(() => {
