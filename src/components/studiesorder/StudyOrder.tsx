@@ -107,7 +107,6 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             try {
                 const res = await axios.get(url)
                 console.log(res.data)
-                debugger
                 setEncounterId(res.data.encounter.id)
 
             } catch (err) {
