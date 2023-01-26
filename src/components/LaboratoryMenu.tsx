@@ -48,6 +48,7 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 
 
 export function LaboratoryMenu(props) {
@@ -247,13 +248,25 @@ export function LaboratoryMenu(props) {
                               archivos subidos por el paciente, laboratorios o dispositivos médicos
                           </Typography>
                       </Grid>
-                      <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
-                      onClick={() => setShowMakeOrder(true)}
-                      disabled={disabledButton}
-                      >
-                          <div>Emitir orden de estudio</div>
-                          <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
-                      </button>
+                      {appointment && 
+                        <div 
+                          title={
+                            disabledButton  
+                              ? appointment.status === 'locked'
+                                ? 'No disponible en citas culminadas'
+                                : 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' 
+                              : 'Aquí puede gestionar las órdenes de estudio y emitirlas'
+                          }
+                        >
+                          <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
+                            onClick={() => setShowMakeOrder(true)}
+                            disabled={disabledButton}
+                          >
+                              <div>Emitir orden de estudio</div>
+                              <OrderAdd className="mx-0.5 p-0 "></OrderAdd>
+                          </button>
+                        </div>
+                      }
                   </div>
                   <div className="flex flex-row flex-no-wrap w-full justify-end">
                     <div className="flex w-96">

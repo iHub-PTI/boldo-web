@@ -26,6 +26,8 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
@@ -515,8 +517,17 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </Grid>}
                 </Grid>
             </Grid>
-            {!selectedRow && issueOrder === false && (
-                <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
+            {!selectedRow && issueOrder === false && appointment && (
+                <div 
+                    className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4" 
+                    title={
+                        disabledButton 
+                            ? appointment.status === 'locked'
+                                ? 'No disponible en citas culminadas'
+                                : 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' 
+                            : 'Aquí puede gestionar las órdenes de estudio y emitirlas'
+                    }
+                >
                     <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
                         onClick={() => {
                             setIssueOrder(true)
