@@ -274,19 +274,19 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 <Disclosure.Panel className="focus:outline-none ">
                   <div className='flex flex-col'>
                     <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Edad</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{differenceInYears(Date.now(), new Date(appointment.patient.birthDate))}</span>
+                    <span className='text-lg font-semibold text-cool-gray-700'>{differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || '-'}</span>
                   </div>
                   <div className='flex flex-col'>
                     <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Profesion</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.job}</span>
+                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.job || '-'}</span>
                   </div>
                   <div className='flex flex-col'>
                     <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Teléfono</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.phone}</span>
+                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.phone || '-'}</span>
                   </div>
                   <div className='flex flex-col'>
                     <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Ciudad</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.city}</span>
+                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.city || '-'}</span>
                   </div>
                 </Disclosure.Panel>
               </div>
