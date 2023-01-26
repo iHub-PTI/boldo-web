@@ -269,18 +269,43 @@ export const RoomsProvider: React.FC = ({ children }) => {
     if (!socket) return
 
     const load = async () => {
-      const res = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        '/profile/doctor/appointments?status=open', {
+      const url = '/profile/doctor/appointments?status=open'
+      await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        url, {
           params: {
             organizationId: Organization.id
           }
         }
       )
-      token.current = res.data.token
-      appointments.current = res.data.appointments
-      if (appointments.current?.length) {
-        socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
-      }
+      .then((res) => {
+        token.current = res.data.token
+        appointments.current = res.data.appointments
+        if (appointments.current?.length) {
+          socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
+        }
+      })
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'org_id': Organization.id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get appointments for waiting room")
+        Sentry.captureException(err)
+      })
     }
 
     Organization && load()
