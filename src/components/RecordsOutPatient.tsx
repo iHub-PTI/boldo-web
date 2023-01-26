@@ -502,6 +502,7 @@ export const QueryFilter = ({
   getApiCall,
   inputContent,
   countPage,
+  activeColor = false
 }) => {
   //Current Doctor or all Doctors [ 'all' || 'current' ]
   const [author, setAuthor] = useState('ALL')
@@ -576,7 +577,7 @@ export const QueryFilter = ({
         /* Use the `open` state to conditionally change the direction of the chevron icon. */
         <>
           <Popover.Button className='focus:outline-none' title='Filtros'>
-            <FilterListIcon active={open} />
+            <FilterListIcon active={activeColor || open} />
           </Popover.Button>
           <Popover.Panel className='absolute left-10 z-10 mt-3 -translate-x-1/2 transform px-4 w-72'>
             <div

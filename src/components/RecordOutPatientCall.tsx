@@ -12,6 +12,7 @@ import axios from 'axios';
 import * as Sentry from '@sentry/react'
 import _ from 'lodash';
 import ArrowBackIOS from './icons/ArrowBack-ios';
+import { useToasts } from './Toast';
 
 
 type Props = {
@@ -87,6 +88,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
 
+  const { addErrorToast } = useToasts()
+
   //methods
   const getRecordsPatient = async ({ doctorId = 'ALL', content = '', count = 10, offset = 1, order = 'DESC' }) => {
     setError(false)
@@ -155,7 +158,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
       })
       .catch(err => {
         console.error(err)
-        //addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
+        addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
         Sentry.setTags({
           'patient id': patientId,
           GET: `/profile/doctor/patient/${patientId}/encounters`,
@@ -194,7 +197,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         setLoadingDetail(false)
       })
       .catch(err => {
-        //        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
+        addErrorToast('Ha ocurrido un error al traer el detalle: ' + err.message)
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
@@ -311,37 +314,63 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 getApiCall={getRecordsPatient}
                 inputContent={inputContent}
                 countPage={countPage}
+                activeColor={true}
               />}
           </div>
-          {!showDetail && <div
-            className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
-              }`}
-            style={{ height: 'calc(100vh - 230px)' }}
-            ref={scrollEvent}
-            onScroll={() => onScrollEnd()}
-          >
-            {loading && <SpinnerLoading />}
-            {!loading &&
-              recordsPatient.map((record, index) => (
-                <PatientRecord
-                  key={index}
-                  patientRecord={record}
-                  getRecordPatientDetail={getRecordPatientDetail}
-                  selected={activeID === record.encounterDto.id}
-                  onActiveID={setActiveID}
-                  darkMode={true}
-                  onShowDetail={() => { setShowDetail(true) }}
-                  isCall={true}
-                />
-              ))}
+          {!showDetail && !error &&
+            <div
+              className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
+                }`}
+              style={{ height: 'calc(100vh - 230px)' }}
+              ref={scrollEvent}
+              onScroll={() => onScrollEnd()}
+            >
+              {loading && <SpinnerLoading />}
+              {!loading &&
+                recordsPatient.map((record, index) => (
+                  <PatientRecord
+                    key={index}
+                    patientRecord={record}
+                    getRecordPatientDetail={getRecordPatientDetail}
+                    selected={activeID === record.encounterDto.id}
+                    onActiveID={setActiveID}
+                    darkMode={true}
+                    onShowDetail={() => { setShowDetail(true) }}
+                    isCall={true}
+                  />
+                ))}
+
+              {!loading && totalRecordsPatient === 0 &&
+                <div className='flex flex-row w-full justify-center items-center text-white font-bold'>
+                  No se encontraron resultados.
+                </div>
+              }
+            </div>}
+
+          {error && <div className='flex flex-col w-full h-full items-center justify-center'>
+            <div className='mt-6 text-center sm:mt-5'>
+              <h3 className='text-lg font-medium leading-6 text-white' id='modal-headline'>
+                Ha ocurrido un error al traer los registros
+              </h3>
+            </div>
+            <div className='flex justify-center w-full mt-6 sm:mt-8'>
+              <button
+                className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+                onClick={() => getRecordsPatient({ offset: 1, count: countPage })}
+              >
+                Inténtar de nuevo
+              </button>
+            </div>
           </div>}
-          {!showDetail &&
+
+
+          {!showDetail && !error &&
             <div className='flex flex-row flex-no-wrap relative w-full justify-center'>
               <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50`} src={loadGif} alt='loading gif' style={{ bottom: '-2rem' }} />
             </div>
           }
 
-          {showDetail &&
+          {showDetail && !error &&
             <div className='flex flex-col flex-no-wrap w-full flex-1'>
               <div className="flex flex-row flex-no-wrap items-start">
                 <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setShowDetail(false)}>
