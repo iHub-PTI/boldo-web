@@ -300,23 +300,50 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(()=>{
         const loadOrders = async () => {
+            const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
             try {
                 setLoadingOrders(true)
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     console.log("response orders", res)
                     if(res.status === 200) setIssuedStudies(res.data.items)
                     else if (res.status === 204) setIssuedStudies([])
                     setLoadingOrders(false)
                 }
             } catch (err) {
-                addErrorToast(err)
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study orders")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setLoadingOrders(false)
             }
         }
         if (appointment && !issueOrder) loadOrders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [issueOrder, appointment, addErrorToast])
 
     //Hover theme
