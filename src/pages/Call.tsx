@@ -126,12 +126,12 @@ const Gate = () => {
           // Something happened while preparing the request that threw an Error
           Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not delete the appointment")
+        Sentry.captureMessage("Could not update the appointment status")
         Sentry.captureException(err)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No se pudo actualizar el estado de la cita.'
+          text: 'No se pudo actualizar el estado de la cita. !Inténtelo de nuevo más tarde¡'
         })
       }
     },
