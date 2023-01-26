@@ -129,7 +129,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No se pudo cargar la cita. ¡Inténtelo nuevamente más tarde!'
+          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
         })
         setInitialLoad(false)
         //@ts-ignore
