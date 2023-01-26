@@ -91,7 +91,7 @@ const TooltipInfo = withStyles((theme) => ({
 
 
 const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
-    const { addToast, addErrorToast } = useToasts();
+    const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
@@ -201,10 +201,11 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                     "studiesCodes": studiesCodes
                 })
             });
-            console.log(ordersCopy)
+            // console.log(ordersCopy)
+            const url = `/profile/doctor/serviceRequest`
             try {
                 setSendStudyLoading(true)
-                const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
+                const res = await axios.post(url, ordersCopy)
                 console.log("server response", res)
                 setSendStudyLoading(false)
                 //reset Orders
@@ -220,12 +221,29 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                 setIndexOrder(0)
                 setShowMakeOrder(false)
                 addToast({ type: 'success', title: 'Notificación', text: '¡La(s) orden(es) han sido enviadas!' })
-            } catch (error) {
-                if (error.response.data?.hasOwnProperty('messages')) {
-                    addErrorToast(error.response.data?.messages)
+            } catch (err) {
+                Sentry.setTag('endpoint', url)
+                Sentry.setTag('method', 'POST')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
                 } else {
-                    addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
                 }
+                Sentry.captureMessage("Could not generate a new study order")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No se pudo generar la orden de estudios. ¡Inténtalo nuevamente más tarde!'
+                })
                 setSendStudyLoading(false)
             }
         }
