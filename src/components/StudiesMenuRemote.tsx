@@ -210,17 +210,44 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
             try {
                 setLoading(true)
 
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     // if(res.data.items > 0)
                     setStudiesData(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
-                addErrorToast(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the diagnostic report")
+                Sentry.captureException(err)
+                addToast({ 
+                    type: 'error', 
+                    title: 'Ha ocurrido un error.', 
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                })
                 // setLoading(false)
                 console.log(err)
             } finally {
