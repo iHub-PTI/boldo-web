@@ -81,7 +81,7 @@ type CallStatus = { connecting: boolean }
 const Gate = () => {
   const history = useHistory()
   const socket = useContext(SocketContext)
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -1667,17 +1667,40 @@ function SOEP({ appointment }: { appointment: any }) {
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         //setIsLoading(true)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(url, _encounter)
         console.log('response', res.data)
         //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
-      } catch (error) {
+      } catch (err) {
         //setIsLoading(false)
-        console.log(error)
-        //@ts-ignore
-        addErrorToast(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'PUT',
+          'appointment_id': id
+        })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not update the encounter")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+      })
       }
     }, 1000),
     []
