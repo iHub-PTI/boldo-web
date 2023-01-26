@@ -106,7 +106,7 @@ const errorText = {
   language: '¡Añada al menos un idioma!',
   specialization: '¡Añada al menos una especialización!',
   gender: '¡Seleccione un género!',
-  openHours: '¡Ingrese un horario correcto!',
+  openHours: '¡Ingrese un horario con finalización mayor al inicio',
   photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.',
   organizations: 'Debe tener asociado al menos un centro asistencial. Contáctese con soporte para ello.'
 }
@@ -311,6 +311,7 @@ const Settings = (props: Props) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
 
     let validationError = false
 
@@ -335,11 +336,12 @@ const Settings = (props: Props) => {
         validationError = true
         addToast({ type: 'warning', title: errorTitle, text: errorText.gender})
       }
-  
+
       doctor.blocks.forEach((block)=>{
         if ( !validateOpenHours(block.openHours) ) {
           validationError = true
-          addToast({ type: 'warning', title: errorTitle, text: errorText.openHours})
+          const customOpenHoursError = errorText.openHours + ` en ${Organizations.find(element => element.id === block.idOrganization).name}!`
+          addToast({ type: 'warning', title: errorTitle, text: customOpenHoursError})
         }
       })
   
