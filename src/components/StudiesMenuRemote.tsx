@@ -26,6 +26,7 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import * as Sentry from '@sentry/react'
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
@@ -185,7 +186,7 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 
 
 export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
-    const { addErrorToast } = useToasts()
+    const { addToast } = useToasts()
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -249,7 +250,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
                 })
                 // setLoading(false)
-                console.log(err)
             } finally {
                 setLoading(false)
             }
@@ -312,8 +312,31 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                console.log(err)
-                addErrorToast(err)
+                if (selectedRow !== undefined) { 
+                    //@ts-ignore
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                }
+                Sentry.setTag('method', 'GET')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study description")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+                })
                 setSelectedRow(undefined)
                 setFilterHide(true)
             } finally {
@@ -371,7 +394,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         }
         if (appointment && !issueOrder) loadOrders()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [issueOrder, appointment, addErrorToast])
+    }, [issueOrder, appointment])
 
     //Hover theme
     const classes = useStyles();
