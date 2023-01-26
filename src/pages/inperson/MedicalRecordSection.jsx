@@ -30,7 +30,7 @@ const soepPlaceholder = {
 
 export default ({ appointment, setDisabledRedcordButton }) => {
   const classes = useStyles()
-  const { addToast ,addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
@@ -282,19 +282,43 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         setIsLoading(true)
         setSucces(false)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(url, _encounter)
         if (res.data === 'OK') {
           setIsLoading(false)
           setSucces(true)
           setErrorSave(false)
         }
-      } catch (error) {
+      } catch (err) {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'PUT',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the encounter")
+        Sentry.captureException(err)
         setIsLoading(false)
-        setErrorSave(true)
-        addErrorToast(error)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No hemos podido actualizar los detalles de la cita. ¡Inténtelo nuevamente más tarde!'
+        })
       }
     }, 1000),
     []
