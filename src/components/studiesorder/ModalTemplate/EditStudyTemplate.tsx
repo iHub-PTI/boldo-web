@@ -180,27 +180,48 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
   }
 
   const deleteTemplate = async () => {
-
+    const url = `/profile/doctor/studyOrderTemplate/inactivate/${id}`
     try {
       setLoading(true)
-      const res = await axios.put(`/profile/doctor/studyOrderTemplate/inactivate/${id}`)
-      console.log('eliminar template con id:', id)
-      console.log("index", indexOrder)
-      console.log(res.data)
+      const res = await axios.put(url)
+      // console.log('eliminar template con id:', id)
+      // console.log("index", indexOrder)
+      // console.log(res.data)
       const index = studies.findIndex(data => data.id === res.data.id)
       let copyStudies = JSON.parse(JSON.stringify(studies))
       copyStudies.splice(index, 1)
       setShow(false)
-      console.log("copy", copyStudies)
+      // console.log("copy", copyStudies)
       props.setActionPage('remove')
       setStudies(copyStudies)
       updateStudiesOrder(res.data)
       setLoading(false)
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminada con exito!' })
     } catch (err) {
-      console.log(err)
-      addErrorToast("Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.")
+      // console.log(err)
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'PUT')
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not delete the study order template")
+      Sentry.captureException(err)
       setLoading(false)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No fue posible eliminar la plantilla de orden de estudios. ¡Inténtelo nuevamente más tarde!'
+      })
     }
   }
 
