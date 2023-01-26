@@ -142,13 +142,37 @@ const Gate = () => {
     let mounted = true
 
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
         if (mounted) {
-          addErrorToast('¡Fallo en la carga de la cita!')
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'POST'
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the appointment")
+          Sentry.captureException(err)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'Falló la carga de la cita. ¡Inténtelo nuevamente más tarde!'
+          })
           history.replace(`/`)
         }
       }
@@ -159,7 +183,7 @@ const Gate = () => {
     return () => {
       mounted = false
     }
-  }, [addErrorToast, history, id])
+  }, [addToast, history, id])
 
   useEffect(() => {
     if (appointment?.status !== 'upcoming') return
