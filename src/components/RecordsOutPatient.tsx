@@ -18,7 +18,7 @@ import * as Sentry from '@sentry/react'
 import { useToasts } from './Toast'
 import moment from 'moment'
 
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+export type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
 type Props = {
   show?: boolean
@@ -26,12 +26,12 @@ type Props = {
   appointment?: AppointmentWithPatient
 }
 
-type Specialization = {
+export type Specialization = {
   id: string
   description: string
 }
 
-type Doctor = {
+export type Doctor = {
   active: boolean
   familyName: string
   gender: string
@@ -40,26 +40,26 @@ type Doctor = {
   photoUrl?: string
 }
 
-type Encounter = {
+export type Encounter = {
   diagnosis: string
   finishTimeDate: string
   id: string
   mainReason: string
 }
 
-type PatientRecord = {
+export type PatientRecord = {
   doctorDto: Doctor
   encounterDto: Encounter
 }
 
-type DescripcionRecordPatientProps = {
+export type DescripcionRecordPatientProps = {
   mainReason: string
   diagnosis: string
   prescriptions: any[]
   soep: any
 }
 
-type OffsetType = {
+export type OffsetType = {
   offset: number
   total: number
 }
@@ -70,6 +70,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
 
   // error page
   const [error, setError] = useState(false)
+
   const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
 
   const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>(null)
@@ -364,20 +365,24 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
   )
 }
 
-const PatientRecord = ({
+export const PatientRecord = ({
   selected = false,
   patientRecord = {} as PatientRecord,
   getRecordPatientDetail = (id: string) => { },
   onActiveID = (id: string) => { },
+  darkMode = false,
+  onShowDetail = () => { },
+  isCall = false,
   ...props
 }) => {
   return (
     <div
-      className='flex flex-row pl-1 pt-1 w-64 h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1'
-      style={{ backgroundColor: selected ? '#EDF2F7' : '', minHeight: '102px' }}
+      className={`flex flex-row pl-1 pt-1 ${isCall ? 'w-full' : 'w-64'} h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1`}
+      style={{ backgroundColor: selected ? darkMode ? 'rgba(248, 255, 255, 0.15)' : '#EDF2F7' : '', minHeight: '102px' }}
       onClick={() => {
         getRecordPatientDetail(patientRecord.encounterDto.id)
         onActiveID(patientRecord.encounterDto.id)
+        onShowDetail()
       }}
       {...props}
     >
@@ -394,8 +399,7 @@ const PatientRecord = ({
       </div>
       <div className='flex flex-col w-full truncate'>
         <div
-          className='font-semibold text-base truncate w-full'
-          style={{ color: '#364152' }}
+          className={`font-semibold text-base truncate w-full ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
           title={toUpperLowerCase(patientRecord.doctorDto.givenName + ' ' + patientRecord.doctorDto.familyName)}
         >
           {`${patientRecord.doctorDto.gender === 'male' ? 'Dr.' : 'Dra.'} ${toUpperLowerCase(
@@ -403,47 +407,46 @@ const PatientRecord = ({
           )} ${toUpperLowerCase(patientRecord.doctorDto.familyName.split(' ')[0])}`}
         </div>
         <div
-          className='text-base mb-1 text-gra text-gray-700 truncate'
-          style={{ color: '#364152' }}
+          className={`text-base pb-1 truncate ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
           title={toUpperLowerCase(patientRecord.doctorDto.specializations.map(c => c.description).join(', '))}
         >
           {toUpperLowerCase(patientRecord.doctorDto.specializations.map(c => c.description).join(', '))}
         </div>
         <div
-          className='text-gray-500 font-normal w-44 truncate mb-1 group-hover:text-primary-500'
+          className={`font-normal w-44 truncate mb-1 group-hover:text-primary-500 ${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}
           title={patientRecord.encounterDto.mainReason}
         >
           {patientRecord.encounterDto.mainReason}
         </div>
         <div className='flex flex-row gap-2'>
-          <div className='font-normal' style={{ color: '#364152' }}>
+          <div className={`font-normal ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}>
             {moment(patientRecord.encounterDto.finishTimeDate.split('T')[0]).format('DD/MM/YYYY')}
           </div>
-          <div className='text-gray-500'>{countDays(patientRecord.encounterDto.finishTimeDate.split('T')[0])}</div>
+          <div className={`${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}>{countDays(patientRecord.encounterDto.finishTimeDate.split('T')[0])}</div>
         </div>
-        <span className='w-full h-0 border-b border-gray-100'></span>
+        <span className='w-full h-0' style={{ borderBottom: darkMode ? '1px solid rgba(247, 244, 244, 0.2)' : '1px solid #F7F4F4' }}></span>
       </div>
     </div>
   )
 }
 
-const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientProps, ...props }) => {
+export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientProps, darkMode = false, isCall = true, ...props }) => {
   return (
     <div className='flex flex-col w-full h-full gap-5'>
       <div>
-        <div className='font-normal text-primary-500'>Motivo Principal de la visita</div>
-        <div className='font-semibold'>{data.mainReason}</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Motivo Principal de la visita</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.mainReason}</div>
       </div>
       <div>
-        <div className='font-normal text-primary-500'>Impresión diagnóstica</div>
-        <div className='font-semibold'>{data.diagnosis}</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Impresión diagnóstica</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.diagnosis}</div>
       </div>
       {/* Prescriptions */}
       <div>
-        <div className='font-normal text-primary-500'>Prescripciones</div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
         <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
           {data.prescriptions.map((prescription, index) => (
-            <div key={index} className='flex flex-row bg-gray-100 rounded-md w-10/12'>
+            <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
               <div className='flex flex-col p-2 w-6/12'>
                 <div className='text-black'>{prescription.medicationName}</div>
                 <div className='text-gray-500'>{prescription.medicationDto.form}</div>
@@ -458,16 +461,16 @@ const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientP
       {/* SOEP */}
       {Object.keys(data.soep).length > 0 && (
         <div>
-          <div className='font-normal text-primary-500'>Plan</div>
-          <p className='w-10/12'>{data.soep.plan}</p>
+          <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Plan</div>
+          <p className={`w-10/12  ${darkMode ? 'text-white font-semibold' : ''}`}>{data.soep.plan}</p>
           <Disclosure>
             {({ open }) => (
               <>
-                <Disclosure.Button className='mt-3 p-2 flex flex-row focus:outline-none hover:bg-gray-100 transition-colors delay-200 rounded-md text-primary-500'>
+                <Disclosure.Button className={`mt-3 p-2 flex flex-row focus:outline-none hover:bg-gray-100 transition-colors delay-200 rounded-md ${darkMode ? 'text-gray-100 hover:bg-opacity-25' : 'text-primary-500'}`}>
                   {open ? 'ocultar' : 'más anotaciones'}{' '}
-                  <ArrowDown fill='#13A5A9' className={`${open ? 'rotate-180 transform' : ''}`} />
+                  <ArrowDown fill={darkMode ? '#FFFFFF' : '#13A5A9'} className={`${open ? 'rotate-180 transform' : ''}`} />
                 </Disclosure.Button>
-                <Disclosure.Panel className='my-2 w-10/12'>
+                <Disclosure.Panel className={`my-2 ${isCall ? 'w-full' : 'w-10/12'}`}>
                   <div className='flex flex-col p-2 bg-gray-100 rounded-md gap-2'>
                     <div>
                       <div className='font-semibold'>Subjetivo</div>
@@ -492,13 +495,14 @@ const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientP
   )
 }
 
-const QueryFilter = ({
+export const QueryFilter = ({
   currentDoctor = {} as { id: string; name: string; lastName: string },
   setFilterAuthor,
   setOrder,
   getApiCall,
   inputContent,
   countPage,
+  activeColor = false
 }) => {
   //Current Doctor or all Doctors [ 'all' || 'current' ]
   const [author, setAuthor] = useState('ALL')
@@ -573,7 +577,7 @@ const QueryFilter = ({
         /* Use the `open` state to conditionally change the direction of the chevron icon. */
         <>
           <Popover.Button className='focus:outline-none' title='Filtros'>
-            <FilterListIcon active={open} />
+            <FilterListIcon active={activeColor || open} />
           </Popover.Button>
           <Popover.Panel className='absolute left-10 z-10 mt-3 -translate-x-1/2 transform px-4 w-72'>
             <div
