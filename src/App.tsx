@@ -18,6 +18,7 @@ import * as Sentry from "@sentry/react";
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
+import { joinOrganizations } from './util/helpers'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -229,8 +230,10 @@ export const RoomsProvider: React.FC = ({ children }) => {
   const appointments = useRef<AppointmentWithPatient[]>()
   const token = useRef<string>()
   const socket = useContext(SocketContext)
-    // Context API Organization Boldo MultiOrganization
-    const { Organization } = useContext(OrganizationContext)
+  // Context API Organization Boldo MultiOrganization
+  const { Organization } = useContext(OrganizationContext)
+  const { Organizations } = useContext(AllOrganizationContext)
+
 
   useEffect(() => {
     if (!socket) return
@@ -273,18 +276,20 @@ export const RoomsProvider: React.FC = ({ children }) => {
       await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
           params: {
-            organizationId: Organization.id
+            organizationId: joinOrganizations(Organizations)
           }
         }
       )
       .then((res) => {
         token.current = res.data.token
         appointments.current = res.data.appointments
+        // debugger
         if (appointments.current?.length) {
           socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
         }
       })
       .catch((err) => {
+        // debugger
         Sentry.setTags({
           'endpoint': url,
           'method': 'GET',
@@ -312,7 +317,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
 
     const timer = setInterval(() => load(), 60800)
     return () => clearInterval(timer)
-  }, [socket, Organization])
+  }, [socket, Organizations, Organization])
 
   const value = useMemo(() => ({ rooms }), [rooms])
 
