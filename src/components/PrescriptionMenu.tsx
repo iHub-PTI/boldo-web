@@ -166,7 +166,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         )
     
     return (
-        <div className='flex flex-col bg-white shadow-xl'>
+        <div className='flex flex-col bg-white shadow-xl h-full'>
             <div 
                 style={{
                     height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)' }`,
