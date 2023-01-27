@@ -122,3 +122,15 @@ export async function getReports(appointment, setLoading) {
       Sentry.captureException(err)
     })
 }
+
+// this function merges the ids of the organizations separated by commas
+export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
+  let mergedIds = ''
+  let arrayIds = [] as Array<String>
+
+  // we obtain ["id1", "id2", "id3", ... , "idn"]
+  if(organizations.length > 0) organizations.forEach((organization) => arrayIds.push(organization.id))
+  // we obtain a string like "id1,id2,id3,...,idn"
+  if(arrayIds.length > 0) mergedIds = arrayIds.join(',')
+  return mergedIds
+}
