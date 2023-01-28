@@ -267,6 +267,9 @@ const Settings = (props: Props) => {
 
   const { addToast } = useToasts();
 
+  const errorMsg = {
+    overlay: 'openHours settings overlay'
+  }
 
   useEffect(() => {
     let mounted = true
@@ -351,6 +354,7 @@ const Settings = (props: Props) => {
       })
   
       if (!validationError) {
+        const url = '/profile/doctor'
         try {
           let photoUrl = doctor.photoUrl
           if (doctor.photoUrl) {
@@ -359,8 +363,8 @@ const Settings = (props: Props) => {
             if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
             dispatch({ type: 'default', value: { photoUrl } })
           }
-  
-          await axios.put('/profile/doctor', { ...doctor, photoUrl })
+          
+          await axios.put(url, { ...doctor, photoUrl })
           setSuccess('Actualización exitosa!')
           updateUser({
             ...(typeof photoUrl === 'string' && { photoUrl }),
@@ -370,9 +374,55 @@ const Settings = (props: Props) => {
             new: false,
           })
         } catch (err) {
+          // Sentry.captureException(err)
+          // setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+          // console.log(err)
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'PUT'
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTags({
+              'data': err.response.data,
+              'headers': err.response.headers,
+              'status_code': err.response.status
+            })
+            if (err.response.status === 400) {
+              if (err.response.data.message === errorMsg.overlay) {
+                addToast({
+                  type: 'error',
+                  title: 'Hubo un error en el formulario.',
+                  text: 'No se pudo actualizar el calendario porque existen horarios solapados.'
+                })
+              }
+            } else {
+              addToast({
+                type: 'error',
+                title: 'Hubo un error en el formulario.',
+                text: 'No se pudo actualizar el calendario.'
+              })
+            }
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+            addToast({
+              type: 'error',
+              title: 'Hubo un error en el servidor.',
+              text: 'No se recibió ninguna respuesta. ¡Inténtelo nuevamente más tarde!'
+            })
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+            addToast({
+              type: 'error',
+              title: 'Ocurrió un error inesperado.',
+              text: '¡Inténtelo nuevamente más tarde!'
+            })
+          }
+          Sentry.captureMessage("Could not update doctor profile")
           Sentry.captureException(err)
-          setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
-          console.log(err)
         }
       }
     } else {
