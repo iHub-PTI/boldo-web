@@ -134,3 +134,12 @@ export function joinOrganizations(organizations: Array<Boldo.Organization>): Str
   if(arrayIds.length > 0) mergedIds = arrayIds.join(',')
   return mergedIds
 }
+
+export function changeHours(date: Date, hours: number, operation: 'subtract' | 'add'): String {
+  if(operation === 'subtract') {
+    date.setHours(date.getHours() - hours)
+  } else {
+    date.setHours(date.getHours() + hours)
+  }
+  return date.toISOString()
+}
