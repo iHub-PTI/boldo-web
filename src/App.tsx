@@ -20,7 +20,7 @@ import { OrganizationContext } from "../src/contexts/Organizations/organizationS
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import { joinOrganizations } from './util/helpers'
 
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
