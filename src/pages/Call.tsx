@@ -72,8 +72,9 @@ import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 import { getReports } from '../util/helpers'
 import RecordOutPatientCall from '../components/RecordOutPatientCall'
+import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } &  { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
 
 const Gate = () => {
@@ -371,7 +372,7 @@ const Gate = () => {
     <Layout>
       <RecordOutPatientCall appointment={appointment}>
         {instance === 0 ? (
-          <div className='flex h-full w-full flex-row flex-no-wrap' style={{marginLeft:'88px'}}>
+          <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
             <div className='flex h-full items-center w-8/12'>
               {/* daiting screen here */}
               <CallStatusMessage
@@ -443,7 +444,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -479,7 +480,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
     useEffect(() => {
       updatePrescriptions(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -503,12 +504,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
             size={50}
           />
-          <ChildButton 
+          <ChildButton
             icon={
-              <Print 
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : '' }`} 
-                bgColor='transparent' 
-                iconColor='white' 
+              <Print
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
+                bgColor='transparent'
+                iconColor='white'
                 fromVirtual={true}
               />
             }
@@ -603,17 +604,17 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft:'88px' }}>
+    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft: '88px' }}>
       <div className='relative flex-1'>
-          <Stream
-            ref={stream}
-            room={id}
-            token={token}
-            instance={instance}
-            mediaStream={mediaStream}
-            socket={socket}
-            onCallStateChange={onCallStateChange}
-          />
+        <Stream
+          ref={stream}
+          room={id}
+          token={token}
+          instance={instance}
+          mediaStream={mediaStream}
+          socket={socket}
+          onCallStateChange={onCallStateChange}
+        />
 
         <div
           className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
@@ -1072,12 +1073,18 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 }
 
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+  const { width: screenWidth } = useWindowDimensions()
   return (
-    <Grid>
+    <Grid style={{
+      height: ` ${screenWidth >= WIDTH_XL ? `100vh` : `calc(100vh - ${HEIGHT_NAVBAR}px)`}`,
+      overflowY: 'auto'
+    }}>
       <CardHeader
         title='Paciente'
         titleTypographyProps={{ variant: 'h6' }}
-        style={{ backgroundColor: '#27BEC2', color: 'white' }}
+        style={{
+          backgroundColor: '#27BEC2', color: 'white',
+        }}
       />
 
       <CardContent>

@@ -48,7 +48,7 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
-import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 
 
@@ -231,7 +231,10 @@ export function LaboratoryMenu(props) {
           </button>
           <Provider>
             <div className="flex flex-col flex-no-wrap flex-1 w-full" style={{
-              height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)'}`,
+              height: ` ${width >= WIDTH_XL
+                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+                }`,
               overflowY: "auto"
             }}>
               <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
@@ -244,7 +247,13 @@ export function LaboratoryMenu(props) {
     )
 
   return (
-    <div className='flex flex-col h-full bg-white'>
+    <div className='flex flex-col bg-white' style={{
+      height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+        }`,
+      overflowY: "auto"
+    }}>
       <Grid>
         <Grid className='w-full px-8'>
           <div className='flex flex-row justify-between md-max:flex-col'>
