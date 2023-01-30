@@ -18,7 +18,7 @@ import * as Sentry from "@sentry/react";
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
-import { joinOrganizations } from './util/helpers'
+import { changeHours } from './util/helpers'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
@@ -271,25 +271,27 @@ export const RoomsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!socket) return
 
+    let today = Date.now()
+    let hours = 2
+
     const load = async () => {
       const url = '/profile/doctor/appointments?status=open'
       await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
           params: {
-            organizationId: joinOrganizations(Organizations)
+            start: changeHours(new Date(today), hours, 'subtract'),
+            end: changeHours(new Date(today), hours, 'add')
           }
         }
       )
       .then((res) => {
         token.current = res.data.token
         appointments.current = res.data.appointments
-        // debugger
         if (appointments.current?.length) {
           socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
         }
       })
       .catch((err) => {
-        // debugger
         Sentry.setTags({
           'endpoint': url,
           'method': 'GET',
