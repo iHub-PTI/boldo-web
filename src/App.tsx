@@ -18,8 +18,9 @@ import * as Sentry from "@sentry/react";
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
+import { changeHours } from './util/helpers'
 
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
@@ -110,6 +111,8 @@ const App = () => {
         Sentry.setTag('message', err.message);
         console.log('Error', err.message);
       }
+      Sentry.captureMessage('Could not get organizations')
+      Sentry.captureException(err)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -227,6 +230,10 @@ export const RoomsProvider: React.FC = ({ children }) => {
   const appointments = useRef<AppointmentWithPatient[]>()
   const token = useRef<string>()
   const socket = useContext(SocketContext)
+  // Context API Organization Boldo MultiOrganization
+  const { Organization } = useContext(OrganizationContext)
+  const { Organizations } = useContext(AllOrganizationContext)
+
 
   useEffect(() => {
     if (!socket) return
@@ -264,22 +271,55 @@ export const RoomsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (!socket) return
 
+    let today = Date.now()
+    let hours = 2
+
     const load = async () => {
-      const res = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        '/profile/doctor/appointments?status=open'
+      const url = '/profile/doctor/appointments?status=open'
+      await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        url, {
+          params: {
+            start: changeHours(new Date(today), hours, 'subtract'),
+            end: changeHours(new Date(today), hours, 'add')
+          }
+        }
       )
-      token.current = res.data.token
-      appointments.current = res.data.appointments
-      if (appointments.current?.length) {
-        socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
-      }
+      .then((res) => {
+        token.current = res.data.token
+        appointments.current = res.data.appointments
+        if (appointments.current?.length) {
+          socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
+        }
+      })
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'org_id': Organization.id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get appointments for waiting room")
+        Sentry.captureException(err)
+      })
     }
 
-    load()
+    Organization && load()
 
     const timer = setInterval(() => load(), 60800)
     return () => clearInterval(timer)
-  }, [socket])
+  }, [socket, Organizations, Organization])
 
   const value = useMemo(() => ({ rooms }), [rooms])
 
