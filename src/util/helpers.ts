@@ -24,7 +24,7 @@ export const validateOpenHours = (openHours: Boldo.OpenHours) => {
       for (let j = 0; j < interval.length; j++) {
         //console.log("start => ", interval[j].start)
         //console.log("end => ", interval[j].end)
-        if( interval[j].start >= interval[j].end ) {
+        if( interval[j].start === interval[j].end ) {
           return false
         }
       }
@@ -121,4 +121,25 @@ export async function getReports(appointment, setLoading) {
       }
       Sentry.captureException(err)
     })
+}
+
+// this function merges the ids of the organizations separated by commas
+export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
+  let mergedIds = ''
+  let arrayIds = [] as Array<String>
+
+  // we obtain ["id1", "id2", "id3", ... , "idn"]
+  if(organizations.length > 0) organizations.forEach((organization) => arrayIds.push(organization.id))
+  // we obtain a string like "id1,id2,id3,...,idn"
+  if(arrayIds.length > 0) mergedIds = arrayIds.join(',')
+  return mergedIds
+}
+
+export function changeHours(date: Date, hours: number, operation: 'subtract' | 'add'): String {
+  if(operation === 'subtract') {
+    date.setHours(date.getHours() - hours)
+  } else {
+    date.setHours(date.getHours() + hours)
+  }
+  return date.toISOString()
 }

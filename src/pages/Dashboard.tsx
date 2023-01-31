@@ -243,9 +243,9 @@ export default function Dashboard() {
   }, [Organization])
 
   useEffect(() => {
-    if (Organizations === undefined) {
+    if (Organizations === undefined || Organizations === null) {
       addToast({ type: 'error', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
-    } else if (Organizations.length === 0) {
+    } else if (Organizations?.length === 0) {
       addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,7 +261,7 @@ export default function Dashboard() {
   // the calendar will be updated every minute
   useEffect(() => {
     const timer = setInterval(() => {
-      if (Organizations.length > 0) loadEventsSourcesCalendar(Organization.id)
+      if (Organizations?.length > 0) loadEventsSourcesCalendar(Organization.id)
     }, 60000)
     return () => clearInterval(timer)
   })
@@ -362,7 +362,7 @@ export default function Dashboard() {
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
         params: {
-          organizationId: Organization?.id
+          organizationId: Organization.id
         }
       }
       )
@@ -494,11 +494,11 @@ export default function Dashboard() {
           <>
             <div className='flex flex-col h-full text-cool-gray-700 overflow-x-auto' style={{ minWidth: '1200px' }}>
               {openHoursEmpty && (
-                <div className='relative bg-secondary-500'>
+                <div className='relative' style={{ backgroundColor: Organization?.colorCode ? Organization.colorCode : '#27BEC2' }}>
                   <div className='px-3 py-3 mx-auto max-w-7xl sm:px-6 lg:px-8'>
                     <div className='pr-16 sm:text-center sm:px-16'>
                       <p className='font-medium text-white'>
-                        <span>Aún no tienes configurado el horario de apertura.</span>
+                        { Organization && <span>Aún no tienes configurado el horario de apertura en {Organization.name}.</span> }
                         <span className='block sm:ml-2 sm:inline-block'>
                           <Link to='/settings' className='font-bold text-white underline'>
                             {' '}
@@ -516,7 +516,7 @@ export default function Dashboard() {
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
                 <div className='w-60'>
-                  {Organizations.length > 0 &&
+                  {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
                       id={Organization.id}
                       label='Espacio de Trabajo'
@@ -558,7 +558,7 @@ export default function Dashboard() {
                 ref={calendar}
                 events={{ events: loadEvents, id: 'server' }}
                 eventClick={handleEventClick}
-                eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization.colorCode)}
+                eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization?.colorCode)}
                 // we define it in tailwind.css
                 // eventBackgroundColor={'#FFFFFF'}
                 eventBorderColor={'#e5e7eb'}

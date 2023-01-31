@@ -12,6 +12,8 @@ import _ from 'lodash'
 import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
 import * as Sentry from '@sentry/react'
 
+import useWindowDimensions from '../../util/useWindowDimensions'
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -61,6 +63,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   const [succes, setSucces] = useState(false)
   //button cancel appointment
   const [disableBCancel, setDisableBCancel] = useState(true)
+  //width of the window
+  const { width: screenWidth } = useWindowDimensions()
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -594,7 +598,13 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   )
 
   return (
-    <div className='relative'>
+    <div className='flex flex-col relative overflow-y-auto' style={{
+      height: ` ${
+        screenWidth >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+      }`,
+    }}>
       <Grid style={{ marginInline: '30px' }}>
         <Grid>
           <Typography variant='h5' color='textPrimary'>

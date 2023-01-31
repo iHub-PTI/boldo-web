@@ -2,79 +2,22 @@ import React, { useEffect, useState } from 'react'
 import { Avatar, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useRouteMatch } from 'react-router-dom'
-//import MaterialTable from 'material-table'
 import moment from 'moment'
 //import useStyles from './style'
 import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
-import UserCircle from "../../components/icons/patient-register/UserCircle"; 
-// import Modal from '../../components/Modal'
-// import loading from '../../assets/loading.gif'
-// import { Icons } from 'material-table';
-// import { forwardRef } from 'react';
-// import ArrowUpward from '@material-ui/icons/ArrowUpward';
-// import AddBox from '@material-ui/icons/AddBox';
-// import Check from '@material-ui/icons/Check';
-// import ChevronLeft from '@material-ui/icons/ChevronLeft';
-// import ChevronRight from '@material-ui/icons/ChevronRight';
-// import Clear from '@material-ui/icons/Clear';
-// import DeleteOutline from '@material-ui/icons/DeleteOutline';
-// import Edit from '@material-ui/icons/Edit';
-// import FilterList from '@material-ui/icons/FilterList';
-// import FirstPage from '@material-ui/icons/FirstPage';
-// import LastPage from '@material-ui/icons/LastPage';
-// import Remove from '@material-ui/icons/Remove';
-// import SaveAlt from '@material-ui/icons/SaveAlt';
-// import Search from '@material-ui/icons/Search';
-// import ViewColumn from '@material-ui/icons/ViewColumn';
+import UserCircle from "../../components/icons/patient-register/UserCircle";
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../../util/constants"
+
 
 const PatientRecord = (props) => {
-
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
-  //const { encounterId, diagnose = '', instructions = '', prescriptions = [], soep = {}, mainReason = '', appointmentId, status = '' } = props.encounter;
+
+
   const { width: screenWidth } = useWindowDimensions()
   //const { addErrorToast, addToast } = useToasts()
   const [imgSize, setImgSize] = useState(180)
-
-  // It was decided to hide the implementation of the first and follow-up query. 
-  // Because it's not very clear to the doctors 
-  // TODO: Clear comments
-  //const [showEditModal, setShowEditModal] = useState(false)
-  //const [soepHistory, setSoepHistory] = useState<any[]>([]);
-  //const [selectedRow, setSelectedRow] = useState();
-  //const [isLoading, setIsLoading] = useState(false)
-  //const history = useHistory()
-  //const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
-  //const classes = useStyles()
-
-  // const tableIcons: Icons = {
-  //   SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
-  //   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-  //   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-  //   Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-  //   Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-  //   DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-  //   Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-  //   Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-  //   Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-  //   FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-  //   LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-  //   NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-  //   PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-  //   ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-  //   Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-  //   ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-  //   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
-  // }
-
-  /* useEffect(() => {
-    if (props.appointment === undefined || props.appointment.status === 'locked' || props.appointment.status === 'upcoming') {
-      setAppointmentDisabled(true);
-    } else {
-      setAppointmentDisabled(false);
-    }    
-  }, [props.appointment]); */
 
   useEffect(() => {
     if (screenWidth < 900) {
@@ -86,76 +29,9 @@ const PatientRecord = (props) => {
     }
   }, [screenWidth])
 
-  /* useEffect(() => {
-    //send encounter selected to server
-    if (selectedRow) {
-      setIsLoading(true)
-      const send = async () => {
-        const encounter = {
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: prescriptions,
-            mainReason: mainReason,
-            //@ts-ignore
-            partOfEncounterId: selectedRow.id,
-            encounterClass: 'A',
-            soep: soep
-          },
-
-        }
-
-        try {
-          await axios.put(`/profile/doctor/appointments/${props.id}/encounter`, encounter);
-          addToast({ type: 'success', title: 'Ficha médica asociada con éxito', text: '' })
-          setIsLoading(false)
-          history.go(0)
-        } catch (error) {
-          console.log(error)
-          //@ts-ignore
-          addErrorToast(error)
-          setIsLoading(false)
-        }
-
-
-      }
-      send()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRow]) */
-
-  /* useEffect(() => {
-    if (showEditModal === true) {
-      // get encounters list
-      const load = async () => {
-        try {
-          const res = await axios.get(`/profile/doctor/relatedEncounters/Patient/${identifier}/filterEncounterId/${encounterId}`);
-          if (res.data.encounter !== undefined) {
-            var count = Object.keys(res.data.encounter).length
-            const tempArray = []
-            for (var i = 0; i < count; i++) {
-              const data = res.data.encounter[i][0]
-              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
-              if (data.appointmentId !== appointmentId)
-                tempArray.push(data)
-            }
-            setSoepHistory(tempArray);
-          }
-        } catch (error) {
-          console.log(error)
-          // //@ts-ignore
-          // addErrorToast(error)
-        }
-
-      }
-      load();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showEditModal]) */
 
   return (
-    <Grid style={{ padding: '15px' }}>
+    <div className='flex flex-col flex-1' style={{ padding: '15px' }}>
       <Typography variant='body1' color='textSecondary'>
         Paciente
       </Typography>
@@ -174,12 +50,8 @@ const PatientRecord = (props) => {
           variant='square'
           src={photoUrl}
         >
-          {/* <PatientIcon /> */}
         </Avatar>
       </Grid>
-      {/* <Grid item style={{ marginTop: '20px' }}>
-        <PatientIcon />
-      </Grid> */}
 
       <Grid container
         direction="column"
@@ -190,9 +62,9 @@ const PatientRecord = (props) => {
           {givenName} {' '} {familyName}
         </Typography>
         <Typography variant='body1' color='textSecondary'>
-        {identifier == null || identifier.includes('-') 
-                ? 'Paciente sin cédula' 
-                : 'CI ' + identifier}
+          {identifier == null || identifier.includes('-')
+            ? 'Paciente sin cédula'
+            : 'CI ' + identifier}
         </Typography>
       </Grid>
 
@@ -223,145 +95,18 @@ const PatientRecord = (props) => {
           {city}
         </Typography>
       </Grid>
-      {/* <Grid container
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        item style={{ marginTop: '60px' }}>
-        <div className='flex mt-4 md:mt-0 md:ml-4'>
-          <span className='ml-3 rounded-md shadow-sm'>
-            <Button
-              style={{ border: 'none',outline:'none' }}
-              disabled={isAppointmentDisabled}
-              className={classes.muiButtonContained}
-              variant='contained'
-              endIcon={
-                (
-                  <svg
-                    className='w-6 h-6 ml-3'
-                    width='21'
-                    height='20'
-                    viewBox='0 0 21 20'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      clipRule='evenodd'
-                      d='M5.79279 7.29302C5.98031 7.10555 6.23462 7.00023 6.49979 7.00023C6.76495 7.00023 7.01926 7.10555 7.20679 7.29302L10.4998 10.586L13.7928 7.29302C13.885 7.19751 13.9954 7.12133 14.1174 7.06892C14.2394 7.01651 14.3706 6.98892 14.5034 6.98777C14.6362 6.98662 14.7678 7.01192 14.8907 7.0622C15.0136 7.11248 15.1253 7.18673 15.2192 7.28062C15.3131 7.37452 15.3873 7.48617 15.4376 7.60907C15.4879 7.73196 15.5132 7.86364 15.512 7.99642C15.5109 8.1292 15.4833 8.26042 15.4309 8.38242C15.3785 8.50443 15.3023 8.61477 15.2068 8.70702L11.2068 12.707C11.0193 12.8945 10.765 12.9998 10.4998 12.9998C10.2346 12.9998 9.98031 12.8945 9.79279 12.707L5.79279 8.70702C5.60532 8.51949 5.5 8.26518 5.5 8.00002C5.5 7.73486 5.60532 7.48055 5.79279 7.29302V7.29302Z'
-                      fill='white'
-                    />
-                  </svg>
-                )
-              }
-              onClick={e => {
-                setShowEditModal(true)
-              }}
-            >
-              { Object.entries(props.encounter.soep).length === 0 ? 'Primera Consulta' : 'Seguimiento'}
-            </Button>
-          </span>
-        </div>
 
-        <Modal show={showEditModal} setShow={setShowEditModal} size='xl3' >
-          <Typography variant="body1" color="textSecondary">
-            Paciente
-          </Typography>
-          <Typography variant="body1" color="textPrimary">
-            {givenName} {familyName}
-          </Typography>
-
-          <Typography style={{ marginBottom: '15px' }} variant="subtitle2" color="textSecondary">
-            CI: {identifier}
-          </Typography>
-
-          <MaterialTable
-          title='Seleccionar consulta'
-           localization={{
-                      body: {
-                        emptyDataSourceMessage: 'No hay datos por mostrar',
-                      },
-                      pagination: {
-                        firstAriaLabel: 'Primera página',
-                        firstTooltip: 'Primera página',
-                        labelDisplayedRows: '{from}-{to} de {count}',
-                        labelRowsPerPage: 'Filas por página:',
-                        labelRowsSelect: 'filas',
-                        lastAriaLabel: 'Ultima página',
-                        lastTooltip: 'Ultima página',
-                        nextAriaLabel: 'Pagina siguiente',
-                        nextTooltip: 'Pagina siguiente',
-                        previousAriaLabel: 'Pagina anterior',
-                        previousTooltip: 'Pagina anterior',
-                     },
-                     toolbar: {
-                      searchPlaceholder: 'Buscar',
-                      searchTooltip: 'Buscar',
-                    }}}
-            icons={tableIcons}
-            columns={[
-              {
-                title: "Fecha",
-                field: "startTimeDate",
-              },
-              {
-                title: "Motivo de visita",
-                field: "mainReason"
-              },
-              // {
-              //   title: "Diagnóstico",
-              //   field: "diagnosis"
-              // },
-              {
-                title: 'Diagnóstico',
-                field: 'diagnosis',
-                render: rowData => {
-                  //@ts-ignore
-                  return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
-                    <Grid style={{ width: '130px' }} container>
-                      <img src={loading} width='30px' alt='loading...' /> <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
-                    </Grid>
-                  ) : (
-                    <p>
-                      {rowData.diagnosis}
-                    </p>
-                  )
-                },
-              },
-
-            ]}
-            data={soepHistory}
-            onRowClick={(evt, selectedRow) =>
-              //@ts-ignore
-              setSelectedRow(selectedRow)
-            }
-            options={{
-              search: true,
-              toolbar: true,
-              paging: true,
-              draggable: false,
-              pageSize: 5,
-
-              rowStyle: (rowData) => ({
-                backgroundColor:
-                  // @ts-ignore
-                  selectedRow !== undefined && selectedRow.id === rowData.id ? "#D4F2F3" : "#FFF",
-              }),
-            }}
-          />
-        </Modal>
-      </Grid> */}
       <div className='flex justify-center mt-10'>
-        <button 
+        <button
           className='focus:outline-none p-2 hover:bg-cool-gray-100 transition-colors delay-200 disabled:cursor-not-allowed'
-          onClick= {() => props.showPatientRecord()}
+          onClick={() => props.showPatientRecord()}
           //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
           disabled={props.disabledRedcordButton}
         >
-          <div className={`text-gray-500 flex flex-row justify-center items-center ${props.outpatientRecord && 'text-primary-600 font-semibold'}`}> <UserCircle fill={`${props.outpatientRecord ? '#13A5A9': '#6B7280'}`}className='mr-1'/>  Registro Ambulatorio</div>
+          <div className={`text-gray-500 flex flex-row justify-center items-center ${props.outpatientRecord && 'text-primary-600 font-semibold'}`}> <UserCircle fill={`${props.outpatientRecord ? '#13A5A9' : '#6B7280'}`} className='mr-1' />  Registro Ambulatorio</div>
         </button>
       </div>
-    </Grid>
+    </div>
   )
 }
 
@@ -375,6 +120,7 @@ export default (props) => {
   const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
+  const { width: screenWidth } = useWindowDimensions()
 
 
 
@@ -421,15 +167,11 @@ export default (props) => {
   }, [])
 
   return (
-    <Grid
-      className='h-full items-center justify-center'
+    <div
+      className='flex flex-col h-full overflow-y-auto scrollbar'
       style={{
         backgroundColor: '#F4F5F7',
-        borderTopLeftRadius: '0px',
-        borderBottomLeftRadius: '0px',
-        alignContent: 'center',
-        border: 'none',
-        boxShadow: 'none',
+        height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
       }}
     >
       {appointment !== undefined && encounter !== undefined ?
@@ -459,7 +201,7 @@ export default (props) => {
             </svg>
           </div>
         </div>}
-    </Grid>
+    </div>
   )
 
 }

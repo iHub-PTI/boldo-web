@@ -87,11 +87,11 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
-        <div className='flex flex-col text-black text-xl p-3 h-13 top-0 left-0'>
+        <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
-        <div className='flex flex-row flex-no-wrap flex-grow'>
-          <div className='flex flex-col w-80' style={{ maxWidth: '20rem', minWidth: '20rem' }}>
+        <div className='flex flex-row flex-no-wrap flex-1 h-full'>
+          <div className='flex flex-col w-80 flex-1 h-full' style={{ maxWidth: '20rem', minWidth: '20rem'}}>
             {appointment !== null && (
               <PatientSection
                 appointment={appointment}
@@ -121,7 +121,7 @@ export default function Dashboard() {
             style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
             onClick={() => outpatientRecordShow && setOutpatientRecordShow(false)}
           >
-            <div className='w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
+            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
               <SelectorSection
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
