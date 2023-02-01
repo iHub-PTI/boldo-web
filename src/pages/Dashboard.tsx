@@ -518,7 +518,7 @@ export default function Dashboard() {
                 <div className='w-60'>
                   {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
-                      id={Organization.id}
+                      id={Organization?.id}
                       label='Espacio de Trabajo'
                       onChange={value => {
                         setOrganization(Organizations.find((d) => d.id === value))

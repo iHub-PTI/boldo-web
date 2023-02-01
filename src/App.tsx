@@ -45,10 +45,27 @@ const App = () => {
       axios.interceptors.response.use(
         response => response,
         async error => {
-          if (error.response?.status === 401 && error.response?.data?.message) {
-            window.location.href = error.response.data.message
-            delete error.response.data.message
+          if (error.response) {
+            if (error.response.status === 401 && error.response.data?.message) {
+              window.location.href = error.response.data.message
+              delete error.response.data.message
+            }
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTags({
+              'data': error.response.data,
+              'headers': error.response.headers,
+              'status_code': error.response.status
+            })
+          } else if (error.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', error.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', error.message)
           }
+          Sentry.captureException(error)
+          Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
