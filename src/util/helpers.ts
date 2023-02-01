@@ -122,3 +122,20 @@ export async function getReports(appointment, setLoading) {
       Sentry.captureException(err)
     })
 }
+
+export function organizationsFromMessage(msg: String, organizations: Array<Boldo.Organization>): Array<String> {
+  let organizationsMatches = [] as Array<String>
+  
+  try {
+    let organizationsIds = msg.match(/\d+/g)
+
+    organizationsIds && organizationsIds.forEach((id)=>{
+      organizationsMatches.push(organizations.find((organization) => organization.id === id).name)
+    })
+  } catch(err) {
+    Sentry.captureMessage('Could not get match from backend message')
+    Sentry.captureException(err)
+  }
+
+  return organizationsMatches
+}
