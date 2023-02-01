@@ -6,7 +6,7 @@ import Layout from '../components/Layout'
 import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
-import { validateDate, validateOpenHours } from '../util/helpers'
+import { organizationsFromMessage, validateDate, validateOpenHours } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
@@ -389,19 +389,20 @@ const Settings = (props: Props) => {
               'headers': err.response.headers,
               'status_code': err.response.status
             })
-            if (err.response.status === 400) {
-              if (err.response.data.message === errorMsg.overlay) {
-                addToast({
-                  type: 'error',
-                  title: 'Hubo un error en el formulario.',
-                  text: 'No se pudo actualizar el calendario porque existen horarios solapados.'
-                })
-              }
+            if (err.response.status === 400 && err.response.data.message.includes(errorMsg.overlay)) {
+              let overlay = organizationsFromMessage(err.response.data.message, Organizations)
+              addToast({
+                type: 'error',
+                title: 'Hubo un error en el formulario.',
+                text: overlay.length > 0
+                  ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
+                  : 'Existen horarios solapados que impiden la actualización.'
+              })
             } else {
               addToast({
                 type: 'error',
                 title: 'Hubo un error en el formulario.',
-                text: 'No se pudo actualizar el calendario.'
+                text: 'No se pudo actualizar el perfil.'
               })
             }
           } else if (err.request) {
