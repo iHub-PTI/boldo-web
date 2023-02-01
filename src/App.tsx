@@ -65,7 +65,6 @@ const App = () => {
             Sentry.setTag('message', error.message)
           }
           Sentry.captureException(error)
-          Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
