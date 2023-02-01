@@ -257,7 +257,7 @@ const Settings = (props: Props) => {
   const [specializations, setSpecializations] = useState<List>([])
 
   const [error, setError] = useState('')
-  // const [success, setSuccess] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [show, setShow] = useState(false)
 
