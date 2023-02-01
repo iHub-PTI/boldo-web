@@ -483,7 +483,7 @@ export default function Dashboard() {
                 <div className='flex-1 min-w-0'>
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
-                <div className='w-60'>
+                <div className='w-80'>
                   {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
                       id={Organization.id}
