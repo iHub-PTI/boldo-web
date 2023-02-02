@@ -9,6 +9,10 @@ import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 import { useRouteMatch } from 'react-router-dom'
 import axios from 'axios'
 import { RecordsOutPatient } from '../../components/RecordsOutPatient'
+import * as Sentry from '@sentry/react'
+import { useToasts } from '../../components/Toast';
+
+
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 
 
@@ -24,22 +28,45 @@ export default function Dashboard() {
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
+  const { addToast } = useToasts()
+  
 
   useEffect(() => {
     let mounted = true
 
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) {
           setAppointment(res.data)
         }
       } catch (err) {
-        console.log(err)
-        // if (mounted) {
-        //   addErrorToast('¡Fallo en la carga de la cita!')
-        //   history.replace(`/`)
-        // }
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the appointment")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo cargar la cita. ¡Inténtelo de nuevo más tarde!'
+        })
       }
     }
 
@@ -48,6 +75,7 @@ export default function Dashboard() {
     return () => {
       mounted = false
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {

@@ -26,6 +26,7 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import * as Sentry from '@sentry/react'
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 
@@ -188,7 +189,7 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 
 
 export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
-    const { addErrorToast } = useToasts()
+    const { addToast } = useToasts()
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -213,19 +214,45 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
             try {
                 setLoading(true)
 
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     // if(res.data.items > 0)
                     setStudiesData(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
-                addErrorToast(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the diagnostic report")
+                Sentry.captureException(err)
+                addToast({ 
+                    type: 'error', 
+                    title: 'Ha ocurrido un error.', 
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                })
                 // setLoading(false)
-                console.log(err)
             } finally {
                 setLoading(false)
             }
@@ -288,8 +315,31 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                console.log(err)
-                addErrorToast(err)
+                if (selectedRow !== undefined) { 
+                    //@ts-ignore
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                }
+                Sentry.setTag('method', 'GET')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study description")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+                })
                 setSelectedRow(undefined)
                 setFilterHide(true)
             } finally {
@@ -303,24 +353,51 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(() => {
         const loadOrders = async () => {
+            const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
             try {
                 setLoadingOrders(true)
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     console.log("response orders", res)
                     if (res.status === 200) setIssuedStudies(res.data.items)
                     else if (res.status === 204) setIssuedStudies([])
                     setLoadingOrders(false)
                 }
             } catch (err) {
-                addErrorToast(err)
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study orders")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setLoadingOrders(false)
             }
         }
         if (appointment && !issueOrder) loadOrders()
-    }, [issueOrder, appointment, addErrorToast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [issueOrder, appointment])
 
     //Hover theme
     const classes = useStyles();

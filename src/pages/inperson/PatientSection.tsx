@@ -3,6 +3,8 @@ import { Avatar, Grid, Typography } from '@material-ui/core'
 import axios from 'axios'
 import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
+//import useStyles from './style'
+import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import UserCircle from "../../components/icons/patient-register/UserCircle";
@@ -114,7 +116,7 @@ export default (props) => {
 
   const { appointment } = props;
   //const history = useHistory()
-  const { addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const [encounter, setEncounter] = useState<{}>();
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
@@ -124,15 +126,38 @@ export default (props) => {
 
   useEffect(() => {
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+        const res = await axios.get(url);
         setEncounter(res.data.encounter)
         // setInitialLoad(false)
       } catch (err) {
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo cargar la sección del perfil del paciente. ¡Inténtelo nuevamente más tarde!'
+        })
         // setInitialLoad(false)
-        //@ts-ignore
-        addErrorToast(err)
       }
     }
 

@@ -45,10 +45,26 @@ const App = () => {
       axios.interceptors.response.use(
         response => response,
         async error => {
-          if (error.response?.status === 401 && error.response?.data?.message) {
-            window.location.href = error.response.data.message
-            delete error.response.data.message
+          if (error.response) {
+            if (error.response.status === 401 && error.response.data?.message) {
+              window.location.href = error.response.data.message
+              delete error.response.data.message
+            }
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTags({
+              'data': error.response.data,
+              'headers': error.response.headers,
+              'status_code': error.response.status
+            })
+          } else if (error.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', error.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', error.message)
           }
+          Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
@@ -59,13 +75,34 @@ const App = () => {
 
   useEffect(() => {
     const effect = async () => {
+      const url = '/profile/doctor'
       try {
-        const res = await axios.get('/profile/doctor')
+        const res = await axios.get(url)
         setUser(res.data)
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
+        Sentry.setTag("endpoint", url);
+        Sentry.setTag("method_used", "GET")
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          Sentry.setTag('data', err.response.data);
+          Sentry.setTag('headers', err.response.headers);
+          Sentry.setTag('status_code', err.response.status);
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request);
+          console.log(err.request);
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message);
+          console.log('Error', err.message);
+        }
+        Sentry.captureMessage("could not get the profile of the doctor")
+        Sentry.captureException(err)
+        // here the error is critical, therefore we show the Error component
         if (err?.response?.status !== 401) setError(true)
       }
     }
@@ -186,7 +223,7 @@ const App = () => {
   )
 }
 
-export default App
+export default Sentry.withProfiler(App)
 
 //
 // ////////////////////////////////////////////////////////////////////////////
@@ -268,6 +305,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
     }
   }, [socket])
 
+  // this find patients in waiting room
   useEffect(() => {
     if (!socket) return
 
