@@ -17,6 +17,8 @@ import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
 import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
+import * as Sentry from '@sentry/react'
+import { useToasts } from "./Toast";
 
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
@@ -40,6 +42,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
     const [ width, setWidth ] = useState(window.innerWidth)
+    const { addToast } = useToasts()
 
     
     useEffect(() => {
@@ -57,8 +60,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/appointments/${id}/encounter`
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                const res = await axios.get(url)
                 console.log("res",res.data)
                 //const { status = '' } = res.data.encounter
                 setDiagnose(res.data.encounter.diagnosis);
@@ -69,7 +73,31 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 setEncounterId(res.data.encounter.partOfEncounterId)
                 setSelectedSoep(res.data.encounter.soep)
             } catch (err) {
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': id
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the encounter")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No se pudieron cargar los detalles de la receta. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setInitialLoad(false)
             }
@@ -86,18 +114,43 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
-          try {
+          const url = `/profile/doctor/appointments/${id}/encounter`
+            try {
             setLoading(true)
-            const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+            const res = await axios.put(url, _encounter)
             setLoading(false)
             setSuccess(true)
             console.log('response', res.data)
             console.log('se ha actualizado con exito!')
             setError(false)
-          } catch (error) {
-            setError(true)
+          } catch (err) {
             setSuccess(false)
-            console.log(error)
+            setLoading(false)
+            Sentry.setTags({
+                'endpoint': url,
+                'method': 'PUT',
+                'appointment_id': id
+            })
+            if (err.response) {
+                // The response was made and the server responded with a 
+                // status code that is outside the 2xx range.
+                Sentry.setTag('data', err.response.data)
+                Sentry.setTag('headers', err.response.headers)
+                Sentry.setTag('status_code', err.response.status)
+            } else if (err.request) {
+                // The request was made but no response was received
+                Sentry.setTag('request', err.request)
+            } else {
+                // Something happened while preparing the request that threw an Error
+                Sentry.setTag('message', err.message)
+            }
+            Sentry.captureMessage("Could not update the encounter")
+            Sentry.captureException(err)
+            addToast({
+                type: 'error',
+                title: 'Ha ocurrido un error.',
+                text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+            })
           }
         }, 1000),
         []

@@ -192,8 +192,9 @@ export default function Dashboard() {
         setLoadingAppointment(false)
       })
       .catch(err => {
-        Sentry.setTag('appointment_id', appointment.id);
-        Sentry.setTag('endpoint', url);
+        Sentry.setTag('endpoint', url)
+        Sentry.setTag('method', 'GET')
+        Sentry.setTag('organization_id', idOrganization)
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
           // que esta fuera del rango de 2xx
@@ -218,8 +219,14 @@ export default function Dashboard() {
           Sentry.setTag('message', err.message)
           console.log('Error', err)
         }
+        Sentry.captureMessage("Could not reload the appointments on the Dashboard")
         Sentry.captureException(err)
         setLoadingAppointment(false)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible recargar automáticamente las citas.'
+        })
       })
   }
 
@@ -288,6 +295,7 @@ export default function Dashboard() {
 
     if (validationError) return setLoading(false)
 
+    const url = `/profile/doctor/appointments`
     try {
       if (!Organization) {
         addToast({
@@ -306,17 +314,34 @@ export default function Dashboard() {
         idOrganization: Organization.id
       }
 
-      const res = await axios.post(`/profile/doctor/appointments`, payload) // <Boldo.Appointment>
+      const res = await axios.post(url, payload) // <Boldo.Appointment>
       setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
       setShowEditModal(false)
       dispatch({ type: 'reset' })
       addToast({
         type: 'success',
-        title: 'Cita creada',
-        text: '¡Se ha creado un cita con éxito!',
+        title: 'Evento privado',
+        text: '¡Se ha creado el evento privado con éxito!',
       })
     } catch (err) {
-      setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'POST')
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request)
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not create the private event")
+      Sentry.captureException(err)
+      addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No fue posible crear el evento privado. ¡Inténtelo nuevamente más tarde!' })
     }
 
     setLoading(false)
@@ -364,8 +389,9 @@ export default function Dashboard() {
         if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
       .catch(err => {
-        Sentry.setTag('appointment_id', appointment.id);
         Sentry.setTag('endpoint', url);
+        Sentry.setTag('method', 'GET')
+        Sentry.setTag('organization_id', Organization?.id)
         if (err.response) {
           // La respuesta fue hecha y el servidor respondió con un código de estado
           // que esta fuera del rango de 2xx
@@ -389,7 +415,13 @@ export default function Dashboard() {
           Sentry.setTag('message', err.message)
           console.log('Error', err.message)
         }
+        Sentry.captureMessage("Could not load the events")
         Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible cargar las citas.'
+        })
         if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
       })
   }
@@ -487,7 +519,7 @@ export default function Dashboard() {
                 <div className='flex-1 min-w-0'>
                   <h1 className='text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9'>Mi Horario</h1>
                 </div>
-                <div className='w-60'>
+                <div className='w-80'>
                   {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
                       id={Organizations[0].id}
@@ -805,6 +837,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
+  const { addToast } = useToasts()
   // const type = useMemo(() => {
   //   let type = ''
   //   switch (appointment.type) {
@@ -856,16 +889,37 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
     if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) return
     setLoading(true)
     setError('')
+    const url = `/profile/doctor/appointments/${id}`
     try {
-      await axios.delete(`/profile/doctor/appointments/${id}`)
+      await axios.delete(url)
       setAppointmentsAndReload((appointments: EventInput[]) =>
         appointments.filter(appointment => appointment.extendedProps?.id !== id)
       )
       setLoading(false)
       setShow(false)
     } catch (err) {
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'DELETE')
+      Sentry.setTag('appointment_id', id)
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request)
+        console.log(err.request)
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message)
+        console.log('Error', err)
+      }
+      Sentry.captureMessage("Could not delete the private event")
+      Sentry.captureException(err)
       setLoading(false)
-      setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
+      addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
       console.log(err)
     }
   }

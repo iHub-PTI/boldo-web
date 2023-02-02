@@ -48,12 +48,13 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
-import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
+import * as Sentry from '@sentry/react'
 
 
 export function LaboratoryMenu(props) {
-  const { addErrorToast } = useToasts()
+  const { addToast, addErrorToast } = useToasts()
   const { appointment } = props;
   const [loading, setLoading] = useState(true)
   const [selectedRow, setSelectedRow] = useState()
@@ -94,28 +95,54 @@ export function LaboratoryMenu(props) {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   }
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true)
-
-        if (appointment !== undefined) {
-          const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
-          setStudiesData(res.data.items)
-          setLoading(false)
+    useEffect(() => {
+      const load = async () => {
+        const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
+        try {
+          setLoading(true)
+          if (appointment !== undefined) {
+              const res = await axios.get(url)
+              setStudiesData(res.data.items)
+              setLoading(false)
+          }
+        } catch (err) {
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET',
+            'appointment_id': appointment.id,
+            'doctor_id': appointment.doctorId,
+            'patient_id': appointment.patientId
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the diagnostic report")
+          Sentry.captureException(err)
+          addToast({ 
+            type: 'error', 
+            title: 'Ha ocurrido un error.', 
+            text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+          })
+          // setLoading(false)
+          console.log(err)
+        } finally {
+            setLoading(false)
         }
-      } catch (err) {
-        addErrorToast(err)
-        // setLoading(false)
-        console.log(err)
-      } finally {
-        setLoading(false)
       }
-    }
-    if (appointment)
-      load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appointment])
+      if (appointment)
+          load()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointment])
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -126,13 +153,14 @@ export function LaboratoryMenu(props) {
   }, [appointment])
 
 
-  useEffect(() => {
-    const loadIssued = async () => {
+    useEffect(() => {
+      const loadIssued = async () => {
+      const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
       try {
         setLoadingIssued(true)
         if (appointment !== undefined) {
           setLoadingIssued(true)
-          const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+          const res = await axios.get(url)
           console.log("response issueds", res)
           if (res.status === 200)
             setIssuedStudiesData(res.data.items)
@@ -141,15 +169,41 @@ export function LaboratoryMenu(props) {
           setLoadingIssued(false)
         }
       } catch (err) {
-        addErrorToast(err)
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': appointment.id,
+          'doctor_id': appointment.doctorId,
+          'patient_id': appointment.patientId
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the study orders")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error',
+          text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+        })
       } finally {
         setLoadingIssued(false)
       }
     }
-    if (appointment && !showMakeOrder)
+    if (appointment && !showMakeOrder) 
       loadIssued()
-  }, [showMakeOrder, appointment, addErrorToast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showMakeOrder, appointment, addErrorToast])
 
 
   const downloadBlob = (url, title, contentType, download) => {
@@ -185,27 +239,49 @@ export function LaboratoryMenu(props) {
   }
 
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-
-        if (selectedRow !== undefined) {
-          //@ts-ignore
-          const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-          setStudyDetail(res.data)
+    useEffect(() => {
+      const load = async () => {
+        try {
+          if (selectedRow !== undefined) {
+              //@ts-ignore
+              const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+              setStudyDetail(res.data)
+          }
+        } catch (err) {
+          if (selectedRow !== undefined) { 
+            //@ts-ignore
+            Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+          }
+          Sentry.setTag('method', 'GET')
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the study description")
+          Sentry.captureException(err)
+          setSelectedRow(undefined)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error',
+            text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+          })
+        } finally {
+            // setInitialLoad(false)
         }
-      } catch (err) {
-        console.log(err)
-        addErrorToast(err)
-        setSelectedRow(undefined)
-      } finally {
-        // setInitialLoad(false)
       }
-    }
-    selectedRow !== undefined &&
-      load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRow])
+      selectedRow !== undefined &&
+          load()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedRow])
 
 
   if (selectedRow)
@@ -231,7 +307,10 @@ export function LaboratoryMenu(props) {
           </button>
           <Provider>
             <div className="flex flex-col flex-no-wrap flex-1 w-full" style={{
-              height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)'}`,
+              height: ` ${width >= WIDTH_XL
+                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+                }`,
               overflowY: "auto"
             }}>
               <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
@@ -244,7 +323,13 @@ export function LaboratoryMenu(props) {
     )
 
   return (
-    <div className='flex flex-col h-full bg-white'>
+    <div className='flex flex-col bg-white' style={{
+      height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+        }`,
+      overflowY: "auto"
+    }}>
       <Grid>
         <Grid className='w-full px-8'>
           <div className='flex flex-row justify-between md-max:flex-col'>

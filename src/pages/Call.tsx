@@ -71,15 +71,19 @@ import useWindowDimensions from '../util/useWindowDimensions'
 import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 import { getReports } from '../util/helpers'
+import * as Sentry from '@sentry/react'
+
+
 import RecordOutPatientCall from '../components/RecordOutPatientCall'
+import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } &  { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
 
 const Gate = () => {
   const history = useHistory()
   const socket = useContext(SocketContext)
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -99,31 +103,78 @@ const Gate = () => {
       setInstance(0)
       if (!status) return
 
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        if (['closed', 'open'].includes(status)) await axios.post(`/profile/doctor/appointments/${id}`, { status })
+        if (['closed', 'open'].includes(status)) await axios.post(url, { status })
         setAppointment(appointment => {
           if (!appointment || !status) return
           return { ...appointment, status: status }
         })
       } catch (err) {
-        console.log(err)
-        addErrorToast('No se actualizó el estado de cita.')
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'POST'
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the appointment status")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo actualizar el estado de la cita. !Inténtelo de nuevo más tarde¡'
+        })
       }
     },
-    [addErrorToast, id]
+    [addToast, id]
   )
 
   useEffect(() => {
     let mounted = true
 
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
         if (mounted) {
-          addErrorToast('¡Fallo en la carga de la cita!')
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'POST'
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the appointment")
+          Sentry.captureException(err)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'Falló la carga de la cita. ¡Inténtelo nuevamente más tarde!'
+          })
           history.replace(`/`)
         }
       }
@@ -134,7 +185,7 @@ const Gate = () => {
     return () => {
       mounted = false
     }
-  }, [addErrorToast, history, id])
+  }, [addToast, history, id])
 
   useEffect(() => {
     if (appointment?.status !== 'upcoming') return
@@ -371,7 +422,7 @@ const Gate = () => {
     <Layout>
       <RecordOutPatientCall appointment={appointment}>
         {instance === 0 ? (
-          <div className='flex h-full w-full flex-row flex-no-wrap' style={{marginLeft:'88px'}}>
+          <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
             <div className='flex h-full items-center w-8/12'>
               {/* daiting screen here */}
               <CallStatusMessage
@@ -443,7 +494,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -479,7 +530,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
     useEffect(() => {
       updatePrescriptions(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -503,12 +554,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
             size={50}
           />
-          <ChildButton 
+          <ChildButton
             icon={
-              <Print 
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : '' }`} 
-                bgColor='transparent' 
-                iconColor='white' 
+              <Print
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
+                bgColor='transparent'
+                iconColor='white'
                 fromVirtual={true}
               />
             }
@@ -603,17 +654,17 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft:'88px' }}>
+    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft: '88px' }}>
       <div className='relative flex-1'>
-          <Stream
-            ref={stream}
-            room={id}
-            token={token}
-            instance={instance}
-            mediaStream={mediaStream}
-            socket={socket}
-            onCallStateChange={onCallStateChange}
-          />
+        <Stream
+          ref={stream}
+          room={id}
+          token={token}
+          instance={instance}
+          mediaStream={mediaStream}
+          socket={socket}
+          onCallStateChange={onCallStateChange}
+        />
 
         <div
           className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
@@ -1072,12 +1123,18 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 }
 
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+  const { width: screenWidth } = useWindowDimensions()
   return (
-    <Grid>
+    <Grid style={{
+      height: ` ${screenWidth >= WIDTH_XL ? `100vh` : `calc(100vh - ${HEIGHT_NAVBAR}px)`}`,
+      overflowY: 'auto'
+    }}>
       <CardHeader
         title='Paciente'
         titleTypographyProps={{ variant: 'h6' }}
-        style={{ backgroundColor: '#27BEC2', color: 'white' }}
+        style={{
+          backgroundColor: '#27BEC2', color: 'white',
+        }}
       />
 
       <CardContent>
@@ -1284,8 +1341,9 @@ function SOEP({ appointment }: { appointment: any }) {
 
   useEffect(() => {
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+        const res = await axios.get(url)
         const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
@@ -1302,10 +1360,32 @@ function SOEP({ appointment }: { appointment: any }) {
         }
         setInitialLoad(false)
       } catch (err) {
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+        })
         setInitialLoad(false)
-        //@ts-ignore
-        addErrorToast(err)
       }
     }
 
@@ -1506,17 +1586,40 @@ function SOEP({ appointment }: { appointment: any }) {
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         //setIsLoading(true)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(url, _encounter)
         console.log('response', res.data)
         //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
-      } catch (error) {
+      } catch (err) {
         //setIsLoading(false)
-        console.log(error)
-        //@ts-ignore
-        addErrorToast(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'PUT',
+          'appointment_id': id
+        })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not update the encounter")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+      })
       }
     }, 1000),
     []

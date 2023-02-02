@@ -40,8 +40,9 @@ export const upload = async (file: File | string) => {
     })
     if (ress.status === 201) return res.data.location
   } catch (err) {
+    Sentry.captureMessage('Could not upload the doctor photo')
     Sentry.captureException(err)
-    console.log(err)
+    // console.log(err)
   }
 }
 
@@ -295,10 +296,11 @@ const Settings = (props: Props) => {
           setShow(true)
         }
       } catch (err) {
-        console.log(err)
+        // console.log(err)
+        Sentry.captureMessage('Could not get the doctor profile with the specializations')
         Sentry.captureException(err)
         if (mounted) {
-          setError('ERROR: Fallo en la carga de datos iniciales')
+          addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'Falló la carga inicial de los datos.' })
           setShow(true)
         }
       }
@@ -324,7 +326,7 @@ const Settings = (props: Props) => {
     if (Organizations === undefined || Organizations === null) {
       validationError = true
       addToast({ type: 'warning', title: errorUnknown, text: errorText.unknown })
-    } else if (Organizations.length > 0){
+    } else if (Organizations.length > 0) {
       if (!validateDate(doctor.birthDate, 'past')) {
         validationError = true
         addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
@@ -365,7 +367,8 @@ const Settings = (props: Props) => {
           }
           
           await axios.put(url, { ...doctor, photoUrl })
-          setSuccess('Actualización exitosa!')
+          // setSuccess('Actualización exitosa!')
+          addToast({ type: 'success', title: '¡Actualización exitosa!', text: 'La información de su perfil ha sido actualizada.' })
           updateUser({
             ...(typeof photoUrl === 'string' && { photoUrl }),
             givenName: doctor.givenName,
@@ -631,7 +634,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -737,7 +740,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -772,7 +775,7 @@ const Settings = (props: Props) => {
                       </div>
                     </div>
                     <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                      <SaveButton error={error} success={success} loading={loading} />
+                      <SaveButton error={error} loading={loading} />
                     </div>
                   </div>
                 </div>
@@ -795,7 +798,6 @@ const Settings = (props: Props) => {
                     </p>
                   </div>
                 </div>
-                {console.log(Organizations)}
                 {
                   Organizations === undefined || Organizations === null
                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
@@ -891,7 +893,7 @@ const Settings = (props: Props) => {
                             })
                           }
                           <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                            <SaveButton error={error} success={success} loading={loading} />
+                            <SaveButton error={error} loading={loading} />
                           </div>
                         </div>
                       </div>
@@ -905,19 +907,19 @@ const Settings = (props: Props) => {
   )
 }
 
-export default Sentry.withProfiler(Settings) 
+export default Settings 
 
 interface SaveButtonProps {
   error?: string
-  success?: string
+  // success?: string
   loading?: boolean
 }
 
-const SaveButton = ({ error, success, loading }: SaveButtonProps) => {
+const SaveButton = ({ error, loading }: SaveButtonProps) => {
   return (
     <>
       {error && <span className='mt-2 mr-2 text-sm text-red-600'>{error}</span>}
-      {success && <span className='mt-2 mr-2 text-sm text-green-600'>{success}</span>}
+      {/* {success && <span className='mt-2 mr-2 text-sm text-green-600'>{success}</span>} */}
 
       <span className='inline-flex rounded-md shadow-sm'>
         <button

@@ -26,7 +26,9 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
-import { TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+import * as Sentry from '@sentry/react'
+import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+import useWindowDimensions from "../util/useWindowDimensions";
 
 
 //HoverSelect theme
@@ -143,9 +145,9 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 
 //parsing category
 const categoryIssuedOrders = {
-  LABORATORY: 'Laboratory',
-  IMAGE: 'Diagnostic Imaging',
-  OTHER: 'Other'
+    LABORATORY: 'Laboratory',
+    IMAGE: 'Diagnostic Imaging',
+    OTHER: 'Other'
 }
 
 // Component to filter by date
@@ -187,7 +189,7 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 
 
 export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
-    const { addErrorToast } = useToasts()
+    const { addToast } = useToasts()
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -212,19 +214,45 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
             try {
                 setLoading(true)
 
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     // if(res.data.items > 0)
                     setStudiesData(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
-                addErrorToast(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the diagnostic report")
+                Sentry.captureException(err)
+                addToast({ 
+                    type: 'error', 
+                    title: 'Ha ocurrido un error.', 
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                })
                 // setLoading(false)
-                console.log(err)
             } finally {
                 setLoading(false)
             }
@@ -232,17 +260,17 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
         if (appointment)
             load()
-        
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
 
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-          setDisabledButton(true)
+            setDisabledButton(true)
         } else {
-          setDisabledButton(false)
+            setDisabledButton(false)
         }
-      }, [appointment])
+    }, [appointment])
 
     const downloadBlob = (url, title, contentType, download) => {
         var oReq = new XMLHttpRequest();
@@ -287,8 +315,31 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                console.log(err)
-                addErrorToast(err)
+                if (selectedRow !== undefined) { 
+                    //@ts-ignore
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                }
+                Sentry.setTag('method', 'GET')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study description")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+                })
                 setSelectedRow(undefined)
                 setFilterHide(true)
             } finally {
@@ -300,34 +351,64 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-    useEffect(()=>{
+    useEffect(() => {
         const loadOrders = async () => {
+            const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
             try {
                 setLoadingOrders(true)
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     console.log("response orders", res)
-                    if(res.status === 200) setIssuedStudies(res.data.items)
+                    if (res.status === 200) setIssuedStudies(res.data.items)
                     else if (res.status === 204) setIssuedStudies([])
                     setLoadingOrders(false)
                 }
             } catch (err) {
-                addErrorToast(err)
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study orders")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setLoadingOrders(false)
             }
         }
         if (appointment && !issueOrder) loadOrders()
-    }, [issueOrder, appointment, addErrorToast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [issueOrder, appointment])
 
     //Hover theme
     const classes = useStyles();
+
+    const { height: screenHeight } = useWindowDimensions()
+
     return (
         <div className='flex flex-col bg-white shadow-xl relative overflow-hidden' style={{ height: "100%" }}>
             <Grid>
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
-                    {selectedRow || issueOrder || selectOrderDetail? <button
+                    {selectedRow || issueOrder || selectOrderDetail ? <button
                         style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
@@ -374,40 +455,40 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
                         </Grid>
                     </Grid>
-                    
+
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
-                      <div className="flex flex-row flex-no-wrap">
-                        <div className="flex flex-row w-full">
-                          <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                            style={{ width: '100%', height: '3rem' }}
-                          >
-                            <button
-                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                              onClick={() => {
-                                setToggleStudies(false)
-                              }}
-                            >
-                              Órdenes de estudio
-                            </button>
-                          </div>
+                        <div className="flex flex-row flex-no-wrap">
+                            <div className="flex flex-row w-full">
+                                <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                                    style={{ width: '100%', height: '3rem' }}
+                                >
+                                    <button
+                                        className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                                        onClick={() => {
+                                            setToggleStudies(false)
+                                        }}
+                                    >
+                                        Órdenes de estudio
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex flex-row w-full">
+                                <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                                    style={{ width: '100%', height: '3rem' }}
+                                >
+                                    <button
+                                        className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                                        onClick={() => {
+                                            setToggleStudies(true)
+                                        }}
+                                    >
+                                        Estudios Realizados
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex flex-row w-full">
-                          <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                            style={{ width: '100%', height: '3rem' }}
-                          >
-                            <button
-                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                              onClick={() => {
-                                setToggleStudies(true)
-                              }}
-                            >
-                              Estudios Realizados
-                            </button>
-                          </div>
-                        </div>
-                      </div>
                     }
-                   
+
                     {issueOrder && loading === false && studyOrderView()}
                     {
                         filterHide === true && (
@@ -415,7 +496,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
                                 <DateRever dateRever={dateRever}
                                     setDateRever={setDateRever}
-                                    studiesData={toggleStudies ? studiesData: issuedStudies}
+                                    studiesData={toggleStudies ? studiesData : issuedStudies}
                                     setStudiesData={toggleStudies ? setStudiesData : setIssuedStudies}></DateRever>
                             </div>
                         )
@@ -432,11 +513,11 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         <NoResults />
                     </Grid>
                     }
-                    
-                    { !issueOrder && <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto scrollbar'}`} style={{height:'60vh'}} >
+
+                    {!issueOrder && <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto scrollbar'}`} style={{ height: `${screenHeight - (HEIGHT_NAVBAR + 300)}px` }} >
                         {(loading || loadingOrders) && <div className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-                               <SpinnerLoading />
+                                <SpinnerLoading />
                             </div>
                         </div>
                         }
@@ -454,11 +535,11 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     >
                                         <Grid justifyContent="space-between" container>
                                             <div style={{ display: 'flex' }}>
-                                                {item.category === "LABORATORY" ? 
-                                                    <LabIcon width={22} height={22} preserveAspectRatio="none"/>
-                                                    : item.category === "IMAGE" ? 
-                                                    <ImgIcon width={22} height={22} preserveAspectRatio="none"/> : 
-                                                    <OtherIcon width={22} height={22} preserveAspectRatio="none"/>
+                                                {item.category === "LABORATORY" ?
+                                                    <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                                    : item.category === "IMAGE" ?
+                                                        <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                                        <OtherIcon width={22} height={22} preserveAspectRatio="none" />
                                                 }
                                                 <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
                                                     {item.category === "LABORATORY" ? "Laboratorio"
@@ -482,53 +563,53 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 ))
                         }
                         {selectOrderDetail ? orderDetail(selectOrderDetail) : !issueOrder && !loadingOrders && !toggleStudies && issuedStudies && issuedStudies.length > 0 && issuedStudies.filter((data) => (data.category === categoryIssuedOrders[categorySelect] || categorySelect === "")).map((item, index) => (
-                          <Grid
-                            className={classes.gridBorder}
-                            onClick={() => {
-                              setSelectOrderDetail(item)
-                              setFilterHide(false)
-                            }}
-                            key={index}
-                          >
-                            <Grid justifyContent="space-between" container>
-                              <div style={{ display: 'flex' }}>
-                                {item.category === "Laboratory" ?
-                                  <LabIcon width={22} height={22} preserveAspectRatio="none" />
-                                  : item.category === "Diagnostic Imaging" ?
-                                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
-                                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
-                                }
-                                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
-                                  {item.category === "Laboratory" ? "Laboratorio"
-                                    : item.category === "Diagnostic Imaging" ? "Imágenes"
-                                      : "Otros"
-                                  }
+                            <Grid
+                                className={classes.gridBorder}
+                                onClick={() => {
+                                    setSelectOrderDetail(item)
+                                    setFilterHide(false)
+                                }}
+                                key={index}
+                            >
+                                <Grid justifyContent="space-between" container>
+                                    <div style={{ display: 'flex' }}>
+                                        {item.category === "Laboratory" ?
+                                            <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                            : item.category === "Diagnostic Imaging" ?
+                                                <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                                <OtherIcon width={22} height={22} preserveAspectRatio="none" />
+                                        }
+                                        <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                                            {item.category === "Laboratory" ? "Laboratorio"
+                                                : item.category === "Diagnostic Imaging" ? "Imágenes"
+                                                    : "Otros"
+                                            }
+                                        </Typography>
+                                    </div>
+                                    <Typography variant='body2' color='textSecondary'>
+                                        {moment(item.authoredDate).format('DD/MM/YYYY')}
+                                    </Typography>
+                                </Grid>
+                                <Typography style={{ color: '#13A5A9', width: '12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} variant='body1' >
+                                    {item.studiesCodes.map(i => { return i.display }).join(', ')}
                                 </Typography>
-                              </div>
-                              <Typography variant='body2' color='textSecondary'>
-                                {moment(item.authoredDate).format('DD/MM/YYYY')}
-                              </Typography>
                             </Grid>
-                            <Typography style={{ color: '#13A5A9', width: '12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} variant='body1' >
-                              {item.studiesCodes.map(i => {return i.display}).join(', ')}
-                            </Typography>
-                          </Grid>
                         ))}
                     </Grid>}
                 </Grid>
             </Grid>
             {!selectedRow && issueOrder === false && appointment && (
-                <div 
-                    className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4" 
+                <div
+                    className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4"
                     title={
-                        disabledButton 
+                        disabledButton
                             ? appointment.status === 'locked'
                                 ? 'No disponible en citas culminadas'
-                                : 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita' 
+                                : 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita'
                             : 'Aquí puede gestionar las órdenes de estudio y emitirlas'
                     }
                 >
-                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
+                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed' : 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
                         onClick={() => {
                             setIssueOrder(true)
                             setFilterHide(false)
@@ -593,9 +674,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     }
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-                                  {
-                                    days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
-                                  }
+                                    {
+                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
+                                    }
                                 </Typography>
                             </Grid>
                         </Grid>
@@ -788,98 +869,98 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function orderDetail(detail) {
 
-      var days_diff = -1;
+        var days_diff = -1;
 
-      if (detail !== undefined) {
-        const currentDate = moment(new Date());
-        //@ts-ignore
-        const returnDate = moment(detail.authoredDate);
-        days_diff = currentDate.diff(returnDate, 'days');
+        if (detail !== undefined) {
+            const currentDate = moment(new Date());
+            //@ts-ignore
+            const returnDate = moment(detail.authoredDate);
+            days_diff = currentDate.diff(returnDate, 'days');
 
-      }
+        }
 
-      return <div>
-        <Grid className='w-full '>
-          <Grid container justifyContent="space-between">
-            <Card
-              style={{
-                borderRadius: '16px',
-                boxShadow: 'none',
-                paddingLeft: '15px',
-              }}
-            >
-              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                Solicitado en fecha
-              </Typography>
-              <Grid container>
-                <Calendar />
-                <Grid>
-                  <Typography variant='subtitle1' color='textSecondary'>
-                    { //@ts-ignore
-                      moment(detail.authoredDate).format('DD/MM/YYYY')
-                    }
-                  </Typography>
-                  <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-                    {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
-                    }
-                  </Typography>
+        return <div>
+            <Grid className='w-full '>
+                <Grid container justifyContent="space-between">
+                    <Card
+                        style={{
+                            borderRadius: '16px',
+                            boxShadow: 'none',
+                            paddingLeft: '15px',
+                        }}
+                    >
+                        <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                            Solicitado en fecha
+                        </Typography>
+                        <Grid container>
+                            <Calendar />
+                            <Grid>
+                                <Typography variant='subtitle1' color='textSecondary'>
+                                    { //@ts-ignore
+                                        moment(detail.authoredDate).format('DD/MM/YYYY')
+                                    }
+                                </Typography>
+                                <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
+                                    {
+                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                                    }
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Card>
                 </Grid>
-              </Grid>
-            </Card>
-          </Grid>
-          <Card
-              style={{
-                // backgroundColor: '#F7FAFC',
-                borderRadius: '16px',
-                boxShadow: 'none',
-                marginBottom: '15px',
-                padding: '15px',
-              }}
-            >
-              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                Impresión diagnostica
-              </Typography>
-              {detail.diagnosis}
-            </Card>
-          <Card
-            className="mt-3"
-            style={{
-              backgroundColor: '#F7FAFC',
-              borderRadius: '16px',
-              boxShadow: 'none',
-              marginBottom: '15px',
-              padding: '15px',
-              minHeight: '100px'
-            }}
-          >
+                <Card
+                    style={{
+                        // backgroundColor: '#F7FAFC',
+                        borderRadius: '16px',
+                        boxShadow: 'none',
+                        marginBottom: '15px',
+                        padding: '15px',
+                    }}
+                >
+                    <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                        Impresión diagnostica
+                    </Typography>
+                    {detail.diagnosis}
+                </Card>
+                <Card
+                    className="mt-3"
+                    style={{
+                        backgroundColor: '#F7FAFC',
+                        borderRadius: '16px',
+                        boxShadow: 'none',
+                        marginBottom: '15px',
+                        padding: '15px',
+                        minHeight: '100px'
+                    }}
+                >
 
-            <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
-              <div style={{ display: 'flex' }}>
-                {detail.category === "Laboratory" ?
-                  <LabIcon width={22} height={22} preserveAspectRatio="none" />
-                  : detail.category === "Diagnostic Imaging" ?
-                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
-                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
-                }
-                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
-                  {detail.category === "Laboratory" ? "Laboratorio"
-                    : detail.category === "Diagnostic Imaging" ? "Imágenes"
-                      : "Otros"
-                  }
-                </Typography>
-              </div>
-              <Typography style={{marginLeft: '1rem', marginTop: '1rem'}}>
-                {detail.studiesCodes.map((i)=>(<li>{i.display}</li>))}
-              </Typography>
-            </Typography>
-            <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
-              Observaciones
-            </Typography>
-            {detail.notes}
-          </Card>
-        </Grid>
-      </div>
+                    <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
+                        <div style={{ display: 'flex' }}>
+                            {detail.category === "Laboratory" ?
+                                <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                : detail.category === "Diagnostic Imaging" ?
+                                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
+                            }
+                            <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                                {detail.category === "Laboratory" ? "Laboratorio"
+                                    : detail.category === "Diagnostic Imaging" ? "Imágenes"
+                                        : "Otros"
+                                }
+                            </Typography>
+                        </div>
+                        <Typography style={{ marginLeft: '1rem', marginTop: '1rem' }}>
+                            {detail.studiesCodes.map((i) => (<li>{i.display}</li>))}
+                        </Typography>
+                    </Typography>
+                    <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
+                        Observaciones
+                    </Typography>
+                    {detail.notes}
+                </Card>
+            </Grid>
+        </div>
     }
 
     function studyOrderView() {

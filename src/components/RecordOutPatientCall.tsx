@@ -261,8 +261,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
           <Disclosure>
             {({ open }) => (
-              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-center bg-white rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate`}>
-                <Disclosure.Button className="focus:outline-none ">
+              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start bg-white rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
+                <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }}>
                   <div className='flex flex-row flex-no-wrap justify-center text-xl text-cool-gray-700 font-semibold truncate'>
                     <span className='truncate'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}</span>
                     <ArrowDown className={`${open ? 'rotate-180 transform' : ''}`} />

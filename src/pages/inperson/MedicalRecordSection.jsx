@@ -10,6 +10,10 @@ import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import _ from 'lodash'
 import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
+import * as Sentry from '@sentry/react'
+
+import useWindowDimensions from '../../util/useWindowDimensions'
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -28,7 +32,7 @@ const soepPlaceholder = {
 
 export default ({ appointment, setDisabledRedcordButton }) => {
   const classes = useStyles()
-  const { addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const [mainReason, setMainReason] = useState('')
   const [soepText, setSoepText] = useState(['', '', '', ''])
   const [showHover, setShowHover] = useState('')
@@ -59,6 +63,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   const [succes, setSucces] = useState(false)
   //button cancel appointment
   const [disableBCancel, setDisableBCancel] = useState(true)
+  //width of the window
+  const { width: screenWidth } = useWindowDimensions()
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -76,8 +82,9 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+        const res = await axios.get(url)
         const {
           diagnosis = '',
           instructions = '',
@@ -103,7 +110,31 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
         // setInitialLoad(false)
       } catch (err) {
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+        })
         setInitialLoad(false)
         //@ts-ignore
         // addErrorToast(err)
@@ -185,10 +216,11 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     if (encounterId !== '') {
+      const url = `/profile/doctor/relatedEncounters/${encounterId}`
       const load = async () => {
         try {
           //get related encounters records
-          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`)
+          const res = await axios.get(url)
           if (res.data.encounter !== undefined) {
             var count = Object.keys(res.data.encounter.items).length
             const tempArray = []
@@ -206,10 +238,33 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           setInitialLoad(false)
         } catch (err) {
           //console.log(err)
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET',
+            'encounter_id': encounterId
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the history of encounters")
+          Sentry.captureException(err)
           setInitialLoad(false)
-          //@ts-ignore
-          addErrorToast(err)
           setInitialLoad(false)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'No hemos podido obtener el historial de las citas relacionadas. ¡Inténtelo nuevamente más tarde!'
+          })
         } finally {
           //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
           setDisabledRedcordButton(false)
@@ -231,19 +286,43 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         setIsLoading(true)
         setSucces(false)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(url, _encounter)
         if (res.data === 'OK') {
           setIsLoading(false)
           setSucces(true)
           setErrorSave(false)
         }
-      } catch (error) {
+      } catch (err) {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'PUT',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the encounter")
+        Sentry.captureException(err)
         setIsLoading(false)
-        setErrorSave(true)
-        addErrorToast(error)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No hemos podido actualizar los detalles de la cita. ¡Inténtelo nuevamente más tarde!'
+        })
       }
     }, 1000),
     []
@@ -519,7 +598,13 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   )
 
   return (
-    <div className='relative'>
+    <div className='flex flex-col relative overflow-y-auto' style={{
+      height: ` ${
+        screenWidth >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+      }`,
+    }}>
       <Grid style={{ marginInline: '30px' }}>
         <Grid>
           <Typography variant='h5' color='textPrimary'>
