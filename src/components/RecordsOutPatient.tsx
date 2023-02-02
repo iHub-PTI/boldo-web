@@ -283,7 +283,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         <div className='text-black font-bold text-2xl'>
           Registro de consultas ambulatorias
           <div className='text-cool-gray-400 font-normal text-xl'>
-            Anotaciones, recetas y ordenes de estudios anteriores
+            Anotaciones, recetas y órdenes de estudios anteriores
           </div>
         </div>
       </div>
@@ -435,34 +435,37 @@ export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordP
     <div className='flex flex-col w-full h-full gap-5'>
       <div>
         <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Motivo Principal de la visita</div>
-        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.mainReason}</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.mainReason || '-'}</div>
       </div>
       <div>
         <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Impresión diagnóstica</div>
-        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.diagnosis}</div>
+        <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.diagnosis || 'Sin impresión diagnóstica.'}</div>
       </div>
       {/* Prescriptions */}
-      <div>
-        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
-        <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
-          {data.prescriptions.map((prescription, index) => (
-            <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
-              <div className='flex flex-col p-2 w-6/12'>
-                <div className='text-black'>{prescription.medicationName}</div>
-                <div className='text-gray-500'>{prescription.medicationDto.form}</div>
+      
+        <div>
+          <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
+          {data.prescriptions.length === 0 && <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>Sin prescripción médica.</div>
+          }
+          <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
+            {data.prescriptions.map((prescription, index) => (
+              <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
+                <div className='flex flex-col p-2 w-6/12'>
+                  <div className='text-black'>{prescription.medicationName}</div>
+                  <div className='text-gray-500'>{prescription.medicationDto.form}</div>
+                </div>
+                <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
+                  {prescription.instructions ? prescription.instructions : 'Sin indicaciones'}
+                </div>
               </div>
-              <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
-                {prescription.instructions ? prescription.instructions : 'Sin indicaciones'}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
       {/* SOEP */}
       {Object.keys(data.soep).length > 0 && (
         <div>
           <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Plan</div>
-          <p className={`w-10/12  ${darkMode ? 'text-white font-semibold' : ''}`}>{data.soep.plan}</p>
+          <p className={`w-10/12  ${darkMode ? 'text-white font-semibold' : ''}`}>{data.soep.plan || 'Sin plan.'}</p>
           <Disclosure>
             {({ open }) => (
               <>
