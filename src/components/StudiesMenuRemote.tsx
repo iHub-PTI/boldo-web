@@ -966,7 +966,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     function studyOrderView() {
         return (
             <Provider>
-                <div className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
+                <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
                     <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
                 </div>
             </Provider>
