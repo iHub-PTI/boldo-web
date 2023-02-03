@@ -766,7 +766,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                             studyDetail.attachmentUrls.map((book, idx) => {
                                 const { contentType, title, url } = book;
                                 return (
-                                    <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full mb-3">
+                                    <section key={idx} style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full mb-3">
                                         <Grid className="p-2" container wrap="nowrap">
                                             {
                                                 contentType.includes("pdf") ? <svg className="mt-2 w-12" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
