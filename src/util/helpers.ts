@@ -10,6 +10,8 @@ export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future'
     if (pastOrFuture === 'future' && new Date() > date) return false // Please enter a Date in the future
     return isoString === dateInput
   } catch (err) {
+    Sentry.captureMessage('Could not validate date')
+    Sentry.captureException(err)
     return false
   }
 }
@@ -87,7 +89,7 @@ export async function getReports(appointment, setLoading) {
       responseType: 'blob',
     })
     .then(function (res) {
-      console.log('res: ', res)
+      // console.log('res: ', res)
       const date = new Date(appointment.start)
       const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`
       const appointmentDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
@@ -107,7 +109,7 @@ export async function getReports(appointment, setLoading) {
       setLoading(false)
     })
     .catch(function (err) {
-      console.log(err)
+      // console.log(err)
       Sentry.setTag('appointment_id', appointment.id)
       Sentry.setTag('endpoint', url)
       if (err.response) {
@@ -119,12 +121,13 @@ export async function getReports(appointment, setLoading) {
       } else if (err.request) {
         // La petición fue hecha pero no se recibió respuesta
         Sentry.setTag('request', err.request)
-        console.log(err.request)
+        // console.log(err.request)
       } else {
         // Algo paso al preparar la petición que lanzo un Error
         Sentry.setTag('message', err.message)
-        console.log('Error', err.message)
+        // console.log('Error', err.message)
       }
+      Sentry.captureMessage('Could not get reports')
       Sentry.captureException(err)
     })
 }
