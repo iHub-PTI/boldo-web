@@ -10,25 +10,33 @@ export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future'
     if (pastOrFuture === 'future' && new Date() > date) return false // Please enter a Date in the future
     return isoString === dateInput
   } catch (err) {
+    Sentry.captureMessage('Could not validate date')
+    Sentry.captureException(err)
     return false
   }
 }
 
 export const validateOpenHours = (openHours: Boldo.OpenHours) => {
-  // we need obtain the keys of the object
-  let days = Object.keys(openHours)
-  // for each key we have an array of intervals
-  for (let i = 0; i < days.length; i++) {
-    let interval = openHours[days[i]]
-    if (interval !== null && interval !== undefined) {
-      for (let j = 0; j < interval.length; j++) {
-        //console.log("start => ", interval[j].start)
-        //console.log("end => ", interval[j].end)
-        if( interval[j].start === interval[j].end ) {
-          return false
+  try {
+    // we need obtain the keys of the object
+    let days = Object.keys(openHours)
+    // for each key we have an array of intervals
+    for (let i = 0; i < days.length; i++) {
+      let interval = openHours[days[i]]
+      if (interval !== null && interval !== undefined) {
+        for (let j = 0; j < interval.length; j++) {
+          //console.log("start => ", interval[j].start)
+          //console.log("end => ", interval[j].end)
+          if( interval[j].start === interval[j].end ) {
+            return false
+          }
         }
       }
     }
+  } catch(err) {
+    Sentry.captureMessage('Could not validate open hours')
+    Sentry.captureException(err)
+    return false
   }
   return true
 }
@@ -81,7 +89,7 @@ export async function getReports(appointment, setLoading) {
       responseType: 'blob',
     })
     .then(function (res) {
-      console.log('res: ', res)
+      // console.log('res: ', res)
       const date = new Date(appointment.start)
       const patientName = `${appointment.patient.familyName ?? 'sin nombre'}`
       const appointmentDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
@@ -101,7 +109,7 @@ export async function getReports(appointment, setLoading) {
       setLoading(false)
     })
     .catch(function (err) {
-      console.log(err)
+      // console.log(err)
       Sentry.setTag('appointment_id', appointment.id)
       Sentry.setTag('endpoint', url)
       if (err.response) {
@@ -113,27 +121,46 @@ export async function getReports(appointment, setLoading) {
       } else if (err.request) {
         // La petición fue hecha pero no se recibió respuesta
         Sentry.setTag('request', err.request)
-        console.log(err.request)
+        // console.log(err.request)
       } else {
         // Algo paso al preparar la petición que lanzo un Error
         Sentry.setTag('message', err.message)
-        console.log('Error', err.message)
+        // console.log('Error', err.message)
       }
+      Sentry.captureMessage('Could not get reports')
       Sentry.captureException(err)
     })
 }
 
-// this function merges the ids of the organizations separated by commas
-export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
-  let mergedIds = ''
-  let arrayIds = [] as Array<String>
+export function organizationsFromMessage(msg: String, organizations: Array<Boldo.Organization>): Array<String> {
+  let organizationsMatches = [] as Array<String>
+  
+  try {
+    let organizationsIds = msg.match(/\d+/g)
 
-  // we obtain ["id1", "id2", "id3", ... , "idn"]
-  if(organizations.length > 0) organizations.forEach((organization) => arrayIds.push(organization.id))
-  // we obtain a string like "id1,id2,id3,...,idn"
-  if(arrayIds.length > 0) mergedIds = arrayIds.join(',')
-  return mergedIds
+    organizationsIds && organizationsIds.forEach((id)=>{
+      organizationsMatches.push(organizations.find((organization) => organization.id === id).name)
+    })
+  } catch(err) {
+    Sentry.captureMessage('Could not get match from backend message')
+    Sentry.captureException(err)
+  }
+
+  return organizationsMatches
 }
+
+// uncomment if necessary
+// this function merges the ids of the organizations separated by commas
+// export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
+//   let mergedIds = ''
+//   let arrayIds = [] as Array<String>
+
+//   // we obtain ["id1", "id2", "id3", ... , "idn"]
+//   if(organizations.length > 0) organizations.forEach((organization) => arrayIds.push(organization.id))
+//   // we obtain a string like "id1,id2,id3,...,idn"
+//   if(arrayIds.length > 0) mergedIds = arrayIds.join(',')
+//   return mergedIds
+// }
 
 export function changeHours(date: Date, hours: number, operation: 'subtract' | 'add'): String {
   if(operation === 'subtract') {

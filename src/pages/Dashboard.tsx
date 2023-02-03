@@ -243,11 +243,15 @@ export default function Dashboard() {
   }, [Organization])
 
   useEffect(() => {
-    if (Organizations === undefined || Organizations === null) {
-      addToast({ type: 'error', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
-    } else if (Organizations?.length === 0) {
-      addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
+    const showOrNotToast = () => {
+      if (Organizations === undefined) {
+        addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
+      } else if (Organizations?.length === 0) {
+        addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
+      }
     }
+
+    if (Organizations !== null) showOrNotToast()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -518,7 +522,7 @@ export default function Dashboard() {
                 <div className='w-80'>
                   {Organizations?.length > 0 &&
                     <ListboxColor data={Organizations}
-                      id={Organization?.id}
+                      id={Organizations[0].id}
                       label='Espacio de Trabajo'
                       onChange={value => {
                         setOrganization(Organizations.find((d) => d.id === value))

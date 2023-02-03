@@ -6,7 +6,7 @@ import Layout from '../components/Layout'
 import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
-import { validateDate, validateOpenHours } from '../util/helpers'
+import { organizationsFromMessage, validateDate, validateOpenHours } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
@@ -42,7 +42,7 @@ export const upload = async (file: File | string) => {
   } catch (err) {
     Sentry.captureMessage('Could not upload the doctor photo')
     Sentry.captureException(err)
-    console.log(err)
+    // console.log(err)
   }
 }
 
@@ -268,6 +268,9 @@ const Settings = (props: Props) => {
 
   const { addToast } = useToasts();
 
+  const errorMsg = {
+    overlay: 'openHours settings overlay'
+  }
 
   useEffect(() => {
     let mounted = true
@@ -323,7 +326,7 @@ const Settings = (props: Props) => {
     if (Organizations === undefined || Organizations === null) {
       validationError = true
       addToast({ type: 'warning', title: errorUnknown, text: errorText.unknown })
-    } else if (Organizations.length > 0){
+    } else if (Organizations.length > 0) {
       if (!validateDate(doctor.birthDate, 'past')) {
         validationError = true
         addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
@@ -353,6 +356,7 @@ const Settings = (props: Props) => {
       })
   
       if (!validationError) {
+        const url = '/profile/doctor'
         try {
           let photoUrl = doctor.photoUrl
           if (doctor.photoUrl) {
@@ -361,8 +365,8 @@ const Settings = (props: Props) => {
             if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
             dispatch({ type: 'default', value: { photoUrl } })
           }
-  
-          await axios.put('/profile/doctor', { ...doctor, photoUrl })
+          
+          await axios.put(url, { ...doctor, photoUrl })
           // setSuccess('Actualización exitosa!')
           addToast({ type: 'success', title: '¡Actualización exitosa!', text: 'La información de su perfil ha sido actualizada.' })
           updateUser({
@@ -373,27 +377,56 @@ const Settings = (props: Props) => {
             new: false,
           })
         } catch (err) {
-          Sentry.setTag('endpoint', '/profile/doctor')
-          Sentry.setTag('method', 'PUT')
-          if (err.response) {
-            // La respuesta fue hecha y el servidor respondió con un código de estado
-            // que esta fuera del rango de 2xx
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
-          } else if (err.request) {
-            // La petición fue hecha pero no se recibió respuesta
-            Sentry.setTag('request', err.request)
-            console.log(err.request)
-          } else {
-            // Algo paso al preparar la petición que lanzo un Error
-            Sentry.setTag('message', err.message)
-          }
-          Sentry.captureMessage('Could not update the doctor photo')
-          Sentry.captureException(err)
-          addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo actualizar el perfil.' })
+          // Sentry.captureException(err)
           // setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
           // console.log(err)
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'PUT'
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTags({
+              'data': err.response.data,
+              'headers': err.response.headers,
+              'status_code': err.response.status
+            })
+            if (err.response.status === 400 && err.response.data.message.includes(errorMsg.overlay)) {
+              let overlay = organizationsFromMessage(err.response.data.message, Organizations)
+              addToast({
+                type: 'warning',
+                title: 'Hubo un error en el formulario.',
+                text: overlay.length > 0
+                  ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
+                  : 'Existen horarios solapados que impiden la actualización.'
+              })
+            } else {
+              addToast({
+                type: 'warning',
+                title: 'Hubo un error en el formulario.',
+                text: 'No se pudo actualizar el perfil.'
+              })
+            }
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+            addToast({
+              type: 'error',
+              title: 'Hubo un error en el servidor.',
+              text: 'No se recibió ninguna respuesta. ¡Inténtelo nuevamente más tarde!'
+            })
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+            addToast({
+              type: 'error',
+              title: 'Ocurrió un error inesperado.',
+              text: '¡Inténtelo nuevamente más tarde!'
+            })
+          }
+          Sentry.captureMessage("Could not update doctor profile")
+          Sentry.captureException(err)
         }
       }
     } else {
@@ -765,7 +798,6 @@ const Settings = (props: Props) => {
                     </p>
                   </div>
                 </div>
-                {console.log(Organizations)}
                 {
                   Organizations === undefined || Organizations === null
                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
