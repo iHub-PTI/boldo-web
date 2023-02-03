@@ -395,7 +395,7 @@ const Settings = (props: Props) => {
             if (err.response.status === 400 && err.response.data.message.includes(errorMsg.overlay)) {
               let overlay = organizationsFromMessage(err.response.data.message, Organizations)
               addToast({
-                type: 'error',
+                type: 'warning',
                 title: 'Hubo un error en el formulario.',
                 text: overlay.length > 0
                   ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
@@ -403,7 +403,7 @@ const Settings = (props: Props) => {
               })
             } else {
               addToast({
-                type: 'error',
+                type: 'warning',
                 title: 'Hubo un error en el formulario.',
                 text: 'No se pudo actualizar el perfil.'
               })
