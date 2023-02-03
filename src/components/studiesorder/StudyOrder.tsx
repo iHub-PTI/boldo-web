@@ -81,16 +81,16 @@ const useStyles = makeStyles((theme: Theme) =>
 //Tooltip Theme
 const TooltipInfo = withStyles((theme) => ({
     tooltip: {
-      backgroundColor: '#FFFF',
-      color: 'black',
-      maxWidth: 220,
-      padding: '1rem',
-      fontSize: theme.typography.pxToRem(12),
+        backgroundColor: '#FFFF',
+        color: 'black',
+        maxWidth: 220,
+        padding: '1rem',
+        fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip);
+}))(Tooltip);
 
 
-const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
+const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
     const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
@@ -99,6 +99,11 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
+
+    const scrollToBy = (id: string) => {
+        let scrollDiv = document.getElementById(id).offsetTop - 100;
+        document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
+    }
 
     useEffect(() => {
         const load = async () => {
@@ -146,6 +151,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
 
     const addCategory = () => {
         setOrders([...orders, {
+            id: orders[orders.length - 1].id + 1,
             category: "",
             urgent: false,
             diagnosis: "",
@@ -168,12 +174,15 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             let order = orders[i]
             if (order.category === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' })
+                scrollToBy(order.id.toString())
                 return false
             } else if (order.diagnosis === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
+                scrollToBy(order.id.toString())
                 return false
             } else if (order.studies_codes.length <= 0) {
                 addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
+                scrollToBy(order.id.toString())
                 return false
             }
         }
@@ -252,7 +261,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
         <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                    return <div id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
@@ -275,8 +284,8 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                                 </div>
                                             </FormGroup>
                                         </div>
-                                         : 
-                                         <>
+                                        :
+                                        <>
                                             <Grid item xs={5}>
                                                 <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
                                             </Grid>
@@ -324,7 +333,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             sendOrderToServer()
 
                         }}
-                     disabled={sendStudyLoading}
+                        disabled={sendStudyLoading}
                     >
                         {sendStudyLoading ? <Spinner /> : ''}
                         Listo
