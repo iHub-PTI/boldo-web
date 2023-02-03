@@ -1040,7 +1040,7 @@ export function LaboratoryMenu(props) {
             <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
               Observaciones
             </Typography>
-            {order.notes}
+            {order.notes ?? 'Sin observaciones.'}
           </Typography>
         </Card>
       </Grid>
