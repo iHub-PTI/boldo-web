@@ -306,7 +306,7 @@ export function LaboratoryMenu(props) {
             </svg>
           </button>
           <Provider>
-            <div className="flex flex-col flex-no-wrap flex-1 w-full" style={{
+            <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
               height: ` ${width >= WIDTH_XL
                   ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
                   : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`

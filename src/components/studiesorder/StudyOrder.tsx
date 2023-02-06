@@ -70,6 +70,16 @@ const useStyles = makeStyles((theme: Theme) =>
                 borderColor: "#808080",
             }
         },
+        textfieldError: {
+            backgroundColor: "#FFFFFF",
+            width: '100%',
+            border: '1px solid red',
+            borderRadius: '0.3rem',
+            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid',
+                borderRadius: '0.3rem'
+            }
+        },
         buttonClass: {
             '.MuiIconButton-root MuiButtonBase-root': {
                 padding: '0'
@@ -81,24 +91,31 @@ const useStyles = makeStyles((theme: Theme) =>
 //Tooltip Theme
 const TooltipInfo = withStyles((theme) => ({
     tooltip: {
-      backgroundColor: '#FFFF',
-      color: 'black',
-      maxWidth: 220,
-      padding: '1rem',
-      fontSize: theme.typography.pxToRem(12),
+        backgroundColor: '#FFFF',
+        color: 'black',
+        maxWidth: 220,
+        padding: '1rem',
+        fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip);
+}))(Tooltip);
 
 
-const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
+const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
     const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
     const [encounterId, setEncounterId] = useState('')
+    // error types when sending -> category + orderId | diagnosis + orderId | studies + orderId
+    const [errorType, setErrorType] = useState('')
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
+
+    const scrollToBy = (id: string) => {
+        let scrollDiv = document.getElementById(id).offsetTop - 100;
+        document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
+    }
 
     useEffect(() => {
         const load = async () => {
@@ -106,11 +123,11 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             const url = `/profile/doctor/appointments/${id}/encounter`
             try {
                 const res = await axios.get(url)
-                console.log(res.data)
+                //console.log(res.data)
                 setEncounterId(res.data.encounter.id)
 
             } catch (err) {
-                console.log(err)
+                //console.log(err)
                 Sentry.setTags({
                     'endpoint': url,
                     'method': 'GET',
@@ -146,6 +163,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
 
     const addCategory = () => {
         setOrders([...orders, {
+            id: orders[orders.length - 1].id + 1,
             category: "",
             urgent: false,
             diagnosis: "",
@@ -160,20 +178,27 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             update.splice(key, 1)
             setOrders(update)
         }
-        console.table(orders)
+        //console.table(orders)
     }
 
     const validateOrders = (orders: Array<Orders>) => {
+        setErrorType('')
         for (let i = 0; i < orders.length; i++) {
             let order = orders[i]
             if (order.category === "") {
-                addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' })
+                addToast({ type: 'warning', title: 'Notificación', text: 'Seleccione una categoría.' })
+                scrollToBy(order.id.toString())
+                setErrorType('category' + order.id)
                 return false
             } else if (order.diagnosis === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
+                scrollToBy(order.id.toString())
+                setErrorType('diagnosis' + order.id)
                 return false
             } else if (order.studies_codes.length <= 0) {
-                addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
+                addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado los estudios.' })
+                scrollToBy(order.id.toString())
+                setErrorType('studies' + order.id)
                 return false
             }
         }
@@ -204,12 +229,14 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             const url = `/profile/doctor/serviceRequest`
             try {
                 setSendStudyLoading(true)
+                let total = ordersCopy.length
                 const res = await axios.post(url, ordersCopy)
                 console.log("server response", res)
                 setSendStudyLoading(false)
                 //reset Orders
                 setOrders([
                     {
+                        id: 1,
                         category: "",
                         urgent: false,
                         diagnosis: "",
@@ -219,7 +246,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                 ])
                 setIndexOrder(0)
                 setShowMakeOrder(false)
-                addToast({ type: 'success', title: 'Notificación', text: '¡La(s) orden(es) han sido enviadas!' })
+                addToast({ type: 'success', title: 'Notificación', text: total > 1 ? 'Las órdenes han sido enviadas.': 'La orden ha sido enviada.' })
             } catch (err) {
                 Sentry.setTag('endpoint', url)
                 Sentry.setTag('method', 'POST')
@@ -252,7 +279,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
         <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                    return <div id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
@@ -263,7 +290,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                 <Grid item container direction='row' spacing={5}>
                                     {remoteMode ?
                                         <div className='flex md:flex-row sm:flex-col px-4 pb-4'>
-                                            <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                            <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
                                             <FormGroup style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: "1rem" }}>
                                                 <div className='flex flex-col'>
                                                     <CheckOrder checked={item.urgent} index={index}></CheckOrder>
@@ -275,10 +302,10 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                                 </div>
                                             </FormGroup>
                                         </div>
-                                         : 
-                                         <>
+                                        :
+                                        <>
                                             <Grid item xs={5}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
                                             </Grid>
                                             <Grid item xs={7}>
                                                 <FormGroup>
@@ -297,11 +324,15 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={classes.textfield} index={index} />
+                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>
-                                    <BoxSelect index={index} show={show} setShow={setShow}></BoxSelect>
+                                    <BoxSelect index={index} show={show} setShow={setShow} style={{
+                                        border: errorType === 'studies' + item.id ?
+                                            '1px solid red' : '',
+                                        minHeight: '3rem'
+                                    }}></BoxSelect>
                                 </Grid>
                                 <Grid >
                                     <Typography>Observaciones</Typography>
@@ -324,7 +355,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             sendOrderToServer()
 
                         }}
-                     disabled={sendStudyLoading}
+                        disabled={sendStudyLoading}
                     >
                         {sendStudyLoading ? <Spinner /> : ''}
                         Listo
