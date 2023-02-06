@@ -113,7 +113,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
 
     const scrollToBy = (id: string) => {
-        let scrollDiv = document.getElementById(id).offsetTop - 100;
+        let scrollDiv = document.getElementById(id).offsetTop - 150;
         document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
     }
 
