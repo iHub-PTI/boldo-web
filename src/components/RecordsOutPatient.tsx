@@ -375,15 +375,33 @@ export const PatientRecord = ({
   isCall = false,
   ...props
 }) => {
+
+  const [background, setBackground] = useState('#EDF2F7')
+
+  const updateBackground = () => {
+    if (!selected) setBackground('')
+    if (selected && darkMode) setBackground('rgba(248, 255, 255, 0.15)')
+  }
+
+  useEffect(() => {
+    updateBackground()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [darkMode, selected])
+
   return (
     <div
-      className={`flex flex-row pl-1 pt-1 ${isCall ? 'w-full' : 'w-64'} h-28 rounded-lg group cursor-pointer hover:bg-gray-100 mb-1 mx-1 truncate pr-1`}
-      style={{ backgroundColor: selected ? darkMode ? 'rgba(248, 255, 255, 0.15)' : '#EDF2F7' : '', minHeight: '102px' }}
+      className={`flex flex-row pl-1 pt-1 ${isCall ? 'w-full' : 'w-64'} h-28 rounded-lg group cursor-pointer mb-1 mx-1 truncate pr-1`}
+      style={{
+        backgroundColor: background,
+        minHeight: '102px'
+      }}
       onClick={() => {
         getRecordPatientDetail(patientRecord.encounterDto.id)
         onActiveID(patientRecord.encounterDto.id)
         onShowDetail()
       }}
+      onMouseOver={() => { setBackground('#f4f5f7') }}
+      onMouseLeave={() => { updateBackground() }}
       {...props}
     >
       <div className='flex flex-col w-2/12 mr-1'>
@@ -442,25 +460,25 @@ export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordP
         <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>{data.diagnosis || 'Sin impresión diagnóstica.'}</div>
       </div>
       {/* Prescriptions */}
-      
-        <div>
-          <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
-          {data.prescriptions.length === 0 && <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>Sin prescripción médica.</div>
-          }
-          <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
-            {data.prescriptions.map((prescription, index) => (
-              <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
-                <div className='flex flex-col p-2 w-6/12'>
-                  <div className='text-black'>{prescription.medicationName}</div>
-                  <div className='text-gray-500'>{prescription.medicationDto.form}</div>
-                </div>
-                <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
-                  {prescription.instructions ? prescription.instructions : 'Sin indicaciones'}
-                </div>
+
+      <div>
+        <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
+        {data.prescriptions.length === 0 && <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>Sin prescripción médica.</div>
+        }
+        <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
+          {data.prescriptions.map((prescription, index) => (
+            <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
+              <div className='flex flex-col p-2 w-6/12'>
+                <div className='text-black'>{prescription.medicationName}</div>
+                <div className='text-gray-500'>{prescription.medicationDto.form}</div>
               </div>
-            ))}
-          </div>
+              <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
+                {prescription.instructions ? prescription.instructions : 'Sin indicaciones'}
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
       {/* SOEP */}
       {Object.keys(data.soep).length > 0 && (
         <div>

@@ -247,10 +247,10 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                 }
                 Sentry.captureMessage("Could not get the diagnostic report")
                 Sentry.captureException(err)
-                addToast({ 
-                    type: 'error', 
-                    title: 'Ha ocurrido un error.', 
-                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!'
                 })
                 // setLoading(false)
             } finally {
@@ -315,9 +315,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                if (selectedRow !== undefined) { 
+                if (selectedRow !== undefined) {
                     //@ts-ignore
-                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`)
                 }
                 Sentry.setTag('method', 'GET')
                 if (err.response) {
@@ -396,7 +396,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
             }
         }
         if (appointment && !issueOrder) loadOrders()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [issueOrder, appointment])
 
     //Hover theme
@@ -433,7 +433,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
                 </Grid>
                 <Grid className='w-full px-4 mt-2 h-full'>
-                    <Grid container>
+                    <div className="flex flex-row flex-no-wrap w-full truncate" title={`${appointment?.patient?.givenName.split(' ')[0]} ${appointment.patient.familyName.split(' ')[0]} CI: ${appointment.patient.identifier}`}>
                         <Avatar
                             style={{
                                 width: `60px`,
@@ -445,16 +445,18 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         >
                             {/* <PatientIcon /> */}
                         </Avatar>
-                        <Grid className='p-3 '>
-                            <Typography variant='body1' color='textPrimary'>
-                                {appointment && appointment.patient.givenName}  {appointment && appointment.patient.familyName}
-                            </Typography>
+                        <div className='flex flex-col flex-no-wrap p-3 '>
+                            <div className="flex flex-row flex-no-wrap w-full truncate">
+                                {appointment && appointment.patient.givenName.split(' ')[0]}  {appointment && appointment.patient.familyName.split(' ')[0]}
+                            </div>
                             <Typography variant='body2' color='textSecondary'>
-                                Ci:   {appointment && appointment.patient.identifier}
+                                {appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
+                                    ? 'Paciente sin cédula'
+                                    : 'CI ' + appointment.patient.identifier}
                             </Typography>
 
-                        </Grid>
-                    </Grid>
+                        </div>
+                    </div>
 
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
                         <div className="flex flex-row flex-no-wrap">
@@ -966,7 +968,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     function studyOrderView() {
         return (
             <Provider>
-                <div className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
+                <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
                     <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
                 </div>
             </Provider>
