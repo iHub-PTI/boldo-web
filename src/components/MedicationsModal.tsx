@@ -92,7 +92,7 @@ export default function MedicationsModal({
   }
 
   return (
-    <Modal show={showEditModal} setShow={setShowEditModal} size='full'>
+    <Modal show={showEditModal} setShow={setShowEditModal} setLock={setGetMedError} size='full'>
       <div className='col-span-6 mb-6 sm:col-span-3'>
         <label htmlFor='search' className='block text-sm font-medium leading-5 text-gray-700'>
           Buscar Medicamentos
@@ -224,6 +224,7 @@ export default function MedicationsModal({
                 className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue sm:text-sm sm:leading-5'
                 onClick={() => {
                   setShowEditModal(false)
+                  setGetMedError(false)
                 }}
               >
                 Cancelar
@@ -233,6 +234,9 @@ export default function MedicationsModal({
               <button
                 type='submit'
                 className='inline-flex justify-center w-full px-4 pt-3 pb-2 text-base font-medium leading-6 text-indigo-700 transition duration-150 ease-in-out bg-indigo-100 border-gray-300 rounded-md shadow-sm sm:text-sm sm:leading-5 hover:bg-indigo-50 focus:outline-none focus:border-indigo-300 focus:shadow-outline-indigo active:bg-indigo-200'
+                onClick={()=>{
+                  setGetMedError(false)
+                }}
               >
                 Guardar
               </button>
