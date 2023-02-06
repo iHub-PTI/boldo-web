@@ -16,6 +16,7 @@ import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
 import Tooltip from '@material-ui/core/Tooltip';
+import * as Sentry from '@sentry/react'
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -69,6 +70,16 @@ const useStyles = makeStyles((theme: Theme) =>
                 borderColor: "#808080",
             }
         },
+        textfieldError: {
+            backgroundColor: "#FFFFFF",
+            width: '100%',
+            border: '1px solid red',
+            borderRadius: '0.3rem',
+            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid',
+                borderRadius: '0.3rem'
+            }
+        },
         buttonClass: {
             '.MuiIconButton-root MuiButtonBase-root': {
                 padding: '0'
@@ -80,34 +91,68 @@ const useStyles = makeStyles((theme: Theme) =>
 //Tooltip Theme
 const TooltipInfo = withStyles((theme) => ({
     tooltip: {
-      backgroundColor: '#FFFF',
-      color: 'black',
-      maxWidth: 220,
-      padding: '1rem',
-      fontSize: theme.typography.pxToRem(12),
+        backgroundColor: '#FFFF',
+        color: 'black',
+        maxWidth: 220,
+        padding: '1rem',
+        fontSize: theme.typography.pxToRem(12),
     },
-  }))(Tooltip);
+}))(Tooltip);
 
 
-const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
-    const { addToast, addErrorToast } = useToasts();
+const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
+    const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
     const [show, setShow] = useState(false)
     const [encounterId, setEncounterId] = useState('')
+    // error types when sending -> category + orderId | diagnosis + orderId | studies + orderId
+    const [errorType, setErrorType] = useState('')
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
 
+    const scrollToBy = (id: string) => {
+        let scrollDiv = document.getElementById(id).offsetTop - 100;
+        document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
+    }
+
     useEffect(() => {
         const load = async () => {
+            const id = remoteMode ? matchCall?.params.id : matchInperson?.params.id
+            const url = `/profile/doctor/appointments/${id}/encounter`
             try {
-                const res = remoteMode ? await axios.get(`/profile/doctor/appointments/${matchCall?.params.id}/encounter`) : await axios.get(`/profile/doctor/appointments/${matchInperson?.params.id}/encounter`)
-                console.log(res.data)
+                const res = await axios.get(url)
+                //console.log(res.data)
                 setEncounterId(res.data.encounter.id)
 
             } catch (err) {
-                console.log(err)
+                //console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': id
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the encounter in the creation of study order")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No se pudieron cargar algunos detalles. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 // setInitialLoad(false)
             }
@@ -118,6 +163,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
 
     const addCategory = () => {
         setOrders([...orders, {
+            id: orders[orders.length - 1].id + 1,
             category: "",
             urgent: false,
             diagnosis: "",
@@ -132,27 +178,33 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
             update.splice(key, 1)
             setOrders(update)
         }
-        console.table(orders)
+        //console.table(orders)
     }
 
     const validateOrders = (orders: Array<Orders>) => {
+        setErrorType('')
         for (let i = 0; i < orders.length; i++) {
             let order = orders[i]
             if (order.category === "") {
-                addToast({ type: 'warning', title: 'Notificación', text: 'Alguna(s) Categoría(s) no han sido seleccionada(s).' })
+                addToast({ type: 'warning', title: 'Notificación', text: 'Seleccione una categoría.' })
+                scrollToBy(order.id.toString())
+                setErrorType('category' + order.id)
                 return false
             } else if (order.diagnosis === "") {
                 addToast({ type: 'warning', title: 'Notificación', text: 'La impresión diagnóstica no puede quedar vacía.' })
+                scrollToBy(order.id.toString())
+                setErrorType('diagnosis' + order.id)
                 return false
             } else if (order.studies_codes.length <= 0) {
-                addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado algun(os) estudio(s)' })
+                addToast({ type: 'warning', title: 'Notificación', text: 'No se han seleccionado los estudios.' })
+                scrollToBy(order.id.toString())
+                setErrorType('studies' + order.id)
                 return false
             }
         }
         return true
     }
 
-    const [showError, setShowError] = useState(false)
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
     const sendOrderToServer = async () => {
@@ -173,16 +225,18 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                     "studiesCodes": studiesCodes
                 })
             });
-            console.log(ordersCopy)
+            // console.log(ordersCopy)
+            const url = `/profile/doctor/serviceRequest`
             try {
-                setShowError(false)
                 setSendStudyLoading(true)
-                const res = await axios.post(`/profile/doctor/serviceRequest`, ordersCopy)
+                let total = ordersCopy.length
+                const res = await axios.post(url, ordersCopy)
                 console.log("server response", res)
                 setSendStudyLoading(false)
                 //reset Orders
                 setOrders([
                     {
+                        id: 1,
                         category: "",
                         urgent: false,
                         diagnosis: "",
@@ -192,15 +246,31 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                 ])
                 setIndexOrder(0)
                 setShowMakeOrder(false)
-                addToast({ type: 'success', title: 'Notificación', text: '¡La(s) orden(es) han sido enviadas!' })
-            } catch (error) {
-                if (error.response.data?.hasOwnProperty('messages')) {
-                    addErrorToast(error.response.data?.messages)
+                addToast({ type: 'success', title: 'Notificación', text: total > 1 ? 'Las órdenes han sido enviadas.': 'La orden ha sido enviada.' })
+            } catch (err) {
+                Sentry.setTag('endpoint', url)
+                Sentry.setTag('method', 'POST')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
                 } else {
-                    addErrorToast("Ha ocurrido un error al generar el orden, inténalo de nuevo.")
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
                 }
+                Sentry.captureMessage("Could not generate a new study order")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No se pudo generar la orden de estudios. ¡Inténtalo nuevamente más tarde!'
+                })
                 setSendStudyLoading(false)
-                setShowError(true)
             }
         }
     }
@@ -209,7 +279,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
         <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                    return <div id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
@@ -220,7 +290,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                 <Grid item container direction='row' spacing={5}>
                                     {remoteMode ?
                                         <div className='flex md:flex-row sm:flex-col px-4 pb-4'>
-                                            <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                            <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
                                             <FormGroup style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: "1rem" }}>
                                                 <div className='flex flex-col'>
                                                     <CheckOrder checked={item.urgent} index={index}></CheckOrder>
@@ -232,10 +302,10 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                                                 </div>
                                             </FormGroup>
                                         </div>
-                                         : 
-                                         <>
+                                        :
+                                        <>
                                             <Grid item xs={5}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index}></SelectCategory>
+                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
                                             </Grid>
                                             <Grid item xs={7}>
                                                 <FormGroup>
@@ -254,11 +324,15 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={classes.textfield} index={index} />
+                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>
-                                    <BoxSelect index={index} show={show} setShow={setShow}></BoxSelect>
+                                    <BoxSelect index={index} show={show} setShow={setShow} style={{
+                                        border: errorType === 'studies' + item.id ?
+                                            '1px solid red' : '',
+                                        minHeight: '3rem'
+                                    }}></BoxSelect>
                                 </Grid>
                                 <Grid >
                                     <Typography>Observaciones</Typography>
@@ -281,7 +355,7 @@ const StudyOrder = ({setShowMakeOrder, remoteMode=false}) => {
                             sendOrderToServer()
 
                         }}
-                     disabled={sendStudyLoading}
+                        disabled={sendStudyLoading}
                     >
                         {sendStudyLoading ? <Spinner /> : ''}
                         Listo

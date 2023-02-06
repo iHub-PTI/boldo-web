@@ -2,6 +2,7 @@ import React, { useState, createContext}from 'react';
 import { StudiesWithIndication } from './ModalTemplate/types';
 
 export interface Orders {
+    id?: number
     category: string,
     urgent: boolean,
     diagnosis: string
@@ -23,6 +24,7 @@ const Provider = ({children}) => {
     const [orders, setOrders] = useState<Array<Orders>>(
         [
             {
+                id: 0,
                 category: "",
                 urgent: false,
                 diagnosis: "",

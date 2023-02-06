@@ -16,10 +16,15 @@ import DoneIcon from '@material-ui/icons/Done';
 import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
+import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
+import * as Sentry from '@sentry/react'
+import { useToasts } from "./Toast";
+
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
     const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedMedication, setSelectedMedication] = useState<any[]>([])
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext()
+    const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
     const [selectedSoep, setSelectedSoep] = useState()
     const [diagnose, setDiagnose] = useState<string>('')
@@ -36,7 +41,14 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const id = match?.params.id
     const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
+    const [ width, setWidth ] = useState(window.innerWidth)
+    const { addToast } = useToasts()
 
+    
+    useEffect(() => {
+        updatePrescriptions(id, selectedMedication);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, selectedMedication]);
     
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -48,8 +60,9 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/appointments/${id}/encounter`
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+                const res = await axios.get(url)
                 console.log("res",res.data)
                 //const { status = '' } = res.data.encounter
                 setDiagnose(res.data.encounter.diagnosis);
@@ -60,7 +73,31 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                 setEncounterId(res.data.encounter.partOfEncounterId)
                 setSelectedSoep(res.data.encounter.soep)
             } catch (err) {
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': id
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the encounter")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No se pudieron cargar los detalles de la receta. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setInitialLoad(false)
             }
@@ -77,18 +114,43 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
-          try {
+          const url = `/profile/doctor/appointments/${id}/encounter`
+            try {
             setLoading(true)
-            const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+            const res = await axios.put(url, _encounter)
             setLoading(false)
             setSuccess(true)
             console.log('response', res.data)
             console.log('se ha actualizado con exito!')
             setError(false)
-          } catch (error) {
-            setError(true)
+          } catch (err) {
             setSuccess(false)
-            console.log(error)
+            setLoading(false)
+            Sentry.setTags({
+                'endpoint': url,
+                'method': 'PUT',
+                'appointment_id': id
+            })
+            if (err.response) {
+                // The response was made and the server responded with a 
+                // status code that is outside the 2xx range.
+                Sentry.setTag('data', err.response.data)
+                Sentry.setTag('headers', err.response.headers)
+                Sentry.setTag('status_code', err.response.status)
+            } else if (err.request) {
+                // The request was made but no response was received
+                Sentry.setTag('request', err.request)
+            } else {
+                // Something happened while preparing the request that threw an Error
+                Sentry.setTag('message', err.message)
+            }
+            Sentry.captureMessage("Could not update the encounter")
+            Sentry.captureException(err)
+            addToast({
+                type: 'error',
+                title: 'Ha ocurrido un error.',
+                text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+            })
           }
         }, 1000),
         []
@@ -128,6 +190,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [diagnose, instructions, selectedMedication])
     
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
+
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -150,8 +219,13 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         )
     
     return (
-        <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
-            <Grid>
+        <div className='flex flex-col bg-white shadow-xl h-full'>
+            <div 
+                style={{
+                    height: ` ${width >= 1536 ? 'calc(100vh - 52px)' : 'calc(100vh - 115px)' }`,
+                    overflowY: "auto"
+                }}
+            >
 
                 {!isFromInperson ?
                     <>
@@ -330,6 +404,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                         <div className='flex justify-items-center items-center mt-2 text-sm text-gray-600 sm:mt-0 sm:mr-2'>
                                             <DoneIcon fontSize="small" style={{ marginRight: '0.5rem' }} />
                                             Guardado.
+                                            {console.log("estado actual: ", selectedMedication)}
                                         </div>
                                     )
                                 }
@@ -407,7 +482,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         }}
                     />
                 </div>
-            </Grid>
+            </div>
         </div>
     )
 }

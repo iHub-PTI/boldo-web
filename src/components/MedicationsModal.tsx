@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import _ from 'lodash'
 import Modal from './Modal'
+import * as Sentry from '@sentry/react'
+import { useToasts } from './Toast'
 
 export default function MedicationsModal({
   showEditModal,
@@ -19,6 +21,9 @@ export default function MedicationsModal({
   const [medicationsLoading, setMedicationsLoading] = useState<boolean>(true)
   const [selectedMedications, setSelectedMedications] = useState<any[]>(selectedMedicaitonsState)
   const [showError, setShowError] = useState<boolean>(false)
+  // initially no error
+  const [ getMedError, setGetMedError ] = useState<boolean>(false)
+  const { addToast } = useToasts()
 
   const debounce = useCallback(
     _.debounce((_searchVal: string) => {
@@ -41,15 +46,41 @@ export default function MedicationsModal({
   }, [showEditModal])
 
   async function fetchData(content: string) {
+    const url = `/profile/doctor/medications${content ? `?content=${content}` : ''} `
     try {
       setShowError(false)
       setMedicationsLoading(true)
-      const res = await axios.get(`/profile/doctor/medications${content ? `?content=${content}` : ''} `)
-
+      const res = await axios.get(url)
       setMedicationsItems(res.data.items)
       setMedicationsLoading(false)
     } catch (err) {
-      console.log(err)
+      Sentry.setTags({
+        'endpoint': url,
+        'method': 'GET',
+        'content_search': content ?? ''
+      })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not get the medications")
+      Sentry.captureException(err)
+      setMedicationsLoading(false)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No pudimos obtener el listado de medicamentos. ¡Inténtelo nuevamente más tarde!'
+      })
+      setGetMedError(true)
       setShowError(true)
     }
   }
@@ -69,6 +100,7 @@ export default function MedicationsModal({
         <input
           id='search'
           className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
+          disabled={getMedError}
           onChange={e => {
             setSeachValue(e.target.value)
             debounce(e.target.value)

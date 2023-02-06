@@ -7,6 +7,7 @@ import { StudiesWithIndication } from './types'
 import { useToasts } from '../../../components/Toast'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
+import * as Sentry from '@sentry/react'
 
 export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPage }) => {
   const [state, setState] = useState({
@@ -22,7 +23,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
 
   const [maxStudies, setMaxStudies] = useState(false)
 
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
@@ -77,6 +78,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
   }
 
   const saveTemplate = async () => {
+    const url = '/profile/doctor/studyOrderTemplate'
     try {
       let tempArray = []
       //format data to send server
@@ -87,7 +89,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
       const data = { name: state.name, description: state.description, StudyOrderTemplateDetails: tempArray }
       if (validateAddTemplate(data)) {
         setLoading(true)
-        const res = await axios.post('/profile/doctor/studyOrderTemplate', data)
+        const res = await axios.post(url, data)
         let copyStudies = JSON.parse(JSON.stringify(studies))
         console.log("copystudies", copyStudies)
         tempArray = [...res.data.StudyOrderTemplateDetails]
@@ -109,8 +111,28 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })
       }
     } catch (err) {
-      console.log('error', err)
-      addErrorToast('Ha ocurrido un error vuelva a intentarlo o pruebe recargar la página.')
+      Sentry.setTag('endpoint', url)
+      Sentry.setTag('method', 'POST')
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not add a new study order template")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No se pudo guardar la plantilla de órden de estudio. ¡Inténtelo nuevamente más tarde!'
+      })
       setLoading(false)
     }
   }

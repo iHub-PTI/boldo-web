@@ -657,6 +657,9 @@ const WaitingRoomSidebar: React.FC<WaitingRoomSidebarProps> = ({ show, hideSideb
                                   {differenceInYears(Date.now(), new Date(room.patient.birthDate))} años{' | '}
                                   {lookupGender(room.patient.gender)}
                                 </p>
+                                <p className='mt-1 leading-5 text-gray-500 truncate'>
+                                  {room.organization.name}
+                                </p>
                               </div>
                             </div>
                             <div className='border-t border-gray-200'>

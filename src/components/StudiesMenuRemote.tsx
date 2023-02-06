@@ -26,6 +26,10 @@ import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
+import * as Sentry from '@sentry/react'
+import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
+import useWindowDimensions from "../util/useWindowDimensions";
+
 
 //HoverSelect theme
 const useStyles = makeStyles((theme: Theme) =>
@@ -92,7 +96,7 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 
     const IconLab = () => {
         return (<svg className="inline-block" width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M2 0C1.17158 0 0.5 0.671575 0.5 1.5V16.5C0.5 17.3284 1.17158 18 2 18H17C17.8284 18 18.5 17.3284 18.5 16.5V1.5C18.5 0.671575 17.8284 0 17 0H2ZM7.9 5L11.6 5.0001V5.50005C11.6 5.64275 11.7113 5.86065 11.9246 6.10185C12.0197 6.20935 12.1163 6.30055 12.1896 6.3651C12.226 6.39705 12.2557 6.4217 12.2755 6.43775C12.2854 6.44575 12.2928 6.45155 12.2972 6.45495L12.3012 6.45805L12.5 6.60795V7.5H11.5V7.0901C11.4085 7.008 11.2926 6.89675 11.1755 6.76425C11.0165 6.58455 10.8117 6.31795 10.6942 6L8.77235 6.00005C8.7465 6.05495 8.71945 6.10535 8.69405 6.15C8.5917 6.33005 8.46165 6.50825 8.34125 6.6596C8.21925 6.8129 8.0985 6.94935 8.0089 7.0469L8 7.0566V12.75C8 13.7165 8.7835 14.5 9.75 14.5C10.4481 14.5 11.0507 14.0913 11.3316 13.5H12.3965C12.07 14.6543 11.0088 15.5 9.75 15.5C8.2312 15.5 7 14.2688 7 12.75V6.65085L7.14535 6.50475L7.1467 6.50335L7.1527 6.4972C7.1583 6.4915 7.1669 6.4827 7.17805 6.47105C7.20045 6.44775 7.233 6.4134 7.27235 6.37055C7.3515 6.28435 7.45575 6.16635 7.55875 6.0369C7.6633 5.9055 7.7583 5.77265 7.8247 5.65585C7.8762 5.5652 7.8925 5.5151 7.89765 5.4993C7.89885 5.4955 7.89945 5.4937 7.89975 5.49375C7.8998 5.49375 7.8997 5.4936 7.89975 5.49375C7.89975 5.49385 7.89995 5.4943 7.89995 5.4945L7.9 5.4966V5ZM13.5 11.0455C13.5 11.8488 12.8285 12.5 12 12.5C11.1715 12.5 10.5 11.8488 10.5 11.0455C10.5 9.77275 12 8.5 12 8.5C12 8.5 13.5 9.77275 13.5 11.0455ZM12 2H7.5V4H12V2Z" fill="#364152" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M2 0C1.17158 0 0.5 0.671575 0.5 1.5V16.5C0.5 17.3284 1.17158 18 2 18H17C17.8284 18 18.5 17.3284 18.5 16.5V1.5C18.5 0.671575 17.8284 0 17 0H2ZM7.9 5L11.6 5.0001V5.50005C11.6 5.64275 11.7113 5.86065 11.9246 6.10185C12.0197 6.20935 12.1163 6.30055 12.1896 6.3651C12.226 6.39705 12.2557 6.4217 12.2755 6.43775C12.2854 6.44575 12.2928 6.45155 12.2972 6.45495L12.3012 6.45805L12.5 6.60795V7.5H11.5V7.0901C11.4085 7.008 11.2926 6.89675 11.1755 6.76425C11.0165 6.58455 10.8117 6.31795 10.6942 6L8.77235 6.00005C8.7465 6.05495 8.71945 6.10535 8.69405 6.15C8.5917 6.33005 8.46165 6.50825 8.34125 6.6596C8.21925 6.8129 8.0985 6.94935 8.0089 7.0469L8 7.0566V12.75C8 13.7165 8.7835 14.5 9.75 14.5C10.4481 14.5 11.0507 14.0913 11.3316 13.5H12.3965C12.07 14.6543 11.0088 15.5 9.75 15.5C8.2312 15.5 7 14.2688 7 12.75V6.65085L7.14535 6.50475L7.1467 6.50335L7.1527 6.4972C7.1583 6.4915 7.1669 6.4827 7.17805 6.47105C7.20045 6.44775 7.233 6.4134 7.27235 6.37055C7.3515 6.28435 7.45575 6.16635 7.55875 6.0369C7.6633 5.9055 7.7583 5.77265 7.8247 5.65585C7.8762 5.5652 7.8925 5.5151 7.89765 5.4993C7.89885 5.4955 7.89945 5.4937 7.89975 5.49375C7.8998 5.49375 7.8997 5.4936 7.89975 5.49375C7.89975 5.49385 7.89995 5.4943 7.89995 5.4945L7.9 5.4966V5ZM13.5 11.0455C13.5 11.8488 12.8285 12.5 12 12.5C11.1715 12.5 10.5 11.8488 10.5 11.0455C10.5 9.77275 12 8.5 12 8.5C12 8.5 13.5 9.77275 13.5 11.0455ZM12 2H7.5V4H12V2Z" fill="#364152" />
         </svg>
         )
     }
@@ -100,7 +104,7 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
     const IconImg = () => {
         return (
             <svg className="inline-block" width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.5 1.5C0.5 0.671575 1.17158 0 2 0H17C17.8284 0 18.5 0.671575 18.5 1.5V16.5C18.5 17.3284 17.8284 18 17 18H2C1.17158 18 0.5 17.3284 0.5 16.5V1.5ZM11.75 4.25C11.75 5.49265 10.7427 6.5 9.5 6.5C8.25735 6.5 7.25 5.49265 7.25 4.25C7.25 3.00735 8.25735 2 9.5 2C10.7427 2 11.75 3.00735 11.75 4.25ZM4 8C4 7.72385 4.22385 7.5 4.5 7.5H14.5C14.7761 7.5 15 7.72385 15 8V15.5C15 15.7761 14.7761 16 14.5 16H12C12 15.7014 11.8637 15.4302 11.7149 15.2219C11.5595 15.0043 11.3519 14.801 11.1249 14.6276C10.8106 14.3876 10.4127 14.1706 10 14.066V12.5732H10.7C11.1954 12.5732 11.8186 12.7711 12.3559 12.9974C12.6164 13.1072 12.8421 13.2172 13.0023 13.2997C13.0823 13.3409 13.1455 13.3749 13.188 13.3983C13.2093 13.41 13.2254 13.419 13.2358 13.4249L13.247 13.4313L13.2493 13.4326C13.2493 13.4326 13.2494 13.4326 13.5 13C13.7506 12.5674 13.7506 12.5673 13.7505 12.5673L13.7498 12.5668L13.7484 12.566L13.7437 12.5634L13.7278 12.5543C13.7141 12.5466 13.6946 12.5357 13.6698 12.522C13.6201 12.4948 13.549 12.4564 13.4601 12.4107C13.2829 12.3194 13.0335 12.1977 12.7441 12.0758C12.1814 11.8388 11.4045 11.5732 10.7 11.5732H10V10.5H10.4C10.7744 10.5 11.2423 10.6073 11.6425 10.7285C11.837 10.7875 12.0054 10.8465 12.1248 10.8907C12.1843 10.9128 12.2313 10.931 12.2628 10.9434C12.2746 10.9481 12.2842 10.952 12.2914 10.955C12.2939 10.9559 12.2961 10.9568 12.298 10.9576L12.3062 10.9609L12.3078 10.9616C12.3078 10.9616 12.3077 10.9615 12.5 10.5C12.6923 10.0385 12.6923 10.0384 12.6922 10.0384L12.6904 10.0377L12.6868 10.0362L12.6746 10.0312C12.6642 10.027 12.6494 10.021 12.6306 10.0135C12.593 9.9987 12.5391 9.97785 12.4721 9.953C12.3383 9.90345 12.1504 9.83755 11.9325 9.7715C11.5077 9.64275 10.9255 9.5 10.4 9.5H10V8.5H9V9.5H8.45C7.8498 9.5 7.30385 9.642 6.9157 9.7782C6.71975 9.84695 6.55925 9.91595 6.44615 9.9685C6.38955 9.99485 6.3445 10.0173 6.31255 10.0336C6.2966 10.0418 6.28385 10.0485 6.2746 10.0534L6.26325 10.0596L6.25955 10.0616L6.2582 10.0624L6.25765 10.0626C6.25755 10.0627 6.2572 10.0629 6.5 10.5C6.7428 10.9371 6.7427 10.9372 6.7426 10.9372L6.74615 10.9353C6.75055 10.933 6.7582 10.9289 6.7689 10.9234C6.79025 10.9124 6.82375 10.8958 6.8679 10.8752C6.9564 10.8341 7.0865 10.778 7.2468 10.7218C7.57115 10.608 8.0002 10.5 8.45 10.5H9V11.5732H8.1C7.29525 11.5732 6.56735 11.8377 6.0558 12.0872C5.797 12.2134 5.5857 12.3398 5.4379 12.4353C5.3638 12.4832 5.3052 12.5237 5.26405 12.5531C5.24345 12.5677 5.2272 12.5796 5.2155 12.5883L5.20145 12.5989L5.197 12.6023L5.1955 12.6034L5.19485 12.6039C5.19475 12.604 5.1944 12.6042 5.5 13C5.8056 13.3957 5.8055 13.3958 5.8054 13.3959L5.8121 13.3909C5.8187 13.386 5.8296 13.378 5.84455 13.3673C5.8745 13.346 5.92055 13.314 5.98085 13.275C6.1018 13.1969 6.278 13.0914 6.4942 12.986C6.93265 12.7722 7.50475 12.5732 8.1 12.5732H9V14.0822C8.58535 14.195 8.18465 14.4073 7.86335 14.6492C7.639 14.8181 7.43385 15.0157 7.28025 15.2299C7.1319 15.4367 7 15.7035 7 16H4.5C4.22385 16 4 15.7761 4 15.5V8ZM10.9852 15.9495C10.9978 15.9809 10.9997 15.9972 11 16H8C8.00005 15.9988 8.00095 15.983 8.0139 15.9504C8.0278 15.9154 8.05255 15.8689 8.0928 15.8127C8.17425 15.6993 8.30115 15.5712 8.4648 15.448C8.7939 15.2002 9.1948 15.0281 9.5169 15.0002C9.7937 15.0065 10.1797 15.1641 10.518 15.4224C10.6838 15.549 10.8155 15.6832 10.9011 15.8031C10.9436 15.8625 10.9701 15.912 10.9852 15.9495Z" fill="#364152" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M0.5 1.5C0.5 0.671575 1.17158 0 2 0H17C17.8284 0 18.5 0.671575 18.5 1.5V16.5C18.5 17.3284 17.8284 18 17 18H2C1.17158 18 0.5 17.3284 0.5 16.5V1.5ZM11.75 4.25C11.75 5.49265 10.7427 6.5 9.5 6.5C8.25735 6.5 7.25 5.49265 7.25 4.25C7.25 3.00735 8.25735 2 9.5 2C10.7427 2 11.75 3.00735 11.75 4.25ZM4 8C4 7.72385 4.22385 7.5 4.5 7.5H14.5C14.7761 7.5 15 7.72385 15 8V15.5C15 15.7761 14.7761 16 14.5 16H12C12 15.7014 11.8637 15.4302 11.7149 15.2219C11.5595 15.0043 11.3519 14.801 11.1249 14.6276C10.8106 14.3876 10.4127 14.1706 10 14.066V12.5732H10.7C11.1954 12.5732 11.8186 12.7711 12.3559 12.9974C12.6164 13.1072 12.8421 13.2172 13.0023 13.2997C13.0823 13.3409 13.1455 13.3749 13.188 13.3983C13.2093 13.41 13.2254 13.419 13.2358 13.4249L13.247 13.4313L13.2493 13.4326C13.2493 13.4326 13.2494 13.4326 13.5 13C13.7506 12.5674 13.7506 12.5673 13.7505 12.5673L13.7498 12.5668L13.7484 12.566L13.7437 12.5634L13.7278 12.5543C13.7141 12.5466 13.6946 12.5357 13.6698 12.522C13.6201 12.4948 13.549 12.4564 13.4601 12.4107C13.2829 12.3194 13.0335 12.1977 12.7441 12.0758C12.1814 11.8388 11.4045 11.5732 10.7 11.5732H10V10.5H10.4C10.7744 10.5 11.2423 10.6073 11.6425 10.7285C11.837 10.7875 12.0054 10.8465 12.1248 10.8907C12.1843 10.9128 12.2313 10.931 12.2628 10.9434C12.2746 10.9481 12.2842 10.952 12.2914 10.955C12.2939 10.9559 12.2961 10.9568 12.298 10.9576L12.3062 10.9609L12.3078 10.9616C12.3078 10.9616 12.3077 10.9615 12.5 10.5C12.6923 10.0385 12.6923 10.0384 12.6922 10.0384L12.6904 10.0377L12.6868 10.0362L12.6746 10.0312C12.6642 10.027 12.6494 10.021 12.6306 10.0135C12.593 9.9987 12.5391 9.97785 12.4721 9.953C12.3383 9.90345 12.1504 9.83755 11.9325 9.7715C11.5077 9.64275 10.9255 9.5 10.4 9.5H10V8.5H9V9.5H8.45C7.8498 9.5 7.30385 9.642 6.9157 9.7782C6.71975 9.84695 6.55925 9.91595 6.44615 9.9685C6.38955 9.99485 6.3445 10.0173 6.31255 10.0336C6.2966 10.0418 6.28385 10.0485 6.2746 10.0534L6.26325 10.0596L6.25955 10.0616L6.2582 10.0624L6.25765 10.0626C6.25755 10.0627 6.2572 10.0629 6.5 10.5C6.7428 10.9371 6.7427 10.9372 6.7426 10.9372L6.74615 10.9353C6.75055 10.933 6.7582 10.9289 6.7689 10.9234C6.79025 10.9124 6.82375 10.8958 6.8679 10.8752C6.9564 10.8341 7.0865 10.778 7.2468 10.7218C7.57115 10.608 8.0002 10.5 8.45 10.5H9V11.5732H8.1C7.29525 11.5732 6.56735 11.8377 6.0558 12.0872C5.797 12.2134 5.5857 12.3398 5.4379 12.4353C5.3638 12.4832 5.3052 12.5237 5.26405 12.5531C5.24345 12.5677 5.2272 12.5796 5.2155 12.5883L5.20145 12.5989L5.197 12.6023L5.1955 12.6034L5.19485 12.6039C5.19475 12.604 5.1944 12.6042 5.5 13C5.8056 13.3957 5.8055 13.3958 5.8054 13.3959L5.8121 13.3909C5.8187 13.386 5.8296 13.378 5.84455 13.3673C5.8745 13.346 5.92055 13.314 5.98085 13.275C6.1018 13.1969 6.278 13.0914 6.4942 12.986C6.93265 12.7722 7.50475 12.5732 8.1 12.5732H9V14.0822C8.58535 14.195 8.18465 14.4073 7.86335 14.6492C7.639 14.8181 7.43385 15.0157 7.28025 15.2299C7.1319 15.4367 7 15.7035 7 16H4.5C4.22385 16 4 15.7761 4 15.5V8ZM10.9852 15.9495C10.9978 15.9809 10.9997 15.9972 11 16H8C8.00005 15.9988 8.00095 15.983 8.0139 15.9504C8.0278 15.9154 8.05255 15.8689 8.0928 15.8127C8.17425 15.6993 8.30115 15.5712 8.4648 15.448C8.7939 15.2002 9.1948 15.0281 9.5169 15.0002C9.7937 15.0065 10.1797 15.1641 10.518 15.4224C10.6838 15.549 10.8155 15.6832 10.9011 15.8031C10.9436 15.8625 10.9701 15.912 10.9852 15.9495Z" fill="#364152" />
             </svg>
         )
     }
@@ -108,7 +112,7 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
     const IconOther = () => {
         return (
             <svg className="inline-block" width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.5 1.5C0.5 0.671575 1.17158 0 2 0H17C17.8284 0 18.5 0.671575 18.5 1.5V16.5C18.5 17.3284 17.8284 18 17 18H2C1.17158 18 0.5 17.3284 0.5 16.5V1.5ZM7 3H5.5C4.9477 3 4.5 3.4477 4.5 4V15C4.5 15.5523 4.9477 16 5.5 16H13.5C14.0523 16 14.5 15.5523 14.5 15V4C14.5 3.4477 14.0523 3 13.5 3H12C12 2.4477 11.5523 2 11 2H8C7.4477 2 7 2.4477 7 3ZM8.5319 14.3245L9.7786 11H8.0001C7.724 11 7.5001 10.7761 7.5001 10.5C7.5001 10.2239 7.724 10 8.0001 10H10.4906C10.4969 9.9999 10.5033 9.9999 10.5097 10H10.9904C10.9968 9.9999 11.0032 9.9999 11.0096 10H13.1507C13.4268 10 13.6507 10.2239 13.6507 10.5C13.6507 10.7761 13.4268 11 13.1507 11H11.7215L12.9683 14.3245C13.0652 14.583 12.9342 14.8713 12.6756 14.9682C12.4171 15.0652 12.1288 14.9342 12.0319 14.6756L11.4027 12.9978H10.0974L9.46825 14.6756C9.37125 14.9342 9.08305 15.0652 8.8245 14.9682C8.56595 14.8713 8.43495 14.583 8.5319 14.3245ZM6 6.62H13V5.62H6V6.62ZM8.5 8.7H6V7.7H8.5V8.7ZM10.75 9.5C11.3023 9.5 11.75 9.0523 11.75 8.5C11.75 7.9477 11.3023 7.5 10.75 7.5C10.1977 7.5 9.75 7.9477 9.75 8.5C9.75 9.0523 10.1977 9.5 10.75 9.5ZM8 3H11V4H8V3Z" fill="#364152" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M0.5 1.5C0.5 0.671575 1.17158 0 2 0H17C17.8284 0 18.5 0.671575 18.5 1.5V16.5C18.5 17.3284 17.8284 18 17 18H2C1.17158 18 0.5 17.3284 0.5 16.5V1.5ZM7 3H5.5C4.9477 3 4.5 3.4477 4.5 4V15C4.5 15.5523 4.9477 16 5.5 16H13.5C14.0523 16 14.5 15.5523 14.5 15V4C14.5 3.4477 14.0523 3 13.5 3H12C12 2.4477 11.5523 2 11 2H8C7.4477 2 7 2.4477 7 3ZM8.5319 14.3245L9.7786 11H8.0001C7.724 11 7.5001 10.7761 7.5001 10.5C7.5001 10.2239 7.724 10 8.0001 10H10.4906C10.4969 9.9999 10.5033 9.9999 10.5097 10H10.9904C10.9968 9.9999 11.0032 9.9999 11.0096 10H13.1507C13.4268 10 13.6507 10.2239 13.6507 10.5C13.6507 10.7761 13.4268 11 13.1507 11H11.7215L12.9683 14.3245C13.0652 14.583 12.9342 14.8713 12.6756 14.9682C12.4171 15.0652 12.1288 14.9342 12.0319 14.6756L11.4027 12.9978H10.0974L9.46825 14.6756C9.37125 14.9342 9.08305 15.0652 8.8245 14.9682C8.56595 14.8713 8.43495 14.583 8.5319 14.3245ZM6 6.62H13V5.62H6V6.62ZM8.5 8.7H6V7.7H8.5V8.7ZM10.75 9.5C11.3023 9.5 11.75 9.0523 11.75 8.5C11.75 7.9477 11.3023 7.5 10.75 7.5C10.1977 7.5 9.75 7.9477 9.75 8.5C9.75 9.0523 10.1977 9.5 10.75 9.5ZM8 3H11V4H8V3Z" fill="#364152" />
             </svg>
         )
     }
@@ -141,9 +145,9 @@ const SelectCategory = ({ categorySelect, setCategory }) => {
 
 //parsing category
 const categoryIssuedOrders = {
-  LABORATORY: 'Laboratory',
-  IMAGE: 'Diagnostic Imaging',
-  OTHER: 'Other'
+    LABORATORY: 'Laboratory',
+    IMAGE: 'Diagnostic Imaging',
+    OTHER: 'Other'
 }
 
 // Component to filter by date
@@ -174,10 +178,10 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
         }} onClick={onClickDate}>
             {/*Date Icons */}
             <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.65625C3.73478 0.65625 3.48043 0.761607 3.29289 0.949143C3.10536 1.13668 3 1.39103 3 1.65625V2.65625H2C1.46957 2.65625 0.960859 2.86696 0.585786 3.24204C0.210714 3.61711 0 4.12582 0 4.65625V14.6562C0 15.1867 0.210714 15.6954 0.585786 16.0705C0.960859 16.4455 1.46957 16.6562 2 16.6562H14C14.5304 16.6562 15.0391 16.4455 15.4142 16.0705C15.7893 15.6954 16 15.1867 16 14.6562V4.65625C16 4.12582 15.7893 3.61711 15.4142 3.24204C15.0391 2.86696 14.5304 2.65625 14 2.65625H13V1.65625C13 1.39103 12.8946 1.13668 12.7071 0.949143C12.5196 0.761607 12.2652 0.65625 12 0.65625C11.7348 0.65625 11.4804 0.761607 11.2929 0.949143C11.1054 1.13668 11 1.39103 11 1.65625V2.65625H5V1.65625C5 1.39103 4.89464 1.13668 4.70711 0.949143C4.51957 0.761607 4.26522 0.65625 4 0.65625V0.65625ZM4 5.65625C3.73478 5.65625 3.48043 5.76161 3.29289 5.94914C3.10536 6.13668 3 6.39103 3 6.65625C3 6.92147 3.10536 7.17582 3.29289 7.36336C3.48043 7.55089 3.73478 7.65625 4 7.65625H12C12.2652 7.65625 12.5196 7.55089 12.7071 7.36336C12.8946 7.17582 13 6.92147 13 6.65625C13 6.39103 12.8946 6.13668 12.7071 5.94914C12.5196 5.76161 12.2652 5.65625 12 5.65625H4Z" fill="#718096" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M4 0.65625C3.73478 0.65625 3.48043 0.761607 3.29289 0.949143C3.10536 1.13668 3 1.39103 3 1.65625V2.65625H2C1.46957 2.65625 0.960859 2.86696 0.585786 3.24204C0.210714 3.61711 0 4.12582 0 4.65625V14.6562C0 15.1867 0.210714 15.6954 0.585786 16.0705C0.960859 16.4455 1.46957 16.6562 2 16.6562H14C14.5304 16.6562 15.0391 16.4455 15.4142 16.0705C15.7893 15.6954 16 15.1867 16 14.6562V4.65625C16 4.12582 15.7893 3.61711 15.4142 3.24204C15.0391 2.86696 14.5304 2.65625 14 2.65625H13V1.65625C13 1.39103 12.8946 1.13668 12.7071 0.949143C12.5196 0.761607 12.2652 0.65625 12 0.65625C11.7348 0.65625 11.4804 0.761607 11.2929 0.949143C11.1054 1.13668 11 1.39103 11 1.65625V2.65625H5V1.65625C5 1.39103 4.89464 1.13668 4.70711 0.949143C4.51957 0.761607 4.26522 0.65625 4 0.65625V0.65625ZM4 5.65625C3.73478 5.65625 3.48043 5.76161 3.29289 5.94914C3.10536 6.13668 3 6.39103 3 6.65625C3 6.92147 3.10536 7.17582 3.29289 7.36336C3.48043 7.55089 3.73478 7.65625 4 7.65625H12C12.2652 7.65625 12.5196 7.55089 12.7071 7.36336C12.8946 7.17582 13 6.92147 13 6.65625C13 6.39103 12.8946 6.13668 12.7071 5.94914C12.5196 5.76161 12.2652 5.65625 12 5.65625H4Z" fill="#718096" />
             </svg>
             <svg style={rotate} width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 16.6562C10.1217 16.6562 12.1566 15.8134 13.6569 14.3131C15.1571 12.8128 16 10.778 16 8.65625C16 6.53452 15.1571 4.49969 13.6569 2.9994C12.1566 1.4991 10.1217 0.65625 8 0.65625C5.87827 0.65625 3.84344 1.4991 2.34315 2.9994C0.842855 4.49969 0 6.53452 0 8.65625C0 10.778 0.842855 12.8128 2.34315 14.3131C3.84344 15.8134 5.87827 16.6562 8 16.6562V16.6562ZM11.707 7.94925L8.707 4.94925C8.51947 4.76178 8.26516 4.65646 8 4.65646C7.73484 4.65646 7.48053 4.76178 7.293 4.94925L4.293 7.94925C4.11084 8.13785 4.01005 8.39045 4.01233 8.65265C4.0146 8.91485 4.11977 9.16566 4.30518 9.35107C4.49059 9.53648 4.7414 9.64165 5.0036 9.64392C5.2658 9.6462 5.5184 9.54541 5.707 9.36325L7 8.07025V11.6562C7 11.9215 7.10536 12.1758 7.29289 12.3634C7.48043 12.5509 7.73478 12.6562 8 12.6562C8.26522 12.6562 8.51957 12.5509 8.70711 12.3634C8.89464 12.1758 9 11.9215 9 11.6562V8.07025L10.293 9.36325C10.4816 9.54541 10.7342 9.6462 10.9964 9.64392C11.2586 9.64165 11.5094 9.53648 11.6948 9.35107C11.8802 9.16566 11.9854 8.91485 11.9877 8.65265C11.99 8.39045 11.8892 8.13785 11.707 7.94925V7.94925Z" fill="#13A5A9" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M8 16.6562C10.1217 16.6562 12.1566 15.8134 13.6569 14.3131C15.1571 12.8128 16 10.778 16 8.65625C16 6.53452 15.1571 4.49969 13.6569 2.9994C12.1566 1.4991 10.1217 0.65625 8 0.65625C5.87827 0.65625 3.84344 1.4991 2.34315 2.9994C0.842855 4.49969 0 6.53452 0 8.65625C0 10.778 0.842855 12.8128 2.34315 14.3131C3.84344 15.8134 5.87827 16.6562 8 16.6562V16.6562ZM11.707 7.94925L8.707 4.94925C8.51947 4.76178 8.26516 4.65646 8 4.65646C7.73484 4.65646 7.48053 4.76178 7.293 4.94925L4.293 7.94925C4.11084 8.13785 4.01005 8.39045 4.01233 8.65265C4.0146 8.91485 4.11977 9.16566 4.30518 9.35107C4.49059 9.53648 4.7414 9.64165 5.0036 9.64392C5.2658 9.6462 5.5184 9.54541 5.707 9.36325L7 8.07025V11.6562C7 11.9215 7.10536 12.1758 7.29289 12.3634C7.48043 12.5509 7.73478 12.6562 8 12.6562C8.26522 12.6562 8.51957 12.5509 8.70711 12.3634C8.89464 12.1758 9 11.9215 9 11.6562V8.07025L10.293 9.36325C10.4816 9.54541 10.7342 9.6462 10.9964 9.64392C11.2586 9.64165 11.5094 9.53648 11.6948 9.35107C11.8802 9.16566 11.9854 8.91485 11.9877 8.65265C11.99 8.39045 11.8892 8.13785 11.707 7.94925V7.94925Z" fill="#13A5A9" />
             </svg>
         </div>
     )
@@ -185,7 +189,7 @@ const DateRever = ({ dateRever, setDateRever, studiesData, setStudiesData }) => 
 
 
 export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
-    const { addErrorToast } = useToasts()
+    const { addToast } = useToasts()
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
@@ -210,19 +214,45 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     useEffect(() => {
         const load = async () => {
+            const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
             try {
                 setLoading(true)
 
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     // if(res.data.items > 0)
                     setStudiesData(res.data.items)
                     setLoading(false)
                 }
             } catch (err) {
-                addErrorToast(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the diagnostic report")
+                Sentry.captureException(err)
+                addToast({ 
+                    type: 'error', 
+                    title: 'Ha ocurrido un error.', 
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                })
                 // setLoading(false)
-                console.log(err)
             } finally {
                 setLoading(false)
             }
@@ -230,17 +260,17 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
         if (appointment)
             load()
-        
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointment])
 
     useEffect(() => {
         if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-          setDisabledButton(true)
+            setDisabledButton(true)
         } else {
-          setDisabledButton(false)
+            setDisabledButton(false)
         }
-      }, [appointment])
+    }, [appointment])
 
     const downloadBlob = (url, title, contentType, download) => {
         var oReq = new XMLHttpRequest();
@@ -285,8 +315,31 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                console.log(err)
-                addErrorToast(err)
+                if (selectedRow !== undefined) { 
+                    //@ts-ignore
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                }
+                Sentry.setTag('method', 'GET')
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study description")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+                })
                 setSelectedRow(undefined)
                 setFilterHide(true)
             } finally {
@@ -298,34 +351,64 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedRow])
 
-    useEffect(()=>{
+    useEffect(() => {
         const loadOrders = async () => {
+            const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
             try {
                 setLoadingOrders(true)
                 if (appointment !== undefined) {
-                    const res = await axios.get(`/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`)
+                    const res = await axios.get(url)
                     console.log("response orders", res)
-                    if(res.status === 200) setIssuedStudies(res.data.items)
+                    if (res.status === 200) setIssuedStudies(res.data.items)
                     else if (res.status === 204) setIssuedStudies([])
                     setLoadingOrders(false)
                 }
             } catch (err) {
-                addErrorToast(err)
-                console.log(err)
+                Sentry.setTags({
+                    'endpoint': url,
+                    'method': 'GET',
+                    'appointment_id': appointment.id,
+                    'doctor_id': appointment.doctorId,
+                    'patient_id': appointment.patientId
+                })
+                if (err.response) {
+                    // The response was made and the server responded with a 
+                    // status code that is outside the 2xx range.
+                    Sentry.setTag('data', err.response.data)
+                    Sentry.setTag('headers', err.response.headers)
+                    Sentry.setTag('status_code', err.response.status)
+                } else if (err.request) {
+                    // The request was made but no response was received
+                    Sentry.setTag('request', err.request)
+                } else {
+                    // Something happened while preparing the request that threw an Error
+                    Sentry.setTag('message', err.message)
+                }
+                Sentry.captureMessage("Could not get the study orders")
+                Sentry.captureException(err)
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error',
+                    text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+                })
             } finally {
                 setLoadingOrders(false)
             }
         }
         if (appointment && !issueOrder) loadOrders()
-    }, [issueOrder, appointment, addErrorToast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [issueOrder, appointment])
 
     //Hover theme
     const classes = useStyles();
+
+    const { height: screenHeight } = useWindowDimensions()
+
     return (
         <div className='flex flex-col bg-white shadow-xl relative overflow-hidden' style={{ height: "100%" }}>
             <Grid>
                 <Grid container style={{ backgroundColor: '#27BEC2', color: 'white', alignItems: 'center', minHeight: '70px' }}>
-                    {selectedRow || issueOrder || selectOrderDetail? <button
+                    {selectedRow || issueOrder || selectOrderDetail ? <button
                         style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
                         className='flex items-center justify-center  rounded-full focus:outline-none focus:bg-gray-600'
                         onClick={() => {
@@ -372,40 +455,40 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
                         </Grid>
                     </Grid>
-                    
+
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
-                      <div className="flex flex-row flex-no-wrap">
-                        <div className="flex flex-row w-full">
-                          <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                            style={{ width: '100%', height: '3rem' }}
-                          >
-                            <button
-                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                              onClick={() => {
-                                setToggleStudies(false)
-                              }}
-                            >
-                              Órdenes de estudio
-                            </button>
-                          </div>
+                        <div className="flex flex-row flex-no-wrap">
+                            <div className="flex flex-row w-full">
+                                <div className={`flex flex-row justify-center border-b-2  ${!toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                                    style={{ width: '100%', height: '3rem' }}
+                                >
+                                    <button
+                                        className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${!toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                                        onClick={() => {
+                                            setToggleStudies(false)
+                                        }}
+                                    >
+                                        Órdenes de estudio
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex flex-row w-full">
+                                <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
+                                    style={{ width: '100%', height: '3rem' }}
+                                >
+                                    <button
+                                        className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
+                                        onClick={() => {
+                                            setToggleStudies(true)
+                                        }}
+                                    >
+                                        Estudios Realizados
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex flex-row w-full">
-                          <div className={`flex flex-row justify-center border-b-2  ${toggleStudies ? 'border-primary-600' : 'border-gray-300'} `}
-                            style={{ width: '100%', height: '3rem' }}
-                          >
-                            <button
-                              className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${toggleStudies ? 'text-primary-600' : 'text-gray-400'}`}
-                              onClick={() => {
-                                setToggleStudies(true)
-                              }}
-                            >
-                              Estudios Realizados
-                            </button>
-                          </div>
-                        </div>
-                      </div>
                     }
-                   
+
                     {issueOrder && loading === false && studyOrderView()}
                     {
                         filterHide === true && (
@@ -413,7 +496,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 <SelectCategory categorySelect={categorySelect} setCategory={setCategory} ></SelectCategory>
                                 <DateRever dateRever={dateRever}
                                     setDateRever={setDateRever}
-                                    studiesData={toggleStudies ? studiesData: issuedStudies}
+                                    studiesData={toggleStudies ? studiesData : issuedStudies}
                                     setStudiesData={toggleStudies ? setStudiesData : setIssuedStudies}></DateRever>
                             </div>
                         )
@@ -430,11 +513,11 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         <NoResults />
                     </Grid>
                     }
-                    
-                    { !issueOrder && <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto scrollbar'}`} style={{height:'60vh'}} >
+
+                    {!issueOrder && <Grid className={`mt-3 ${loadingOrders ? '' : 'overflow-y-auto scrollbar'}`} style={{ height: `${screenHeight - (HEIGHT_NAVBAR + 300)}px` }} >
                         {(loading || loadingOrders) && <div className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
-                               <SpinnerLoading />
+                                <SpinnerLoading />
                             </div>
                         </div>
                         }
@@ -452,11 +535,11 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     >
                                         <Grid justifyContent="space-between" container>
                                             <div style={{ display: 'flex' }}>
-                                                {item.category === "LABORATORY" ? 
-                                                    <LabIcon width={22} height={22} preserveAspectRatio="none"/>
-                                                    : item.category === "IMAGE" ? 
-                                                    <ImgIcon width={22} height={22} preserveAspectRatio="none"/> : 
-                                                    <OtherIcon width={22} height={22} preserveAspectRatio="none"/>
+                                                {item.category === "LABORATORY" ?
+                                                    <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                                    : item.category === "IMAGE" ?
+                                                        <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                                        <OtherIcon width={22} height={22} preserveAspectRatio="none" />
                                                 }
                                                 <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
                                                     {item.category === "LABORATORY" ? "Laboratorio"
@@ -480,44 +563,53 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 ))
                         }
                         {selectOrderDetail ? orderDetail(selectOrderDetail) : !issueOrder && !loadingOrders && !toggleStudies && issuedStudies && issuedStudies.length > 0 && issuedStudies.filter((data) => (data.category === categoryIssuedOrders[categorySelect] || categorySelect === "")).map((item, index) => (
-                          <Grid
-                            className={classes.gridBorder}
-                            onClick={() => {
-                              setSelectOrderDetail(item)
-                              setFilterHide(false)
-                            }}
-                            key={index}
-                          >
-                            <Grid justifyContent="space-between" container>
-                              <div style={{ display: 'flex' }}>
-                                {item.category === "Laboratory" ?
-                                  <LabIcon width={22} height={22} preserveAspectRatio="none" />
-                                  : item.category === "Diagnostic Imaging" ?
-                                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
-                                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
-                                }
-                                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
-                                  {item.category === "Laboratory" ? "Laboratorio"
-                                    : item.category === "Diagnostic Imaging" ? "Imágenes"
-                                      : "Otros"
-                                  }
+                            <Grid
+                                className={classes.gridBorder}
+                                onClick={() => {
+                                    setSelectOrderDetail(item)
+                                    setFilterHide(false)
+                                }}
+                                key={index}
+                            >
+                                <Grid justifyContent="space-between" container>
+                                    <div style={{ display: 'flex' }}>
+                                        {item.category === "Laboratory" ?
+                                            <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                            : item.category === "Diagnostic Imaging" ?
+                                                <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                                <OtherIcon width={22} height={22} preserveAspectRatio="none" />
+                                        }
+                                        <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                                            {item.category === "Laboratory" ? "Laboratorio"
+                                                : item.category === "Diagnostic Imaging" ? "Imágenes"
+                                                    : "Otros"
+                                            }
+                                        </Typography>
+                                    </div>
+                                    <Typography variant='body2' color='textSecondary'>
+                                        {moment(item.authoredDate).format('DD/MM/YYYY')}
+                                    </Typography>
+                                </Grid>
+                                <Typography style={{ color: '#13A5A9', width: '12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} variant='body1' >
+                                    {item.studiesCodes.map(i => { return i.display }).join(', ')}
                                 </Typography>
-                              </div>
-                              <Typography variant='body2' color='textSecondary'>
-                                {moment(item.authoredDate).format('DD/MM/YYYY')}
-                              </Typography>
                             </Grid>
-                            <Typography style={{ color: '#13A5A9', width: '12rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} variant='body1' >
-                              {item.studiesCodes.map(i => {return i.display}).join(', ')}
-                            </Typography>
-                          </Grid>
                         ))}
                     </Grid>}
                 </Grid>
             </Grid>
-            {!selectedRow && issueOrder === false && (
-                <div className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4">
-                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed': 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
+            {!selectedRow && issueOrder === false && appointment && (
+                <div
+                    className="flex flex-row pt-1 pb-1 fixed right-4 bottom-4"
+                    title={
+                        disabledButton
+                            ? appointment.status === 'locked'
+                                ? 'No disponible en citas culminadas'
+                                : 'La gestión de órdenes se habilitará ' + TIME_TO_OPEN_APPOINTMENT + ' minutos antes del inicio de la cita'
+                            : 'Aquí puede gestionar las órdenes de estudio y emitirlas'
+                    }
+                >
+                    <button className={`btn ${disabledButton ? 'bg-gray-200 cursor-not-allowed' : 'bg-primary-600'} text-white border-transparent focus:outline-none flex flex-row justify-end items-center px-2 py-0 h-10 rounded-l-3xl rounded-r-3xl text-clip md-max:mt-2`}
                         onClick={() => {
                             setIssueOrder(true)
                             setFilterHide(false)
@@ -582,11 +674,9 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                     }
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-
-                                    hace {
-                                        days_diff
-
-                                    } días
+                                    {
+                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
+                                    }
                                 </Typography>
                             </Grid>
                         </Grid>
@@ -751,6 +841,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     <button onClick={() => { setShowEditModal(false) }}><CloseIcon></CloseIcon></button>
                 </div>
                 {
+                    // eslint-disable-next-line jsx-a11y/alt-text
                     !loadPreview ? (showPreview['contentType'] !== undefined && showPreview['contentType'].includes("pdf") ? <object data={showPreview['url']} width="700" height="700" type="application/pdf"></object> : <img src={showPreview['url']} alt="img" />) : (
                         <div style={{ width: '300px', margin: 'auto', opacity: '0.5' }} className='flex items-center justify-center w-full h-full py-64'>
                             <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
@@ -778,102 +869,104 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function orderDetail(detail) {
 
-      var days_diff = -1;
+        var days_diff = -1;
 
-      if (detail !== undefined) {
-        const currentDate = moment(new Date());
-        //@ts-ignore
-        const returnDate = moment(detail.authoredDate);
-        days_diff = currentDate.diff(returnDate, 'days');
+        if (detail !== undefined) {
+            const currentDate = moment(new Date());
+            //@ts-ignore
+            const returnDate = moment(detail.authoredDate);
+            days_diff = currentDate.diff(returnDate, 'days');
 
-      }
+        }
 
-      return <div>
-        <Grid className='w-full '>
-          <Grid container justifyContent="space-between">
-            <Card
-              style={{
-                borderRadius: '16px',
-                boxShadow: 'none',
-                paddingLeft: '15px',
-              }}
-            >
-              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                Solicitado en fecha:
-              </Typography>
-              <Grid container>
-                <Calendar />
-                <Grid>
-                  <Typography variant='subtitle1' color='textSecondary'>
-                    { //@ts-ignore
-                      moment(detail.authoredDate).format('DD/MM/YYYY')
-                    }
-                  </Typography>
-                  <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
-                    hace {days_diff} días
-                  </Typography>
+        return <div>
+            <Grid className='w-full '>
+                <Grid container justifyContent="space-between">
+                    <Card
+                        style={{
+                            borderRadius: '16px',
+                            boxShadow: 'none',
+                            paddingLeft: '15px',
+                        }}
+                    >
+                        <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                            Solicitado en fecha
+                        </Typography>
+                        <Grid container>
+                            <Calendar />
+                            <Grid>
+                                <Typography variant='subtitle1' color='textSecondary'>
+                                    { //@ts-ignore
+                                        moment(detail.authoredDate).format('DD/MM/YYYY')
+                                    }
+                                </Typography>
+                                <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
+                                    {
+                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                                    }
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Card>
                 </Grid>
-              </Grid>
-            </Card>
-          </Grid>
-          <Card
-              style={{
-                // backgroundColor: '#F7FAFC',
-                borderRadius: '16px',
-                boxShadow: 'none',
-                marginBottom: '15px',
-                padding: '15px',
-              }}
-            >
-              <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
-                Impresión diagnostica
-              </Typography>
-              {detail.diagnosis}
-            </Card>
-          <Card
-            className="mt-3"
-            style={{
-              backgroundColor: '#F7FAFC',
-              borderRadius: '16px',
-              boxShadow: 'none',
-              marginBottom: '15px',
-              padding: '15px',
-              minHeight: '100px'
-            }}
-          >
+                <Card
+                    style={{
+                        // backgroundColor: '#F7FAFC',
+                        borderRadius: '16px',
+                        boxShadow: 'none',
+                        marginBottom: '15px',
+                        padding: '15px',
+                    }}
+                >
+                    <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280' }}>
+                        Impresión diagnostica
+                    </Typography>
+                    {detail.diagnosis}
+                </Card>
+                <Card
+                    className="mt-3"
+                    style={{
+                        backgroundColor: '#F7FAFC',
+                        borderRadius: '16px',
+                        boxShadow: 'none',
+                        marginBottom: '15px',
+                        padding: '15px',
+                        minHeight: '100px'
+                    }}
+                >
 
-            <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
-              <div style={{ display: 'flex' }}>
-                {detail.category === "Laboratory" ?
-                  <LabIcon width={22} height={22} preserveAspectRatio="none" />
-                  : detail.category === "Diagnostic Imaging" ?
-                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
-                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
-                }
-                <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
-                  {detail.category === "Laboratory" ? "Laboratorio"
-                    : detail.category === "Diagnostic Imaging" ? "Imágenes"
-                      : "Otros"
-                  }
-                </Typography>
-              </div>
-              <Typography style={{marginLeft: '1rem', marginTop: '1rem'}}>
-                {detail.studiesCodes.map((i)=>(<li>{i.display}</li>))}
-              </Typography>
-            </Typography>
-            <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
-              Observaciones
-            </Typography>
-            {detail.notes}
-          </Card>
-        </Grid>
-      </div>
+                    <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
+                        <div style={{ display: 'flex' }}>
+                            {detail.category === "Laboratory" ?
+                                <LabIcon width={22} height={22} preserveAspectRatio="none" />
+                                : detail.category === "Diagnostic Imaging" ?
+                                    <ImgIcon width={22} height={22} preserveAspectRatio="none" /> :
+                                    <OtherIcon width={22} height={22} preserveAspectRatio="none" />
+                            }
+                            <Typography variant='body2' color='textSecondary' style={{ marginLeft: '10px', }}>
+                                {detail.category === "Laboratory" ? "Laboratorio"
+                                    : detail.category === "Diagnostic Imaging" ? "Imágenes"
+                                        : "Otros"
+                                }
+                            </Typography>
+                        </div>
+                        <Typography style={{ marginLeft: '1rem', marginTop: '1rem' }}>
+                            {detail.studiesCodes.map((i) => (<li>{i.display}</li>))}
+                        </Typography>
+                    </Typography>
+                    <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
+                        Observaciones
+                    </Typography>
+                    {detail.notes}
+                </Card>
+            </Grid>
+        </div>
     }
 
     function studyOrderView() {
         return (
             <Provider>
-                <div className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
+                <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
                     <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
                 </div>
             </Provider>
