@@ -17,6 +17,7 @@ const sizes = {
 interface Props {
   show: boolean
   setShow: (arg0: boolean) => void
+  setLock?: (arg0: boolean) => void
   size: keyof typeof sizes
   noPadding?: boolean
   bgTransparent?:boolean
@@ -27,7 +28,7 @@ interface Props {
 const portal = document.getElementById('portal')
 
 const Modal: React.FC<Props> = props => {
-  const { show, setShow, bgTransparent=false, handleOutClick=true } = props
+  const { show, setShow, setLock, bgTransparent=false, handleOutClick=true } = props
 
   const container = useRef<HTMLDivElement>(null)
 
@@ -41,6 +42,7 @@ const Modal: React.FC<Props> = props => {
     }
 
     if(handleOutClick){
+      if (setLock) setLock(false)
       window.addEventListener('click', handleOutsideClick, true)
       return () => window.removeEventListener('click', handleOutsideClick, true)
     }
@@ -53,12 +55,13 @@ const Modal: React.FC<Props> = props => {
 
       if (event.key === 'Escape') {
         setShow(false)
+        if (setLock) setLock(false)
       }
     }
 
     document.addEventListener('keyup', handleEscape)
     return () => document.removeEventListener('keyup', handleEscape)
-  }, [show, setShow])
+  }, [show, setShow, setLock])
 
   let size = sizes[props.size]
   let classes = props.remoteMode ? 'sm:max-w-3xl absolute top-10 right-5': size
