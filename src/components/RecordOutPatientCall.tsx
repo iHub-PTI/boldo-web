@@ -37,6 +37,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const onClickOutPatientRecord = () => {
     setRecordOutPatientButton(!recordOutPatientButton)
+    setStudyHistorySelected(false)
   }
 
   const onClickStudyHistory = () => {
