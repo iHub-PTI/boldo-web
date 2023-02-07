@@ -15,6 +15,7 @@ import ArrowBackIOS from './icons/ArrowBack-ios';
 import { useToasts } from './Toast';
 import CloseButton from './icons/CloseButton';
 import NoProfilePicture from './icons/NoProfilePicture';
+import StudyHistory from './icons/StudyHistory';
 
 
 type Props = {
@@ -30,11 +31,16 @@ const stylePanelSidebar = {
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
+  const [studyHistorySelected, setStudyHistorySelected] = useState(false)
 
   const [hoverSidebar, setHoverSidebar] = useState(false)
 
   const onClickOutPatientRecord = () => {
     setRecordOutPatientButton(!recordOutPatientButton)
+  }
+
+  const onClickStudyHistory = () => {
+    setStudyHistorySelected(!studyHistorySelected)
   }
 
   const handleSidebarHoverOn = () => {
