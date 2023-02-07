@@ -20,7 +20,7 @@ import { ReactComponent as ArrowDown } from '../assets/keyboard-arrow-down.svg'
 import { ReactComponent as ArrowUp } from '../assets/keyboard-arrow-up.svg'
 import imageCompression from 'browser-image-compression'
 
-
+// export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 export const fileTypes = ['image/jpeg', 'image/png']
 
 export function validFileType(file: string) {
