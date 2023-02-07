@@ -42,6 +42,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const onClickStudyHistory = () => {
     setStudyHistorySelected(!studyHistorySelected)
+    setRecordOutPatientButton(false)
   }
 
   const handleSidebarHoverOn = () => {
