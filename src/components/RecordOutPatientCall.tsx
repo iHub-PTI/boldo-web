@@ -330,15 +330,27 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
         </div>
         <div
-          className={`opacity-0 ${recordOutPatientButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
-          style={{ width: recordOutPatientButton ? '21.6rem' : '0px' }}
+          className={`opacity-0 ${(recordOutPatientButton || studyHistorySelected) && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
+          style={{ width: (recordOutPatientButton || studyHistorySelected) ? '21.6rem' : '0px' }}
         >
           <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
-            <span className='text-white font-medium text-sm truncate'>Registro de consultas ambulatorias</span>
+            <span className='text-white font-medium text-sm truncate'>
+              {
+                recordOutPatientButton 
+                  ? 'Registro de consultas ambulatorias'
+                  : studyHistorySelected
+                    ? 'Historial de estudios'
+                    : ''
+              }
+            </span>
             <button className='focus:outline-none' onClick={() => {
-              setRecordOutPatientButton(false)
-              setShowDetail(false)
-              setActiveID('')
+              if (recordOutPatientButton) {
+                setRecordOutPatientButton(false)
+                setShowDetail(false)
+                setActiveID('')
+              } else if (studyHistorySelected) {
+                setStudyHistorySelected(false)
+              }
             }}>
               <CloseButton />
             </button>
