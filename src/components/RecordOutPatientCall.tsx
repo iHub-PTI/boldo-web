@@ -49,8 +49,9 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     setHoverSidebar(true)
   }
 
+  // leave the sidebar fixed
   const handleSidebarHoverOff = () => {
-    if (recordOutPatientButton) return
+    if (recordOutPatientButton || studyHistorySelected) return
     setHoverSidebar(false)
   }
 
