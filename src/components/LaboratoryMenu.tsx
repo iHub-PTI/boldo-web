@@ -51,6 +51,7 @@ import Provider from "./studiesorder/Provider";
 import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import * as Sentry from '@sentry/react'
+import { countDays } from "../util/helpers";
 
 
 export function LaboratoryMenu(props) {
@@ -599,7 +600,6 @@ export function LaboratoryMenu(props) {
         onRowClick={(evt, selectedRowIssued) => {
           //@ts-ignore
           setSelectedRowIssued(selectedRowIssued)
-          console.log(selectedRowIssued)
         }
         }
         options={{
@@ -632,11 +632,10 @@ export function LaboratoryMenu(props) {
       )
 
     if (studyDetail !== undefined) {
-      const currentDate = moment(new Date());
+      const currentDate = moment(new Date(), 'DD/MM/YYYY');
       //@ts-ignore
-      const returnDate = moment(studyDetail.effectiveDate);
+      const returnDate = moment(studyDetail.effectiveDate.split('T')[0]);
       days_diff = currentDate.diff(returnDate, 'days');
-
     }
 
     const getSourceSVG = (source: string) => {
@@ -646,8 +645,14 @@ export function LaboratoryMenu(props) {
       return <PatientSource />;
     }
 
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+        ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+        : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+      }`,
+    overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -905,18 +910,14 @@ export function LaboratoryMenu(props) {
   }
 
   function issuedDetail(order) {
-
-    var days_diff = -1;
-
-    if (order !== undefined) {
-      const currentDate = moment(new Date());
-      //@ts-ignore
-      const returnDate = moment(order.authoredDate);
-      days_diff = currentDate.diff(returnDate, 'days');
-    }
-
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+        }`,
+      overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -964,12 +965,12 @@ export function LaboratoryMenu(props) {
                 <Grid>
                   <Typography variant='body2' color='textSecondary'>
                     {
-                      moment(order.effectiveDate).format('DD/MM/YYYY')
+                      order.authoredDate ? moment(order.authoredDate).format('DD/MM/YYYY') : 'Fecha Desconocida'
                     }
                   </Typography>
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                      order.authoredDate ? countDays(order.authoredDate) : ''
                     }
                   </Typography>
                 </Grid>
