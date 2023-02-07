@@ -24,6 +24,7 @@
     "@types/webrtc": "0.0.26",
     "autoprefixer": "^10.0.2",
     "axios": "^0.20.0",
+    "browser-image-compression": "^2.0.0",
     "chokidar-cli": "^2.1.0",
     "date-fns": "^2.16.1",
     "lodash": "^4.17.21",

@@ -18,9 +18,10 @@ import { AllOrganizationContext } from '../contexts/Organizations/organizationsC
 import { useToasts } from '../components/Toast'
 import { ReactComponent as ArrowDown } from '../assets/keyboard-arrow-down.svg'
 import { ReactComponent as ArrowUp } from '../assets/keyboard-arrow-up.svg'
+import imageCompression from 'browser-image-compression'
 
 
-export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
+export const fileTypes = ['image/jpeg', 'image/png']
 
 export function validFileType(file: string) {
   return fileTypes.includes(file)
@@ -29,14 +30,22 @@ export function validFileType(file: string) {
 export const upload = async (file: File | string) => {
   if (!file) return
   if (typeof file === 'string') return file
+
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true
+  }
+  
   try {
+    const compressedFile = await imageCompression(file, options)
     const res = await axios.get('/presigned')
     const ress = await axios({
       method: 'put',
       url: `${res.data.uploadUrl}&x-amz-acl=public-read`,
-      data: file,
+      data: compressedFile,
       withCredentials: false,
-      headers: { 'Content-Type': file.type, authentication: null },
+      headers: { 'Content-Type': compressedFile.type, authentication: null },
     })
     if (ress.status === 201) return res.data.location
   } catch (err) {
