@@ -292,6 +292,22 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
               </div>
             )}
           </Disclosure>
+          {/* button for study history */}
+          <div className='flex flex-row flex-no-wrap justify-center items-center'>
+            <button
+              className='flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none'
+              onClick={()=>onClickStudyHistory()}
+            >
+              <StudyHistory className='w-5 h-5' fill={`${studyHistorySelected ? '#13A5A9' : '#6B7280'}`} />
+              <div
+                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${studyHistorySelected && 'text-primary-600 font-semibold'}`}
+                style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}
+              >
+                Historial de estudios
+              </div>
+            </button>
+          </div>
+          {/* button for record out patient */}
           <div className='flex flex-row flex-no-wrap justify-center items-center '>
             <button className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} onClick={() => onClickOutPatientRecord()}>
               <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
