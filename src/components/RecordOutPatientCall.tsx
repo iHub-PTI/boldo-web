@@ -357,7 +357,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
           <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
             <div className='flex flex-row flew-no-wrap w-full items-center'>
-              {!showDetail &&
+              {!showDetail && !studyHistorySelected &&
                 <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <SearchIcon className='w-5 h-5' />
@@ -376,7 +376,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     }}
                   />
                 </div>}
-              {!showDetail &&
+              {!showDetail && !studyHistorySelected &&
                 <QueryFilter
                   currentDoctor={doctor}
                   setFilterAuthor={setFilterDoctor}
