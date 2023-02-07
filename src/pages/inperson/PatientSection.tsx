@@ -83,7 +83,7 @@ const PatientRecord = (props) => {
           Teléfono
         </Typography>
         <Typography variant='body1' color='textPrimary'>
-          {phone}
+          {phone || '-'}
         </Typography>
       </Grid>
 
@@ -92,7 +92,7 @@ const PatientRecord = (props) => {
           Ciudad
         </Typography>
         <Typography variant='body1' color='textPrimary'>
-          {city}
+          {city || '-'}
         </Typography>
       </Grid>
 

@@ -19,6 +19,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
     name: study.name,
     description: study.description,
   })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
 
   const [loading, setLoading] = useState(false)
@@ -37,6 +38,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
 
   const [maxStudies, setMaxStudies] = useState(false)
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToast, addErrorToast } = useToasts()
 
   console.log('studyarrayy', studyArray)

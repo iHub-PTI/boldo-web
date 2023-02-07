@@ -257,6 +257,7 @@ const Settings = (props: Props) => {
   const [specializations, setSpecializations] = useState<List>([])
 
   const [error, setError] = useState('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [show, setShow] = useState(false)
