@@ -584,11 +584,12 @@ export function LaboratoryMenu(props) {
             title: 'Estudios a realizar',
             field: 'studiesCodes',
             sorting: false,
+            width: '100%',
             render: rowData => {
               // console.log(rowData.diagnosis)
               //@ts-ignore
               return (
-                <div style={{ width: '30rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                <div style={{ width:'15rem', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                   {rowData.studiesCodes.map(i => { return i.display }).join(', ')}
                 </div>
               )
