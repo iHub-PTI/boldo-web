@@ -244,16 +244,21 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       if (!container.current?.contains(event.target as Node)) {
-        if (!recordOutPatientButton) return
-        setRecordOutPatientButton(false)
-        setShowDetail(false)
-        setActiveID('')
+        if (!recordOutPatientButton && !studyHistorySelected) return
+        if (recordOutPatientButton) {
+          setRecordOutPatientButton(false)
+          setShowDetail(false)
+          setActiveID('')
+        }
+        if (studyHistorySelected) {
+          setStudyHistorySelected(false)
+        }
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
     return () => window.removeEventListener('click', handleOutsideClick, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recordOutPatientButton])
+  }, [recordOutPatientButton, studyHistorySelected])
 
   return (
     <div className='flex flex-no-wrap relative h-full'>
