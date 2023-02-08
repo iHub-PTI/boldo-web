@@ -404,12 +404,12 @@ export const PatientRecord = ({
       onMouseLeave={() => { updateBackground() }}
       {...props}
     >
-      <div className='flex flex-col w-2/12 mr-1'>
+      <div className='flex flex-col mr-1 w-12'>
         {patientRecord.doctorDto.photoUrl ? (
           <img
             src={patientRecord.doctorDto.photoUrl}
             alt='Foto de Perfil'
-            className='border-1 border-white rounded-full'
+            className='flex-none border-1 border-white w-10 h-10 rounded-full object-cover'
           />
         ) : (
           <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-10 h-10' />
