@@ -16,9 +16,10 @@ import { useToasts } from './Toast';
 import CloseButton from './icons/CloseButton';
 import NoProfilePicture from './icons/NoProfilePicture';
 import StudyHistory from './icons/StudyHistory';
-import ServiceRequestCard from './studiesorder/ServiceRequestCard';
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
+import NoResults from './icons/NoResults';
+import DiagnosticReportCard from './studiesorder/DiagnosticReportCard';
 
 
 type Props = {
@@ -31,25 +32,75 @@ const stylePanelSidebar = {
   backdropFilter: 'blur(14px)'
 }
 
-type ServiceRequests = Array<Boldo.ServiceRequest>
+// uncomment when necessary
+// type ServiceRequests = Array<Boldo.ServiceRequest>
+type DiagnosticReports = Array<Boldo.DiagnosticReport>
 
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
-  const [studyHistorySelected, setStudyHistorySelected] = useState(false)
+  // uncomment when necessary
+  // const [studyHistorySelected, setStudyHistorySelected] = useState(false)
+  const [diagnosticReportSelected, setDiagnosticReportSelected] = useState<boolean>(false)
 
   const [hoverSidebar, setHoverSidebar] = useState(false)
 
   const { width } = useWindowDimensions()
 
+    // error page
+    const [error, setError] = useState(false)
+
+    // reference to listen to scroll event
+    const scrollEvent = useRef<HTMLDivElement>()
+  
+    // Scroll Trigger loading
+    const [loadingScroll, setLoadingScroll] = useState(false)
+  
+    const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
+  
+    // pagination parameters
+    const countPage = 10
+    const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
+  
+    //Detail activated
+    const [activeID, setActiveID] = useState('')
+  
+    //Filters
+    const [inputContent, setInputContent] = useState('')
+  
+    // all doctors or current doctor doctor.id or ALL doctors
+    const [filterDoctor, setFilterDoctor] = useState('ALL')
+  
+    //filter order ASC or DESC
+    const [filterOrder, setFilterOrder] = useState('DESC')
+  
+    //show Detail
+    const [showDetail, setShowDetail] = useState(false)
+  
+    const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
+    const [loading, setLoading] = useState(false)
+    // uncomment when necessary
+    // const [loadingStudyHistory, setLoadingStudyHistory] = useState<boolean>(false)
+    // const [studyHistoryData, setStudyHistoryData] = useState<ServiceRequests>(undefined)
+    const [loadingDiagnosticReports, setLoadingDiagnosticReports] = useState<boolean>(false)
+    const [diagnosticReports, setDiagnosticReports] = useState<DiagnosticReports>(undefined)
+  
+    const [loadingDetail, setLoadingDetail] = useState(false)
+    const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
+  
+    const { addErrorToast } = useToasts()
+  
+    const container = useRef<HTMLDivElement>(null)
+
+
   const onClickOutPatientRecord = () => {
+    setDiagnosticReportSelected(false)
     setRecordOutPatientButton(!recordOutPatientButton)
-    setStudyHistorySelected(false)
   }
 
-  const onClickStudyHistory = () => {
-    setStudyHistorySelected(!studyHistorySelected)
+  const onClickDiagnosticReport = () => {
     setRecordOutPatientButton(false)
+    setDiagnosticReportSelected(!diagnosticReportSelected)
   }
 
   const handleSidebarHoverOn = () => {
@@ -58,7 +109,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   // leave the sidebar fixed
   const handleSidebarHoverOff = () => {
-    if (recordOutPatientButton || studyHistorySelected) return
+    if (recordOutPatientButton || diagnosticReportSelected) return
     setHoverSidebar(false)
   }
 
@@ -71,46 +122,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const patientId = appointment.patientId
 
-  // error page
-  const [error, setError] = useState(false)
 
-  // reference to listen to scroll event
-  const scrollEvent = useRef<HTMLDivElement>()
-
-  // Scroll Trigger loading
-  const [loadingScroll, setLoadingScroll] = useState(false)
-
-  const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
-
-  // pagination parameters
-  const countPage = 10
-  const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
-
-  //Detail activated
-  const [activeID, setActiveID] = useState('')
-
-  //Filters
-  const [inputContent, setInputContent] = useState('')
-
-  // all doctors or current doctor doctor.id or ALL doctors
-  const [filterDoctor, setFilterDoctor] = useState('ALL')
-
-  //filter order ASC or DESC
-  const [filterOrder, setFilterOrder] = useState('DESC')
-
-  //show Detail
-  const [showDetail, setShowDetail] = useState(false)
-
-  const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
-  const [loading, setLoading] = useState(false)
-  const [loadingStudyHistory, setLoadingStudyHistory] = useState<boolean>(false)
-  const [studyHistoryData, setStudyHistoryData] = useState<ServiceRequests>(undefined)
-  const [loadingDetail, setLoadingDetail] = useState(false)
-  const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
-
-  const { addErrorToast } = useToasts()
-
-  const container = useRef<HTMLDivElement>(null)
 
   //methods
   const getRecordsPatient = async ({ doctorId = 'ALL', content = '', count = 10, offset = 1, order = 'DESC' }) => {
@@ -232,7 +244,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
 
   useEffect(() => {
-    if (!recordOutPatientButton) {
+    if (!recordOutPatientButton && !diagnosticReportSelected) {
       handleSidebarHoverOff()
       if (recordsPatient.length === 0) {
         setInputContent('')
@@ -244,7 +256,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     if (recordOutPatientButton && recordsPatient.length === 0)
       getRecordsPatient({ offset: 1, count: countPage, order: 'DESC', doctorId: 'ALL' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recordOutPatientButton])
+  }, [recordOutPatientButton, diagnosticReportSelected])
 
   useEffect(() => {
     setActiveID('')
@@ -253,27 +265,81 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       if (!container.current?.contains(event.target as Node)) {
-        if (!recordOutPatientButton && !studyHistorySelected) return
+        if (!recordOutPatientButton && !diagnosticReportSelected) return
         if (recordOutPatientButton) {
           setRecordOutPatientButton(false)
           setShowDetail(false)
           setActiveID('')
         }
-        if (studyHistorySelected) {
-          setStudyHistorySelected(false)
+        if (diagnosticReportSelected) {
+          setDiagnosticReportSelected(false)
         }
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
     return () => window.removeEventListener('click', handleOutsideClick, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recordOutPatientButton, studyHistorySelected])
+  }, [recordOutPatientButton, diagnosticReportSelected])
 
+
+  // uncomment this when necessary
+  // call this function to get the service requests
+  // const loadServiceRequest = async (patientId: String = '') => {
+  //   const url = '/profile/doctor/serviceRequests'
+  //   setLoadingStudyHistory(true)
+  //   await axios
+  //     .get(url, {
+  //       params: {
+  //         patient_id: patientId
+  //       }
+  //     })
+  //     .then((res) => {
+  //       setStudyHistoryData(res.data.items as ServiceRequests)
+  //     })
+  //     .catch((err) => {
+  //       Sentry.setTags({
+  //         'endpoint': `${url}?patient_id=${patientId}`,
+  //         'method': 'GET'
+  //       })
+  //       if (err.response) {
+  //         // The response was made and the server responded with a 
+  //         // status code that is outside the 2xx range.
+  //         Sentry.setTags({
+  //           'data': err.response.data,
+  //           'headers': err.response.headers,
+  //           'status_code': err.response.status
+  //         })
+  //       } else if (err.request) {
+  //         // The request was made but no response was received
+  //         Sentry.setTag('request', err.request)
+  //       } else {
+  //         // Something happened while preparing the request that threw an Error
+  //         Sentry.setTag('message', err.message)
+  //       }
+  //       Sentry.captureMessage("Could not get the service requests")
+  //       Sentry.captureException(err)
+  //     })
+  //     .finally(() => setLoadingStudyHistory(false))
+  // }
+
+  // useEffect(() => {
+  //   // console.log("study history => ", studyHistoryData)
+  //   if (studyHistorySelected && studyHistoryData === undefined)
+  //     loadServiceRequest(appointment.patientId)
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [studyHistorySelected])
+
+  useEffect(() => {
+    // console.log("study history => ", studyHistoryData)
+    if (diagnosticReportSelected && diagnosticReports === undefined)
+      loadDiagnosticReports(appointment.patientId)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diagnosticReportSelected])
 
   // call this function to get the service requests
-  const loadServiceRequest = async (patientId: String = '') => {
-    const url = '/profile/doctor/serviceRequests'
-    setLoadingStudyHistory(true)
+  const loadDiagnosticReports = async (patientId: String = '') => {
+    const url = '/profile/doctor/diagnosticReports'
+    setLoadingDiagnosticReports(true)
     await axios
       .get(url, {
         params: {
@@ -281,7 +347,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         }
       })
       .then((res) => {
-        setStudyHistoryData(res.data.items as ServiceRequests)
+        setDiagnosticReports(res.data.items as DiagnosticReports)
       })
       .catch((err) => {
         Sentry.setTags({
@@ -303,22 +369,12 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           // Something happened while preparing the request that threw an Error
           Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the service requests")
+        Sentry.captureMessage("Could not get the diagnostic reports")
         Sentry.captureException(err)
       })
-      .finally(() => setLoadingStudyHistory(false))
+      .finally(() => setLoadingDiagnosticReports(false))
   }
 
-  const getServiceRequestDetail = async () => {
-
-  }
-
-  useEffect(() => {
-    // console.log("study history => ", studyHistoryData)
-    if (studyHistorySelected && studyHistoryData === undefined)
-      loadServiceRequest(appointment.patientId)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studyHistorySelected])
 
   return (
     <div className='flex flex-no-wrap relative h-full'>
@@ -370,11 +426,11 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           <div className='flex flex-row flex-no-wrap justify-center items-center'>
             <button
               className='flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none'
-              onClick={() => onClickStudyHistory()}
+              onClick={() => onClickDiagnosticReport()}
             >
-              <StudyHistory className='w-5 h-5' fill={`${studyHistorySelected ? '#13A5A9' : '#6B7280'}`} />
+              <StudyHistory className='w-5 h-5' fill={`${diagnosticReportSelected ? '#13A5A9' : '#6B7280'}`} />
               <div
-                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${studyHistorySelected && 'text-primary-600 font-semibold'}`}
+                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${diagnosticReportSelected && 'text-primary-600 font-semibold'}`}
                 style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}
               >
                 Historial de estudios
@@ -398,16 +454,16 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
         </div>
         <div
-          className={`opacity-0 ${(recordOutPatientButton || studyHistorySelected) && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
-          style={{ width: (recordOutPatientButton || studyHistorySelected) ? '21.6rem' : '0px' }}
+          className={`opacity-0 ${(recordOutPatientButton || diagnosticReportSelected) && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
+          style={{ width: (recordOutPatientButton || diagnosticReportSelected) ? '21.6rem' : '0px' }}
         >
           <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
             <span className='text-white font-medium text-sm truncate'>
               {
                 recordOutPatientButton 
                   ? 'Registro de consultas ambulatorias'
-                  : studyHistorySelected
-                    ? 'Historial de órdenes de estudios'
+                  : diagnosticReportSelected
+                    ? 'Historial de estudios subidos'
                     : ''
               }
             </span>
@@ -416,8 +472,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 setRecordOutPatientButton(false)
                 setShowDetail(false)
                 setActiveID('')
-              } else if (studyHistorySelected) {
-                setStudyHistorySelected(false)
+              } else if (diagnosticReportSelected) {
+                setDiagnosticReportSelected(false)
               }
             }}>
               <CloseButton />
@@ -425,7 +481,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
           <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
             <div className='flex flex-row flew-no-wrap w-full items-center'>
-              {!showDetail && !studyHistorySelected &&
+              {!showDetail && !diagnosticReportSelected &&
                 <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
                   <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <SearchIcon className='w-5 h-5' />
@@ -444,7 +500,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     }}
                   />
                 </div>}
-              {!showDetail && !studyHistorySelected &&
+              {!showDetail && !diagnosticReportSelected &&
                 <QueryFilter
                   currentDoctor={doctor}
                   setFilterAuthor={setFilterDoctor}
@@ -455,9 +511,9 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   activeColor={true}
                 />}
             </div>
-            { studyHistorySelected && 
+            { diagnosticReportSelected && 
               <div
-                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingStudyHistory && 'justify-center items-center'} `}
+                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingDiagnosticReports && 'justify-center items-center'} `}
                 style={{ 
                   height: ` ${width >= WIDTH_XL
                     ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
@@ -465,20 +521,25 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   }` 
                 }}
               >
-                {loadingStudyHistory && <SpinnerLoading />}
-                {!loadingStudyHistory && studyHistoryData &&
-                  studyHistoryData.map((study, index) => (
-                    <ServiceRequestCard 
-                      key={index}
-                      // selected={}
-                      study={study}
-                      getServiceRequestDetail={getServiceRequestDetail}
-                      // onActiveId={}
-                      darkMode={true}
-                      // onShowStudyDetail={}
-                      isCall={true}
-                    />
-                  ))
+                {loadingDiagnosticReports && <SpinnerLoading />}
+                {!loadingDiagnosticReports && diagnosticReports &&
+                  (diagnosticReports.length === 0
+                    ? <div className='flex flex-col justify-center items-center'>
+                        <NoResults />
+                        <span className='font-semibold text-white'>No hay estudios subidos</span>
+                      </div>
+                    : diagnosticReports.map((report, index) => (
+                      <DiagnosticReportCard 
+                        key={index}
+                        // selected={}
+                        report={report}
+                        // onActiveId={}
+                        darkMode={true}
+                        // onShowStudyDetail={}
+                        isCall={true}
+                      />
+                    ))
+                  )
                 }
               </div>
             }
