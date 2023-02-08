@@ -16,6 +16,7 @@ import { useToasts } from './Toast';
 import CloseButton from './icons/CloseButton';
 import NoProfilePicture from './icons/NoProfilePicture';
 import StudyHistory from './icons/StudyHistory';
+import ServiceRequestCard from './studiesorder/ServiceRequestCard';
 
 
 type Props = {
@@ -27,6 +28,8 @@ const stylePanelSidebar = {
   background: 'rgba(107, 107, 107, 0.56)',
   backdropFilter: 'blur(14px)'
 }
+
+type ServiceRequests = Array<Boldo.ServiceRequest>
 
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
@@ -96,6 +99,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
   const [loading, setLoading] = useState(false)
+  const [loadingStudyHistory, setLoadingStudyHistory] = useState<boolean>(false)
+  const [studyHistoryData, setStudyHistoryData] = useState<ServiceRequests>(undefined)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
 
@@ -260,6 +265,55 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordOutPatientButton, studyHistorySelected])
 
+
+  // call this function to get the service requests
+  const loadServiceRequest = async (patientId: String = '') => {
+    const url = '/profile/doctor/serviceRequests'
+    setLoadingStudyHistory(true)
+    await axios
+      .get(url, {
+        params: {
+          patient_id: patientId
+        }
+      })
+      .then((res) => {
+        setStudyHistoryData(res.data.items as ServiceRequests)
+        debugger
+      })
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': `${url}?patient_id=${patientId}`,
+          'method': 'GET'
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTags({
+            'data': err.response.data,
+            'headers': err.response.headers,
+            'status_code': err.response.status
+          })
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the service requests")
+        Sentry.captureException(err)
+      })
+      .finally(() => setLoadingStudyHistory(false))
+  }
+
+
+  useEffect(() => {
+    console.log("study history => ", studyHistoryData)
+    if (studyHistorySelected && studyHistoryData === undefined)
+      loadServiceRequest(appointment.patientId)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyHistorySelected])
+
   return (
     <div className='flex flex-no-wrap relative h-full'>
       <div className='p-0 m-0 flex flex-no-wrap h-full' ref={container}>
@@ -310,7 +364,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           <div className='flex flex-row flex-no-wrap justify-center items-center'>
             <button
               className='flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none'
-              onClick={()=>onClickStudyHistory()}
+              onClick={() => onClickStudyHistory()}
             >
               <StudyHistory className='w-5 h-5' fill={`${studyHistorySelected ? '#13A5A9' : '#6B7280'}`} />
               <div
@@ -323,9 +377,17 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
           </div>
           {/* button for record out patient */}
           <div className='flex flex-row flex-no-wrap justify-center items-center '>
-            <button className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} onClick={() => onClickOutPatientRecord()}>
+            <button 
+              className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} 
+              onClick={() => onClickOutPatientRecord()}
+            >
               <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
-              <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
+              <div 
+                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`} 
+                style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}
+              >
+                Registro Ambulatorio
+              </div>
             </button>
           </div>
         </div>
