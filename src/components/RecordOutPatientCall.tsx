@@ -17,6 +17,8 @@ import CloseButton from './icons/CloseButton';
 import NoProfilePicture from './icons/NoProfilePicture';
 import StudyHistory from './icons/StudyHistory';
 import ServiceRequestCard from './studiesorder/ServiceRequestCard';
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
+import useWindowDimensions from "../util/useWindowDimensions";
 
 
 type Props = {
@@ -37,6 +39,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   const [studyHistorySelected, setStudyHistorySelected] = useState(false)
 
   const [hoverSidebar, setHoverSidebar] = useState(false)
+
+  const { width } = useWindowDimensions()
 
   const onClickOutPatientRecord = () => {
     setRecordOutPatientButton(!recordOutPatientButton)
@@ -278,7 +282,6 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
       })
       .then((res) => {
         setStudyHistoryData(res.data.items as ServiceRequests)
-        debugger
       })
       .catch((err) => {
         Sentry.setTags({
@@ -306,9 +309,12 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
       .finally(() => setLoadingStudyHistory(false))
   }
 
+  const getServiceRequestDetail = async () => {
+
+  }
 
   useEffect(() => {
-    console.log("study history => ", studyHistoryData)
+    // console.log("study history => ", studyHistoryData)
     if (studyHistorySelected && studyHistoryData === undefined)
       loadServiceRequest(appointment.patientId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -401,7 +407,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 recordOutPatientButton 
                   ? 'Registro de consultas ambulatorias'
                   : studyHistorySelected
-                    ? 'Historial de estudios'
+                    ? 'Historial de órdenes de estudios'
                     : ''
               }
             </span>
@@ -451,7 +457,13 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
             </div>
             { studyHistorySelected && 
               <div
-                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full h-full ${loadingStudyHistory && 'justify-center items-center'} `}
+                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingStudyHistory && 'justify-center items-center'} `}
+                style={{ 
+                  height: ` ${width >= WIDTH_XL
+                    ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+                    : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+                  }` 
+                }}
               >
                 {loadingStudyHistory && <SpinnerLoading />}
                 {!loadingStudyHistory && studyHistoryData &&
