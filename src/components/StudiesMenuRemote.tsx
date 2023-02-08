@@ -309,7 +309,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     useEffect(() => {
         const load = async () => {
             try {
-
+                setStudyDetail(undefined)
                 if (selectedRow !== undefined) {
                     //@ts-ignore
                     const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
