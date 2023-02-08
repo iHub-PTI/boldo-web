@@ -29,6 +29,7 @@ import Provider from "./studiesorder/Provider";
 import * as Sentry from '@sentry/react'
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
+import { countDays } from "../util/helpers";
 
 
 //HoverSelect theme
@@ -193,7 +194,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
-    const [studyDetail, setStudyDetail] = useState()
+    const [studyDetail, setStudyDetail] = useState<any>()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
@@ -628,8 +629,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function laboratoryDetail() {
 
-        var days_diff = -1;
-
         if (studyDetail === undefined)
             return (
                 <div className='flex items-center justify-center w-full h-full py-64'>
@@ -638,14 +637,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </div>
                 </div>
             )
-
-        if (studyDetail !== undefined) {
-            const currentDate = moment(new Date());
-            //@ts-ignore
-            const returnDate = moment(studyDetail.effectiveDate);
-            days_diff = currentDate.diff(returnDate, 'days');
-
-        }
 
         return <div>
             <Grid className='w-full '>
@@ -677,7 +668,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                                     {
-                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
+                                        countDays(studyDetail?.effectiveDate)
                                     }
                                 </Typography>
                             </Grid>
@@ -871,16 +862,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function orderDetail(detail) {
 
-        var days_diff = -1;
-
-        if (detail !== undefined) {
-            const currentDate = moment(new Date());
-            //@ts-ignore
-            const returnDate = moment(detail.authoredDate);
-            days_diff = currentDate.diff(returnDate, 'days');
-
-        }
-
         return <div>
             <Grid className='w-full '>
                 <Grid container justifyContent="space-between">
@@ -904,7 +885,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                                     {
-                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                                        countDays(detail.authoredDate)
                                     }
                                 </Typography>
                             </Grid>

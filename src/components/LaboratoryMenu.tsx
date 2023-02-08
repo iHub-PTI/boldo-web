@@ -60,7 +60,7 @@ export function LaboratoryMenu(props) {
   const [loading, setLoading] = useState(true)
   const [selectedRow, setSelectedRow] = useState()
   const [studiesData, setStudiesData] = useState<any>()
-  const [studyDetail, setStudyDetail] = useState()
+  const [studyDetail, setStudyDetail] = useState<any>()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPreview, setShowPreview] = useState({})
   const [categorySelect, setCategory] = useState("")
@@ -621,8 +621,6 @@ export function LaboratoryMenu(props) {
 
   function laboratoryDetail() {
 
-    var days_diff = -1;
-
     if (studyDetail === undefined)
       return (
         <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -631,13 +629,6 @@ export function LaboratoryMenu(props) {
           </div>
         </div>
       )
-      
-      if (studyDetail !== undefined) {
-        const currentDate = moment(new Date(), 'DD/MM/YYYY');
-        //@ts-ignore
-        const returnDate = moment(studyDetail.effectiveDate.split('T')[0]);
-        days_diff = currentDate.diff(returnDate, 'days');
-      }
 
     const getSourceSVG = (source: string) => {
       if (source === '' || source === null) return <WithoutSource />;
@@ -727,7 +718,7 @@ export function LaboratoryMenu(props) {
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
 
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                     countDays(studyDetail?.effectiveDate)
                     }
                   </Typography>
                 </Grid>
