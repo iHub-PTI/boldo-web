@@ -584,14 +584,14 @@ export function LaboratoryMenu(props) {
             title: 'Estudios a realizar',
             field: 'studiesCodes',
             sorting: false,
-            width: '100%',
+            width:"80%",
             render: rowData => {
               // console.log(rowData.diagnosis)
               //@ts-ignore
               return (
-                <div style={{ width:'15rem', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                <p className="truncate sm:w-32 md:w-52 lg:56 xl:w-72">
                   {rowData.studiesCodes.map(i => { return i.display }).join(', ')}
-                </div>
+                </p>
               )
             },
           }
@@ -631,13 +631,13 @@ export function LaboratoryMenu(props) {
           </div>
         </div>
       )
-
-    if (studyDetail !== undefined) {
-      const currentDate = moment(new Date(), 'DD/MM/YYYY');
-      //@ts-ignore
-      const returnDate = moment(studyDetail.effectiveDate.split('T')[0]);
-      days_diff = currentDate.diff(returnDate, 'days');
-    }
+      
+      if (studyDetail !== undefined) {
+        const currentDate = moment(new Date(), 'DD/MM/YYYY');
+        //@ts-ignore
+        const returnDate = moment(studyDetail.effectiveDate.split('T')[0]);
+        days_diff = currentDate.diff(returnDate, 'days');
+      }
 
     const getSourceSVG = (source: string) => {
       if (source === '' || source === null) return <WithoutSource />;

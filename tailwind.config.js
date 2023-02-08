@@ -58,7 +58,7 @@ module.exports = {
     opacity: ['disabled'],
     cursor: ['disabled'],
     backgroundColor: ['checked', 'disabled', 'hover'],
-    width: ['hover'],
+    width: ['hover', 'responsive'],
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }
