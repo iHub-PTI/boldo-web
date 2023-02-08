@@ -449,7 +449,19 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   activeColor={true}
                 />}
             </div>
-            {!showDetail && !error &&
+            { studyHistorySelected && 
+              <div
+                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full h-full ${loadingStudyHistory && 'justify-center items-center'} `}
+              >
+                {loadingStudyHistory && <SpinnerLoading />}
+                {!loadingStudyHistory && studyHistoryData &&
+                  studyHistoryData.map((study, index) => (
+                    <ServiceRequestCard />
+                  ))
+                }
+              </div>
+            }
+            {!showDetail && !error && recordOutPatientButton &&
               <div
                 className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
                   }`}
