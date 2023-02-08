@@ -456,7 +456,16 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 {loadingStudyHistory && <SpinnerLoading />}
                 {!loadingStudyHistory && studyHistoryData &&
                   studyHistoryData.map((study, index) => (
-                    <ServiceRequestCard />
+                    <ServiceRequestCard 
+                      key={index}
+                      // selected={}
+                      study={study}
+                      getServiceRequestDetail={getServiceRequestDetail}
+                      // onActiveId={}
+                      darkMode={true}
+                      // onShowStudyDetail={}
+                      isCall={true}
+                    />
                   ))
                 }
               </div>
