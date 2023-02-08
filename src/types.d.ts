@@ -43,6 +43,20 @@ export interface Organization {
   colorCode: string
 }
 
+// this structure represent a study come from patient
+export interface DiagnosticReport {
+  attachmentNumber?: string;
+  category?:         string;
+  description?:      string;
+  effectiveDate?:    Date;
+  id?:               string;
+  serviceRequestId?: string;
+  source?:           string;
+  sourceID?:         string;
+  sourceType?:       string;
+}
+
+// this structure represent a study order come from doctor
 export interface ServiceRequest {
   authoredDate?:      string;
   category?:          string;
