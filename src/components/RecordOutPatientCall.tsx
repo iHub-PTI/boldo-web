@@ -516,8 +516,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingDiagnosticReports && 'justify-center items-center'} `}
                 style={{ 
                   height: ` ${width >= WIDTH_XL
-                    ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-                    : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+                    ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 11}px)`
+                    : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + 11}px)`
                   }` 
                 }}
               >
