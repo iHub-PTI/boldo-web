@@ -242,6 +242,7 @@ export function LaboratoryMenu(props) {
 
     useEffect(() => {
       const load = async () => {
+        setStudyDetail(undefined)
         try {
           if (selectedRow !== undefined) {
               //@ts-ignore
@@ -623,7 +624,7 @@ export function LaboratoryMenu(props) {
 
     if (studyDetail === undefined)
       return (
-        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex flex-row items-center justify-center w-full h-full'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <SpinnerLoading />
           </div>
