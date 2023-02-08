@@ -42,3 +42,19 @@ export interface Organization {
   type: string,
   colorCode: string
 }
+
+export interface ServiceRequest {
+  authoredDate?:      string;
+  category?:          string;
+  diagnosis?:         string;
+  diagnosticReports?: any[];
+  encounterId?:       string;
+  id?:                string;
+  identifier?:        string;
+  studiesCodes?:      StudiesCode[];
+  urgent?:            boolean;
+}
+
+export interface StudiesCode {
+  display?: string;
+}
