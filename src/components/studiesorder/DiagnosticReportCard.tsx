@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { ServiceRequest } from "../../types";
-import { countDays, toUpperLowerCase } from "../../util/helpers";
+import { DiagnosticReport } from "../../types";
+import { countDays } from "../../util/helpers";
 import IconImg from "../icons/studies-category/IconImg";
 import IconLab from "../icons/studies-category/IconLab";
 import IconOther from "../icons/studies-category/IconOther";
@@ -13,13 +13,12 @@ const categoryIssuedOrders = {
   OTHER: 'Other'
 }
 
-const ServiceRequestCard = ({
+const DiagnosticReportCard = ({
   selected = false,
-  study = {} as ServiceRequest,
-  getServiceRequestDetail = (id: string) => { },
+  report = {} as DiagnosticReport,
   onActiveId = (id: string) => { },
   darkMode = false,
-  onShowStudyDetail = () => { },
+  onShowReportDetail = () => { },
   isCall = false,
   ...props
 }) => {
@@ -53,47 +52,48 @@ const ServiceRequestCard = ({
       {...props}
     >
       <div className='flex flex-col w-2/12 m-1'>
-        {console.log("study => ", study)}
-        {
-          study.category === categoryIssuedOrders.LABORATORY
+        { report &&
+          (report.category.toLowerCase() === categoryIssuedOrders.LABORATORY.toLowerCase()
             ? <IconLab height={24} width={24}/>
-            : study.category === categoryIssuedOrders.IMAGE
+            : report.category.toLowerCase() === categoryIssuedOrders.IMAGE.toLowerCase()
               ? <IconImg height={24} width={24}/>
               : <IconOther height={24} width={24}/>
+          )
         }
       </div>
       <div className='flex flex-col w-full break-all'>
         <div
           className={`font-semibold text-base truncate w-full ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
         >
-          {
-            study.category === categoryIssuedOrders.LABORATORY
+          {report &&
+            (report.category.toLowerCase() === categoryIssuedOrders.LABORATORY.toLowerCase()
               ? 'Laboratorio'
-              : study.category === categoryIssuedOrders.IMAGE
+              : report.category.toLowerCase() === categoryIssuedOrders.IMAGE.toLowerCase()
                 ? 'Imagen'
                 : 'Otros'
+            )
           }
         </div>
-        <div className={`flex flex-row w-full`}>
-          <span className={`font-normal group-hover:text-primary-500 ${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'} mr-1`}>Impresión diagnóstica:</span>
+        <div className='flex flex-row w-full'>
+          <span className={`font-normal group-hover:text-primary-500 ${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'} mr-1`}>Subido por:</span>
           <div 
             className={`${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
-            title={study.diagnosis ?? 'No se ha agregado la impresión diagnóstica'}
+            title={report.source ?? 'Origen desconocido'}
           >
-              {study.diagnosis ?? 'Sin impresión diagnóstica'}
+              {report.source ?? 'Origen desconocido'}
           </div>
         </div>
         <div
           className={`text-base pb-1 truncate ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
-          title={toUpperLowerCase(study.studiesCodes.map(code => code.display).join(', '))}
+          title={report.description ?? 'No se ha agregado la descripción'}
         >
-          {toUpperLowerCase(study.studiesCodes.map(code => code.display).join(', '))}
+          {report.description ?? 'Sin descripción'}
         </div>
         <div className='flex flex-row gap-2'>
           <div className={`font-normal ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}>
-            {moment(study.authoredDate.split('T')[0]).format('DD/MM/YYYY')}
+            {moment(report.effectiveDate).format('DD/MM/YYYY')}
           </div>
-          <div className={`${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}>{countDays(study.authoredDate.split('T')[0])}</div>
+          <div className={`${darkMode ? 'group-hover:text-gray-500 text-white' : 'text-gray-500'}`}>{countDays(report.effectiveDate.toString())}</div>
         </div>
         <span className='w-full h-0' style={{ borderBottom: darkMode ? '1px solid rgba(247, 244, 244, 0.2)' : '1px solid #F7F4F4' }}></span>
       </div>
@@ -102,4 +102,4 @@ const ServiceRequestCard = ({
 }
 
 
-export default ServiceRequestCard
+export default DiagnosticReportCard
