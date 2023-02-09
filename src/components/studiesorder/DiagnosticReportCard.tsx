@@ -16,6 +16,7 @@ const categoryIssuedOrders = {
 const DiagnosticReportCard = ({
   selected = false,
   report = {} as DiagnosticReport,
+  getReportDetail = (id: string) => { },
   onActiveId = (id: string) => { },
   darkMode = false,
   onShowReportDetail = () => { },
@@ -43,9 +44,9 @@ const DiagnosticReportCard = ({
         minHeight: '102px'
       }}
       onClick={() => {
-        // getRecordPatientDetail(patientRecord.encounterDto.id)
+        getReportDetail(report.id)
         // onActiveID(patientRecord.encounterDto.id)
-        // onShowDetail()
+        onShowReportDetail()
       }}
       onMouseOver={() => { setBackground('#f4f5f7') }}
       onMouseLeave={() => { updateBackground() }}
