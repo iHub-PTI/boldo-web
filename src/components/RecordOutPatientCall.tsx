@@ -375,6 +375,40 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
       .finally(() => setLoadingDiagnosticReports(false))
   }
 
+  const getDiagnosticReportDetail = async (diagnosticReportId: String) => {
+    const url = `/profile/doctor/diagnosticReport/${diagnosticReportId}`
+
+    setLoadingDiagnosticReportsDetails(true)
+    await axios
+      .get(url)
+      .then((res) => {
+        debugger
+        setDiagnosticReportsDetail(res.data)
+      })
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the diagnostic report details")
+        Sentry.captureException(err)
+      })
+      .finally(() => setLoadingDiagnosticReportsDetails(false))
+  }
 
   return (
     <div className='flex flex-no-wrap relative h-full'>
