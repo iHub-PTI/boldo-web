@@ -56,6 +56,28 @@ export interface DiagnosticReport {
   sourceType?:       string;
 }
 
+// this structure represent the study details come from patient
+export interface DiagnosticReportDetails {
+  attachmentNumber?: string;
+  attachmentUrls?:   AttachmentURL[];
+  category?:         string;
+  description?:      string;
+  effectiveDate?:    Date;
+  id?:               string;
+  patientId?:        string;
+  serviceRequestId?: string;
+  source?:           string;
+  sourceID?:         string;
+  sourceType?:       string;
+}
+
+export interface AttachmentURL {
+  contentType?: string;
+  title?:       string;
+  url?:         string;
+}
+
+
 // this structure represent a study order come from doctor
 export interface ServiceRequest {
   authoredDate?:      string;
