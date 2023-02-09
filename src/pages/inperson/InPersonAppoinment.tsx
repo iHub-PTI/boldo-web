@@ -29,7 +29,10 @@ export default function Dashboard() {
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
   const { addToast } = useToasts()
-  
+
+  useEffect(()=>{
+    if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
+  },[DynamicMenuSelector])
 
   useEffect(() => {
     let mounted = true
