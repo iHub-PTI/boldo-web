@@ -20,6 +20,7 @@ import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/c
 import useWindowDimensions from "../util/useWindowDimensions";
 import NoResults from './icons/NoResults';
 import DiagnosticReportCard from './studiesorder/DiagnosticReportCard';
+import DiagnosticReportDetails from './studiesorder/DiagnosticReportDetails';
 
 
 type Props = {
@@ -35,62 +36,56 @@ const stylePanelSidebar = {
 // uncomment when necessary
 // type ServiceRequests = Array<Boldo.ServiceRequest>
 type DiagnosticReports = Array<Boldo.DiagnosticReport>
+type DiagnosticReportDetails = Boldo.DiagnosticReportDetails
 
 const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
-
+  
+  // error page
+  const { addErrorToast } = useToasts()
+  const container = useRef<HTMLDivElement>(null)
+  const [hoverSidebar, setHoverSidebar] = useState(false)
+  const { width } = useWindowDimensions()
+  
+  
+  //show Detail
+  const [loading, setLoading] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
+  const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
+  const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
+  const [error, setError] = useState(false)
+  // reference to listen to scroll event
+  const scrollEvent = useRef<HTMLDivElement>()
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
+  // Scroll Trigger loading
+  const [loadingScroll, setLoadingScroll] = useState(false)
+  // pagination parameters
+  const countPage = 10
+  const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
+  //Detail activated
+  const [activeID, setActiveID] = useState('')
+  //Filters
+  const [inputContent, setInputContent] = useState('')
+  // all doctors or current doctor doctor.id or ALL doctors
+  const [filterDoctor, setFilterDoctor] = useState('ALL')
+  //filter order ASC or DESC
+  const [filterOrder, setFilterOrder] = useState('DESC')
+  
+
+  // Diagnostic Reports
+  const [diagnosticReports, setDiagnosticReports] = useState<DiagnosticReports>(undefined)
   // uncomment when necessary
   // const [studyHistorySelected, setStudyHistorySelected] = useState(false)
   const [diagnosticReportSelected, setDiagnosticReportSelected] = useState<boolean>(false)
-
-  const [hoverSidebar, setHoverSidebar] = useState(false)
-
-  const { width } = useWindowDimensions()
-
-    // error page
-    const [error, setError] = useState(false)
-
-    // reference to listen to scroll event
-    const scrollEvent = useRef<HTMLDivElement>()
-  
-    // Scroll Trigger loading
-    const [loadingScroll, setLoadingScroll] = useState(false)
-  
-    const [recordsPatient, setRecordsPatient] = useState<PatientRecord[]>([])
-  
-    // pagination parameters
-    const countPage = 10
-    const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
-  
-    //Detail activated
-    const [activeID, setActiveID] = useState('')
-  
-    //Filters
-    const [inputContent, setInputContent] = useState('')
-  
-    // all doctors or current doctor doctor.id or ALL doctors
-    const [filterDoctor, setFilterDoctor] = useState('ALL')
-  
-    //filter order ASC or DESC
-    const [filterOrder, setFilterOrder] = useState('DESC')
-  
-    //show Detail
-    const [showDetail, setShowDetail] = useState(false)
-  
-    const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
-    const [loading, setLoading] = useState(false)
-    // uncomment when necessary
-    // const [loadingStudyHistory, setLoadingStudyHistory] = useState<boolean>(false)
-    // const [studyHistoryData, setStudyHistoryData] = useState<ServiceRequests>(undefined)
-    const [loadingDiagnosticReports, setLoadingDiagnosticReports] = useState<boolean>(false)
-    const [diagnosticReports, setDiagnosticReports] = useState<DiagnosticReports>(undefined)
-  
-    const [loadingDetail, setLoadingDetail] = useState(false)
-    const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
-  
-    const { addErrorToast } = useToasts()
-  
-    const container = useRef<HTMLDivElement>(null)
+  // flag to control show or not diagnostic report details
+  const [showDiagnosticReportsDetail, setShowDiagnosticReportsDetail] = useState<boolean>(false)
+  const [diagnosticReportsDetail, setDiagnosticReportsDetail] = useState<DiagnosticReportDetails>(undefined)
+  const [loadingDiagnosticReportsDetails, setLoadingDiagnosticReportsDetails] = useState<boolean>(false)
+  // uncomment when necessary
+  // const [loadingStudyHistory, setLoadingStudyHistory] = useState<boolean>(false)
+  // const [studyHistoryData, setStudyHistoryData] = useState<ServiceRequests>(undefined)
+  const [loadingDiagnosticReports, setLoadingDiagnosticReports] = useState<boolean>(false)
 
 
   const onClickOutPatientRecord = () => {
@@ -545,7 +540,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   activeColor={true}
                 />}
             </div>
-            { diagnosticReportSelected && 
+            { diagnosticReportSelected && !showDiagnosticReportsDetail &&
               <div
                 className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingDiagnosticReports && 'justify-center items-center'} `}
                 style={{ 
@@ -567,9 +562,10 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                         key={index}
                         // selected={}
                         report={report}
+                        getReportDetail={getDiagnosticReportDetail}
                         // onActiveId={}
                         darkMode={true}
-                        // onShowStudyDetail={}
+                        onShowReportDetail={() => {setShowDiagnosticReportsDetail(true)}}
                         isCall={true}
                       />
                     ))
@@ -605,23 +601,25 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     No se encontraron resultados.
                   </div>
                 }
-              </div>}
+              </div>
+            }
 
-            {error && <div className='flex flex-col w-full h-full items-center justify-center'>
-              <div className='mt-6 text-center sm:mt-5'>
-                <h3 className='text-lg font-medium leading-6 text-white' id='modal-headline'>
-                  Ha ocurrido un error al traer los registros
-                </h3>
-              </div>
-              <div className='flex justify-center w-full mt-6 sm:mt-8'>
-                <button
-                  className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
-                  onClick={() => getRecordsPatient({ offset: 1, count: countPage })}
-                >
-                  Inténtar de nuevo
-                </button>
-              </div>
-            </div>}
+            {error && 
+              <div className='flex flex-col w-full h-full items-center justify-center'>
+                <div className='mt-6 text-center sm:mt-5'>
+                  <h3 className='text-lg font-medium leading-6 text-white' id='modal-headline'>
+                    Ha ocurrido un error al traer los registros
+                  </h3>
+                </div>
+                <div className='flex justify-center w-full mt-6 sm:mt-8'>
+                  <button
+                    className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+                    onClick={() => getRecordsPatient({ offset: 1, count: countPage })}
+                  >
+                    Inténtar de nuevo
+                  </button>
+                </div>
+              </div>}
 
 
             {!showDetail && !error &&
@@ -647,6 +645,32 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
                   {loadingDetail && <SpinnerLoading />}
                   {!loadingDetail && <DescripcionRecordPatientDetail data={detailRecordPatient} darkMode={true} isCall={true} />}
+                </div>
+              </div>
+            }
+
+            {showDiagnosticReportsDetail  &&
+              <div className='flex flex-col flex-no-wrap w-full flex-1'>
+                <div className="flex flex-row flex-no-wrap items-start">
+                  <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setShowDiagnosticReportsDetail(false)}>
+                    <ArrowBackIOS fill='#FFFFFF' style={{
+                      margin: '0 auto',
+                      transform: 'scale(.7)',
+                    }} /> atrás
+                  </button>
+                </div>
+                <div
+                  className={`flex flex-col w-full overflow-y-auto scrollbar items-center justify-center mt-5`}
+                  style={{ 
+                    height: ` ${width >= WIDTH_XL
+                      ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 50}px)`
+                      : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + 50}px)`
+                    }` 
+                  }}
+                >
+
+                  {loadingDiagnosticReportsDetails && <SpinnerLoading />}
+                  {!loadingDiagnosticReportsDetails && <DiagnosticReportDetails />}
                 </div>
               </div>
             }
