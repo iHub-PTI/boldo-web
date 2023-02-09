@@ -90,11 +90,13 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const onClickOutPatientRecord = () => {
     setDiagnosticReportSelected(false)
+    setShowDiagnosticReportsDetail(false)
     setRecordOutPatientButton(!recordOutPatientButton)
   }
 
   const onClickDiagnosticReport = () => {
     setRecordOutPatientButton(false)
+    setShowDetail(false)
     setDiagnosticReportSelected(!diagnosticReportSelected)
   }
 
