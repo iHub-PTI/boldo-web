@@ -78,6 +78,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   // uncomment when necessary
   // const [studyHistorySelected, setStudyHistorySelected] = useState(false)
   const [diagnosticReportSelected, setDiagnosticReportSelected] = useState<boolean>(false)
+  const [ReportIdSelected, setReportIdSelected] = useState<string>('')
   // flag to control show or not diagnostic report details
   const [showDiagnosticReportsDetail, setShowDiagnosticReportsDetail] = useState<boolean>(false)
   const [diagnosticReportsDetail, setDiagnosticReportsDetail] = useState<DiagnosticReportDetails>(undefined)
@@ -375,6 +376,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   const getDiagnosticReportDetail = async (diagnosticReportId: String) => {
     const url = `/profile/doctor/diagnosticReport/${diagnosticReportId}`
 
+    if (diagnosticReportsDetail !== undefined) return
     setLoadingDiagnosticReportsDetails(true)
     await axios
       .get(url)
@@ -505,6 +507,8 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 setActiveID('')
               } else if (diagnosticReportSelected) {
                 setDiagnosticReportSelected(false)
+                setShowDiagnosticReportsDetail(false)
+                setReportIdSelected('')
               }
             }}>
               <CloseButton />
@@ -562,12 +566,12 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     : diagnosticReports.map((report, index) => (
                       <DiagnosticReportCard 
                         key={index}
-                        // selected={}
+                        selected={ReportIdSelected === report.id}
                         report={report}
                         getReportDetail={getDiagnosticReportDetail}
-                        // onActiveId={}
-                        darkMode={true}
+                        onActiveId={setReportIdSelected}
                         onShowReportDetail={() => {setShowDiagnosticReportsDetail(true)}}
+                        darkMode={true}
                         isCall={true}
                       />
                     ))
@@ -662,7 +666,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   </button>
                 </div>
                 <div
-                  className={`flex flex-col w-full overflow-y-auto scrollbar items-center justify-center mt-5`}
+                  className={`flex flex-col w-full overflow-y-auto scrollbar ${loadingDiagnosticReportsDetails ? 'items-center justify-center' : ''} mt-5`}
                   style={{ 
                     height: ` ${width >= WIDTH_XL
                       ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 50}px)`
@@ -672,7 +676,11 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                 >
 
                   {loadingDiagnosticReportsDetails && <SpinnerLoading />}
-                  {!loadingDiagnosticReportsDetails && <DiagnosticReportDetails />}
+                  {!loadingDiagnosticReportsDetails && 
+                    <DiagnosticReportDetails 
+                      reportDetails={diagnosticReportsDetail}
+                    />
+                  }
                 </div>
               </div>
             }
