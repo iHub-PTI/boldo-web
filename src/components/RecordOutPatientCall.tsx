@@ -19,7 +19,7 @@ import StudyHistory from './icons/StudyHistory';
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import NoResults from './icons/NoResults';
-import DiagnosticReportCard from './studiesorder/DiagnosticReportCard';
+import DiagnosticReportCard from './studiesorder/Cards/DiagnosticReportCard';
 import DiagnosticReportDetails from './studiesorder/DiagnosticReportDetails';
 
 
@@ -381,7 +381,6 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     await axios
       .get(url)
       .then((res) => {
-        debugger
         setDiagnosticReportsDetail(res.data)
       })
       .catch((err) => {
