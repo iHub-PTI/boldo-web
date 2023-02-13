@@ -45,7 +45,6 @@ const DiagnosticReportCard = ({
         minHeight: '120px'
       }}
       onClick={() => {
-        debugger
         getReportDetail(report.id)
         onActiveId(report.id)
         onShowReportDetail()
