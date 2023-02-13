@@ -1,6 +1,7 @@
 import moment from 'moment'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
+import { Preview } from '../components/studiesorder/Cards/FileCard'
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -169,4 +170,93 @@ export function changeHours(date: Date, hours: number, operation: 'subtract' | '
     date.setHours(date.getHours() + hours)
   }
   return date.toISOString()
+}
+
+// this function can download pdf or image 
+export async function downloadBlob(url: string, contentType: string, title: string) {
+  // unfortunately it is not possible to use axios due to cors policies
+  // we need use XMLHttpRequest
+  try {
+    let request = new XMLHttpRequest()
+    // the boolean value is for async petition
+    request.open("GET", url, true)
+    // this is the type of response that we obtain
+    request.responseType = "blob"
+    request.onload = () => {
+      const blob = new Blob([request.response], { type: contentType })
+      const link = document.createElement('a')
+      document.body.appendChild(link)
+      link.href = window.URL.createObjectURL(blob)
+      link.download = title
+      link.click()
+      setTimeout(() => {
+        // here we free an existing object URL we create previously
+        window.URL.revokeObjectURL(link.href)
+        document.body.removeChild(link)
+      }, 0)
+    }
+    // this will invoke the function we define previously
+    request.send()
+  } catch(err) {
+    Sentry.setTags({
+      'endpoint': url,
+      'method': 'GET'
+    })
+    if (err.response) {
+      // The response was made and the server responded with a 
+      // status code that is outside the 2xx range.
+      Sentry.setTags({
+        'data': err.response.data,
+        'headers': err.response.headers,
+        'status_code': err.response.status
+      })
+    } else if (err.request) {
+      // The request was made but no response was received
+      Sentry.setTag('request', err.request)
+    } else {
+      // Something happened while preparing the request that threw an Error
+      Sentry.setTag('message', err.message)
+    }
+    Sentry.captureMessage("Could not download file")
+    Sentry.captureException(err)
+  }
+}
+
+export function getFileUrl(url: string, contentType: string, setShowPreview: (value: React.SetStateAction<Preview>) => void) {
+    try {
+      let request = new XMLHttpRequest()
+      // the boolean value is for async petition
+      request.open("GET", url, true)
+      // this is the type of response that we obtain
+      request.responseType = "blob"
+      request.onload = () => {
+        const blob = new Blob([request.response], { type: contentType })
+        let fileUrl = URL.createObjectURL(blob)
+        setShowPreview({ contentType: contentType, url: fileUrl })
+      }
+      request.send()
+    } catch(err) {
+      Sentry.setTags({
+        'endpoint': url,
+        'method': 'GET'
+      })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTags({
+          'data': err.response.data,
+          'headers': err.response.headers,
+          'status_code': err.response.status
+        })
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not generate url of the file")
+      Sentry.captureException(err)
+    }
+  
 }
