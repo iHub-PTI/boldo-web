@@ -715,8 +715,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         </Grid>
 
         {initialLoad ? (
-          <div className='flex items-center justify-center w-full h-full py-32'>
-            <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
+          <div className='flex items-center justify-center w-full h-full'>
+            <div className='flex items-center justify-center mx-auto bg-gray-100 rounded-full'>
               <svg
                 className='w-6 h-6 text-secondary-500 animate-spin'
                 xmlns='http://www.w3.org/2000/svg'
