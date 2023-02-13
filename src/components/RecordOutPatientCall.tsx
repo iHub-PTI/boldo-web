@@ -376,7 +376,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
   const getDiagnosticReportDetail = async (diagnosticReportId: String) => {
     const url = `/profile/doctor/diagnosticReport/${diagnosticReportId}`
 
-    if (diagnosticReportsDetail !== undefined) return
+    if (diagnosticReportsDetail && diagnosticReportId === diagnosticReportsDetail.id) return
     setLoadingDiagnosticReportsDetails(true)
     await axios
       .get(url)
