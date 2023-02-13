@@ -45,6 +45,7 @@ const DiagnosticReportCard = ({
         minHeight: '120px'
       }}
       onClick={() => {
+        debugger
         getReportDetail(report.id)
         onActiveId(report.id)
         onShowReportDetail()
@@ -54,7 +55,7 @@ const DiagnosticReportCard = ({
       {...props}
     >
       {/* icon and title */}
-      <div className='flex flex-row '>
+      <div className='flex flex-row'>
         {/* icon for type of category */}
         <div>
           { report &&

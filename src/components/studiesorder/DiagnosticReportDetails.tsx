@@ -21,7 +21,7 @@ const DiagnosticReportDetails = ({reportDetails}: Props) => {
       <div className='pl-1 pb-4 flex flex-col'>
         <span className='text-gray-50'>Realizado en fecha</span>
         {/* date and days */}
-        <div className='flex flex-row flex-wrap justify-between w-56'>
+        <div className='flex flex-row gap-2'>
           {/* date in format DD/MM/YYY  */}
           <span>{moment(reportDetails.effectiveDate).format('DD/MM/YYYY')}</span>
           {/* days */}
