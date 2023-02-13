@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { downloadBlob, getFileUrl } from '../../../util/helpers'
+import CloseIcon from '../../icons/CloseIcon'
 import DownloadIcon from '../../icons/DownloadIcon'
 import ImageIcon from '../../icons/ImageIcon'
 import PdfIcon from '../../icons/PdfIcon'
@@ -70,7 +71,7 @@ const FileCard = ({ file }: Props) => {
               setShowEditModal(false)
             }}
           >
-            x
+            <CloseIcon />
           </button>
         </div>
         {console.log("show preview => ", showPreview)}
