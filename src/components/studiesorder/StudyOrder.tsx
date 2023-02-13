@@ -176,9 +176,9 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
         if (orders.length > 1) {
             let update = [...orders]
             update.splice(key, 1)
-            setOrders(update)
+            setOrders([...update])
         }
-        //console.table(orders)
+        //console.table(update) 
     }
 
     const validateOrders = (orders: Array<Orders>) => {
@@ -305,7 +305,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                                         :
                                         <>
                                             <Grid item xs={5}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
+                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} value={item.category}  />
                                             </Grid>
                                             <Grid item xs={7}>
                                                 <FormGroup>
@@ -324,7 +324,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} />
+                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} value={item.diagnosis} />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>
@@ -336,7 +336,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                                 </Grid>
                                 <Grid >
                                     <Typography>Observaciones</Typography>
-                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} />
+                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} value={item.notes} />
                                 </Grid>
                             </Grid>
                         </FormControl>
