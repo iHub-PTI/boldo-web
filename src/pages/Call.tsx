@@ -9,7 +9,7 @@ import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert'
 import MdClose from '@material-ui/icons/Clear'
-import PersonIcon from '@material-ui/icons/Person'
+// import PersonIcon from '@material-ui/icons/Person'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 // TODO: Clear comments
 // import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
