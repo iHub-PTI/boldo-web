@@ -55,7 +55,7 @@ module.exports = {
   },
   variants: {
     textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
-    opacity: ['disabled'],
+    opacity: ['disabled','hover', 'group-hover'],
     cursor: ['disabled'],
     backgroundColor: ['checked', 'disabled', 'hover'],
     width: ['hover'],
