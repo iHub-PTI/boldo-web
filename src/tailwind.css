@@ -310,3 +310,13 @@ Events
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
 }
+
+/* Styles from MedicalHIstory*/
+.text-color-disabled {
+  color: #ABAFB6;
+}
+
+.input-add-placeholder::placeholder {
+  font-weight: 400;
+}
+/* Styles from MedicalHIstory end*/

@@ -1,8 +1,11 @@
 import React from 'react'
+import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
 
 
 const MedicalHistory = () => {
+  const allergies = [{ name: 'Arritmia' }, { name: 'Ibuprofeno' }, { name: 'Látex' }]
+  const cardio = [{ name: 'prueba' }, { name: 'prueba' }, { name: 'prueba' }]
   return (
     <div className='flex justify-center items-center'>
       <div className='flex flex-col mx-auto pt-10 gap-5 ' style={{ width: '400px' }}>
@@ -21,7 +24,10 @@ const MedicalHistory = () => {
           </div>
 
           <div className='flex flex-col w-full pl-2 pr-1'>
-            <CardListWarning title='Alergias y sensibilidades' />
+            <CardListWarning title='Alergias y sensibilidades' dataList={allergies} />
+          </div>
+          <div className='flex flex-col w-full pl-2 pr-1'>
+            <CardList title={'Cardiopatías'} dataList={cardio} />
           </div>
         </div>
       </div>
