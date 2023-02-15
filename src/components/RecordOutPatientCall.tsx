@@ -75,6 +75,9 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   // Diagnostic Reports
   const [diagnosticReports, setDiagnosticReports] = useState<DiagnosticReports>(undefined)
+  const [diagnosticReportError, setDiagnosticReportError] = useState<boolean>(false)
+  const [diagnosticReportDetailError, setDiagnosticReportDetailError] = useState<boolean>(false)
+  const [diagnosticReportDetailErrorId, setDiagnosticReportDetailErrorId] = useState<string>('')
   // uncomment when necessary
   // const [studyHistorySelected, setStudyHistorySelected] = useState(false)
   const [diagnosticReportSelected, setDiagnosticReportSelected] = useState<boolean>(false)
@@ -222,7 +225,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     if (id === activeID) return
     setLoadingDetail(true)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
+      .get(`/profile/doctor/patientt/${patientId}/encounters/${id}`)
       .then(res => {
         //console.log('data record patient details', res.data)
         setDetailRecordPatient(res.data)
@@ -345,9 +348,11 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         }
       })
       .then((res) => {
+        setDiagnosticReportError(false)
         setDiagnosticReports(res.data.items as DiagnosticReports)
       })
       .catch((err) => {
+        setDiagnosticReportError(true)
         Sentry.setTags({
           'endpoint': `${url}?patient_id=${patientId}`,
           'method': 'GET'
@@ -373,14 +378,16 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
       .finally(() => setLoadingDiagnosticReports(false))
   }
 
-  const getDiagnosticReportDetail = async (diagnosticReportId: String) => {
+  const getDiagnosticReportDetail = async (diagnosticReportId: string) => {
     const url = `/profile/doctor/diagnosticReport/${diagnosticReportId}`
-
+    
     if (diagnosticReportsDetail && diagnosticReportId === diagnosticReportsDetail.id) return
     setLoadingDiagnosticReportsDetails(true)
     await axios
       .get(url)
       .then((res) => {
+        setDiagnosticReportDetailError(false)
+        setDiagnosticReportDetailErrorId('')
         setDiagnosticReportsDetail(res.data)
       })
       .catch((err) => {
@@ -404,6 +411,9 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
         }
         Sentry.captureMessage("Could not get the diagnostic report details")
         Sentry.captureException(err)
+        setDiagnosticReportsDetail(undefined)
+        setDiagnosticReportDetailErrorId(diagnosticReportId)
+        setDiagnosticReportDetailError(true)
       })
       .finally(() => setLoadingDiagnosticReportsDetails(false))
   }
@@ -522,7 +532,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
               <CloseButton />
             </button>
           </div>
-          <div className={`flex flex-col flex-1 p-2 items-center`} style={stylePanelSidebar}>
+          <div className={`flex flex-col flex-1 p-2 items-center ${diagnosticReportDetailError ? 'justify-center' : ''}`} style={stylePanelSidebar}>
             <div className='flex flex-row flew-no-wrap w-full items-center'>
               {!showDetail && !diagnosticReportSelected &&
                 <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
@@ -554,9 +564,10 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   activeColor={true}
                 />}
             </div>
+
             { diagnosticReportSelected && !showDiagnosticReportsDetail &&
               <div
-                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loadingDiagnosticReports && 'justify-center items-center'} `}
+                className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${(loadingDiagnosticReports || diagnosticReportError) && 'justify-center items-center'} `}
                 style={{ 
                   height: ` ${width >= WIDTH_XL
                     ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 11}px)`
@@ -585,8 +596,28 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     ))
                   )
                 }
+                { diagnosticReportError && !loadingDiagnosticReports &&
+                  (
+                    <div>
+                      <div className='mt-6 text-center sm:mt-5'>
+                        <h3 className='text-lg font-medium leading-6 text-white' id='modal-headline'>
+                          Ha ocurrido un error al traer los registros
+                        </h3>
+                      </div>
+                      <div className='flex justify-center w-full mt-6 sm:mt-8'>
+                        <button
+                          className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+                          onClick={() => loadDiagnosticReports(appointment.patientId)}
+                        >
+                          Intentar nuevamente
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
               </div>
             }
+
             {!showDetail && !error && recordOutPatientButton &&
               <div
                 className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
@@ -630,11 +661,11 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                     className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
                     onClick={() => getRecordsPatient({ offset: 1, count: countPage })}
                   >
-                    Inténtar de nuevo
+                    Intentar nuevamente
                   </button>
                 </div>
-              </div>}
-
+              </div>
+            }
 
             {!showDetail && !error &&
               <div className='flex flex-row flex-no-wrap relative w-full justify-center'>
@@ -663,7 +694,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
               </div>
             }
 
-            {showDiagnosticReportsDetail  &&
+            {showDiagnosticReportsDetail  && !diagnosticReportDetailError &&
               <div className='flex flex-col flex-no-wrap w-full flex-1'>
                 <div className="flex flex-row flex-no-wrap items-start">
                   <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setShowDiagnosticReportsDetail(false)}>
@@ -691,6 +722,27 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
                   }
                 </div>
               </div>
+            }
+            { showDiagnosticReportsDetail && diagnosticReportDetailError && 
+              (
+                loadingDiagnosticReportsDetails 
+                ? <SpinnerLoading />
+                : <div>
+                    <div className='mt-6 text-center sm:mt-5'>
+                      <h3 className='text-lg font-medium leading-6 text-white' id='modal-headline'>
+                        Ha ocurrido un error al traer los detalles del registro
+                      </h3>
+                    </div>
+                    <div className='flex justify-center w-full mt-6 sm:mt-8'>
+                      <button
+                        className='px-4 py-2 text-lg font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+                        onClick={() => getDiagnosticReportDetail(diagnosticReportDetailErrorId)}
+                      >
+                        Intentar nuevamente
+                      </button>
+                    </div>
+                  </div>
+              )
             }
           </div>
         </div>
