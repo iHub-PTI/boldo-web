@@ -356,7 +356,11 @@ const Gate = () => {
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status !== 'locked') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                }
               }
             }}
           />
