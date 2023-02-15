@@ -225,7 +225,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
     if (id === activeID) return
     setLoadingDetail(true)
     await axios
-      .get(`/profile/doctor/patientt/${patientId}/encounters/${id}`)
+      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
       .then(res => {
         //console.log('data record patient details', res.data)
         setDetailRecordPatient(res.data)
@@ -380,7 +380,7 @@ const RecordOutPatientCall: React.FC<Props> = ({ children, appointment }) => {
 
   const getDiagnosticReportDetail = async (diagnosticReportId: string) => {
     const url = `/profile/doctor/diagnosticReport/${diagnosticReportId}`
-    
+
     if (diagnosticReportsDetail && diagnosticReportId === diagnosticReportsDetail.id) return
     setLoadingDiagnosticReportsDetails(true)
     await axios
