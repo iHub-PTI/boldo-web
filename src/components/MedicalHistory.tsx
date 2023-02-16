@@ -1,6 +1,7 @@
 import React from 'react'
 import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
+import TableGynecology from './medical-history/TableGynecology';
 
 
 const MedicalHistory = () => {
@@ -30,6 +31,7 @@ const MedicalHistory = () => {
             <CardList title={'Cardiopatías'} dataList={cardio} />
           </div>
         </div>
+        <TableGynecology />
       </div>
     </div>
   )

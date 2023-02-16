@@ -3,6 +3,9 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   purge: ['src/**/*.js', 'src/**/*.jsx', 'src/**/*.ts', 'src/**/*.tsx', 'public/**/*.html'],
   theme: {
+    colors: {
+      'neutral-gray': '#F7F4F4',
+    },
     extend: {
       fontSize: {
         xxs: '.5rem',
@@ -43,7 +46,7 @@ module.exports = {
           700: '#99928C',
           800: '#66625D',
           900: '#33312F',
-        },
+        }
       },
       screens: {
         'md-max': { max: '1024px' },
