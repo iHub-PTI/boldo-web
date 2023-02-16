@@ -28,14 +28,14 @@ const CardList = ({ title = '', dataList = [] }) => {
   }
 
   return (
-    <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2'
+    <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
         background: background
       }}
     >
-      <div className='flex flex-row flex-no-wrap font-normal text-gray-500 text-sm pb-1 group gap-2 items-center'>
+      <div className='flex flex-row flex-no-wrap font-normal text-gray-500 text-sm pb-1 gap-2 items-center'>
         {title}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
           <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-opacity delay-200 ease-in-out' />

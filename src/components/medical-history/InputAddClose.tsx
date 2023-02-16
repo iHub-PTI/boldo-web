@@ -19,8 +19,13 @@ const InputAddClose: React.FC<Props> = ({
   const [text, setText] = useState('')
 
   const handleClickClose = () => {
-    setText('')
     setShow(false)
+    setText('')
+  }
+
+  const handleClickAdd = () => {
+    setShow(false)
+    setText('')
   }
 
   return (
@@ -44,7 +49,7 @@ const InputAddClose: React.FC<Props> = ({
           placeholder={placeholder} autoComplete="off"
         />
         <div className='flex flex-row flex-no-wrap gap-3 items-center'>
-          <button className='focus:outline-none'>
+          <button className='focus:outline-none' onClick={() => handleClickAdd()}>
             <CheckIcon active={true} />
           </button>
           <button className='focus:outline-none' onClick={() => handleClickClose()}>

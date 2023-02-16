@@ -28,8 +28,8 @@ const CardList: React.FC<Props> = ({ title = '', dataList = [], backgroundColor 
   }
 
   return (
-    <div className='flex flex-col w-full rounded-lg pb-4' style={{ backgroundColor: backgroundColor }}>
-      <div className='flex flex-row justify-start gap-2 p-2 font-medium items-center group' style={{ color: '#DB7D68' }}>
+    <div className='flex flex-col w-full rounded-lg pb-4 group' style={{ backgroundColor: backgroundColor }}>
+      <div className='flex flex-row justify-start gap-2 p-2 font-medium items-center' style={{ color: '#DB7D68' }}>
         <WarningIcon />
         {title}
         <button className='focus:outline-none' onClick={() => { handleClickAdd() }}>
