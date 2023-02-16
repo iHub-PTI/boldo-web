@@ -356,10 +356,12 @@ const Gate = () => {
                 }
               } else {
                 console.log("there is not prescriptions");
-                if (appointment?.status !== 'locked') {
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
                   addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
                 } else if (appointment?.status === 'locked') {
                   addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
                 }
               }
             }}
@@ -577,7 +579,13 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
+                }
               }
             }}
           />
