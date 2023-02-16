@@ -1,8 +1,5 @@
 import React, { useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
-import CheckIcon from '../icons/CheckIcon'
-import CloseButton from '../icons/CloseButton'
-import CloseCrossIcon from '../icons/CloseCrossIcon'
 import InputAddClose from './InputAddClose'
 import ItemList from './ItemList'
 
@@ -14,6 +11,7 @@ type Props = {
 const CardList = ({ title = '', dataList = [] }) => {
 
   const [hover, setHover] = useState(false)
+  const [showInput, setShowInput] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
   const Empty = () => {
@@ -23,6 +21,10 @@ const CardList = ({ title = '', dataList = [] }) => {
     >
       Ninguno
     </span>
+  }
+
+  const handleClickAdd = () => {
+    setShowInput(true)
   }
 
   return (
@@ -35,12 +37,12 @@ const CardList = ({ title = '', dataList = [] }) => {
     >
       <div className='flex flex-row flex-no-wrap font-normal text-gray-500 text-sm pb-1 group gap-2 items-center'>
         {title}
-        <button className='focus:outline-none'>
+        <button className='focus:outline-none' onClick={() => handleClickAdd()}>
           <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-opacity delay-200 ease-in-out' />
         </button>
       </div>
-      <div className='flex flex-col w-full pr-5 pl-2'>
-        <InputAddClose />
+      <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
+        <InputAddClose show={showInput} setShow={setShowInput} />
         {dataList.map((data, i) => <ItemList key={'card_list_' + i} name={data.name} date={data.date} />)}
         <Empty />
       </div>
