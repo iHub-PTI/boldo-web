@@ -56,9 +56,9 @@ const Toast: React.FC<{ toast: Toast }> = ({ toast }) => {
 }
 
 interface Toast {
-  type: 'success' | 'error' | 'warning' | 'info'
   title?: string
   text?: string
+  type: 'success' | 'error' | 'warning' | 'info'
   id: string
 }
 
@@ -75,9 +75,7 @@ export const ToastProvider: React.FC = ({ children }) => {
     () => ({
       add: (toast: Omit<Toast, 'id'>) => {
         const id = generateUEID()
-        // previously all values ​​were added to a list. This makes it difficult to control to prevent overlaps
-        // setToasts(toasts => [...toasts, { ...toast, id }])
-        setToasts(toasts => [{ ...toast, id }])
+        setToasts(toasts => [...toasts, { ...toast, id }])
       },
     }),
     []
@@ -109,7 +107,7 @@ export const useToasts = () => {
     () => ({
       addToast: ctx.add,
       addErrorToast: (text: string) => {
-        ctx.add({ type: 'error', title: 'Error', text: text.toString() })
+        ctx.add({ title: 'Error', text: text.toString(), type: 'error' })
       },
     }),
     [ctx]
