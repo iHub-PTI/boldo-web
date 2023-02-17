@@ -35,6 +35,24 @@ const AddClose = ({ show, setShow, ...props }) => {
   )
 }
 
+const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos' }) => {
+  return (
+    <div className='flex flex-row flex-no-wrap rounded-md h-9 p-1 items-center w-full'
+      style={{ background: 'rgba(247, 244, 244, 0.6)' }}>
+      <div className='flex flex-row flex-no-wrap font-normal text-sm leading-4 text-color-disabled gap-1 w-6/12 h-8 items-center'>
+        {beforeTitle} <span className='text-cool-gray-700 text-sm font-normal'>{title}</span>
+      </div>
+      <div className='flex flex-row flex-no-wrap w-6/12 h-7 bg-white rounded-md'>
+        <input className='text-center text-sm focus:outline-none bg-transparent disabled:bg-transparent w-full rounded-md' type="text" placeholder={placeholder}
+          disabled={isDisabled}
+          onFocus={(event) => event.target.placeholder = ''}
+          onBlur={(event) => event.target.placeholder = placeholder}
+        />
+      </div>
+    </div>
+  )
+}
+
 
 const TableGynecology = () => {
 
@@ -65,17 +83,37 @@ const TableGynecology = () => {
           <AddClose show={showEdit} setShow={setShowEdit} />
         </div>
       </div>
-      <div className='flex flex-col flex-no-wrap w-full pt-3'>
-        <div className='flex flex-row flex-no-wrap rounded-sm h-8 p-1 items-center w-full'>
-          <div className='flex flex-row flex-no-wrap font-normal text-sm leading-4 text-color-disabled gap-1 w-6/12 h-8 items-center'>
-            Cantidad de <span className='text-cool-gray-700 text-sm font-normal'>Gestas</span>
-          </div>
-          <div className='flex flex-row flex-no-wrap w-6/12 h-8 bg-white'>
-            <input className='text-center text-sm focus:outline-none disabled:bg-transparent w-full' type="text" placeholder='Sin Datos'
-              disabled={!showEdit}
-            />
-          </div>
-        </div>
+      <div className='flex flex-col flex-no-wrap w-full pt-3 gap-1'>
+        <RowTable
+          beforeTitle={'Cantidad de'}
+          title='Gestas'
+          isDisabled={!showEdit}
+        />
+        <RowTable
+          beforeTitle={'Cantidad de'}
+          title='Partos'
+          isDisabled={!showEdit}
+        />
+        <RowTable
+          beforeTitle={'Cantidad de'}
+          title='Cesáreas'
+          isDisabled={!showEdit}
+        />
+        <RowTable
+          beforeTitle={'Cantidad de'}
+          title='Abortos'
+          isDisabled={!showEdit}
+        />
+        <RowTable
+          beforeTitle={'Edad de'}
+          title='Menarquía'
+          isDisabled={!showEdit}
+        />
+        <RowTable
+          beforeTitle={''}
+          title='Ultima menstruación'
+          isDisabled={!showEdit}
+        />
       </div>
     </div>
   )

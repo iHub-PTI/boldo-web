@@ -5,6 +5,7 @@ module.exports = {
   theme: {
     colors: {
       'neutral-gray': '#F7F4F4',
+      'transparent-gray': 'rgba(247, 244, 244, 0.6)'
     },
     extend: {
       fontSize: {
