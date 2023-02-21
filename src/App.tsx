@@ -5,9 +5,7 @@ import io from 'socket.io-client'
 
 import Call from './pages/Call'
 import Dashboard from './pages/Dashboard'
-import Home from './pages/Home'
 import Settings from './pages/Settings'
-import SettingsNew from './pages/Settingsnew'
 import ValidatePatient from './pages/ValidatePatient'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import Error from './components/Error'
@@ -17,8 +15,12 @@ import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
 import * as Sentry from "@sentry/react";
+import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
+import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
+import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
+import { changeHours } from './util/helpers'
 
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
@@ -34,16 +36,35 @@ export const UserContext = createContext<{
 const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
+  // Context API Organization Boldo MultiOrganization
+  const { setOrganization } = useContext(OrganizationContext)
+  const { setOrganizations } = useContext(AllOrganizationContext)
 
   useEffect(() => {
     if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
       axios.interceptors.response.use(
         response => response,
         async error => {
-          if (error.response?.status === 401 && error.response?.data?.message) {
-            window.location.href = error.response.data.message
-            delete error.response.data.message
+          if (error.response) {
+            if (error.response.status === 401 && error.response.data?.message) {
+              window.location.href = error.response.data.message
+              delete error.response.data.message
+            }
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTags({
+              'data': error.response.data,
+              'headers': error.response.headers,
+              'status_code': error.response.status
+            })
+          } else if (error.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', error.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', error.message)
           }
+          Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
@@ -54,13 +75,34 @@ const App = () => {
 
   useEffect(() => {
     const effect = async () => {
+      const url = '/profile/doctor'
       try {
-        const res = await axios.get('/profile/doctor')
+        const res = await axios.get(url)
         setUser(res.data)
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
+        Sentry.setTag("endpoint", url);
+        Sentry.setTag("method_used", "GET")
+        if (err.response) {
+          // La respuesta fue hecha y el servidor respondió con un código de estado
+          // que esta fuera del rango de 2xx
+          Sentry.setTag('data', err.response.data);
+          Sentry.setTag('headers', err.response.headers);
+          Sentry.setTag('status_code', err.response.status);
+        } else if (err.request) {
+          // La petición fue hecha pero no se recibió respuesta
+          Sentry.setTag('request', err.request);
+          console.log(err.request);
+        } else {
+          // Algo paso al preparar la petición que lanzo un Error
+          Sentry.setTag('message', err.message);
+          console.log('Error', err.message);
+        }
+        Sentry.captureMessage("could not get the profile of the doctor")
+        Sentry.captureException(err)
+        // here the error is critical, therefore we show the Error component
         if (err?.response?.status !== 401) setError(true)
       }
     }
@@ -70,6 +112,47 @@ const App = () => {
       setError(false)
     }
   }, [])
+
+  // load the organization
+  useEffect(() => {
+    const url = '/profile/doctor/organizations';
+    axios.get(
+      url
+    )
+    .then(function (res) {
+      if (res.status === 200) {
+        // set all the organizations in the context
+        setOrganizations([...res.data]);
+        // for default we use the first organization as the selectetd
+        setOrganization(res.data[0]);
+      } else if (res.status === 204) {
+        // when the response is 204 it means that there is no organization
+        setOrganizations([])
+      }
+    })
+    .catch(function (err) {
+      console.log("when obtain organizations ", err);
+      Sentry.setTag("endpoint", url);
+      if (err.response) {
+        // La respuesta fue hecha y el servidor respondió con un código de estado
+        // que esta fuera del rango de 2xx
+        Sentry.setTag('data', err.response.data);
+        Sentry.setTag('headers', err.response.headers);
+        Sentry.setTag('status_code', err.response.status);
+      } else if (err.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        Sentry.setTag('request', err.request);
+        console.log(err.request);
+      } else {
+        // Algo paso al preparar la petición que lanzo un Error
+        Sentry.setTag('message', err.message);
+        console.log('Error', err.message);
+      }
+      Sentry.captureMessage('Could not get organizations')
+      Sentry.captureException(err)
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateUser = (arg: Partial<Boldo.Doctor>) => {
     setUser(user => (user ? { ...user, ...arg } : undefined))
@@ -85,11 +168,12 @@ const App = () => {
           <RoomsProvider>
             <div className='antialiased App'>
               <Switch>
-                
                 <Route exact path='/'>
-                  <Dashboard />
+                  <PrescriptionContextProvider>
+                    <Dashboard />
+                  </PrescriptionContextProvider>
                 </Route>
-                
+
                 <Route exact path='/settings'>
                   <Settings />
                 </Route>
@@ -99,11 +183,15 @@ const App = () => {
                 </Route>
 
                 <Route exact path='/appointments/:id/call'>
-                  <Call />
+                  <PrescriptionContextProvider>
+                    <Call />
+                  </PrescriptionContextProvider>
                 </Route>
 
                 <Route exact path='/appointments/:id/inperson'>
-                  <InPersonAppoinment />
+                  <PrescriptionContextProvider>
+                    <InPersonAppoinment />
+                  </PrescriptionContextProvider>
                 </Route>
 
                 <Route exact path='/boldo-app-privacy-policy'>
@@ -117,14 +205,14 @@ const App = () => {
                 <Route>
                   <Redirect to='/' />
                 </Route>
-                
-                {/* <Route exact path='/settingsnew'>
-                  <SettingsNew />
-                </Route>
 
-                <Route exact path='/home'>
-                  <Home />
-                </Route> */}
+                {/* <Route exact path='/settingsnew'>
+                <SettingsNew />
+              </Route>
+
+              <Route exact path='/home'>
+                <Home />
+              </Route> */}
 
               </Switch>
             </div>
@@ -135,7 +223,7 @@ const App = () => {
   )
 }
 
-export default App
+export default Sentry.withProfiler(App)
 
 //
 // ////////////////////////////////////////////////////////////////////////////
@@ -179,6 +267,10 @@ export const RoomsProvider: React.FC = ({ children }) => {
   const appointments = useRef<AppointmentWithPatient[]>()
   const token = useRef<string>()
   const socket = useContext(SocketContext)
+  // Context API Organization Boldo MultiOrganization
+  const { Organization } = useContext(OrganizationContext)
+  const { Organizations } = useContext(AllOrganizationContext)
+
 
   useEffect(() => {
     if (!socket) return
@@ -213,25 +305,59 @@ export const RoomsProvider: React.FC = ({ children }) => {
     }
   }, [socket])
 
+  // this find patients in waiting room
   useEffect(() => {
     if (!socket) return
 
+    let today = Date.now()
+    let hours = 2
+
     const load = async () => {
-      const res = await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        '/profile/doctor/appointments?status=open'
+      const url = '/profile/doctor/appointments?status=open'
+      await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
+        url, {
+          params: {
+            start: changeHours(new Date(today), hours, 'subtract'),
+            end: changeHours(new Date(today), hours, 'add')
+          }
+        }
       )
-      token.current = res.data.token
-      appointments.current = res.data.appointments
-      if (appointments.current?.length) {
-        socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
-      }
+      .then((res) => {
+        token.current = res.data.token
+        appointments.current = res.data.appointments
+        if (appointments.current?.length) {
+          socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
+        }
+      })
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'org_id': Organization.id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get appointments for waiting room")
+        Sentry.captureException(err)
+      })
     }
 
-    load()
+    Organization && load()
 
     const timer = setInterval(() => load(), 60800)
     return () => clearInterval(timer)
-  }, [socket])
+  }, [socket, Organizations, Organization])
 
   const value = useMemo(() => ({ rooms }), [rooms])
 

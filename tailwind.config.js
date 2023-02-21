@@ -46,13 +46,19 @@ module.exports = {
         },
       },
       screens: {
-        'md-max': {max: '1024px'},
-        'sm-max': {max: '600px'},
+        'md-max': { max: '1024px' },
+        'sm-max': { max: '600px' },
         '2xl': '1920px',
       },
       maxHeight: { 0: '0', 200: '200px' },
     },
   },
-  variants: { textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'], opacity: ['disabled'], cursor:['disabled'], backgroundColor: ['checked', 'disabled', 'hover'], width:['hover']},
+  variants: {
+    textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
+    opacity: ['disabled'],
+    cursor: ['disabled'],
+    backgroundColor: ['checked', 'disabled', 'hover'],
+    width: ['hover'],
+  },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }

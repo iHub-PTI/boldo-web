@@ -6,11 +6,16 @@
 export as namespace Boldo
 
 export interface Doctor extends iHub.Doctor {
-  openHours: OpenHours
+  blocks: Array<Block>
   new: boolean
 }
 
 type Interval = { start: number; end: number,appointmentType:string }
+
+interface Block {
+  openHours: OpenHours,
+  idOrganization: string
+}
 
 interface OpenHours {
   mon: Interval[]
@@ -27,4 +32,13 @@ export interface Appointment extends iHub.Appointment {
   type: 'PrivateEvent' | 'CustomAppointment' | 'Appointment'
   status: 'upcoming' | 'open' | 'closed' | 'locked' | 'cancelled'
   appointmentType:string
+}
+
+//Boldo Multi-Organizations
+export interface Organization {
+  active: boolean,
+  id: string,
+  name: string,
+  type: string,
+  colorCode: string
 }

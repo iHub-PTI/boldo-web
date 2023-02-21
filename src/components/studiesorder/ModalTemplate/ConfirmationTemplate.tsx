@@ -30,7 +30,7 @@ const ConfirmationTemplate = ({isOpen, setIsOpen, title, message, callBack=()=>{
                         onClick={() => {
                             callBack()
                         }}
-                        className=' inline-flex items-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600
+                        className=' inline-flex justify-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600
                         disabled:bg-gray-300 disabled:cursor-not-allowed
                         '
                         disabled={loading}

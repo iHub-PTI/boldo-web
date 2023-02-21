@@ -68,14 +68,22 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
+import Print from '../components/icons/Print'
+import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
+import { getReports } from '../util/helpers'
+import * as Sentry from '@sentry/react'
+
+
+import RecordOutPatientCall from '../components/RecordOutPatientCall'
+import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
 
 const Gate = () => {
   const history = useHistory()
   const socket = useContext(SocketContext)
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -88,37 +96,85 @@ const Gate = () => {
   const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
+  const [loading, setLoading] = useState(false);
 
   const updateStatus = useCallback(
     async (status?: Status) => {
       setInstance(0)
       if (!status) return
 
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        if (['closed', 'open'].includes(status)) await axios.post(`/profile/doctor/appointments/${id}`, { status })
+        if (['closed', 'open'].includes(status)) await axios.post(url, { status })
         setAppointment(appointment => {
           if (!appointment || !status) return
           return { ...appointment, status: status }
         })
       } catch (err) {
-        console.log(err)
-        addErrorToast('No se actualizó el estado de cita.')
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'POST'
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the appointment status")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudo actualizar el estado de la cita. !Inténtelo de nuevo más tarde¡'
+        })
       }
     },
-    [addErrorToast, id]
+    [addToast, id]
   )
 
   useEffect(() => {
     let mounted = true
 
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
         if (mounted) {
-          addErrorToast('¡Fallo en la carga de la cita!')
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'POST'
+          })
+          if (err.response) {
+            // The response was made and the server responded with a 
+            // status code that is outside the 2xx range.
+            Sentry.setTag('data', err.response.data)
+            Sentry.setTag('headers', err.response.headers)
+            Sentry.setTag('status_code', err.response.status)
+          } else if (err.request) {
+            // The request was made but no response was received
+            Sentry.setTag('request', err.request)
+          } else {
+            // Something happened while preparing the request that threw an Error
+            Sentry.setTag('message', err.message)
+          }
+          Sentry.captureMessage("Could not get the appointment")
+          Sentry.captureException(err)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'Falló la carga de la cita. ¡Inténtelo nuevamente más tarde!'
+          })
           history.replace(`/`)
         }
       }
@@ -129,7 +185,7 @@ const Gate = () => {
     return () => {
       mounted = false
     }
-  }, [addErrorToast, history, id])
+  }, [addToast, history, id])
 
   useEffect(() => {
     if (appointment?.status !== 'upcoming') return
@@ -216,7 +272,7 @@ const Gate = () => {
   const useTooltipStyles = makeStyles(() => ({
     tooltip: {
       margin: 20,
-      
+
     },
   }));
 
@@ -252,6 +308,13 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
+
+
+    useEffect(() => {
+      updatePrescriptions(id);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
       <div>
@@ -276,6 +339,29 @@ const Gate = () => {
           />
           <ChildButton
             icon={
+              <Print
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
+                bgColor='transparent'
+                iconColor='white'
+                fromVirtual={true}
+              />
+            }
+            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
+            size={50}
+            onClick={() => {
+              if (prescriptions?.length > 0) {
+                if (!loading && appointment !== undefined) {
+                  addToast({ type: 'success', text: 'Descargando receta...' });
+                  getReports(appointment, setLoading);
+                }
+              } else {
+                console.log("there is not prescriptions");
+                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+              }
+            }}
+          />
+          <ChildButton
+            icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
@@ -285,7 +371,7 @@ const Gate = () => {
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(3); 
+              setSideBarAction(3);
               setSelectedButton(3);
             }}
           />
@@ -298,20 +384,20 @@ const Gate = () => {
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(2); 
+              setSideBarAction(2);
               setSelectedButton(2);
             }}
           />
-          <ChildButton 
+          <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <RecordIcon />
               </Tooltip>
-            } 
+            }
             background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50} 
+            size={50}
             onClick={() => {
-              setSideBarAction(1); 
+              setSideBarAction(1);
               setSelectedButton(1);
             }}
           />
@@ -324,7 +410,7 @@ const Gate = () => {
             background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(0); 
+              setSideBarAction(0);
               setSelectedButton(0);
             }}
           />
@@ -334,46 +420,47 @@ const Gate = () => {
   }
   return (
     <Layout>
-      {instance === 0 ? (
-        <Grid container className='flex  h-full flex-row'>
-          <Grid container item xs={8}>
-            {/* daiting screen here */}
-            <CallStatusMessage
-              status={appointment.status}
-              statusText={statusText}
-              updateStatus={updateStatus}
-              appointmentId={appointment.id}
-            />
-            {/* Togle Menu */}
-            <Grid
-              style={{
-                position: 'fixed',
-                bottom: '0',
-                right: '34%',
-                marginBottom: '20px',
-                zIndex: 1
-              }}
-            >
-              <TogleMenu />
+      <RecordOutPatientCall appointment={appointment}>
+        {instance === 0 ? (
+          <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
+            <div className='flex h-full items-center w-8/12'>
+              {/* daiting screen here */}
+              <CallStatusMessage
+                status={appointment.status}
+                statusText={statusText}
+                updateStatus={updateStatus}
+                appointmentId={appointment.id}
+              />
+              {/* Togle Menu */}
+              <div
+                style={{
+                  position: 'fixed',
+                  bottom: '0',
+                  right: '34%',
+                  marginBottom: '20px',
+                  zIndex: 1
+                }}
+              >
+                <TogleMenu />
+              </div>
+            </div>
+            <Grid container item xs={4} style={{ display: 'grid' }}>
+              {/* patient data screen */}
+              <Card>{controlSideBarState()}</Card>
             </Grid>
-          </Grid>
-          <Grid container item xs={4} style={{ display: 'grid' }}>
-            {/* patient data screen */}
-            <Card>{controlSideBarState()}</Card>
-          </Grid>
-        </Grid>
-      ) : (
-        // </div>
-        <Call
-          appointment={appointment}
-          id={id}
-          token={token}
-          instance={instance}
-          updateStatus={updateStatus}
-          onCallStateChange={onCallStateChange}
-          callStatus={callStatus}
-        />
-      )}
+          </div>
+        ) : (
+          <Call
+            appointment={appointment}
+            id={id}
+            token={token}
+            instance={instance}
+            updateStatus={updateStatus}
+            onCallStateChange={onCallStateChange}
+            callStatus={callStatus}
+          />
+        )}
+      </RecordOutPatientCall>
     </Layout>
   )
 }
@@ -407,6 +494,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
+  const [loading, setLoading] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -431,12 +519,20 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const useTooltipStyles = makeStyles(() => ({
     tooltip: {
       margin: 20,
-      
+
     },
   }));
 
   const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(true);
+
+    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
+
+    useEffect(() => {
+      updatePrescriptions(id);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
       <>
         <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
@@ -460,6 +556,29 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           />
           <ChildButton
             icon={
+              <Print
+                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
+                bgColor='transparent'
+                iconColor='white'
+                fromVirtual={true}
+              />
+            }
+            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
+            size={50}
+            onClick={() => {
+              if (prescriptions?.length > 0) {
+                if (!loading && appointment !== undefined) {
+                  addToast({ type: 'success', text: 'Descargando receta...' });
+                  getReports(appointment, setLoading);
+                }
+              } else {
+                console.log("there is not prescriptions");
+                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+              }
+            }}
+          />
+          <ChildButton
+            icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
@@ -469,7 +588,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(3); 
+              setSideBarAction(3);
               setSelectedButton(3);
             }}
           />
@@ -482,20 +601,20 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(2); 
+              setSideBarAction(2);
               setSelectedButton(2);
             }}
           />
-          <ChildButton 
+          <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <RecordIcon />
               </Tooltip>
-            } 
+            }
             background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50} 
+            size={50}
             onClick={() => {
-              setSideBarAction(1); 
+              setSideBarAction(1);
               setSelectedButton(1);
             }}
           />
@@ -508,7 +627,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             background={selectedButton === 0 ? '#667EEA' : '#323030'}
             size={50}
             onClick={() => {
-              setSideBarAction(0); 
+              setSideBarAction(0);
               setSelectedButton(0);
             }}
           />
@@ -535,7 +654,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full bg-cool-gray-50' style={{height: `${screenWidth > 1535 ? ' 100vh ': 'calc( 100vh - 64px )'}`}}>
+    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft: '88px' }}>
       <div className='relative flex-1'>
         <Stream
           ref={stream}
@@ -700,37 +819,37 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               </svg>
             </button>
             <button
-                    className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-                    onClick={muteVideo}
-                  >
-                    {videoEnabled ? (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M3 5H15C16.1046 5 17 5.89543 17 7V8.38197L23 5.38197V18.618L17 15.618V17C17 18.1046 16.1046 19 15 19H3C1.89543 19 1 18.1046 1 17V7C1 5.89543 1.89543 5 3 5ZM17 13.382L21 15.382V8.61803L17 10.618V13.382ZM3 7V17H15V7H3Z'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className='w-6 h-6'
-                        viewBox='0 0 24 24'
-                        fill='currentColor'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          clipRule='evenodd'
-                          d='M1.70718 0.292892L0.292969 1.70711L3.58586 5H3.00008C1.89551 5 1.00008 5.89543 1.00008 7V17C1.00008 18.1046 1.89551 19 3.00008 19H15.0001C15.7022 19 16.3198 18.6382 16.6767 18.0908L22.293 23.7071L23.7072 22.2929L1.70718 0.292892ZM15.0001 16.4142L5.58586 7H3.00008V17H15.0001V16.4142ZM17.0001 8.38197L23.0001 5.38197V18.3701L21.0001 16.3701V8.61803L17.0001 10.618V13.0008L15.0001 11.0008V7H10.9993L8.99929 5H15.0001C16.1046 5 17.0001 5.89543 17.0001 7V8.38197Z'
-                        />
-                      </svg>
-                    )}
-                  </button>
+              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+              onClick={muteVideo}
+            >
+              {videoEnabled ? (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M3 5H15C16.1046 5 17 5.89543 17 7V8.38197L23 5.38197V18.618L17 15.618V17C17 18.1046 16.1046 19 15 19H3C1.89543 19 1 18.1046 1 17V7C1 5.89543 1.89543 5 3 5ZM17 13.382L21 15.382V8.61803L17 10.618V13.382ZM3 7V17H15V7H3Z'
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className='w-6 h-6'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    clipRule='evenodd'
+                    d='M1.70718 0.292892L0.292969 1.70711L3.58586 5H3.00008C1.89551 5 1.00008 5.89543 1.00008 7V17C1.00008 18.1046 1.89551 19 3.00008 19H15.0001C15.7022 19 16.3198 18.6382 16.6767 18.0908L22.293 23.7071L23.7072 22.2929L1.70718 0.292892ZM15.0001 16.4142L5.58586 7H3.00008V17H15.0001V16.4142ZM17.0001 8.38197L23.0001 5.38197V18.3701L21.0001 16.3701V8.61803L17.0001 10.618V13.0008L15.0001 11.0008V7H10.9993L8.99929 5H15.0001C16.1046 5 17.0001 5.89543 17.0001 7V8.38197Z'
+                  />
+                </svg>
+              )}
+            </button>
 
           </Grid>
 
@@ -747,7 +866,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               <TogleMenu />
             </Grid>
           </Grid>
-        
+
         </div>
         {callStatus.connecting && (
           <div
@@ -975,13 +1094,6 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
   )
 }
 
-// const tabs = [
-//   { name: 'Patient Profile', href: '#', current: false },
-//   { name: 'Medical Data', href: '#', current: false },
-//   { name: 'Team Members', href: '#', current: true },
-//   { name: 'Billing', href: '#', current: false },
-// ]
-
 interface SidebarProps {
   hideSidebar?: () => void
   appointment: AppointmentWithPatient
@@ -1010,100 +1122,19 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   )
 }
 
-// function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
-//   return (
-//     <div className='divide-y divide-gray-200'>
-//       <div className='pb-6'>
-//         <div className='h-24 gradient-primary sm:h-20 lg:h-28' />
-//         <div className='flow-root px-4 -mt-12 space-y-6 sm:-mt-8 sm:flex sm:items-end sm:px-6 sm:space-x-6 lg:-mt-15'>
-//           <div>
-//             <div className='flex -m-1'>
-//               <div className='inline-flex overflow-hidden border-4 border-white rounded-lg'>
-//                 <img
-//                   className='flex-shrink-0 object-cover w-24 h-24 sm:h-40 sm:w-40 lg:w-48 lg:h-48'
-//                   src={appointment.patient.photoUrl || avatarPlaceholder('patient', appointment.patient.gender)}
-//                   alt=''
-//                 />
-//               </div>
-//             </div>
-//           </div>
-//           <div className='space-y-5 sm:flex-1'>
-//             <div>
-//               <h3 className='text-xl font-bold leading-7 text-gray-900 sm:text-2xl sm:leading-8'>
-//                 {appointment.patient.givenName} {appointment.patient.familyName}
-//               </h3>
-
-//               <p className='text-sm leading-5 text-gray-500'>
-//                 <DateFormatted start={appointment.start} end={appointment.end} />
-//               </p>
-//             </div>
-//             {/* <div className='flex flex-wrap'>
-//                 <span className='inline-flex flex-1 w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:ml-3'>
-//                   <button
-//                     type='button'
-//                     className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50'
-//                   >
-//                     Add Prescription
-//                   </button>
-//                 </span>
-//               </div> */}
-//           </div>
-//         </div>
-//       </div>
-//       <div className='px-4 py-5 sm:px-0 sm:py-0'>
-//         <dl className='space-y-8 sm:space-y-0'>
-//           <div className='sm:flex sm:space-x-6 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Edad</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {age}
-//               <time className='pl-2 text-xs' dateTime={appointment.patient.birthDate}>
-//                 ({birthDate})
-//               </time>
-//             </dd>
-//           </div>
-//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Ciudad</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {appointment.patient.city || '-'}
-//             </dd>
-//           </div>
-//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Profesión</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {appointment.patient.job || '-'}
-//             </dd>
-//           </div>
-//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Género</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {lookupGender(appointment.patient.gender) || '-'}
-//             </dd>
-//           </div>
-//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Teléfono</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {appointment.patient.phone || '-'}
-//             </dd>
-//           </div>
-//           <div className='sm:flex sm:space-x-6 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5'>
-//             <dt className='text-sm font-medium leading-5 text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48'>Email</dt>
-//             <dd className='mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2'>
-//               {appointment.patient.email || '-'}
-//             </dd>
-//           </div>
-//         </dl>
-//       </div>
-//     </div>
-//   )
-// }
-
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
+  const { width: screenWidth } = useWindowDimensions()
   return (
-    <Grid>
+    <Grid style={{
+      height: ` ${screenWidth >= WIDTH_XL ? `100vh` : `calc(100vh - ${HEIGHT_NAVBAR}px)`}`,
+      overflowY: 'auto'
+    }}>
       <CardHeader
         title='Paciente'
         titleTypographyProps={{ variant: 'h6' }}
-        style={{ backgroundColor: '#27BEC2', color: 'white' }}
+        style={{
+          backgroundColor: '#27BEC2', color: 'white',
+        }}
       />
 
       <CardContent>
@@ -1124,8 +1155,8 @@ function PationProfile({ appointment, age, birthDate }: { appointment: any; age:
             </Typography>
 
             <Typography variant='subtitle1' color='textSecondary' align='center'>
-              {appointment.patient.identifier == null || appointment.patient.identifier.includes('-') 
-                ? 'Paciente sin cédula' 
+              {appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
+                ? 'Paciente sin cédula'
                 : 'CI ' + appointment.patient.identifier}
             </Typography>
           </Grid>
@@ -1231,7 +1262,7 @@ const useStyles = makeStyles(theme => ({
       textTransform: 'none',
     },
   },
-  input:{
+  input: {
     '&::placeholder': {
       fontWeight: 'bold'
     },
@@ -1247,7 +1278,7 @@ const soepPlaceholder = {
 }
 
 function SOEP({ appointment }: { appointment: any }) {
-  const [value, setValue] = useState(0)
+  const [value] = useState(0)
   const [mainReason, setMainReason] = useState('')
   const [disableMainReason, setDisableMainReason] = useState(false)
   const [subjective, setSubjective] = useState('')
@@ -1297,21 +1328,22 @@ function SOEP({ appointment }: { appointment: any }) {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   } */
 
-  useEffect(()=>{
-    
-        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-          setAppointmentDisabled(true)
-          setDisableMainReason(true)
-        } else {
-          setAppointmentDisabled(false)
-          setDisableMainReason(false)
-        }
+  useEffect(() => {
+
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setAppointmentDisabled(true)
+      setDisableMainReason(true)
+    } else {
+      setAppointmentDisabled(false)
+      setDisableMainReason(false)
+    }
   }, [appointment])
 
   useEffect(() => {
     const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
-        const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`)
+        const res = await axios.get(url)
         const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
         setDiagnose(diagnosis)
         setInstructions(instructions)
@@ -1328,15 +1360,37 @@ function SOEP({ appointment }: { appointment: any }) {
         }
         setInitialLoad(false)
       } catch (err) {
-        console.log(err)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'appointment_id': id
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+        })
         setInitialLoad(false)
-        //@ts-ignore
-        addErrorToast(err)
       }
     }
 
     load()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /* 
@@ -1374,11 +1428,11 @@ function SOEP({ appointment }: { appointment: any }) {
   useEffect(() => {
     if (initialLoad === false) {
 
-      if(mainReason?.trim() === ''){
+      if (mainReason?.trim() === '') {
         setMainReasonRequired(true)
-        return 
+        return
       }
-      else if(mainReason !== undefined && mainReason?.trim() !== '') {
+      else if (mainReason !== undefined && mainReason?.trim() !== '') {
         setMainReasonRequired(false)
         if (partOfEncounterId !== '') {
           debounce({
@@ -1420,47 +1474,51 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
 
-  useEffect(()=>{
-    if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
-    else{
+  useEffect(() => {
+    if (mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+    else {
       setMainReasonRequired(false)
     }
   }, [mainReason])
 
- /*
+  /*
+   // It was decided to hide the implementation of the first and follow-up query. 
   // It was decided to hide the implementation of the first and follow-up query. 
+   // It was decided to hide the implementation of the first and follow-up query. 
+   // Because it's not very clear to the doctors   
   // Because it's not very clear to the doctors   
-  // TODO: Clear comments
-  useEffect(() => {
-    if (showEditModal === true) {
-      // get encounters list
-      const load = async () => {
-        try {
-          const res = await axios.get(
-            `/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`
-          )
-          if (res.data.encounter !== undefined) {
-            var count = Object.keys(res.data.encounter).length
-            const tempArray = []
-            for (var i = 0; i < count; i++) {
-              const data = res.data.encounter[i][0]
-              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
-              tempArray.push(data)
-            }
-            //console.log("a ver ", tempArray)
-            setSoepHistory(tempArray)
-          }
-        } catch (error) {
-          console.log(error)
-          //@ts-ignore
-          addErrorToast(error)
-        }
-      }
-      load()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showEditModal, appointment, encounterId]) */
+   // Because it's not very clear to the doctors   
+   // TODO: Clear comments
+   useEffect(() => {
+     if (showEditModal === true) {
+       // get encounters list
+       const load = async () => {
+         try {
+           const res = await axios.get(
+             `/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`
+           )
+           if (res.data.encounter !== undefined) {
+             var count = Object.keys(res.data.encounter).length
+             const tempArray = []
+             for (var i = 0; i < count; i++) {
+               const data = res.data.encounter[i][0]
+               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
+               tempArray.push(data)
+             }
+             //console.log("a ver ", tempArray)
+             setSoepHistory(tempArray)
+           }
+         } catch (error) {
+           console.log(error)
+           //@ts-ignore
+           addErrorToast(error)
+         }
+       }
+       load()
+     }
+ 
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [showEditModal, appointment, encounterId]) */
 
   /* useEffect(() => {
     //send encounter selected to server
@@ -1528,17 +1586,40 @@ function SOEP({ appointment }: { appointment: any }) {
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         //setIsLoading(true)
-        const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, _encounter)
+        const res = await axios.put(url, _encounter)
         console.log('response', res.data)
         //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
-      } catch (error) {
+      } catch (err) {
         //setIsLoading(false)
-        console.log(error)
-        //@ts-ignore
-        addErrorToast(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'PUT',
+          'appointment_id': id
+        })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not update the encounter")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error.',
+        text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+      })
       }
     }, 1000),
     []
@@ -1785,7 +1866,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   Ci: {appointment.patient.identifier}
                 </Typography>
               </Grid>
-              
+
               {/* 
                   // It was decided to hide the implementation of the first and follow-up query. 
                   // Because it's not very clear to the doctors
@@ -1836,7 +1917,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '': '(obligatorio)'}</span>
+                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '' : '(obligatorio)'}</span>
                 </Typography>
 
                 <TextField
@@ -1846,7 +1927,7 @@ function SOEP({ appointment }: { appointment: any }) {
                   variant='outlined'
                   placeholder={' Ej: Dolor de cabeza prolongado'}
                   style={{
-                    background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                    background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                   }}
                   value={mainReason}
                   onChange={event => {
@@ -1900,11 +1981,11 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
-                        classes: { input: classes.input}
+                        classes: { input: classes.input }
                       }}
                       style={{
                         borderRadius: '4px',
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                       }}
                       value={subjective}
                       onChange={event => {
@@ -1955,16 +2036,16 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionSummary>
                   <AccordionDetails>
                     <TextField
-                      disabled={isAppointmentDisabled || mainReasonRequired }
+                      disabled={isAppointmentDisabled || mainReasonRequired}
                       fullWidth
                       multiline
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
-                        classes: { input: classes.input}
+                        classes: { input: classes.input }
                       }}
                       style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -2024,10 +2105,10 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
-                        classes: { input: classes.input}
+                        classes: { input: classes.input }
                       }}
                       style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
@@ -2087,10 +2168,10 @@ function SOEP({ appointment }: { appointment: any }) {
                       rows='9'
                       InputProps={{
                         disableUnderline: true,
-                        classes: { input: classes.input}
+                        classes: { input: classes.input }
                       }}
                       style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7': '#ffff'}`,
+                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         // border: '2px solid #AAAAAA',
                         // boxSizing: 'border-box',
                         borderRadius: '4px',
