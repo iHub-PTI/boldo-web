@@ -5,15 +5,21 @@ import TrashIcon from '../icons/TrashIcon'
 type Props = {
   name: string,
   date?: Date,
+  deleteItem: () => void,
 }
 
-const ItemList: React.FC<Props> = ({ name, date }) => {
+const ItemList: React.FC<Props> = ({ name, date, deleteItem }) => {
 
   const [hover, setHover] = useState(false)
   const bgColor = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
+  const handleDeleteItem = () => {
+    deleteItem()
+  }
+
+
   return (
-    <div className='flex flex-row flex-no-wrap w-full justify-between px-2 h-10 items-center'
+    <div className='flex flex-row flex-no-wrap w-full justify-between px-2 h-10 items-center mt-1'
       onMouseOver={() => { setHover(true) }}
       onMouseLeave={() => { setHover(false) }}
       style={{
@@ -28,7 +34,7 @@ const ItemList: React.FC<Props> = ({ name, date }) => {
           {date && moment(date).format('DD/MM/YYYY')}
         </span>
         {hover &&
-          <button className='focus:outline-none'>
+          <button className='focus:outline-none' onClick={() => handleDeleteItem()}>
             <TrashIcon />
           </button>
         }

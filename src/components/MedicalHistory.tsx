@@ -1,12 +1,15 @@
 import React from 'react'
 import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
+import InputTextDate from './medical-history/InputTextDate';
 import TableGynecology from './medical-history/TableGynecology';
 
 
 const MedicalHistory = () => {
-  const allergies = [{ name: 'Arritmia' }, { name: 'Ibuprofeno' }, { name: 'Látex' }]
-  const cardio = [{ name: 'prueba' }, { name: 'prueba' }, { name: 'prueba' }]
+  
+  //const allergies = [{ name: 'Arritmia' }, { name: 'Ibuprofeno' }, { name: 'Látex' }]
+  //const cardio = [{ name: 'prueba' }, { name: 'prueba' }, { name: 'prueba' }]
+  
   return (
     <div className='flex justify-center items-center'>
       <div className='flex flex-col mx-auto pt-10 gap-5 ' style={{ width: '400px' }}>
@@ -25,13 +28,14 @@ const MedicalHistory = () => {
           </div>
 
           <div className='flex flex-col w-full pl-2 pr-1'>
-            <CardListWarning title='Alergias y sensibilidades' dataList={allergies} />
+            <CardListWarning title='Alergias y sensibilidades' dataList={[]} />
           </div>
           <div className='flex flex-col w-full pl-2 pr-1'>
-            <CardList title={'Cardiopatías'} dataList={cardio} />
+            <CardList title={'Cardiopatías'} dataList={[]} />
           </div>
         </div>
-        <TableGynecology />
+        {/* <TableGynecology /> */}
+        <InputTextDate show={true}/>
       </div>
     </div>
   )

@@ -1,13 +1,27 @@
 import { Transition } from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 import PencilEditIcon from '../icons/PencilEditIcon'
 
+type GynecologyType = { name: string, subtitle: string, type: number }
+
+const titlesTypesGynecology = [
+  { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number' },
+  { title: 'Partos', beforeTitle: 'Cantidad de', type: 'number' },
+  { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number' },
+  { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number' },
+  { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años' },
+  { title: 'Ultima menstruación', beforeTitle: '', type: 'number' }
+]
 
 const AddClose = ({ show, setShow, ...props }) => {
 
   const handClickClose = () => {
+    setShow(false)
+  }
+
+  const handleClickAdd = () => {
     setShow(false)
   }
 
@@ -27,7 +41,7 @@ const AddClose = ({ show, setShow, ...props }) => {
         <button className='focus:outline-none' onClick={() => handClickClose()}>
           <CloseCrossIcon />
         </button>
-        <button className='focus:outline-none'>
+        <button className='focus:outline-none' onClick={() => handleClickAdd()}>
           <CheckIcon active={true} />
         </button>
       </div>
@@ -35,18 +49,31 @@ const AddClose = ({ show, setShow, ...props }) => {
   )
 }
 
-const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos' }) => {
+const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', tag = '' }) => {
+
+  const [value, setValue] = useState("")
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value)
+  }
+
   return (
-    <div className='flex flex-row flex-no-wrap rounded-md h-9 p-1 items-center w-full'
+    <div className='flex flex-row flex-no-wrap rounded-md h-9 p-1 items-center w-full pl-2'
       style={{ background: 'rgba(247, 244, 244, 0.6)' }}>
       <div className='flex flex-row flex-no-wrap font-normal text-sm leading-4 text-color-disabled gap-1 w-6/12 h-8 items-center'>
         {beforeTitle} <span className='text-cool-gray-700 text-sm font-normal'>{title}</span>
       </div>
       <div className='flex flex-row flex-no-wrap w-6/12 h-7 bg-white rounded-md'>
-        <input className='text-center text-sm focus:outline-none bg-transparent disabled:bg-transparent w-full rounded-md' type="text" placeholder={placeholder}
+        <input className='text-center text-sm focus:outline-none bg-transparent disabled:bg-transparent w-full rounded-md'
+          type="number"
+          min="1"
+          step="1"
+          value={value}
+          placeholder={placeholder}
           disabled={isDisabled}
           onFocus={(event) => event.target.placeholder = ''}
           onBlur={(event) => event.target.placeholder = placeholder}
+          onChange={(event) => { handleChange(event) }}
         />
       </div>
     </div>
@@ -84,36 +111,14 @@ const TableGynecology = () => {
         </div>
       </div>
       <div className='flex flex-col flex-no-wrap w-full pt-3 gap-1'>
-        <RowTable
-          beforeTitle={'Cantidad de'}
-          title='Gestas'
-          isDisabled={!showEdit}
-        />
-        <RowTable
-          beforeTitle={'Cantidad de'}
-          title='Partos'
-          isDisabled={!showEdit}
-        />
-        <RowTable
-          beforeTitle={'Cantidad de'}
-          title='Cesáreas'
-          isDisabled={!showEdit}
-        />
-        <RowTable
-          beforeTitle={'Cantidad de'}
-          title='Abortos'
-          isDisabled={!showEdit}
-        />
-        <RowTable
-          beforeTitle={'Edad de'}
-          title='Menarquía'
-          isDisabled={!showEdit}
-        />
-        <RowTable
-          beforeTitle={''}
-          title='Ultima menstruación'
-          isDisabled={!showEdit}
-        />
+        {titlesTypesGynecology.map((row, index) =>
+          <RowTable
+            key={"row" + index}
+            beforeTitle={row.beforeTitle}
+            title={row.title}
+            isDisabled={!showEdit}
+          />
+        )}
       </div>
     </div>
   )

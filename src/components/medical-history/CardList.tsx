@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import ItemList from './ItemList'
+import { InputValue } from './Types'
 
 type Props = {
   title: string,
@@ -10,12 +11,13 @@ type Props = {
 
 const CardList = ({ title = '', dataList = [] }) => {
 
+  const [list, setList] = useState(dataList)
   const [hover, setHover] = useState(false)
   const [showInput, setShowInput] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
   const Empty = () => {
-    if (dataList && dataList.length > 0) return null
+    if (list && list.length > 0) return null
     return <span className='text-base leading-6 text-color-disabled italic pl-2'
       style={{ letterSpacing: '0.15px' }}
     >
@@ -25,6 +27,16 @@ const CardList = ({ title = '', dataList = [] }) => {
 
   const handleClickAdd = () => {
     setShowInput(true)
+  }
+
+  const handleAddList = (value: InputValue) => {
+    setList([value, ...list])
+  }
+
+  const handleDeleteList = (index: number) => {
+    let array = [...list]
+    array.splice(index, 1)
+    setList([...array])
   }
 
   return (
@@ -42,8 +54,8 @@ const CardList = ({ title = '', dataList = [] }) => {
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
-        <InputAddClose show={showInput} setShow={setShowInput} />
-        {dataList.map((data, i) => <ItemList key={'card_list_' + i} name={data.name} date={data.date} />)}
+        <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
+        {list.map((data, i) => <ItemList key={'card_list_' + i} name={data.name} date={data.date} deleteItem={() => handleDeleteList(i)} />)}
         <Empty />
       </div>
     </div>

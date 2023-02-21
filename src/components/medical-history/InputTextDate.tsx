@@ -2,34 +2,33 @@ import { Transition } from '@headlessui/react'
 import React, { useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
-import { InputValue } from './Types'
-
 
 type Props = {
-  placeholder?: string,
   show: boolean,
-  setShow: (value: boolean) => void,
-  addInput: (value: InputValue) => void,
+  setShow?: (value?: boolean) => void,
+  placeholder?: string,
 }
 
-const InputAddClose: React.FC<Props> = ({
-  placeholder = 'Agregar',
-  show = true,
+const InputTextDate: React.FC<Props> = ({
+  show = false,
   setShow,
-  addInput,
+  placeholder = 'Agregar',
   ...props
 }) => {
 
-  const [text, setText] = useState('')
-
-  const handleClickClose = () => {
-    setShow(false)
-    setText('')
-  }
+  const [text, setText] = useState("")
+  const [value, setValue] = useState(null)
 
   const handleClickAdd = () => {
-    addInput({ name: text })
-    setText('')
+
+  }
+
+  const handleClickClose = () => {
+
+  }
+
+  const handleChangeDate = (newValue) => {
+    setValue(newValue)
   }
 
   const handleKeyPress = (event) => {
@@ -62,7 +61,7 @@ const InputAddClose: React.FC<Props> = ({
       <div className='flex flex-row flex-no-wrap justify-between items-center w-full bg-white h-11 py-2 px-4 rounded-lg shadow my-1'
         {...props}
       >
-        <input className="flex flex-no-wrap w-full px-2 focus:outline-none h-6 font-medium text-base  items-center input-add-placeholder"
+        <input className="flex flex-no-wrap w-6/12 px-2 focus:outline-none h-6 font-medium text-base  items-center input-add-placeholder"
           value={text}
           onChange={(event) => { setText(event.target.value) }}
           type="text"
@@ -84,4 +83,4 @@ const InputAddClose: React.FC<Props> = ({
   )
 }
 
-export default InputAddClose
+export default InputTextDate
