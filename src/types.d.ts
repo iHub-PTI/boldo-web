@@ -42,3 +42,51 @@ export interface Organization {
   type: string,
   colorCode: string
 }
+
+export interface Encounter {
+  appointmentId?:   string;
+  diagnosis?:       string;
+  doctorId?:        string;
+  encounterClass?:  string;
+  id?:              string;
+  instructions?:    string;
+  mainReason?:      string;
+  patientId?:       string;
+  prescriptions?:   Prescription[];
+  serviceRequests?: ServiceRequest[];
+  soep?:            Soep;
+  startTimeDate?:   string;
+  status?:          string;
+}
+
+export interface Prescription {
+  authoredOn?:     string;
+  doctorId?:       string;
+  encounterId?:    string;
+  id?:             string;
+  instructions?:   string;
+  medicationId?:   string;
+  medicationName?: string;
+  patientId?:      string;
+  status?:         string;
+}
+
+export interface ServiceRequest {
+  authoredDate?:          string;
+  category?:              string;
+  description?:           string;
+  diagnosis?:             string;
+  diagnosticReportCount?: number;
+  encounterId?:           string;
+  id?:                    string;
+  identifier?:            string;
+  notes?:                 string;
+  urgent?:                boolean;
+}
+
+export interface Soep {
+  evaluation?: string;
+  objective?:  string;
+  plan?:       string;
+  subjective?: string;
+}
