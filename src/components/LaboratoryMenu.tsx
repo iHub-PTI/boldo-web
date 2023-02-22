@@ -373,7 +373,7 @@ export function LaboratoryMenu(props) {
                 }`,
               overflowY: "auto"
             }}>
-              <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
+              <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder>
             </div>
           </Provider>
         </div>

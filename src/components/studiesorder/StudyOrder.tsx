@@ -100,7 +100,7 @@ const TooltipInfo = withStyles((theme) => ({
 }))(Tooltip);
 
 
-const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
+const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Boldo.Encounter }) => {
     const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
@@ -324,7 +324,13 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} />
+                                    <InputText 
+                                        name="diagnosis" 
+                                        variant='outlined' 
+                                        className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} 
+                                        index={index} 
+                                        value={encounter?.soep?.evaluation} 
+                                    />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>
