@@ -289,6 +289,7 @@ export function LaboratoryMenu(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRow])
 
+  // this get the encounter
   useEffect(() => {
     const load = async () => {
       const url = `/profile/doctor/appointments/${id}/encounter`
