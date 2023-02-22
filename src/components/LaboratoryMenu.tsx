@@ -1,7 +1,6 @@
 
 import axios from "axios"
-import React, { useState, useEffect, ChangeEvent } from 'react'
-
+import React, { useState, useEffect, ChangeEvent, forwardRef } from 'react'
 import {
   Card,
   Divider,
@@ -11,7 +10,7 @@ import {
   MenuItem,
   Select
 } from '@material-ui/core';
-import { forwardRef } from 'react';
+import { useRouteMatch } from "react-router-dom";
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import CloseIcon from '@material-ui/icons/Close';
 import FilterListIcon from '@material-ui/icons/FilterList';
@@ -55,7 +54,7 @@ import { countDays } from "../util/helpers";
 
 
 export function LaboratoryMenu(props) {
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const { appointment } = props;
   const [loading, setLoading] = useState(true)
   const [selectedRow, setSelectedRow] = useState()
@@ -75,6 +74,11 @@ export function LaboratoryMenu(props) {
   const [disabledButton, setDisabledButton] = useState(true)
   //width 
   const { width } = useWindowDimensions()
+  // Encounter handler
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson/')
+  const id = match?.params.id
+  const [emptySoep, setEmptySoep] = useState(false)
+  const [encounter, setEncounter] = useState<Boldo.Encounter>(undefined)
 
   const tableIcons: Icons = {
     SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -96,78 +100,15 @@ export function LaboratoryMenu(props) {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   }
 
-    useEffect(() => {
-      const load = async () => {
-        const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
-        try {
-          setLoading(true)
-          if (appointment !== undefined) {
-              const res = await axios.get(url)
-              setStudiesData(res.data.items)
-              setLoading(false)
-          }
-        } catch (err) {
-          Sentry.setTags({
-            'endpoint': url,
-            'method': 'GET',
-            'appointment_id': appointment.id,
-            'doctor_id': appointment.doctorId,
-            'patient_id': appointment.patientId
-          })
-          if (err.response) {
-            // The response was made and the server responded with a 
-            // status code that is outside the 2xx range.
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
-          } else if (err.request) {
-            // The request was made but no response was received
-            Sentry.setTag('request', err.request)
-          } else {
-            // Something happened while preparing the request that threw an Error
-            Sentry.setTag('message', err.message)
-          }
-          Sentry.captureMessage("Could not get the diagnostic report")
-          Sentry.captureException(err)
-          addToast({ 
-            type: 'error', 
-            title: 'Ha ocurrido un error.', 
-            text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
-          })
-          // setLoading(false)
-          console.log(err)
-        } finally {
-            setLoading(false)
-        }
-      }
-      if (appointment)
-          load()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointment])
-
   useEffect(() => {
-    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-      setDisabledButton(true)
-    } else {
-      setDisabledButton(false)
-    }
-  }, [appointment])
-
-
-    useEffect(() => {
-      const loadIssued = async () => {
-      const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
+    const load = async () => {
+      const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
       try {
-        setLoadingIssued(true)
+        setLoading(true)
         if (appointment !== undefined) {
-          setLoadingIssued(true)
-          const res = await axios.get(url)
-          console.log("response issueds", res)
-          if (res.status === 200)
-            setIssuedStudiesData(res.data.items)
-          if (res.status === 204)
-            setIssuedStudiesData([])
-          setLoadingIssued(false)
+            const res = await axios.get(url)
+            setStudiesData(res.data.items)
+            setLoading(false)
         }
       } catch (err) {
         Sentry.setTags({
@@ -190,21 +131,84 @@ export function LaboratoryMenu(props) {
           // Something happened while preparing the request that threw an Error
           Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the study orders")
+        Sentry.captureMessage("Could not get the diagnostic report")
         Sentry.captureException(err)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error',
-          text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+        addToast({ 
+          type: 'error', 
+          title: 'Ha ocurrido un error.', 
+          text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
         })
+        // setLoading(false)
+        console.log(err)
       } finally {
-        setLoadingIssued(false)
+          setLoading(false)
       }
     }
-    if (appointment && !showMakeOrder) 
-      loadIssued()
+    if (appointment)
+        load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showMakeOrder, appointment, addErrorToast])
+  }, [appointment])
+
+  useEffect(() => {
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setDisabledButton(true)
+    } else {
+      setDisabledButton(false)
+    }
+  }, [appointment])
+
+
+  useEffect(() => {
+    const loadIssued = async () => {
+    const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
+    try {
+      setLoadingIssued(true)
+      if (appointment !== undefined) {
+        setLoadingIssued(true)
+        const res = await axios.get(url)
+        console.log("response issueds", res)
+        if (res.status === 200)
+          setIssuedStudiesData(res.data.items)
+        if (res.status === 204)
+          setIssuedStudiesData([])
+        setLoadingIssued(false)
+      }
+    } catch (err) {
+      Sentry.setTags({
+        'endpoint': url,
+        'method': 'GET',
+        'appointment_id': appointment.id,
+        'doctor_id': appointment.doctorId,
+        'patient_id': appointment.patientId
+      })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not get the study orders")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error',
+        text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+      })
+    } finally {
+      setLoadingIssued(false)
+    }
+  }
+  if (appointment && !showMakeOrder) 
+    loadIssued()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showMakeOrder, appointment])
 
 
   const downloadBlob = (url, title, contentType, download) => {
@@ -240,27 +244,82 @@ export function LaboratoryMenu(props) {
   }
 
 
-    useEffect(() => {
-      const load = async () => {
-        setStudyDetail(undefined)
-        try {
-          if (selectedRow !== undefined) {
-              //@ts-ignore
-              const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-              setStudyDetail(res.data)
-          }
-        } catch (err) {
-          if (selectedRow !== undefined) { 
+  useEffect(() => {
+    const load = async () => {
+      setStudyDetail(undefined)
+      try {
+        if (selectedRow !== undefined) {
             //@ts-ignore
-            Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+            const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+            setStudyDetail(res.data)
+        }
+      } catch (err) {
+        if (selectedRow !== undefined) { 
+          //@ts-ignore
+          Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+        }
+        Sentry.setTag('method', 'GET')
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the study description")
+        Sentry.captureException(err)
+        setSelectedRow(undefined)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error',
+          text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+        })
+      } finally {
+          // setInitialLoad(false)
+      }
+    }
+    selectedRow !== undefined &&
+        load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRow])
+
+  useEffect(() => {
+    const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
+      
+      setDisabledButton(true)
+      await axios
+        .get(url)
+        .then((res) => {
+          const data = res.data.encounter as Boldo.Encounter
+          if (Object.keys(data.soep).length === 0) {
+            setEmptySoep(true)
+          } else if (!data.soep.evaluation || data.soep.evaluation.trim() === '') {
+            setEmptySoep(true)
+          } else {
+            setEmptySoep(false)
+            setEncounter(data)
           }
-          Sentry.setTag('method', 'GET')
+        })
+        .catch((err) => {
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET'
+          })
           if (err.response) {
             // The response was made and the server responded with a 
             // status code that is outside the 2xx range.
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
+            Sentry.setTags({
+              'data': err.response.data,
+              'headers': err.response.headers,
+              'status_code': err.response.status
+            })
           } else if (err.request) {
             // The request was made but no response was received
             Sentry.setTag('request', err.request)
@@ -268,22 +327,21 @@ export function LaboratoryMenu(props) {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', err.message)
           }
-          Sentry.captureMessage("Could not get the study description")
+          Sentry.captureMessage("Could not get the encounter")
           Sentry.captureException(err)
-          setSelectedRow(undefined)
-          addToast({
-            type: 'error',
-            title: 'Ha ocurrido un error',
-            text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
-          })
-        } finally {
-            // setInitialLoad(false)
-        }
-      }
-      selectedRow !== undefined &&
-          load()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedRow])
+        })
+    }
+    if (appointment)
+      load()
+  }, [appointment, id])
+
+  useEffect(() => {
+    if (emptySoep || appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setDisabledButton(true)
+    } else if(!emptySoep){
+      setDisabledButton(false)
+    }
+  }, [appointment, emptySoep])
 
 
   if (selectedRow)
