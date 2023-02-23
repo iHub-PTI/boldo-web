@@ -1,15 +1,16 @@
-import React, { useState } from 'react'
+import React, { JSXElementConstructor, useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import ItemList from './ItemList'
 import { InputValue } from './Types'
 
 type Props = {
-  title: string,
+  title?: string,
+  TitleElement?: JSX.Element,
   dataList: { name: string, date?: Date }[]
 }
 
-const CardList = ({ title = '', dataList = [] }) => {
+const CardList = ({ title = '', TitleElement = null, dataList = [] }) => {
 
   const [list, setList] = useState(dataList)
   const [hover, setHover] = useState(false)
@@ -47,8 +48,9 @@ const CardList = ({ title = '', dataList = [] }) => {
         background: background
       }}
     >
-      <div className='flex flex-row flex-no-wrap font-normal text-gray-500 text-sm pb-1 gap-2 items-center'>
-        {title}
+      <div className='flex flex-row flex-no-wrap pb-1 gap-2 items-center'>
+        {title && <div className='font-normal text-gray-500 text-sm '>{title}</div>}
+        {TitleElement && <TitleElement />}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
           <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-opacity delay-200 ease-in-out' />
         </button>

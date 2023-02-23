@@ -70,6 +70,7 @@ const InputAddClose: React.FC<Props> = ({
           placeholder={placeholder} autoComplete="off"
           onKeyPress={(event) => handleKeyPress(event)}
           onKeyDown={(event) => handleKeyDown(event)}
+          autoFocus={true}
         />
         <div className='flex flex-row flex-no-wrap gap-3 items-center'>
           <button className='focus:outline-none' onClick={() => handleClickAdd()}>
