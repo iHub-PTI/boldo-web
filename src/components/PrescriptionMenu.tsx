@@ -20,6 +20,7 @@ import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionCo
 import * as Sentry from '@sentry/react'
 import { useToasts } from "./Toast";
 import InfoIcon from "./icons/info-icons/InfoIcon";
+import TooltipInfo from "./hovers/TooltipInfo";
 
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
@@ -43,8 +44,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
     const [ width, setWidth ] = useState(window.innerWidth)
     const { addToast } = useToasts()
+    // boolean handling the hover event
+    const [showTooltipInfo, setShowTooltipInfo] = useState(false);
 
-    
+
     useEffect(() => {
         updatePrescriptions(id, selectedMedication);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -216,6 +219,17 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         window.addEventListener('resize', handleResize)
     })
 
+
+    // functions to handle the mouse event
+    const handleMouseEnter = () => {
+        setShowTooltipInfo(true);
+    }      
+    const handleMouseLeave = () => {
+        setShowTooltipInfo(false);
+    };
+      
+
+
     if (initialLoad)
         return (
             <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
@@ -273,18 +287,23 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                             Diagnóstico
                         </Typography>
 
-                        <div className={`flex flex-row ${(isAppointmentDisabled || mainReasonRequired) ? 'bg-gray-100':''} rounded-md transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5`}>
+                        <div className={`flex flex-row flex-no-wrap justify-between w-full ${(isAppointmentDisabled || mainReasonRequired) ? 'bg-gray-100':''} rounded-md transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5`}>
                             <textarea
                                 id='Diagnostico'
                                 disabled={isAppointmentDisabled || mainReasonRequired}
                                 required
                                 // bg-transparent is used so that the textarea does not highlight
-                                className='w-full mr-1 bg-transparent resize-none'
+                                className={`mr-1 w-11/12 bg-transparent resize-none`}
                                 placeholder=''
                                 onChange={e => setDiagnose(e.target.value)}
                                 value={diagnose}
                             />
-                            <div className="bg-transparent"><InfoIcon /></div>
+                            <div 
+                                className={`flex flex-row flex-no-wrap`}
+                            >
+                                {showTooltipInfo && <TooltipInfo />}
+                                <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+                            </div>
                         </div>
                     </div>
                     <div className='mt-6'>
