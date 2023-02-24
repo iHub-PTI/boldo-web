@@ -1,7 +1,14 @@
 import { Transition } from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
+import DatePicker, { registerLocale } from "react-datepicker";
+import es from "date-fns/locale/es";
+import "react-datepicker/dist/react-datepicker.css";
+registerLocale("es", es)
+
+
+
 
 type Props = {
   show: boolean,
@@ -17,7 +24,7 @@ const InputTextDate: React.FC<Props> = ({
 }) => {
 
   const [text, setText] = useState("")
-  const [value, setValue] = useState(null)
+  const [valueDate, setValueDate] = useState<string | Date>()
 
   const handleClickAdd = () => {
 
@@ -28,7 +35,7 @@ const InputTextDate: React.FC<Props> = ({
   }
 
   const handleChangeDate = (newValue) => {
-    setValue(newValue)
+    setValueDate(newValue)
   }
 
   const handleKeyPress = (event) => {
@@ -48,6 +55,10 @@ const InputTextDate: React.FC<Props> = ({
     }
   }
 
+  useEffect(() => {
+
+  }, [valueDate])
+
   return (
     <Transition
       show={show}
@@ -58,18 +69,32 @@ const InputTextDate: React.FC<Props> = ({
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className='flex flex-row flex-no-wrap justify-between items-center w-full bg-white h-11 py-2 px-4 rounded-lg shadow my-1'
+      <div className='flex flex-row flex-no-wrap justify-between items-center w-full bg-white h-11 py-2 px-3 rounded-lg shadow my-1'
         {...props}
       >
-        <input className="flex flex-no-wrap w-6/12 px-2 focus:outline-none h-6 font-medium text-base  items-center input-add-placeholder"
-          value={text}
-          onChange={(event) => { setText(event.target.value) }}
-          type="text"
-          style={{ letterSpacing: '0.15px', lineHeight: '24px' }}
-          placeholder={placeholder} autoComplete="off"
-          onKeyPress={(event) => handleKeyPress(event)}
-          onKeyDown={(event) => handleKeyDown(event)}
-        />
+        <div className='flex flex-row flex-no-wrap'>
+          <input className="flex flex-no-wrap w-full pl-1 pr-2 focus:outline-none h-6 font-medium text-base  items-center input-add-placeholder"
+            value={text}
+            onChange={(event) => { setText(event.target.value) }}
+            type="text"
+            style={{ letterSpacing: '0.15px', lineHeight: '24px' }}
+            placeholder={placeholder} autoComplete="off"
+            onKeyPress={(event) => handleKeyPress(event)}
+            onKeyDown={(event) => handleKeyDown(event)}
+          />
+          <div className='flex flex-col mr-2'>
+            <span className='border border-r h-full' style={{borderRightColor: '#ABAFB6'}}></span>
+          </div>
+          <DatePicker
+            className="focus:outline-none w-full font-sans pr-1"
+            locale="es"
+            selected={valueDate}
+            onChange={(date) => handleChangeDate(date)}
+            showYearDropdown
+            yearDropdownItemNumber={100}
+            scrollableYearDropdown
+          />
+        </div>
         <div className='flex flex-row flex-no-wrap gap-3 items-center'>
           <button className='focus:outline-none' onClick={() => handleClickAdd()}>
             <CheckIcon active={true} />

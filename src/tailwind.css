@@ -320,3 +320,22 @@ Events
   font-weight: 400;
 }
 /* Styles from MedicalHIstory end*/
+
+/* Styles from DatePicker */
+.react-datepicker__day--keyboard-selected{
+  background-color: #27bec2 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--keyboard-selected:hover{
+  background-color: #187a7e !important;
+}
+
+button[aria-label="Previous Month"]:focus{
+  outline: none !important;
+}
+
+button[aria-label="Next Month"]:focus{
+  outline: none !important;
+}
+/* Styles from DatePicker end*/
