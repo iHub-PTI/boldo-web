@@ -51,6 +51,7 @@ import Provider from "./studiesorder/Provider";
 import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import * as Sentry from '@sentry/react'
+import { countDays } from "../util/helpers";
 
 
 export function LaboratoryMenu(props) {
@@ -59,7 +60,7 @@ export function LaboratoryMenu(props) {
   const [loading, setLoading] = useState(true)
   const [selectedRow, setSelectedRow] = useState()
   const [studiesData, setStudiesData] = useState<any>()
-  const [studyDetail, setStudyDetail] = useState()
+  const [studyDetail, setStudyDetail] = useState<any>()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPreview, setShowPreview] = useState({})
   const [categorySelect, setCategory] = useState("")
@@ -241,6 +242,7 @@ export function LaboratoryMenu(props) {
 
     useEffect(() => {
       const load = async () => {
+        setStudyDetail(undefined)
         try {
           if (selectedRow !== undefined) {
               //@ts-ignore
@@ -399,7 +401,7 @@ export function LaboratoryMenu(props) {
           }
           <Grid className="mt-5">
 
-            {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            {loading && <div className='flex items-center justify-center w-full h-full py-64'>
               <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                 <SpinnerLoading />
               </div>
@@ -412,7 +414,7 @@ export function LaboratoryMenu(props) {
             {
               !toggleStudies && loadingIssued === false && issuedStudiesTable()
             }
-            {!toggleStudies && loadingIssued && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            {!toggleStudies && loadingIssued && <div className='flex items-center justify-center w-full h-full py-64'>
               <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                 <SpinnerLoading />
               </div>
@@ -583,13 +585,14 @@ export function LaboratoryMenu(props) {
             title: 'Estudios a realizar',
             field: 'studiesCodes',
             sorting: false,
+            width:"80%",
             render: rowData => {
               // console.log(rowData.diagnosis)
               //@ts-ignore
               return (
-                <div style={{ width: '30rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                <p className="truncate sm:w-32 md:w-52 lg:56 xl:w-72">
                   {rowData.studiesCodes.map(i => { return i.display }).join(', ')}
-                </div>
+                </p>
               )
             },
           }
@@ -599,7 +602,6 @@ export function LaboratoryMenu(props) {
         onRowClick={(evt, selectedRowIssued) => {
           //@ts-ignore
           setSelectedRowIssued(selectedRowIssued)
-          console.log(selectedRowIssued)
         }
         }
         options={{
@@ -620,24 +622,14 @@ export function LaboratoryMenu(props) {
 
   function laboratoryDetail() {
 
-    var days_diff = -1;
-
     if (studyDetail === undefined)
       return (
-        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex flex-row items-center justify-center w-full h-full'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <SpinnerLoading />
           </div>
         </div>
       )
-
-    if (studyDetail !== undefined) {
-      const currentDate = moment(new Date());
-      //@ts-ignore
-      const returnDate = moment(studyDetail.effectiveDate);
-      days_diff = currentDate.diff(returnDate, 'days');
-
-    }
 
     const getSourceSVG = (source: string) => {
       if (source === '' || source === null) return <WithoutSource />;
@@ -646,8 +638,14 @@ export function LaboratoryMenu(props) {
       return <PatientSource />;
     }
 
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+        ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+        : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+      }`,
+    overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -721,7 +719,7 @@ export function LaboratoryMenu(props) {
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
 
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                     countDays(studyDetail?.effectiveDate)
                     }
                   </Typography>
                 </Grid>
@@ -905,18 +903,14 @@ export function LaboratoryMenu(props) {
   }
 
   function issuedDetail(order) {
-
-    var days_diff = -1;
-
-    if (order !== undefined) {
-      const currentDate = moment(new Date());
-      //@ts-ignore
-      const returnDate = moment(order.authoredDate);
-      days_diff = currentDate.diff(returnDate, 'days');
-    }
-
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+        }`,
+      overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -964,12 +958,12 @@ export function LaboratoryMenu(props) {
                 <Grid>
                   <Typography variant='body2' color='textSecondary'>
                     {
-                      moment(order.effectiveDate).format('DD/MM/YYYY')
+                      order.authoredDate ? moment(order.authoredDate).format('DD/MM/YYYY') : 'Fecha Desconocida'
                     }
                   </Typography>
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                      order.authoredDate ? countDays(order.authoredDate) : ''
                     }
                   </Typography>
                 </Grid>

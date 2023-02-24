@@ -43,7 +43,7 @@ module.exports = {
           700: '#99928C',
           800: '#66625D',
           900: '#33312F',
-        }
+        },
       },
       screens: {
         'md-max': { max: '1024px' },
@@ -55,10 +55,10 @@ module.exports = {
   },
   variants: {
     textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
-    opacity: ['disabled','hover', 'group-hover'],
-    cursor: ['disabled'],
+    opacity: ['disabled', 'hover', 'group-hover'],
+    cursor: ['disabled', 'hover'],
     backgroundColor: ['checked', 'disabled', 'hover'],
-    width: ['hover'],
+    width: ['hover', 'responsive'],
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }

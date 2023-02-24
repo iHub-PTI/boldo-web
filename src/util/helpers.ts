@@ -64,10 +64,11 @@ export const toUpperLowerCase = (sentence: string) => {
     .join(' ')
 }
 
-//count the days
-export const countDays = (days: string) => {
-  const currentDate = moment(new Date())
-  const days_diff = currentDate.diff(moment(days), 'days')
+//count the days @days: the days is string with format inlcude 'T'
+export const countDays = (days: string | undefined ) => {
+  if(days === undefined) return 
+  const currentDate = moment(new Date(), 'DD/MM/YYYY')
+  const days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
   switch (days_diff) {
     case 0:
       return 'Hoy'
