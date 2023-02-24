@@ -19,6 +19,7 @@ import useStyles from '../pages/inperson/style'
 import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
 import * as Sentry from '@sentry/react'
 import { useToasts } from "./Toast";
+import InfoIcon from "./icons/info-icons/InfoIcon";
 
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
@@ -266,25 +267,24 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     </Grid>
                 }
                 <div className='w-full px-8'>
-                    {console.log("main Reason => ", mainReasonRequired)}
-                    {console.log("appoint disabled => ", isAppointmentDisabled)}
                     { mainReasonRequired && !isAppointmentDisabled && <span className="text-red-700 mt-7">Obs.: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
                     <div className="mt-3">
                         <Typography variant='body1' color='textPrimary'>
                             Diagnóstico
                         </Typography>
 
-                        <div className='rounded-md shadow-sm'>
+                        <div className={`flex flex-row ${(isAppointmentDisabled || mainReasonRequired) ? 'bg-gray-100':''} rounded-md transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5`}>
                             <textarea
                                 id='Diagnostico'
                                 disabled={isAppointmentDisabled || mainReasonRequired}
                                 required
-                                rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5 disabled:bg-gray-100'
+                                // bg-transparent is used so that the textarea does not highlight
+                                className='w-full mr-1 bg-transparent resize-none'
                                 placeholder=''
                                 onChange={e => setDiagnose(e.target.value)}
                                 value={diagnose}
                             />
+                            <div className="bg-transparent"><InfoIcon /></div>
                         </div>
                     </div>
                     <div className='mt-6'>
