@@ -52,7 +52,7 @@ const CardList = ({ title = '', TitleElement = null, dataList = [] }) => {
         {title && <div className='font-normal text-gray-500 text-sm '>{title}</div>}
         {TitleElement && <TitleElement />}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
-          <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-opacity delay-200 ease-in-out' />
+          <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>

@@ -28,10 +28,10 @@ const AddClose = ({ show, setShow, ...props }) => {
   return (
     <Transition
       show={show}
-      enter="transition-opacity duration-300"
+      enter="transition-opacity duration-500"
       enterFrom="opacity-0"
       enterTo="opacity-100"
-      leave="transition-opacity duration-300"
+      leave="transition-opacity duration-200"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >

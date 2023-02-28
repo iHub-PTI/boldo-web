@@ -45,7 +45,7 @@ const CardList: React.FC<Props> = ({ title = '', dataList = [], backgroundColor 
         <WarningIcon />
         {title}
         <button className='focus:outline-none' onClick={() => { handleClickAdd() }}>
-          <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-all delay-200' />
+          <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-all duration-500' />
         </button>
       </div>
       <div className='flex flex-col w-full pr-5 pl-15'>

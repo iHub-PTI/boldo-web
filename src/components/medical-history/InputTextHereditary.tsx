@@ -50,7 +50,7 @@ const InputTextHereditary: React.FC<Props> = ({ show = false, ...props }) => {
                         type="text"
                         onFocus={() => setIsFocusSecond(true)}
                         onBlur={() => setIsFocusSecond(false)}
-                        placeholder="Parentesco"
+                        placeholder="Parentezco"
                         style={{transitionProperty: 'width'}}
                     />
                 </div>
