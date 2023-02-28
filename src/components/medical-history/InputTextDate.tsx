@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -54,10 +54,6 @@ const InputTextDate: React.FC<Props> = ({
       setText('')
     }
   }
-
-  useEffect(() => {
-
-  }, [valueDate])
 
   return (
     <Transition
