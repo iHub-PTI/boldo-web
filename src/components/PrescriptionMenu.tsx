@@ -293,7 +293,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                 disabled={isAppointmentDisabled || mainReasonRequired}
                                 required
                                 // bg-transparent is used so that the textarea does not highlight
-                                className={`mr-1 w-11/12 bg-transparent resize-none`}
+                                className={`mr-1 w-11/12 bg-transparent resize-none outline-none`}
                                 placeholder=''
                                 onChange={e => setDiagnose(e.target.value)}
                                 value={diagnose}
