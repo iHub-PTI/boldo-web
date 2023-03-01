@@ -17,7 +17,7 @@ const SelectPrintOptions = () => {
   return (
     // infor about button
     <Tooltip
-      title={<h1 style={{ fontSize: 14 }}>Impresión de resúmenes</h1>}
+      title={<h1 style={{ fontSize: 14 }}>Impresión de informes</h1>}
       placement='left'
       leaveDelay={100} // time in miliseconds
       classes={useTooltipStyles()}
