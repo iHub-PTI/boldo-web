@@ -2,14 +2,14 @@ import { Transition } from '@headlessui/react'
 import React, { useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
-import { InputValue } from './Types'
+
 
 
 type Props = {
   placeholder?: string,
   show: boolean,
   setShow: (value: boolean) => void,
-  addInput: (value: InputValue) => void,
+  addInput: (value: {name: string}) => void,
 }
 
 const InputAddClose: React.FC<Props> = ({
@@ -28,6 +28,7 @@ const InputAddClose: React.FC<Props> = ({
   }
 
   const handleClickAdd = () => {
+    if (text.split(' ').every((value) => value === '')) return
     addInput({ name: text })
     setText('')
   }
@@ -62,7 +63,7 @@ const InputAddClose: React.FC<Props> = ({
       <div className='flex flex-row flex-no-wrap justify-between items-center w-full bg-white h-11 py-2 px-4 rounded-lg shadow my-1'
         {...props}
       >
-        <input className="flex flex-no-wrap w-full px-2 focus:outline-none h-6 font-medium text-base  items-center input-add-placeholder"
+        <input className="flex flex-no-wrap w-full px-2 focus:outline-none h-6 font-medium text-base items-center input-add-placeholder"
           value={text}
           onChange={(event) => { setText(event.target.value) }}
           type="text"

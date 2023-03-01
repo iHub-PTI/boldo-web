@@ -1,7 +1,6 @@
 import React from 'react'
 import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
-import InputTextDate from './medical-history/InputTextDate';
 import TableGynecology from './medical-history/TableGynecology';
 
 
@@ -41,12 +40,14 @@ const MedicalHistory = () => {
           <CardList
             TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
             dataList={[]}
+            inputTypeWith="date"
           />
 
           {/* Section Others */}
           <CardList
             TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
             dataList={[]}
+            inputTypeWith="date"
           />
           {/* Section Gynecology */}
           <TableGynecology />
@@ -60,10 +61,12 @@ const MedicalHistory = () => {
             <CardList
               TitleElement={() => <div className='font-medium text-base text-primary-500'>Enfermedades hereditarias</div>}
               dataList={[]}
+              inputTypeWith='description'
             />
             <CardList
               TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
               dataList={[]}
+              inputTypeWith="date"
             />
           </div>
         </div>

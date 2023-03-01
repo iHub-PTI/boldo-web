@@ -14,24 +14,29 @@ type Props = {
   show: boolean,
   setShow?: (value?: boolean) => void,
   placeholder?: string,
+  addInput: (value: {name: string, date: Date}) => void,
 }
 
 const InputTextDate: React.FC<Props> = ({
   show = false,
   setShow,
   placeholder = 'Agregar',
+  addInput,
   ...props
 }) => {
 
   const [text, setText] = useState("")
-  const [valueDate, setValueDate] = useState<string | Date>()
+  const [valueDate, setValueDate] = useState()
 
   const handleClickAdd = () => {
-
+    if (text.split(' ').every((value) => value === '')) return
+    addInput({name: text, date: valueDate})
+    setText("")
+    setValueDate(undefined)
   }
 
   const handleClickClose = () => {
-
+    setShow(false)
   }
 
   const handleChangeDate = (newValue) => {
@@ -77,6 +82,7 @@ const InputTextDate: React.FC<Props> = ({
             placeholder={placeholder} autoComplete="off"
             onKeyPress={(event) => handleKeyPress(event)}
             onKeyDown={(event) => handleKeyDown(event)}
+            autoFocus={true}
           />
           <div className='flex flex-col mr-2'>
             <span className='border border-r h-full' style={{borderRightColor: '#ABAFB6'}}></span>

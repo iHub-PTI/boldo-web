@@ -1,16 +1,19 @@
-import React, { JSXElementConstructor, useState } from 'react'
+import React, { useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
+import InputTextDate from './InputTextDate'
+import InputTextHereditary from './InputTextHereditary'
 import ItemList from './ItemList'
 import { InputValue } from './Types'
 
 type Props = {
   title?: string,
   TitleElement?: JSX.Element,
-  dataList: { name: string, date?: Date }[]
+  dataList: { name: string, date?: Date, description?: string }[]
+  inputTypeWith?: string, // date | description | undefined
 }
 
-const CardList = ({ title = '', TitleElement = null, dataList = [] }) => {
+const CardList = ({ title = '', TitleElement = null, dataList = [], inputTypeWith = undefined }) => {
 
   const [list, setList] = useState(dataList)
   const [hover, setHover] = useState(false)
@@ -56,8 +59,22 @@ const CardList = ({ title = '', TitleElement = null, dataList = [] }) => {
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
-        <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
-        {list.map((data, i) => <ItemList key={'card_list_' + i} name={data.name} date={data.date} deleteItem={() => handleDeleteList(i)} />)}
+        {!inputTypeWith &&
+          <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />}
+        {inputTypeWith === 'date' &&
+          <InputTextDate show={showInput} setShow={setShowInput} addInput={handleAddList} />
+        }
+        {inputTypeWith === 'description' &&
+          <InputTextHereditary show={showInput} setShow={setShowInput} addInput={handleAddList} />
+        }
+        {list.map((data, i) =>
+          <ItemList
+            key={'card_list_' + i}
+            name={data.name}
+            date={data.date}
+            description={data.description}
+            deleteItem={() => handleDeleteList(i)}
+          />)}
         <Empty />
       </div>
     </div>

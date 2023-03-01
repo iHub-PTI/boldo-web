@@ -5,19 +5,47 @@ import CloseCrossIcon from '../icons/CloseCrossIcon'
 
 type Props = {
     show?: boolean,
+    setShow?: (value: boolean) => void,
+    addInput: (value: { name: string, description: string }) => void,
 }
 
-const InputTextHereditary: React.FC<Props> = ({ show = false, ...props }) => {
+const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...props }) => {
 
     const [isFocusFirst, setIsFocusFirst] = useState(false)
     const [isFocusSecond, setIsFocusSecond] = useState(false)
+    const [disease, setDisease] = useState("")
+    const [realtionShip, setRealtionShip] = useState("")
+
 
     const handleClickAdd = () => {
-
+        if (disease.split(' ').every((value) => value === '')) return
+        addInput({ name: disease, description: realtionShip })
+        setDisease("")
+        setRealtionShip("")
     }
 
     const handleClickClose = () => {
 
+    }
+
+    const handleKeyPress = (event) => {
+        if (event.target.value === '') return
+        let temp = event.target.value.split(' ')
+        //check that there are no spaces
+        if (temp.every((value) => value === '')) return
+        if (event.key === 'Enter') {
+            handleClickAdd()
+        }
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            setIsFocusFirst(false)
+            setIsFocusSecond(false)
+            setShow(false)
+            setDisease('')
+            setRealtionShip('')
+        }
     }
 
     return (
@@ -35,23 +63,31 @@ const InputTextHereditary: React.FC<Props> = ({ show = false, ...props }) => {
             >
                 <div className={`flex flex-row flex-no-wrap`}>
                     <input
-                        className={`truncate focus:outline-none pr-3 ease-in-out duration-200 ${isFocusFirst ? 'w-full' : isFocusSecond ? 'w-1/5' : 'w-full'}`}
+                        className={`font-medium text-base input-add-placeholder truncate focus:outline-none pr-3 ease-in-out duration-200 ${isFocusFirst ? 'w-full' : isFocusSecond ? 'w-3/12' : 'w-full'}`}
                         type="text"
+                        value={disease}
+                        onChange={(event) => { setDisease(event.target.value) }}
                         onFocus={() => setIsFocusFirst(true)}
                         onBlur={() => setIsFocusFirst(false)}
                         placeholder="Problema"
-                        style={{transitionProperty: 'width'}}
+                        style={{ transitionProperty: 'width' }}
+                        onKeyPress={(event) => handleKeyPress(event)}
+                        onKeyDown={(event) => handleKeyDown(event)}
                     />
                     <div className='flex flex-col'>
                         <span className='border border-r h-full' style={{ borderRightColor: '#ABAFB6' }}></span>
                     </div>
                     <input
-                        className={`truncate focus:outline-none ease-in-out duration-200 pl-3 ${isFocusSecond ? 'w-full' : isFocusFirst ? 'w-1/5' : 'w-full'}`}
+                        className={`font-medium text-base input-add-placeholder truncate focus:outline-none ease-in-out duration-200 pl-3 ${isFocusSecond ? 'w-full' : isFocusFirst ? 'w-3/12' : 'w-full'}`}
                         type="text"
+                        value={realtionShip}
+                        onChange={(event) => { setRealtionShip(event.target.value) }}
                         onFocus={() => setIsFocusSecond(true)}
                         onBlur={() => setIsFocusSecond(false)}
                         placeholder="Parentezco"
-                        style={{transitionProperty: 'width'}}
+                        style={{ transitionProperty: 'width' }}
+                        onKeyPress={(event) => handleKeyPress(event)}
+                        onKeyDown={(event) => handleKeyDown(event)}
                     />
                 </div>
                 <div className='flex flex-row flex-no-wrap gap-3 items-center'>
