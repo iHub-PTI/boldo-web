@@ -6,6 +6,7 @@ import { getReports } from '../../util/helpers'
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
+import SelectPrintOptions from '../../components/SelectPrintOptions'
 
 export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
   const [activeColor, setActiveColor] = useState('M')
@@ -133,6 +134,10 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
           </svg>
         </button>
       </Tooltip>
+
+      {
+        <SelectPrintOptions />
+      }
 
       {
         <Tooltip
