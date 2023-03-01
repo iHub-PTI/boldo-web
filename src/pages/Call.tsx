@@ -343,7 +343,6 @@ const Gate = () => {
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
                 bgColor='transparent'
                 iconColor='white'
-                fromVirtual={true}
               />
             }
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
@@ -566,7 +565,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
                 bgColor='transparent'
                 iconColor='white'
-                fromVirtual={true}
               />
             }
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
