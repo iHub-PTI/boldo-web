@@ -44,6 +44,9 @@ module.exports = {
           800: '#66625D',
           900: '#33312F',
         },
+        bluish:{
+          500: '#EDF2F7'
+        }
       },
       screens: {
         'md-max': { max: '1024px' },

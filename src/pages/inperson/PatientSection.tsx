@@ -9,7 +9,51 @@ import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import UserCircle from "../../components/icons/patient-register/UserCircle";
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../../util/constants"
+import PastIcon from '../../components/icons/HistoryIcon'
 
+
+type PropsButton = {
+  setShow: (value: boolean) => void,
+  show: boolean,
+  disabled?: boolean,
+  IconElement?: React.ElementType,
+  title: string,
+  callBackSwitch?: () => void
+}
+
+//navigation buttons within the patient profile
+const ButtonSlide: React.FC<PropsButton> = ({ setShow, show, disabled, IconElement, title, callBackSwitch }) => {
+
+  const Icon = IconElement
+
+  return (
+    <button
+      className='focus:outline-none p-2 hover:bg-bluish-500 rounded-md transition-colors duration-200 disabled:cursor-not-allowed w-60 h-16'
+      onClick={() => {
+        setShow(true)
+        callBackSwitch()
+      }}
+      //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
+      disabled={disabled}
+    >
+      <div className={`pl-2 text-gray-500 flex flex-row justify-start gap-2  ${show && 'text-primary-600 font-semibold'}`}>
+        <div>
+          <Icon />
+        </div>
+        <div
+          className='text-left font-medium text-base leading-6 font-sans w-full pb-2'
+          style={{
+            letterSpacing: '0.15px',
+            borderBottom: '0.5px solid #E0DEDE'
+          }}>
+          {title.split(' ')[0]}
+          <br />
+          {title.split(' ')[1]}
+        </div>
+      </div>
+    </button>
+  )
+}
 
 const PatientRecord = (props) => {
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '' } = props.patient;
@@ -29,6 +73,11 @@ const PatientRecord = (props) => {
     }
   }, [screenWidth])
 
+  const handleSwitchButtonRecordOutPatient = () =>
+    props.setShowMedicalHistory(false)
+
+  const handleSwitchButtonMedicalHistory = () =>
+    props.setOutpatientRecordShow(false)
 
   return (
     <div className='flex flex-col flex-1' style={{ padding: '15px' }}>
@@ -96,21 +145,33 @@ const PatientRecord = (props) => {
         </Typography>
       </Grid>
 
-      <div className='flex justify-center mt-10'>
-        <button
-          className='focus:outline-none p-2 hover:bg-cool-gray-100 transition-colors delay-200 disabled:cursor-not-allowed'
-          onClick={() => props.showPatientRecord()}
-          //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
+      <div className='flex flex-col justify-center items-center mt-10 gap-1'>
+        <ButtonSlide
+          show={props.showMedicalHistory}
+          setShow={props.setShowMedicalHistory}
           disabled={props.disabledRedcordButton}
-        >
-          <div className={`text-gray-500 flex flex-row justify-center items-center ${props.outpatientRecord && 'text-primary-600 font-semibold'}`}> <UserCircle fill={`${props.outpatientRecord ? '#13A5A9' : '#6B7280'}`} className='mr-1' />  Registro Ambulatorio</div>
-        </button>
+          IconElement={() =>
+            <PastIcon
+              fill={`${props.showMedicalHistory ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={"Antecedentes Clínicos"}
+          callBackSwitch={handleSwitchButtonMedicalHistory}
+        />
+        <ButtonSlide
+          show={props.outpatientRecordShow}
+          setShow={props.setOutpatientRecordShow}
+          disabled={props.disabledRedcordButton}
+          IconElement={() =>
+            <UserCircle
+              fill={`${props.outpatientRecordShow ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={"Registro Ambulatorio"}
+          callBackSwitch={handleSwitchButtonRecordOutPatient}
+        />
       </div>
     </div>
   )
 }
-
-
 
 export default (props) => {
 
@@ -180,9 +241,11 @@ export default (props) => {
           encounter={encounter}
           id={id}
           appointment={appointment}
-          outpatientRecord={props.outpatientRecord}
-          showPatientRecord={props.showPatientRecord}
           disabledRedcordButton={props.disabledRedcordButton}
+          outpatientRecordShow={props.outpatientRecordShow}
+          setOutpatientRecordShow={props.setOutpatientRecordShow}
+          showMedicalHistory={props.showMedicalHistory}
+          setShowMedicalHistory={props.setShowMedicalHistory}
         /> :
         <div className='flex h-full justify-center items-center'>
           <div className='bg-gray-100 rounded-full'>

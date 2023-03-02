@@ -19,17 +19,20 @@ type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { pa
 export default function Dashboard() {
   const [DynamicMenuSelector, setDynamicMenuSelector] = useState('M')
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
-  //to manage the view of the ambulatory record
-  const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson')
   const id = match?.params.id
+  const { addToast } = useToasts()
   const { prescriptions, updatePrescriptions } = usePrescriptionContext();
+  
+  //to manage the view of the ambulatory record
+  const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
+  //to manage the view of the medical history
+  const [showMedicalHistory, setShowMedicalHistory] = useState(false)
 
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
-  const { addToast } = useToasts()
-
+  
   useEffect(()=>{
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
   },[DynamicMenuSelector])
@@ -98,11 +101,11 @@ export default function Dashboard() {
             {appointment !== null && (
               <PatientSection
                 appointment={appointment}
-                outpatientRecord={outpatientRecordShow}
-                showPatientRecord={() => {
-                  setOutpatientRecordShow(true)
-                }}
                 disabledRedcordButton={disabledRedcordButton}
+                outpatientRecordShow={outpatientRecordShow}
+                setOutpatientRecordShow={setOutpatientRecordShow}
+                showMedicalHistory={showMedicalHistory}
+                setShowMedicalHistory={setShowMedicalHistory}
               />
             )}
           </div>
