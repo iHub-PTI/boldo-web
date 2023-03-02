@@ -11,6 +11,7 @@ import axios from 'axios'
 import { RecordsOutPatient } from '../../components/RecordsOutPatient'
 import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast';
+import MedicalHistory from '../../components/MedicalHistory';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
@@ -23,7 +24,7 @@ export default function Dashboard() {
   const id = match?.params.id
   const { addToast } = useToasts()
   const { prescriptions, updatePrescriptions } = usePrescriptionContext();
-  
+
   //to manage the view of the ambulatory record
   const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
   //to manage the view of the medical history
@@ -32,10 +33,10 @@ export default function Dashboard() {
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
-  },[DynamicMenuSelector])
+  }, [DynamicMenuSelector])
 
   useEffect(() => {
     let mounted = true
@@ -81,7 +82,7 @@ export default function Dashboard() {
     return () => {
       mounted = false
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {
@@ -97,7 +98,7 @@ export default function Dashboard() {
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
         <div className='flex flex-row flex-no-wrap flex-1 h-full'>
-          <div className='flex flex-col w-80 flex-1 h-full' style={{ maxWidth: '20rem', minWidth: '20rem'}}>
+          <div className='flex flex-col w-80 flex-1 h-full' style={{ maxWidth: '20rem', minWidth: '20rem' }}>
             {appointment !== null && (
               <PatientSection
                 appointment={appointment}
@@ -110,7 +111,15 @@ export default function Dashboard() {
             )}
           </div>
           <div
-            className={`flex-col w-0 opacity-0 ${outpatientRecordShow ? 'flex w-7/12 opacity-100' : ''}`}
+            className=
+            {`flex-col w-0 opacity-0 
+              ${outpatientRecordShow ?
+                'flex w-7/12 opacity-100' :
+                showMedicalHistory ?
+                  'flex w-5/12 opacity-100' :
+                  ''
+              }
+            `}
             style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}
           >
             {appointment !== undefined && (
@@ -119,6 +128,9 @@ export default function Dashboard() {
                 show={outpatientRecordShow}
                 setShow={setOutpatientRecordShow}
               />
+            )}
+            {appointment !== undefined && (
+              <MedicalHistory show={showMedicalHistory} />
             )}
           </div>
           <div

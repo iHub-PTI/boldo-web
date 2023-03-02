@@ -1,16 +1,27 @@
 import React from 'react'
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants';
+import useWindowDimensions from '../util/useWindowDimensions';
 import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
 import TableGynecology from './medical-history/TableGynecology';
 
+type Props = {
+  show: boolean,
+}
 
-const MedicalHistory = () => {
+const MedicalHistory: React.FC<Props> = ({ show = false, ...props }) => {
 
-  return (
-    <div className='flex justify-center items-center mb-10'>
-      <div className='flex flex-col mx-auto pt-10 gap-5 ' style={{ width: '400px' }}>
+  const { width: screenWidth } = useWindowDimensions()
+
+
+  if (show) return (
+    <div className='flex flex-col justify-center items-center overflow-y-auto' style={{ minWidth: '400px' }}>
+      <div className='flex flex-col mx-auto gap-5'
+        style={{
+          height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
+        }}>
         {/* Componente desde aca */}
-        <div className='flex justify-start h-auto mb-1'>
+        <div className='flex justify-start h-12 mb-1 pl-6'>
           <div className='text-black font-bold text-2xl'>
             Antecedentes clínicos
             <div className='text-cool-gray-400 font-normal text-xl'>
@@ -24,18 +35,20 @@ const MedicalHistory = () => {
             <span className='font-medium text-cool-gray-700 tracking-wide'>Personal</span>
           </div>
 
-          <div className='flex flex-col w-full pl-2 pr-1'>
+          <div className='flex flex-col w-full pl-6 pr-2'>
             <CardListWarning title='Alergias y sensibilidades' dataList={[]} />
           </div>
           {/* Section pathology */}
-          <div className='font-medium text-base w-full text-primary-500'>Patologías</div>
-          <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
-            <CardList title={'Cardiopatías'} dataList={[]} />
-            <CardList title={'Respiratorias'} dataList={[]} />
-            <CardList title={'Digestivas'} dataList={[]} />
+          <div className='flex flex-col w-full pl-8 pr-6'>
+            <div className='font-medium text-base w-full text-primary-500'>Patologías</div>
+            <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
+              <CardList title={'Cardiopatías'} dataList={[]} />
+              <CardList title={'Respiratorias'} dataList={[]} />
+              <CardList title={'Digestivas'} dataList={[]} />
+            </div>
           </div>
         </div>
-        <div className='flex flex-col w-full gap-7 mb-5'>
+        <div className='flex flex-col w-full gap-7 mb-5 pl-3 pr-3'>
           {/* Section procedures */}
           <CardList
             TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
@@ -73,6 +86,7 @@ const MedicalHistory = () => {
       </div>
     </div>
   )
+  return null
 }
 
 export default MedicalHistory
