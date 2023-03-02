@@ -88,7 +88,7 @@ const InputTextDate: React.FC<Props> = ({
             <span className='border border-r h-full' style={{borderRightColor: '#ABAFB6'}}></span>
           </div>
           <DatePicker
-            className="focus:outline-none w-full font-sans pr-1"
+            className="focus:outline-none w-full font-sans pr-1 z-50"
             locale="es"
             selected={valueDate}
             onChange={(date) => handleChangeDate(date)}

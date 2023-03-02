@@ -22,7 +22,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, ...props }) =>
       enter="transition-opacity ease-linear duration-300"
       enterFrom="opacity-0"
       enterTo="opacity-100"
-      leave="transition-opacity ease-linear duration-300"
+      leave="transition-opacity ease-linear duration-75"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
