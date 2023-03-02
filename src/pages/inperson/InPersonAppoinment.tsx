@@ -116,7 +116,7 @@ export default function Dashboard() {
               ${outpatientRecordShow ?
                 'flex w-7/12 opacity-100' :
                 showMedicalHistory ?
-                  'flex w-5/12 opacity-100' :
+                  'flex w-3/12 opacity-100' :
                   ''
               }
             `}
@@ -130,16 +130,24 @@ export default function Dashboard() {
               />
             )}
             {appointment !== undefined && (
-              <MedicalHistory show={showMedicalHistory} />
+              <MedicalHistory show={showMedicalHistory} setShow={setShowMedicalHistory} />
             )}
           </div>
           <div
-            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12 opacity-25 cursor-default'
-              } z-10`}
+            className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
+            ${outpatientRecordShow ?
+                'absolute inset-0 left-10/12 opacity-25 cursor-default' :
+                showMedicalHistory ?
+                  'absolute inset-0 xl:left-6/12 lg:left-8/12 left-10/12 opacity-25 cursor-default' :
+                  ''
+              }`}
             style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
-            onClick={() => outpatientRecordShow && setOutpatientRecordShow(false)}
+            onClick={() => {
+              if (outpatientRecordShow) setOutpatientRecordShow(false)
+              if (showMedicalHistory) setShowMedicalHistory(false)
+            }}
           >
-            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
+            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
               <SelectorSection
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
