@@ -4,6 +4,8 @@ import Print from './icons/Print'
 import PrescriptionSelect from './icons/sumary-print/PrescriptionSelect'
 import StudiesSelect from './icons/sumary-print/StudiesSelect'
 import CheckWithoutBackground from './icons/sumary-print/CheckWithoutBackground'
+import LoadingSpinner from './icons/sumary-print/LoadingSpinner'
+
 
 
 // ********************* PRINCIPAL FUNCTION *********************
@@ -12,6 +14,7 @@ const SelectPrintOptions = () => {
   // to handle popover state
   const [prescriptionsSelected, setPrescriptionsSelected] = useState<boolean>(false)
   const [studiesSelected, setStudiesSelected] = useState<boolean>(false)
+  const [loadReports, setLoadReports] = useState<boolean>(false)
   // variable to show selected or unselected color on text and icon
   const colors = {
     selected: "#24AAAD",
@@ -106,7 +109,7 @@ const SelectPrintOptions = () => {
                   style={{ backgroundColor: colors.selected }}
                 >
                   <span className='text-white'>Confirmar</span>
-                  <CheckWithoutBackground />
+                  {loadReports ? <LoadingSpinner /> : <CheckWithoutBackground /> }
                 </button>
               </div>
             </Popover.Panel>
