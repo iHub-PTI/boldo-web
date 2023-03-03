@@ -136,7 +136,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
       </Tooltip>
 
       {
-        <SelectPrintOptions />
+        <SelectPrintOptions {...appointment}/>
       }
 
       {/* {
