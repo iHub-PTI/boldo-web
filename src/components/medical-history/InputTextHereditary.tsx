@@ -25,7 +25,9 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
     }
 
     const handleClickClose = () => {
-
+        setShow(false)
+        setDisease("")
+        setRealtionShip("")
     }
 
     const handleKeyPress = (event) => {

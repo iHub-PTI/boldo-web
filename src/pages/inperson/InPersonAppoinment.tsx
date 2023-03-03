@@ -112,7 +112,7 @@ export default function Dashboard() {
           </div>
           <div
             className=
-            {`flex-col w-0 opacity-0 
+            {`flex-col w-0 opacity-0
               ${outpatientRecordShow ?
                 'flex w-7/12 opacity-100' :
                 showMedicalHistory ?
@@ -120,7 +120,9 @@ export default function Dashboard() {
                   ''
               }
             `}
-            style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}
+            style={{
+              transition: 'width 0.5s linear, opacity 0.5s linear',
+            }}
           >
             {appointment !== undefined && (
               <RecordsOutPatient
