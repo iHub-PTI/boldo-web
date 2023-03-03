@@ -14,7 +14,7 @@ type Props = {
   show: boolean,
   setShow?: (value?: boolean) => void,
   placeholder?: string,
-  addInput: (value: {name: string, date: Date}) => void,
+  addInput: (value: { name: string, date: Date }) => void,
 }
 
 const InputTextDate: React.FC<Props> = ({
@@ -30,7 +30,7 @@ const InputTextDate: React.FC<Props> = ({
 
   const handleClickAdd = () => {
     if (text.split(' ').every((value) => value === '')) return
-    addInput({name: text, date: valueDate})
+    addInput({ name: text, date: valueDate })
     setText("")
     setValueDate(undefined)
   }
@@ -85,17 +85,19 @@ const InputTextDate: React.FC<Props> = ({
             autoFocus={true}
           />
           <div className='flex flex-col mr-2'>
-            <span className='border border-r h-full' style={{borderRightColor: '#ABAFB6'}}></span>
+            <span className='border border-r h-full' style={{ borderRightColor: '#ABAFB6' }}></span>
           </div>
-          <DatePicker
-            className="focus:outline-none w-full font-sans pr-1 z-50"
-            locale="es"
-            selected={valueDate}
-            onChange={(date) => handleChangeDate(date)}
-            showYearDropdown
-            yearDropdownItemNumber={100}
-            scrollableYearDropdown
-          />
+          <div className='w-5/12'>
+            <DatePicker
+              className="focus:outline-none font-sans pr-1 z-50 w-28"
+              locale="es"
+              selected={valueDate}
+              onChange={(date) => handleChangeDate(date)}
+              showYearDropdown
+              yearDropdownItemNumber={100}
+              scrollableYearDropdown
+            />
+          </div>
         </div>
         <div className='flex flex-row flex-no-wrap gap-3 items-center'>
           <button className='focus:outline-none' onClick={() => handleClickAdd()}>
