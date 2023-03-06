@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip'
-import Print from '../../components/icons/Print'
-import { getReports } from '../../util/helpers'
-import { useToasts } from '../../components/Toast'
+// import Print from '../../components/icons/Print'
+// import { getReports } from '../../util/helpers'
+// import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
+import SelectPrintOptions from '../../components/SelectPrintOptions'
 
 export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
   const [activeColor, setActiveColor] = useState('M')
-  const [loading, setLoading] = useState(false)
-  const { addToast } = useToasts()
+  // const [loading, setLoading] = useState(false)
+  // const { addToast } = useToasts()
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
 
   const soep = {
@@ -135,6 +136,10 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
       </Tooltip>
 
       {
+        <SelectPrintOptions {...appointment}/>
+      }
+
+      {/* {
         <Tooltip
           title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>}
           placement='left'
@@ -169,7 +174,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
             </button>
           </span>
         </Tooltip>
-      }
+      } */}
     </div>
   )
 }
