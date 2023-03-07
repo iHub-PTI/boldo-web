@@ -68,17 +68,19 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
-import Print from '../components/icons/Print'
+// import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
-import { getReports } from '../util/helpers'
+// import { getReports } from '../util/helpers'
 import * as Sentry from '@sentry/react'
-
-
 import RecordOutPatientCall from '../components/RecordOutPatientCall'
 import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
+import SelectPrintOptions from '../components/SelectPrintOptions'
+
+
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
+
 
 const Gate = () => {
   const history = useHistory()
@@ -96,7 +98,7 @@ const Gate = () => {
   const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -308,6 +310,7 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
 
@@ -337,12 +340,13 @@ const Gate = () => {
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
                 bgColor='transparent'
                 iconColor='white'
+                fromVirtual={true}
               />
             }
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
@@ -364,6 +368,10 @@ const Gate = () => {
                 }
               }
             }}
+          /> */}
+          <ChildButton
+            icon={<SelectPrintOptions virtual={true} {...appointment}/>}
+            size={50}
           />
           <ChildButton
             icon={
@@ -499,7 +507,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -531,6 +539,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
     useEffect(() => {
@@ -559,12 +568,13 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
                 bgColor='transparent'
                 iconColor='white'
+                fromVirtual={true}
               />
             }
             background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
@@ -586,6 +596,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 }
               }
             }}
+          /> */}
+          <ChildButton 
+            icon={
+              <SelectPrintOptions virtual={true} {...appointment}/>
+            }
+            size={50}
           />
           <ChildButton
             icon={
