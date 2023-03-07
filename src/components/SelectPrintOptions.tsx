@@ -198,7 +198,7 @@ const SelectPrintOptions = ({virtual, ...appointment}: AppointmentWithPatient) =
               {/* popover container */}
               <div className='flex flex-col justify-between h-full'>
                 <div className='flex flex-col'>
-                  <span className='pb-5'>Imprimir informe</span>
+                  <span className='pb-5 font-normal'>Imprimir informe</span>
                   {/* list of options */}
                   <div className='flex flex-col gap-1 w-full'>
                     {/* PRESCRIPTIONS BUTTON */}
