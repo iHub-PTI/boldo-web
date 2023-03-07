@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/core'
 const Print = ({ iconColor="#ABAFB6", bgColor="#F7F4F4", height="4.5rem", width="4.5rem", fromVirtual, ...props }) => {
   return (
     <Tooltip 
-      title={<h1 style={{ fontSize: 14 }}>Impresión de recetas</h1>} 
+      title={<h1 style={{ fontSize: 14 }}>Impresión de informes</h1>} 
       placement="left" 
       leaveDelay={100} 
       classes={useTooltipStyles()}
