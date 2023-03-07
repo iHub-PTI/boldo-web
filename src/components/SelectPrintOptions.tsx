@@ -10,10 +10,10 @@ import axios from 'axios'
 import * as Sentry from '@sentry/react'
 
 
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {virtual: boolean}
 
 // ********************* PRINCIPAL FUNCTION *********************
-const SelectPrintOptions = (appointment: AppointmentWithPatient) => {
+const SelectPrintOptions = ({virtual, ...appointment}: AppointmentWithPatient) => {
   // ********************* list of variables *********************
   const { addToast } = useToasts()
   // to handle popover state
@@ -179,6 +179,7 @@ const SelectPrintOptions = (appointment: AppointmentWithPatient) => {
             <Print
               bgColor='#27BEC2'
               iconColor='#FFFFFF'
+              fromVirtual={virtual}
             />
           </Popover.Button>
           <Transition
@@ -197,7 +198,7 @@ const SelectPrintOptions = (appointment: AppointmentWithPatient) => {
               {/* popover container */}
               <div className='flex flex-col justify-between h-full'>
                 <div className='flex flex-col'>
-                  <span className='pb-5'>Imprimir informe</span>
+                  <span className='pb-5 font-normal'>Imprimir informe</span>
                   {/* list of options */}
                   <div className='flex flex-col gap-1 w-full'>
                     {/* PRESCRIPTIONS BUTTON */}
