@@ -150,6 +150,42 @@ export function organizationsFromMessage(msg: String, organizations: Array<Boldo
   return organizationsMatches
 }
 
+/**
+ * @param {string} day - a day of the week, first three letter format
+ * @retuns The day but in spanish
+ */
+export function flipDays(day: string): string {
+  const map = {
+    "mon": "Lunes",
+    "tue": "Martes",
+    "wed": "Miercoles",
+    "thu": "Jueves",
+    "fri": "Viernes",
+    "sat": "Sábado",
+    "sun": "Domingo"
+  }
+  // lowerCase to prevent conflicts
+  return map[day.toLowerCase()]
+}
+
+/**
+ * @param {String} msg - any string in which we'll search if they include other strings
+ * @param {Array<String>} days - string of days that we search into msg
+ * @returns A string of the days found in the msg parameter supplied by the day parameter
+ */
+export function daysFromMessage(msg: string, days: Array<string>): Array<string> {
+  let dayMatch = [] as Array<string>
+
+  days.forEach((day) => {
+    if (msg.includes(day)) {
+      dayMatch.push(flipDays(day))
+    }
+  })
+
+  return dayMatch
+}
+
+
 // uncomment if necessary
 // this function merges the ids of the organizations separated by commas
 // export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
