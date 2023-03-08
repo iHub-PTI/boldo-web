@@ -636,15 +636,19 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           onChange={onChangeFilter}
         />
 
-        <Grid style={{ marginTop: '15px' }} container>
+        <div className='flex flex-row flex-wrap mt-4 gap-2'>
           <button
             style={{
               height: '35',
-              backgroundColor: soepSelected === Soep.Subjetive ? '#27BEC2' : '#F9FAFB',
-              color: soepSelected === Soep.Subjetive ? 'white' : 'black',
+              backgroundColor: soepSelected === Soep.Subjetive 
+                ? '#27BEC2' 
+                : showHover === Soep.Subjetive 
+                  ? '#B9E7E9'
+                  : '#D4F2F3',
+              color: soepSelected === Soep.Subjetive ? 'white' : '#24AAAD',
             }}
             type='button'
-            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none'
             onClick={e => {
               setSoepSelected(Soep.Subjetive)
             }}
@@ -652,17 +656,21 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             onMouseLeave={() => setShowHover('')}
           >
             Subjetivo
-            {showHover === Soep.Subjetive &&
-              ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })}
+            {/* {showHover === Soep.Subjetive &&
+              ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })} */}
           </button>
           <button
             style={{
               height: '35',
-              backgroundColor: soepSelected === Soep.Objective ? '#27BEC2' : '#F9FAFB',
-              color: soepSelected === Soep.Objective ? 'white' : 'black',
+              backgroundColor: soepSelected === Soep.Objective 
+                ? '#27BEC2' 
+                : showHover === Soep.Objective 
+                  ? '#B9E7E9'
+                  : '#D4F2F3',
+              color: soepSelected === Soep.Objective ? 'white' : '#24AAAD',
             }}
             type='button'
-            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
             onClick={e => {
               setSoepSelected(Soep.Objective)
             }}
@@ -670,17 +678,21 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             onMouseLeave={() => setShowHover('')}
           >
             Objetivo
-            {showHover === Soep.Objective &&
-              ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })}
+            {/* {showHover === Soep.Objective &&
+              ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })} */}
           </button>
           <button
             style={{
               height: '35',
-              backgroundColor: soepSelected === Soep.Evalutation ? '#27BEC2' : '#F9FAFB',
-              color: soepSelected === Soep.Evalutation ? 'white' : 'black',
+              backgroundColor: soepSelected === Soep.Evalutation 
+                ? '#27BEC2' 
+                : showHover === Soep.Evalutation 
+                  ? '#B9E7E9'
+                  : '#D4F2F3',
+              color: soepSelected === Soep.Evalutation ? 'white' : '#24AAAD',
             }}
             type='button'
-            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
             onClick={e => {
               setSoepSelected(Soep.Evalutation)
             }}
@@ -688,20 +700,24 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             onMouseLeave={() => setShowHover('')}
           >
             Evaluación
-            {showHover === Soep.Evalutation &&
+            {/* {showHover === Soep.Evalutation &&
               ShowSoepHelper({
                 title: Soep.Evalutation,
                 isBlackColor: soepSelected === Soep.Evalutation ? false : true,
-              })}
+              })} */}
           </button>
           <button
             style={{
               height: '35',
-              backgroundColor: soepSelected === Soep.Plan ? '#27BEC2' : '#F9FAFB',
-              color: soepSelected === Soep.Plan ? 'white' : 'black',
+              backgroundColor: soepSelected === Soep.Plan 
+                ? '#27BEC2' 
+                : showHover === Soep.Plan 
+                  ? '#B9E7E9'
+                  : '#D4F2F3',
+              color: soepSelected === Soep.Plan ? 'white' : '#24AAAD',
             }}
             type='button'
-            className='inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
             onClick={e => {
               setSoepSelected(Soep.Plan)
             }}
@@ -709,10 +725,10 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             onMouseLeave={() => setShowHover('')}
           >
             Plan
-            {showHover === Soep.Plan &&
-              ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })}
+            {/* {showHover === Soep.Plan &&
+              ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })} */}
           </button>
-        </Grid>
+        </div>
 
         {initialLoad ? (
           <div className='flex items-center justify-center w-full h-full'>
