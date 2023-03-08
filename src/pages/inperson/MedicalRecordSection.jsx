@@ -5,7 +5,7 @@ import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 
 import useStyles from './style'
-import ShowSoepHelper from '../../components/TooltipSoep'
+// import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import _ from 'lodash'
