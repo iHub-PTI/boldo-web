@@ -1,17 +1,16 @@
 import moment from 'moment'
 import React, { useState } from 'react'
-import { callbackify } from 'util'
 import TrashIcon from '../icons/TrashIcon'
 import Modal from '../Modal'
 
 type Props = {
-  name: string,
+  description: string,
   date?: Date,
-  description?: string,
+  relationship?: string,
   deleteItem: () => void,
 }
 
-const ItemList: React.FC<Props> = ({ name, date, description, deleteItem }) => {
+const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem }) => {
 
   const [hover, setHover] = useState(false)
   const bgColor = hover ? 'rgba(247, 244, 244, 0.6)' : ''
@@ -36,11 +35,11 @@ const ItemList: React.FC<Props> = ({ name, date, description, deleteItem }) => {
           borderRadius: '4px'
         }}
       >
-        <span className='font-medium text-cool-gray-700'>{name}</span>
+        <span className='font-medium text-cool-gray-700'>{description}</span>
         <span className='flex flex-row flex-no-wrap gap-2 '>
           <span className='font-normal text-sm text-color-disabled'>
             {date && moment(date).format('DD/MM/YYYY')}
-            {description}
+            {relationship}
           </span>
           {hover &&
             <button className='focus:outline-none' onClick={() => handleDeleteItem()}>
@@ -52,9 +51,9 @@ const ItemList: React.FC<Props> = ({ name, date, description, deleteItem }) => {
       <ConfirmationTemplateItemList
         show={show}
         setShow={setShow}
-        name={name}
+        description={description}
         date={date}
-        description={description} 
+        relationship={relationship}
         callback={() => deleteItem()}
         />
     </>
@@ -64,19 +63,19 @@ const ItemList: React.FC<Props> = ({ name, date, description, deleteItem }) => {
 type PropsModal = {
   show: boolean,
   setShow: (value: boolean) => void,
-  name: string,
+  description: string,
   date: Date
-  description: string
+  relationship: string
   callback: () => void
 }
 const ConfirmationTemplateItemList: React.FC<PropsModal> = (props) => {
-  const { show, setShow, name, date, description, callback } = props
+  const { show, setShow, description, date, relationship, callback } = props
   return (
     <Modal show={show} setShow={setShow} size={'sm'} handleOutClick={false}>
       <div className='flex flex-col flex-no-wrap'>
         <div className='mb-3'>¿Está seguro que quiere eliminar el elemento
           <span className='font-medium'>
-            {` ${name}${date ? " " + moment(date).format("DD/MM/YYYY") : ''}${description ? " " + description : ''}`}
+            {` ${description}${date ? " " + moment(date).format("DD/MM/YYYY") : ''}${relationship ? " " + description : ''}`}
           </span>?
         </div>
         <div className='flex justify-end mt-5 gap-2'>

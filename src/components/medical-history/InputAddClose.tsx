@@ -9,7 +9,7 @@ type Props = {
   placeholder?: string,
   show: boolean,
   setShow: (value: boolean) => void,
-  addInput: (value: {name: string}) => void,
+  addInput: (value: { description: string }) => void,
 }
 
 const InputAddClose: React.FC<Props> = ({
@@ -29,7 +29,7 @@ const InputAddClose: React.FC<Props> = ({
 
   const handleClickAdd = () => {
     if (text.split(' ').every((value) => value === '')) return
-    addInput({ name: text })
+    addInput({ description: text })
     setText('')
   }
 

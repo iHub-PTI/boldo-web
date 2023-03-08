@@ -6,7 +6,7 @@ import CloseCrossIcon from '../icons/CloseCrossIcon'
 type Props = {
     show?: boolean,
     setShow?: (value: boolean) => void,
-    addInput: (value: { name: string, description: string }) => void,
+    addInput: (value: { description: string, relationship: string }) => void,
 }
 
 const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...props }) => {
@@ -14,20 +14,20 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
     const [isFocusFirst, setIsFocusFirst] = useState(false)
     const [isFocusSecond, setIsFocusSecond] = useState(false)
     const [disease, setDisease] = useState("")
-    const [realtionShip, setRealtionShip] = useState("")
+    const [relationShip, setRelationShip] = useState("")
 
 
     const handleClickAdd = () => {
         if (disease.split(' ').every((value) => value === '')) return
-        addInput({ name: disease, description: realtionShip })
+        addInput({ description: disease, relationship: relationShip })
         setDisease("")
-        setRealtionShip("")
+        setRelationShip("")
     }
 
     const handleClickClose = () => {
         setShow(false)
         setDisease("")
-        setRealtionShip("")
+        setRelationShip("")
     }
 
     const handleKeyPress = (event) => {
@@ -46,7 +46,7 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
             setIsFocusSecond(false)
             setShow(false)
             setDisease('')
-            setRealtionShip('')
+            setRelationShip('')
         }
     }
 
@@ -82,8 +82,8 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
                     <input
                         className={`font-medium text-base input-add-placeholder truncate focus:outline-none ease-in-out duration-200 pl-3 ${isFocusSecond ? 'w-full' : isFocusFirst ? 'w-3/12' : 'w-full'}`}
                         type="text"
-                        value={realtionShip}
-                        onChange={(event) => { setRealtionShip(event.target.value) }}
+                        value={relationShip}
+                        onChange={(event) => { setRelationShip(event.target.value) }}
                         onFocus={() => setIsFocusSecond(true)}
                         onBlur={() => setIsFocusSecond(false)}
                         placeholder="Parentezco"

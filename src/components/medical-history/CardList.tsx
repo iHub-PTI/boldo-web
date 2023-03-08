@@ -1,27 +1,36 @@
-import React, { useState } from 'react'
+import React, { Dispatch, useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import InputTextDate from './InputTextDate'
 import InputTextHereditary from './InputTextHereditary'
 import ItemList from './ItemList'
-import { InputValue } from './Types'
+import { DataList, InputValue } from './Types'
 
 type Props = {
   title?: string,
-  TitleElement?: JSX.Element,
-  dataList: { name: string, date?: Date, description?: string }[]
-  inputTypeWith?: string, // date | description | undefined
+  TitleElement?: () => JSX.Element,
+  dataList: DataList
+  inputTypeWith?: "date" | "relationship" | undefined
+  typeCode: string,
+  dispatch: Dispatch<any>
 }
 
-const CardList = ({ title = '', TitleElement = null, dataList = [], inputTypeWith = undefined }) => {
+const CardList: React.FC<Props> = ({
+  title = '',
+  TitleElement = null,
+  dataList = [],
+  inputTypeWith = undefined,
+  typeCode,
+  dispatch,
+  ...props
+}) => {
 
-  const [list, setList] = useState(dataList)
   const [hover, setHover] = useState(false)
   const [showInput, setShowInput] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
   const Empty = () => {
-    if (list && list.length > 0) return null
+    if (dataList && dataList.length > 0) return null
     return <span className='text-base leading-6 text-color-disabled italic pl-2'
       style={{ letterSpacing: '0.15px' }}
     >
@@ -34,13 +43,18 @@ const CardList = ({ title = '', TitleElement = null, dataList = [], inputTypeWit
   }
 
   const handleAddList = (value: InputValue) => {
-    setList([value, ...list])
+    //setList([value, ...list])
+    let type = typeCode + '_add'
+    dispatch({ type: type, value: value })
   }
 
-  const handleDeleteList = (index: number) => {
-    let array = [...list]
-    array.splice(index, 1)
-    setList([...array])
+  const handleDeleteList = (id: string) => {
+    //let array = [...list]
+    //array.splice(index, 1)
+    //setList([...array])
+    let type = typeCode + '_del'
+    dispatch({ type: type, id: id })
+
   }
 
   return (
@@ -50,6 +64,7 @@ const CardList = ({ title = '', TitleElement = null, dataList = [], inputTypeWit
       style={{
         background: background
       }}
+      {...props}
     >
       <div className='flex flex-row flex-no-wrap pb-1 gap-2 items-center'>
         {title && <div className='font-normal text-gray-500 text-sm '>{title}</div>}
@@ -64,16 +79,16 @@ const CardList = ({ title = '', TitleElement = null, dataList = [], inputTypeWit
         {inputTypeWith === 'date' &&
           <InputTextDate show={showInput} setShow={setShowInput} addInput={handleAddList} />
         }
-        {inputTypeWith === 'description' &&
+        {inputTypeWith === 'relationship' &&
           <InputTextHereditary show={showInput} setShow={setShowInput} addInput={handleAddList} />
         }
-        {list.map((data, i) =>
+        {dataList.map((data, i) =>
           <ItemList
             key={'card_list_' + i}
-            name={data.name}
-            date={data.date}
             description={data.description}
-            deleteItem={() => handleDeleteList(i)}
+            date={data.date}
+            relationship={data.relationship}
+            deleteItem={() => handleDeleteList(data.id)}
           />)}
         <Empty />
       </div>

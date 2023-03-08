@@ -1,27 +1,40 @@
 import { Transition } from '@headlessui/react'
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, Dispatch, useEffect, useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 import PencilEditIcon from '../icons/PencilEditIcon'
-
-type GynecologyType = { name: string, subtitle: string, type: number }
+import { Gynecology } from "./Types";
 
 const titlesTypesGynecology = [
-  { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number' },
-  { title: 'Partos', beforeTitle: 'Cantidad de', type: 'number' },
-  { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number' },
-  { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number' },
-  { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años' },
-  { title: 'Ultima menstruación', beforeTitle: '', type: 'number' }
+  { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'gestations_number' },
+  { title: 'Partos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'births_number' },
+  { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'cesarean_number' },
+  { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'abortions_number' },
+  { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años', typeCode: 'menarche_age' },
+  { title: 'Ultima menstruación', beforeTitle: '', type: 'number', typeCode: 'last_menstruation' }
 ]
 
-const AddClose = ({ show, setShow, ...props }) => {
+type AddCloseProps = {
+  show: boolean,
+  setshow: (value: boolean) => void,
+  typeCode: string,
+  dispatch: Dispatch<any>,
+  gynecology: Gynecology
+}
+
+const AddClose = ({ show, setShow, typeCode, dispatch, gynecology, ...props }) => {
 
   const handClickClose = () => {
     setShow(false)
   }
 
   const handleClickAdd = () => {
+    //to add something it must be greater than 0
+    if (Object.values(gynecology).every((value: number) => value === 0)) {
+      setShow(false)
+      return
+    }
+    dispatch({ type: typeCode, value: gynecology })
     setShow(false)
   }
 
@@ -49,12 +62,11 @@ const AddClose = ({ show, setShow, ...props }) => {
   )
 }
 
-const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', tag = '' }) => {
+const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', tag = '', typeCode, gynecology, setGynecology }) => {
 
-  const [value, setValue] = useState("")
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value)
+    setGynecology({ ...gynecology, [event.target.name]: parseInt(event.target.value) })
   }
 
   return (
@@ -66,9 +78,10 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
       <div className='flex flex-row flex-no-wrap w-6/12 h-7 bg-white rounded-md'>
         <input className='text-center text-sm focus:outline-none bg-transparent disabled:bg-transparent w-full rounded-md'
           type="number"
-          min="1"
+          min="0"
           step="1"
-          value={value}
+          name={typeCode}
+          value={gynecology[typeCode]}
           placeholder={placeholder}
           disabled={isDisabled}
           onFocus={(event) => event.target.placeholder = ''}
@@ -80,16 +93,24 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
   )
 }
 
+type Props = {
+  gynecology: Gynecology,
+  typeCode: string,
+  dispacth: Dispatch<any>
+}
 
-const TableGynecology = () => {
+const TableGynecology = ({ gynecology, typeCode, dispatch }) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
+  const [gynecologyState, setGynecology] = useState<Gynecology>(gynecology)
+
   const handleClickEdit = () => {
     setShowEdit(!showEdit)
   }
+
   return (
     <div
       className='flex flex-col flex-no-wrap rounded-lg p-2'
@@ -107,7 +128,7 @@ const TableGynecology = () => {
           <button className='focus:outline-none absolute left-0' onClick={() => { handleClickEdit() }}>
             {hover && !showEdit && <PencilEditIcon />}
           </button>
-          <AddClose show={showEdit} setShow={setShowEdit} />
+          <AddClose show={showEdit} setShow={setShowEdit} typeCode={typeCode} dispatch={dispatch} gynecology={gynecologyState} />
         </div>
       </div>
       <div className='flex flex-col flex-no-wrap w-full pt-3 gap-1'>
@@ -117,6 +138,9 @@ const TableGynecology = () => {
             beforeTitle={row.beforeTitle}
             title={row.title}
             isDisabled={!showEdit}
+            typeCode={row.typeCode}
+            gynecology={gynecologyState}
+            setGynecology={setGynecology}
           />
         )}
       </div>

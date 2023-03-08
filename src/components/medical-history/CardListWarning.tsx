@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { Dispatch, useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import { WarningIcon } from '../icons/WarningIcon'
 import InputAddClose from './InputAddClose'
@@ -9,15 +9,23 @@ type Props = {
   title: string,
   dataList: DataList
   backgroundColor?: string
+  typeCode: string,
+  dispatch: Dispatch<any>
 }
 
-const CardList: React.FC<Props> = ({ title = '', dataList = [], backgroundColor = "#FFF3F0", ...props }) => {
+const CardList: React.FC<Props> = ({
+  title = '',
+  dataList = [],
+  backgroundColor = "#FFF3F0",
+  typeCode,
+  dispatch,
+  ...props
+}) => {
 
   const [showInput, setShowInput] = useState(false)
-  const [list, setList] = useState<DataList>(dataList)
 
   const Empty = () => {
-    if (list && list.length > 0) return null
+    if (dataList && dataList.length > 0) return null
     return <span className='text-base leading-6 text-color-disabled italic my-1'
       style={{ letterSpacing: '0.15px' }}
     >
@@ -30,17 +38,17 @@ const CardList: React.FC<Props> = ({ title = '', dataList = [], backgroundColor 
   }
 
   const handleAddList = (value: InputValue) => {
-    setList([value, ...list])
+    let type = typeCode + '_add'
+    dispatch({ type: type, value: value })
   }
 
-  const handleDeleteList = (index: number) => {
-    let array = [...list]
-    array.splice(index, 1)
-    setList([...array])
+  const handleDeleteList = (id: string) => {
+    let type = typeCode + '_del'
+    dispatch({ type: type, id: id })
   }
 
   return (
-    <div className='flex flex-col w-full rounded-lg pb-4 group' style={{ backgroundColor: backgroundColor }}>
+    <div className='flex flex-col w-full rounded-lg pb-4 group' style={{ backgroundColor: backgroundColor }} {...props}>
       <div className='flex flex-row justify-start gap-2 p-2 font-medium items-center' style={{ color: '#DB7D68' }}>
         <WarningIcon />
         {title}
@@ -50,7 +58,7 @@ const CardList: React.FC<Props> = ({ title = '', dataList = [], backgroundColor 
       </div>
       <div className='flex flex-col w-full pr-5 pl-15'>
         <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
-        {list.map((data, i) => <ItemList key={'card_list_w' + i} name={data.name} date={data.date} deleteItem={() => handleDeleteList(i)} />)}
+        {dataList.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={data.date} deleteItem={() => handleDeleteList(data.id)} />)}
         <Empty />
       </div>
     </div>
