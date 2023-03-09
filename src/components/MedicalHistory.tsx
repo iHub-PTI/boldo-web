@@ -9,6 +9,7 @@ import CardListWarning from './medical-history/CardListWarning';
 import TableGynecology from './medical-history/TableGynecology';
 import { MedicalHistoryType, Allergy, Cardiopathy, Respiratory, Digestive, Procedure, Others, Gynecology } from './medical-history/Types';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
+import { mergeJSON } from '../util/helpers';
 
 const urls = {
   getHistory: '/profile/doctor/history',
@@ -61,7 +62,9 @@ const initialState: MedicalHistoryType = {
 const historyReducer = (state: MedicalHistoryType, action: ActionType) => {
   switch (action.type) {
     case 'initial':
-      return { ...state, ...action.value }
+      let obj = mergeJSON(initialState, action.value)
+      return { ...state, ...obj }
+
     case 'allergies_add':
       state.personal.allergies.push(action.value)
       return { ...state }
