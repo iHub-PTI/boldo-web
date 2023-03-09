@@ -132,7 +132,11 @@ export default function Dashboard() {
               />
             )}
             {appointment !== undefined && (
-              <MedicalHistory show={showMedicalHistory} setShow={setShowMedicalHistory} />
+              <MedicalHistory 
+                show={showMedicalHistory} 
+                setShow={setShowMedicalHistory} 
+                patient={appointment.patient}
+              />
             )}
           </div>
           <div

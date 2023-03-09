@@ -1,4 +1,7 @@
-import React, { Dispatch, useState } from 'react'
+import axios from 'axios'
+import { id } from 'date-fns/locale'
+import _ from 'lodash'
+import React, { useCallback, useState } from 'react'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import { WarningIcon } from '../icons/WarningIcon'
 import InputAddClose from './InputAddClose'
@@ -9,20 +12,25 @@ type Props = {
   title: string,
   dataList: DataList
   backgroundColor?: string
-  typeCode: string,
-  dispatch: Dispatch<any>
+  url: string,
+  patientId: string
+  callBackAdd: (value: InputValue) => void,
+  callBackDel: (id: string) => void,
 }
 
-const CardList: React.FC<Props> = ({
+const CardListWarning: React.FC<Props> = ({
   title = '',
   dataList = [],
   backgroundColor = "#FFF3F0",
-  typeCode,
-  dispatch,
+  url,
+  patientId,
+  callBackAdd,
+  callBackDel,
   ...props
 }) => {
 
   const [showInput, setShowInput] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const Empty = () => {
     if (dataList && dataList.length > 0) return null
@@ -37,14 +45,41 @@ const CardList: React.FC<Props> = ({
     setShowInput(true)
   }
 
+  const requestPostTrhottle = useCallback(
+    _.throttle((value: InputValue) => {
+      setLoading(true)
+      axios
+        .post(url, {
+          patientId: patientId,
+          ...value
+        })
+        .then(res => {
+          callBackAdd(res.data)
+          setLoading(false)
+        })
+        .catch(err => {
+          console.error(err)
+          setLoading(false)
+        }).finally(() => setLoading(false))
+    }, 1000)
+    , [])
+
   const handleAddList = (value: InputValue) => {
-    let type = typeCode + '_add'
-    dispatch({ type: type, value: value })
+    requestPostTrhottle(value)
   }
 
   const handleDeleteList = (id: string) => {
-    let type = typeCode + '_del'
-    dispatch({ type: type, id: id })
+    setLoading(true)
+    axios
+      .delete(url + '/' + id)
+      .then(res => {
+        callBackDel(id)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setLoading(false)
+      }).finally(() => setLoading(false))
   }
 
   return (
@@ -58,6 +93,7 @@ const CardList: React.FC<Props> = ({
       </div>
       <div className='flex flex-col w-full pr-5 pl-15'>
         <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
+        {/* {loading && <div className='w-full text-center'>Guardando...</div>} */}
         {dataList.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={data.date} deleteItem={() => handleDeleteList(data.id)} />)}
         <Empty />
       </div>
@@ -65,4 +101,4 @@ const CardList: React.FC<Props> = ({
   )
 }
 
-export default CardList
+export default CardListWarning
