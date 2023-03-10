@@ -27,8 +27,8 @@ const Print = ({ iconColor="#ABAFB6", bgColor="#F7F4F4", height="4.5rem", width=
                 <path d="M34 22H20C18.34 22 17 23.34 17 25V29C17 30.1 17.9 31 19 31H21V33C21 34.1 21.9 35 23 35H31C32.1 35 33 34.1 33 33V31H35C36.1 31 37 30.1 37 29V25C37 23.34 35.66 22 34 22ZM30 33H24C23.45 33 23 32.55 23 32V28H31V32C31 32.55 30.55 33 30 33ZM34 26C33.45 26 33 25.55 33 25C33 24.45 33.45 24 34 24C34.55 24 35 24.45 35 25C35 25.55 34.55 26 34 26ZM32 17H22C21.45 17 21 17.45 21 18V20C21 20.55 21.45 21 22 21H32C32.55 21 33 20.55 33 20V18C33 17.45 32.55 17 32 17Z" fill="#F7F4F4"/>
               </g>
               <defs>
-                <filter id="filter0_dd_3372_22247" x="0" y="0" width="54" height="54" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter0_dd_3372_22247" x="0" y="0" width="54" height="54" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                  <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                   <feOffset dy="1"/>
                   <feGaussianBlur stdDeviation="1.5"/>
