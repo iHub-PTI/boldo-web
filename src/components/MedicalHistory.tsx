@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
-import React, { useEffect, useReducer } from 'react'
-import { useAxiosFetch } from '../hooks/useAxiosFetch';
+import React, { useEffect, useState } from 'react'
+import { useAxiosFetch }  from '../hooks/useAxios';
 import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants';
 import useWindowDimensions from '../util/useWindowDimensions';
 import ArrowBackIOS from './icons/ArrowBack-ios';
@@ -9,7 +9,7 @@ import CardListWarning from './medical-history/CardListWarning';
 import TableGynecology from './medical-history/TableGynecology';
 import { MedicalHistoryType, Allergy, Cardiopathy, Respiratory, Digestive, Procedure, Others, Gynecology } from './medical-history/Types';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
-import { mergeJSON } from '../util/helpers';
+//import { mergeJSON } from '../util/helpers';
 
 const urls = {
   getHistory: '/profile/doctor/history',
@@ -59,7 +59,7 @@ const initialState: MedicalHistoryType = {
   }
 }
 
-const historyReducer = (state: MedicalHistoryType, action: ActionType) => {
+/* const historyReducer = (state: MedicalHistoryType, action: ActionType) => {
   switch (action.type) {
     case 'initial':
       let obj = mergeJSON(initialState, action.value)
@@ -138,7 +138,7 @@ const historyReducer = (state: MedicalHistoryType, action: ActionType) => {
     default:
       return state
   }
-}
+} */
 
 type Props = {
   show: boolean,
@@ -149,11 +149,14 @@ type Props = {
 const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...props }) => {
 
   const { width: screenWidth } = useWindowDimensions()
-  const { data, loading, error } = useAxiosFetch(urls.getHistory, { patient_id: patient.id })
-  const [storeHistory, dispatch] = useReducer(historyReducer, initialState)
+  const {data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patient.id })
+
+  const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
+
+  //const [storeHistory, dispatch] = useReducer(historyReducer, initialState)
 
   useEffect(() => {
-    if (data) dispatch({ type: 'initial', value: data })
+    if (data) setDataHistory(data)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
@@ -303,11 +306,11 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
             <div className='flex flex-col w-full pl-6 pr-2'>
               <CardListWarning
                 title='Alergias y sensibilidades'
-                dataList={storeHistory?.personal?.allergies ?? []}
+                dataList={dataHistory?.personal?.allergies ?? []}
                 url={urls.allergies}
                 patientId={patient.id}
-                callBackAdd={(value) => dispatch({ type: 'allergies_add', value: value })}
-                callBackDel={(id) => dispatch({ type: 'allergies_del', id: id })}
+              //callBackAdd={(value) => dispatch({ type: 'allergies_add', value: value })}
+              //callBackDel={(id) => dispatch({ type: 'allergies_del', id: id })}
               />
             </div>
             {/* Section pathology */}
@@ -316,21 +319,21 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
                 <CardList
                   title={'Cardiopatías'}
-                  dataList={storeHistory?.personal?.cardiopathies ?? []}
+                  dataList={dataHistory?.personal?.cardiopathies ?? []}
                   typeCode='cardiopathies'
-                  dispatch={dispatch}
+                //dispatch={dispatch}
                 />
                 <CardList
                   title={'Respiratorias'}
-                  dataList={storeHistory?.personal?.respiratory ?? []}
+                  dataList={dataHistory?.personal?.respiratory ?? []}
                   typeCode='respiratory'
-                  dispatch={dispatch}
+                //dispatch={dispatch}
                 />
                 <CardList
                   title={'Digestivas'}
-                  dataList={storeHistory?.personal?.digestive ?? []}
+                  dataList={dataHistory?.personal?.digestive ?? []}
                   typeCode='digestive'
-                  dispatch={dispatch}
+                //dispatch={dispatch}
                 />
               </div>
             </div>
@@ -339,22 +342,26 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
             {/* Section procedures */}
             <CardList
               TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
-              dataList={storeHistory?.personal?.procedures ?? []}
+              dataList={dataHistory?.personal?.procedures ?? []}
               inputTypeWith="date"
               typeCode='procedures'
-              dispatch={dispatch}
+            //dispatch={dispatch}
             />
 
             {/* Section Others */}
             <CardList
               TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
-              dataList={storeHistory?.personal?.others ?? []}
+              dataList={dataHistory?.personal?.others ?? []}
               inputTypeWith="date"
               typeCode='others_personal'
-              dispatch={dispatch}
+            //dispatch={dispatch}
             />
             {/* Section Gynecology */}
-            <TableGynecology gynecology={storeHistory?.personal?.gynecology ?? {}} typeCode='gynecology' dispatch={dispatch} />
+            <TableGynecology
+              gynecology={dataHistory?.personal?.gynecology ?? {}}
+              typeCode='gynecology'
+            //dispatch={dispatch} 
+            />
           </div>
           {/* Family Section */}
           <div className='flex flex-col items-center w-full gap-3 pb-5'>
@@ -364,17 +371,19 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
             <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
               <CardList
                 TitleElement={() => <div className='font-medium text-base text-primary-500'>Enfermedades hereditarias</div>}
-                dataList={storeHistory?.family?.hereditary_diseases ?? []}
+                dataList={dataHistory?.family?.hereditary_diseases ?? []}
                 inputTypeWith='relationship'
                 typeCode='hereditary_diseases'
-                dispatch={dispatch}
+              //dispatch={dispatch}
               />
               <CardList
-                TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
-                dataList={storeHistory?.family?.others ?? []}
+                TitleElement={() =>
+                  <div className='font-medium text-base text-primary-500'>Otros</div>
+                }
+                dataList={dataHistory?.family?.others ?? []}
                 inputTypeWith="relationship"
                 typeCode='others_family'
-                dispatch={dispatch}
+              //dispatch={dispatch}
               />
             </div>
           </div>

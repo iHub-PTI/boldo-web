@@ -12,7 +12,7 @@ type Props = {
   dataList: DataList
   inputTypeWith?: "date" | "relationship" | undefined
   typeCode: string,
-  dispatch: Dispatch<any>
+  //dispatch: Dispatch<any>
 }
 
 const CardList: React.FC<Props> = ({
@@ -21,7 +21,7 @@ const CardList: React.FC<Props> = ({
   dataList = [],
   inputTypeWith = undefined,
   typeCode,
-  dispatch,
+  //dispatch,
   ...props
 }) => {
 
@@ -44,16 +44,16 @@ const CardList: React.FC<Props> = ({
 
   const handleAddList = (value: InputValue) => {
     //setList([value, ...list])
-    let type = typeCode + '_add'
-    dispatch({ type: type, value: value })
+    // let type = typeCode + '_add'
+    // dispatch({ type: type, value: value })
   }
 
   const handleDeleteList = (id: string) => {
     //let array = [...list]
     //array.splice(index, 1)
     //setList([...array])
-    let type = typeCode + '_del'
-    dispatch({ type: type, id: id })
+    // let type = typeCode + '_del'
+    // dispatch({ type: type, id: id })
 
   }
 

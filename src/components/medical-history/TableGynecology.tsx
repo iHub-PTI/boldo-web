@@ -18,11 +18,11 @@ type AddCloseProps = {
   show: boolean,
   setshow: (value: boolean) => void,
   typeCode: string,
-  dispatch: Dispatch<any>,
+  //dispatch: Dispatch<any>,
   gynecology: Gynecology
 }
 
-const AddClose = ({ show, setShow, typeCode, dispatch, gynecology, ...props }) => {
+const AddClose = ({ show, setShow, typeCode, gynecology, ...props }) => {
 
   const handClickClose = () => {
     setShow(false)
@@ -34,7 +34,7 @@ const AddClose = ({ show, setShow, typeCode, dispatch, gynecology, ...props }) =
       setShow(false)
       return
     }
-    dispatch({ type: typeCode, value: gynecology })
+    //dispatch({ type: typeCode, value: gynecology })
     setShow(false)
   }
 
@@ -96,10 +96,10 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
 type Props = {
   gynecology: Gynecology,
   typeCode: string,
-  dispacth: Dispatch<any>
+  //dispacth: Dispatch<any>
 }
 
-const TableGynecology = ({ gynecology, typeCode, dispatch }) => {
+const TableGynecology = ({ gynecology, typeCode }) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
@@ -128,7 +128,13 @@ const TableGynecology = ({ gynecology, typeCode, dispatch }) => {
           <button className='focus:outline-none absolute left-0' onClick={() => { handleClickEdit() }}>
             {hover && !showEdit && <PencilEditIcon />}
           </button>
-          <AddClose show={showEdit} setShow={setShowEdit} typeCode={typeCode} dispatch={dispatch} gynecology={gynecologyState} />
+          <AddClose
+            show={showEdit}
+            setShow={setShowEdit}
+            typeCode={typeCode}
+            //dispatch={dispatch}
+            gynecology={gynecologyState}
+          />
         </div>
       </div>
       <div className='flex flex-col flex-no-wrap w-full pt-3 gap-1'>
