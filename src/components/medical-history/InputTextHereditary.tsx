@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 
@@ -16,12 +16,17 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
     const [disease, setDisease] = useState("")
     const [relationShip, setRelationShip] = useState("")
 
+    const firstRef = useRef(null)
+
 
     const handleClickAdd = () => {
         if (disease.split(' ').every((value) => value === '')) return
         addInput({ description: disease, relationship: relationShip })
         setDisease("")
         setRelationShip("")
+        setIsFocusFirst(true)
+        setIsFocusSecond(false)
+        if (firstRef.current !== null) firstRef.current.focus()
     }
 
     const handleClickClose = () => {
@@ -66,6 +71,7 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
                 <div className={`flex flex-row flex-no-wrap`}>
                     <input
                         className={`font-medium text-base input-add-placeholder truncate focus:outline-none pr-3 ease-in-out duration-200 ${isFocusFirst ? 'w-full' : isFocusSecond ? 'w-3/12' : 'w-full'}`}
+                        ref={firstRef}
                         type="text"
                         value={disease}
                         onChange={(event) => { setDisease(event.target.value) }}

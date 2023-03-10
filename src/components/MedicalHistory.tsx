@@ -167,13 +167,13 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar' style={{ minWidth: '450px' }}>
+      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar relative' style={{ minWidth: '450px' }}>
         <div className='flex flex-col w-full gap-5'
           style={{
             height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
           }}>
           {/* Header */}
-          <div className='flex flex-col h-full'>
+          <div className='flex flex-col h-full sticky top-0 z-10 bg-white'>
             <div className='flex flex-row pl-5'>
               <button
                 className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
@@ -211,13 +211,13 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar' style={{ minWidth: '450px' }}>
+      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar relative' style={{ minWidth: '450px' }}>
         <div className='flex flex-col w-full gap-5'
           style={{
             height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
           }}>
           {/* Header */}
-          <div className='flex flex-col h-full'>
+          <div className='flex flex-col h-full sticky top-0 z-10 bg-white'>
             <div className='flex flex-row pl-5'>
               <button
                 className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
@@ -267,13 +267,13 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar' style={{ minWidth: '450px' }}>
+      <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar relative' style={{ minWidth: '450px' }}>
         <div className='flex flex-col w-full gap-5'
           style={{
             height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
           }}>
           {/* Header */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col sticky top-0 z-10 bg-white'>
             <div className='flex flex-row pl-5'>
               <button
                 className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
@@ -285,7 +285,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               </button>
             </div>
             {/* Componente desde aca */}
-            <div className='flex justify-start h-12 mb-1 pl-6'>
+            <div className='flex justify-start mb-1 pl-6'>
               <div className='text-black font-bold text-2xl'>
                 Antecedentes clínicos
                 <div className='text-cool-gray-400 font-normal text-xl'>
