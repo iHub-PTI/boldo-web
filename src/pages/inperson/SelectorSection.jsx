@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 // import { getReports } from '../../util/helpers'
 // import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 import SelectPrintOptions from '../../components/SelectPrintOptions'
 
 export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
@@ -32,8 +32,8 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
         backgroundColor: '#EDF2F7',
         height: ` ${
           screenWidth >= WIDTH_XL
-            ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-            : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+            ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+            : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`,
       }}
     >
