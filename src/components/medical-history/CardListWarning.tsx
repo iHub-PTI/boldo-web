@@ -1,6 +1,4 @@
-import axios from 'axios'
-import _, { add } from 'lodash'
-import React, { useCallback, useState } from 'react'
+import React, {useEffect, useState } from 'react'
 import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import { WarningIcon } from '../icons/WarningIcon'
@@ -14,6 +12,7 @@ type Props = {
   backgroundColor?: string
   url: string,
   patientId: string
+  handlerSaveLoading?: (value: boolean) => void
 }
 
 const CardListWarning: React.FC<Props> = ({
@@ -22,6 +21,7 @@ const CardListWarning: React.FC<Props> = ({
   backgroundColor = "#FFF3F0",
   url,
   patientId,
+  handlerSaveLoading,
   ...props
 }) => {
 
@@ -43,24 +43,25 @@ const CardListWarning: React.FC<Props> = ({
     setShowInput(true)
   }
 
-  // const requestPostTrhottle = useCallback(
-  //   _.throttle((value: InputValue) => {
-  //     setLoading(true)
-  //     axios
-  //       .post(url, {
-  //         patientId: patientId,
-  //         ...value
-  //       })
-  //       .then(res => {
-  //         //callBackAdd(res.data)
-  //         setLoading(false)
-  //       })
-  //       .catch(err => {
-  //         console.error(err)
-  //         setLoading(false)
-  //       }).finally(() => setLoading(false))
-  //   }, 1000)
-  //   , [])
+ /* TODO: Add support throttle
+   const requestPostTrhottle = useCallback(
+    _.throttle((value: InputValue) => {
+      setLoading(true)
+      axios
+        .post(url, {
+          patientId: patientId,
+          ...value
+        })
+        .then(res => {
+          //callBackAdd(res.data)
+          setLoading(false)
+        })
+        .catch(err => {
+          console.error(err)
+          setLoading(false)
+        }).finally(() => setLoading(false))
+    }, 1000)
+    , []) */
 
   const addItemList = (value: InputValue) => {
     setList([value, ...list])
@@ -77,6 +78,16 @@ const CardListWarning: React.FC<Props> = ({
   const handleDeleteList = (id: string) => {
     deleteData(id, removeItemList)
   }
+
+  useEffect(() => {
+    handlerSaveLoading(loadDel)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadDel])
+
+  useEffect(() => {
+    handlerSaveLoading(loadPost)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPost])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 group' style={{ backgroundColor: backgroundColor }} {...props}>

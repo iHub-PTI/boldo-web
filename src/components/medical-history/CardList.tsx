@@ -28,9 +28,10 @@ const CardList: React.FC<Props> = ({
   const [hover, setHover] = useState(false)
   const [showInput, setShowInput] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
+  const [list, setList] = useState(dataList)
 
   const Empty = () => {
-    if (dataList && dataList.length > 0) return null
+    if (list && list.length > 0) return null
     return <span className='text-base leading-6 text-color-disabled italic pl-2'
       style={{ letterSpacing: '0.15px' }}
     >
@@ -43,18 +44,14 @@ const CardList: React.FC<Props> = ({
   }
 
   const handleAddList = (value: InputValue) => {
-    //setList([value, ...list])
-    // let type = typeCode + '_add'
-    // dispatch({ type: type, value: value })
+    console.log(value)
+    setList([value, ...list])
   }
 
-  const handleDeleteList = (id: string) => {
-    //let array = [...list]
-    //array.splice(index, 1)
-    //setList([...array])
-    // let type = typeCode + '_del'
-    // dispatch({ type: type, id: id })
-
+  const handleDeleteList = (index: number) => {
+    let array = [...list]
+    array.splice(index, 1)
+    setList([...array])
   }
 
   return (
@@ -82,13 +79,13 @@ const CardList: React.FC<Props> = ({
         {inputTypeWith === 'relationship' &&
           <InputTextHereditary show={showInput} setShow={setShowInput} addInput={handleAddList} />
         }
-        {dataList.map((data, i) =>
+        {list.map((data, i) =>
           <ItemList
             key={'card_list_' + i}
             description={data.description}
             date={data.date}
             relationship={data.relationship}
-            deleteItem={() => handleDeleteList(data.id)}
+            deleteItem={() => handleDeleteList(i)}
           />)}
         <Empty />
       </div>

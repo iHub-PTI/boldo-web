@@ -77,7 +77,7 @@ const ConfirmationTemplateItemList: React.FC<PropsModal> = (props) => {
       <div className='flex flex-col flex-no-wrap'>
         <div className='mb-3'>¿Está seguro que quiere eliminar el elemento
           <span className='font-medium'>
-            {` ${description}${date ? " fecha: " + moment(date).format("DD/MM/YYYY") : ''}${relationship ? ", " + relationship : ''}`}
+            {` ${description}${date ? ", fecha: " + moment(date).format("DD/MM/YYYY") : ''}${relationship ? ", " + relationship : ''}`}
           </span>?
         </div>
         <div className='flex flex-row justify-between mt-5 gap-2'>

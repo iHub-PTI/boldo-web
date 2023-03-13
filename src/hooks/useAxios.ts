@@ -24,10 +24,11 @@ export function useAxiosFetch<T>(url: string, params: {}) {
 }
 
 export function useAxiosPost(url: string) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
   const sendData = <T>(body: {}, sendDataSuccess?: (value) => void) => {
+    setLoading(true)
     axios.post(url, body)
       .then((res) => {
         console.log(res.data)
@@ -44,10 +45,11 @@ export function useAxiosPost(url: string) {
 }
 
 export function useAxiosDelete(url: string) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
   const deleteData = <T>(id:string, deleteSuccessData?: (value) => void) => {
+    setLoading(true)
     axios.delete(url + "/" + id)
       .then((res) => {
         console.log(res.data)

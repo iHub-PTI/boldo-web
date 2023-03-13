@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import React, { useEffect, useState } from 'react'
-import { useAxiosFetch }  from '../hooks/useAxios';
+import { useAxiosFetch } from '../hooks/useAxios';
 import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants';
 import useWindowDimensions from '../util/useWindowDimensions';
 import ArrowBackIOS from './icons/ArrowBack-ios';
@@ -9,6 +9,9 @@ import CardListWarning from './medical-history/CardListWarning';
 import TableGynecology from './medical-history/TableGynecology';
 import { MedicalHistoryType, Allergy, Cardiopathy, Respiratory, Digestive, Procedure, Others, Gynecology } from './medical-history/Types';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
+import ProgressIcon from './icons/ProgressIcon';
+import CloudIcon from './icons/CloudIcon';
+
 //import { mergeJSON } from '../util/helpers';
 
 const urls = {
@@ -149,11 +152,14 @@ type Props = {
 const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...props }) => {
 
   const { width: screenWidth } = useWindowDimensions()
-  const {data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patient.id })
-
+  const { data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patient.id })
+  const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
-  //const [storeHistory, dispatch] = useReducer(historyReducer, initialState)
+  const handlerSaveLoading = (loading) => {
+    console.log("a")
+    setSaveLoading(loading)
+  }
 
   useEffect(() => {
     if (data) setDataHistory(data)
@@ -271,7 +277,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
       leaveTo="opacity-0"
     >
       <div className='flex flex-col justify-center items-center overflow-y-auto scrollbar relative' style={{ minWidth: '450px' }}>
-        <div className='flex flex-col w-full gap-5'
+        <div className='flex flex-col w-full gap-2'
           style={{
             height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
           }}>
@@ -288,13 +294,28 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               </button>
             </div>
             {/* Componente desde aca */}
-            <div className='flex justify-start mb-1 pl-6'>
+            <div className='flex flex-col justify-start mb-1 pl-6 gap-2'>
               <div className='text-black font-bold text-2xl'>
                 Antecedentes clínicos
                 <div className='text-cool-gray-400 font-normal text-xl'>
                   personales y familiares
                 </div>
               </div>
+              {saveLoading ?
+                <div className='flex flex-row gap-1 items-center'>
+                  <h5
+                    className='font-medium text-sm text-gray-500 font-sans'
+                  >Guardando Antecendentes</h5>
+                  <ProgressIcon className="animate-spin" />
+                </div> : saveLoading !== null ?
+                  <div className='flex flex-row gap-1'>
+                    <h5
+                      className='font-medium text-sm text-gray-500 font-sans items-center'
+                    >Antecedentes clínicos guardado correctamente</h5>
+                    <CloudIcon />
+                  </div> :
+                  null}
+
             </div>
           </div>
           {/* Personal */}
@@ -309,8 +330,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
                 dataList={dataHistory?.personal?.allergies ?? []}
                 url={urls.allergies}
                 patientId={patient.id}
-              //callBackAdd={(value) => dispatch({ type: 'allergies_add', value: value })}
-              //callBackDel={(id) => dispatch({ type: 'allergies_del', id: id })}
+                handlerSaveLoading={handlerSaveLoading}
               />
             </div>
             {/* Section pathology */}
