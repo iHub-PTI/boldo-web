@@ -72,10 +72,9 @@ import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 import { getReports } from '../util/helpers'
 import * as Sentry from '@sentry/react'
-
-
-import RecordOutPatientCall from '../components/RecordOutPatientCall'
 import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
+import SidebarMenuCall from '../components/SidebarMenuCall'
+
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
 type CallStatus = { connecting: boolean }
@@ -420,7 +419,7 @@ const Gate = () => {
   }
   return (
     <Layout>
-      <RecordOutPatientCall appointment={appointment}>
+      <SidebarMenuCall appointment={appointment}>
         {instance === 0 ? (
           <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
             <div className='flex h-full items-center w-8/12'>
@@ -460,7 +459,7 @@ const Gate = () => {
             callStatus={callStatus}
           />
         )}
-      </RecordOutPatientCall>
+      </SidebarMenuCall>
     </Layout>
   )
 }
