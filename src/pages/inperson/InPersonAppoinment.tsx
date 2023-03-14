@@ -122,7 +122,7 @@ export default function Dashboard() {
             )}
           </div>
           <div
-            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12 opacity-25 cursor-default'
+            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'inset-0 left-10/12 opacity-25 cursor-default'
               } z-10`}
             style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
             onClick={() => outpatientRecordShow && setOutpatientRecordShow(false)}
