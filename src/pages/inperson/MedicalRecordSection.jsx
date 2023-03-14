@@ -640,8 +640,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           <Tooltip
             title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Subjetivo}</h1>}
             placement='top-end'
-            enterDelay={100}
-            leaveDelay={100}
             arrow
           >
             <button
@@ -670,8 +668,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           <Tooltip
             title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Objetivo}</h1>}
             placement='top-end'
-            enterDelay={100}
-            leaveDelay={100}
             arrow
           >
             <button
@@ -700,8 +696,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           <Tooltip
             title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Evaluacion}</h1>}
             placement='top-end'
-            enterDelay={100}
-            leaveDelay={100}
             arrow
           >
             <button
@@ -733,8 +727,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           <Tooltip
             title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Plan}</h1>}
             placement='top-end'
-            enterDelay={100}
-            leaveDelay={100}
             arrow
           >
             <button
