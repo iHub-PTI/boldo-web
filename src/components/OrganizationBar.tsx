@@ -15,7 +15,7 @@ const OrganizationBar = (props: Props) => {
       className='flex w-full items-center justify-end'
       style={{ backgroundColor: orgColor }}
     >
-      <span className='mt-1 mb-1 mr-4 text-white font-semibold text-base leading-4 tracking-wide'>{orgName}</span>
+      <span className='mt-1 mb-1 mr-4 text-white font-semibold text-sm leading-4 tracking-wide'>{orgName}</span>
     </div>
   );
 }
