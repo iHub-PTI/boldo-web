@@ -11,9 +11,10 @@ import axios from 'axios'
 import { RecordsOutPatient } from '../../components/RecordsOutPatient'
 import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast';
+import OrganizationBar from '../../components/OrganizationBar';
 
 
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
 
 export default function Dashboard() {
@@ -29,6 +30,7 @@ export default function Dashboard() {
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
   const { addToast } = useToasts()
+
 
   useEffect(()=>{
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
@@ -90,6 +92,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
+        { appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} /> }
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
@@ -119,7 +122,7 @@ export default function Dashboard() {
             )}
           </div>
           <div
-            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'absolute inset-0 left-10/12 opacity-25 cursor-default'
+            className={`flex flex-row h-full w-full left-3/12 bg-white ${outpatientRecordShow && 'inset-0 left-10/12 opacity-25 cursor-default'
               } z-10`}
             style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
             onClick={() => outpatientRecordShow && setOutpatientRecordShow(false)}

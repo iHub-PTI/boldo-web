@@ -13,7 +13,7 @@ import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
 import * as Sentry from '@sentry/react'
 
 import useWindowDimensions from '../../util/useWindowDimensions'
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from '../../util/constants'
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -601,8 +601,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
     <div className='flex flex-col relative overflow-y-auto' style={{
       height: ` ${
         screenWidth >= WIDTH_XL
-          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
       }`,
     }}>
       <Grid style={{ marginInline: '30px' }}>

@@ -48,7 +48,7 @@ import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/v
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
 import Provider from "./studiesorder/Provider";
-import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
+import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import * as Sentry from '@sentry/react'
 import { countDays } from "../util/helpers";
@@ -310,8 +310,8 @@ export function LaboratoryMenu(props) {
           <Provider>
             <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
               height: ` ${width >= WIDTH_XL
-                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
                 }`,
               overflowY: "auto"
             }}>
@@ -327,8 +327,8 @@ export function LaboratoryMenu(props) {
   return (
     <div className='flex flex-col bg-white' style={{
       height: ` ${width >= WIDTH_XL
-          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`,
       overflowY: "auto"
     }}>
@@ -640,8 +640,8 @@ export function LaboratoryMenu(props) {
 
     return <div className="flex flex-col flex-no-wrap" style={{
       height: ` ${width >= WIDTH_XL
-        ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-        : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+        ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+        : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
       }`,
     overflowY: "auto"
     }}>
@@ -905,8 +905,8 @@ export function LaboratoryMenu(props) {
   function issuedDetail(order) {
     return <div className="flex flex-col flex-no-wrap" style={{
       height: ` ${width >= WIDTH_XL
-          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`,
       overflowY: "auto"
     }}>
