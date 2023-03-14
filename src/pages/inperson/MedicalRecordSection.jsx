@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
-
+import Tooltip from '@material-ui/core/Tooltip'
 import useStyles from './style'
 // import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
@@ -637,97 +637,129 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         />
 
         <div className='flex flex-row flex-wrap mt-4 gap-2'>
-          <button
-            style={{
-              height: '35',
-              backgroundColor: soepSelected === Soep.Subjetive 
-                ? '#27BEC2' 
-                : showHover === Soep.Subjetive 
-                  ? '#B9E7E9'
-                  : '#D4F2F3',
-              color: soepSelected === Soep.Subjetive ? 'white' : '#24AAAD',
-            }}
-            type='button'
-            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none'
-            onClick={e => {
-              setSoepSelected(Soep.Subjetive)
-            }}
-            onMouseEnter={() => setShowHover(Soep.Subjetive)}
-            onMouseLeave={() => setShowHover('')}
+          <Tooltip
+            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Subjetivo}</h1>}
+            placement='top-end'
+            enterDelay={100}
+            leaveDelay={100}
+            arrow
           >
-            Subjetivo
-            {/* {showHover === Soep.Subjetive &&
-              ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })} */}
-          </button>
-          <button
-            style={{
-              height: '35',
-              backgroundColor: soepSelected === Soep.Objective 
-                ? '#27BEC2' 
-                : showHover === Soep.Objective 
-                  ? '#B9E7E9'
-                  : '#D4F2F3',
-              color: soepSelected === Soep.Objective ? 'white' : '#24AAAD',
-            }}
-            type='button'
-            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
-            onClick={e => {
-              setSoepSelected(Soep.Objective)
-            }}
-            onMouseEnter={() => setShowHover(Soep.Objective)}
-            onMouseLeave={() => setShowHover('')}
+            <button
+              style={{
+                height: '35',
+                backgroundColor: soepSelected === Soep.Subjetive 
+                  ? '#27BEC2' 
+                  : showHover === Soep.Subjetive 
+                    ? '#B9E7E9'
+                    : '#D4F2F3',
+                color: soepSelected === Soep.Subjetive ? 'white' : '#24AAAD',
+              }}
+              type='button'
+              className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none'
+              onClick={e => {
+                setSoepSelected(Soep.Subjetive)
+              }}
+              onMouseEnter={() => setShowHover(Soep.Subjetive)}
+              onMouseLeave={() => setShowHover('')}
+            >
+              Subjetivo
+              {/* {showHover === Soep.Subjetive &&
+                ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })} */}
+            </button>
+          </Tooltip>
+          <Tooltip
+            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Objetivo}</h1>}
+            placement='top-end'
+            enterDelay={100}
+            leaveDelay={100}
+            arrow
           >
-            Objetivo
-            {/* {showHover === Soep.Objective &&
-              ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })} */}
-          </button>
-          <button
-            style={{
-              height: '35',
-              backgroundColor: soepSelected === Soep.Evalutation 
-                ? '#27BEC2' 
-                : showHover === Soep.Evalutation 
-                  ? '#B9E7E9'
-                  : '#D4F2F3',
-              color: soepSelected === Soep.Evalutation ? 'white' : '#24AAAD',
-            }}
-            type='button'
-            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
-            onClick={e => {
-              setSoepSelected(Soep.Evalutation)
-            }}
-            onMouseEnter={() => setShowHover(Soep.Evalutation)}
-            onMouseLeave={() => setShowHover('')}
+            <button
+              style={{
+                height: '35',
+                backgroundColor: soepSelected === Soep.Objective 
+                  ? '#27BEC2' 
+                  : showHover === Soep.Objective 
+                    ? '#B9E7E9'
+                    : '#D4F2F3',
+                color: soepSelected === Soep.Objective ? 'white' : '#24AAAD',
+              }}
+              type='button'
+              className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
+              onClick={e => {
+                setSoepSelected(Soep.Objective)
+              }}
+              onMouseEnter={() => setShowHover(Soep.Objective)}
+              onMouseLeave={() => setShowHover('')}
+            >
+              Objetivo
+              {/* {showHover === Soep.Objective &&
+                ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })} */}
+            </button>
+          </Tooltip>
+          <Tooltip
+            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Evaluacion}</h1>}
+            placement='top-end'
+            enterDelay={100}
+            leaveDelay={100}
+            arrow
           >
-            Evaluación
-            {/* {showHover === Soep.Evalutation &&
-              ShowSoepHelper({
-                title: Soep.Evalutation,
-                isBlackColor: soepSelected === Soep.Evalutation ? false : true,
-              })} */}
-          </button>
-          <button
-            style={{
-              height: '35',
-              backgroundColor: soepSelected === Soep.Plan 
-                ? '#27BEC2' 
-                : showHover === Soep.Plan 
-                  ? '#B9E7E9'
-                  : '#D4F2F3',
-              color: soepSelected === Soep.Plan ? 'white' : '#24AAAD',
-            }}
-            type='button'
-            className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
-            onClick={e => {
-              setSoepSelected(Soep.Plan)
-            }}
-            onMouseEnter={() => setShowHover(Soep.Plan)}
-            onMouseLeave={() => setShowHover('')}
+            <button
+              style={{
+                height: '35',
+                backgroundColor: soepSelected === Soep.Evalutation 
+                  ? '#27BEC2' 
+                  : showHover === Soep.Evalutation 
+                    ? '#B9E7E9'
+                    : '#D4F2F3',
+                color: soepSelected === Soep.Evalutation ? 'white' : '#24AAAD',
+              }}
+              type='button'
+              className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
+              onClick={e => {
+                setSoepSelected(Soep.Evalutation)
+              }}
+              onMouseEnter={() => setShowHover(Soep.Evalutation)}
+              onMouseLeave={() => setShowHover('')}
+            >
+              Evaluación
+              {/* {showHover === Soep.Evalutation &&
+                ShowSoepHelper({
+                  title: Soep.Evalutation,
+                  isBlackColor: soepSelected === Soep.Evalutation ? false : true,
+                })} */}
+            </button>
+          </Tooltip>
+          <Tooltip
+            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Plan}</h1>}
+            placement='top-end'
+            enterDelay={100}
+            leaveDelay={100}
+            arrow
           >
-            Plan
-            {/* {showHover === Soep.Plan &&
-              ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })} */}
-          </button>
+            <button
+              style={{
+                height: '35',
+                backgroundColor: soepSelected === Soep.Plan 
+                  ? '#27BEC2' 
+                  : showHover === Soep.Plan 
+                    ? '#B9E7E9'
+                    : '#D4F2F3',
+                color: soepSelected === Soep.Plan ? 'white' : '#24AAAD',
+              }}
+              type='button'
+              className='inline-flex items-center px-4 py-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border border-transparent rounded-full focus:outline-none hover:bg-primary-500 active:bg-primary-700'
+              onClick={e => {
+                setSoepSelected(Soep.Plan)
+              }}
+              onMouseEnter={() => setShowHover(Soep.Plan)}
+              onMouseLeave={() => setShowHover('')}
+            >
+              Plan
+              {/* {showHover === Soep.Plan &&
+                ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })} */}
+            </button>
+          </Tooltip>
         </div>
 
         {initialLoad ? (
