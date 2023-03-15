@@ -176,9 +176,9 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
         if (orders.length > 1) {
             let update = [...orders]
             update.splice(key, 1)
-            setOrders(update)
+            setOrders([...update])
         }
-        //console.table(orders)
+        //console.table(update) 
     }
 
     const validateOrders = (orders: Array<Orders>) => {
@@ -305,7 +305,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                                         :
                                         <>
                                             <Grid item xs={5}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
+                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} value={item.category}  />
                                             </Grid>
                                             <Grid item xs={7}>
                                                 <FormGroup>
@@ -342,7 +342,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                                 </Grid>
                                 <Grid >
                                     <Typography>Observaciones</Typography>
-                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} />
+                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} value={item.notes} />
                                 </Grid>
                             </Grid>
                         </FormControl>

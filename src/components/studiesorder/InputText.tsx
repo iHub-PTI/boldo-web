@@ -1,11 +1,15 @@
 import { TextField } from '@material-ui/core'
-import React, { useState, ChangeEvent, useContext } from 'react'
+import React, { useState, ChangeEvent, useContext, useEffect } from 'react'
 import { CategoriesContext } from './Provider'
 
 
-const InputText = props => {
+const InputText = ({value="", ...props}) => {
   const [text, setText] = useState(props.value ?? '')
   const { orders, setOrders } = useContext(CategoriesContext)
+
+  useEffect(()=>{
+    setText(value)
+  }, [value])
 
   const changeText = (event: ChangeEvent<{ value: string }>) => {
     setText(event.target.value)
