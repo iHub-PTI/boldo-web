@@ -7,8 +7,18 @@ import Tooltip from '@material-ui/core/Tooltip'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 import SelectPrintOptions from '../../components/SelectPrintOptions'
+import CircleCounter from '../../components/CircleCounter'
 
-export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
+
+type Props = {
+  setDynamicMenuSelector: (elem: any) => void;
+  prescriptions: Array<Boldo.Prescription>
+  appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
+}
+
+
+export default (props: Props) => {
+  const { setDynamicMenuSelector, prescriptions, appointment } = props
   const [activeColor, setActiveColor] = useState('M')
   // const [loading, setLoading] = useState(false)
   // const { addToast } = useToasts()
@@ -103,6 +113,11 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
                 fill='white'
               />
             </svg>
+            {
+              prescriptions.length > 0
+                ? <CircleCounter items={prescriptions.length} />
+                : <></>
+            }
           </button>
         </Tooltip>
 
@@ -137,7 +152,7 @@ export default ({ setDynamicMenuSelector, prescriptions, appointment }) => {
 
       <div className='h-2/12 justify-center items-center'>
         {
-          <SelectPrintOptions {...appointment}/>
+          <SelectPrintOptions virtual={false} {...appointment}/>
         }
       </div>
 
