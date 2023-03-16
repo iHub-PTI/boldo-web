@@ -99,7 +99,7 @@ const InputTextDate: React.FC<Props> = ({
             />
           </div>
         </div>
-        <div className='flex flex-row flex-no-wrap gap-3 items-center'>
+        <div className='flex flex-row flex-no-wrap gap-1 items-center'>
           <button className='focus:outline-none' onClick={() => handleClickAdd()}>
             <CheckIcon active={true} />
           </button>

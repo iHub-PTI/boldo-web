@@ -24,7 +24,7 @@ import FamilyIcon from './icons/FamilyIcon';
 
 const stylePanelSidebar = {
   background: 'rgba(107, 107, 107, 0.56)',
-  backdropFilter: 'blur(14px)'
+  backdropFilter: 'blur(13.5px)'
 }
 
 //TODO: Remove component after refactor is tested
@@ -812,7 +812,7 @@ const MedicalHistoryCall: React.FC<MedicalHistoryCallType> = ({
   return (
     <div
       className={`opacity-0 ${medicalHistoryButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
-      style={{ width: medicalHistoryButton ? '21.6rem' : '0px' }}
+      style={{ width: medicalHistoryButton ? '26rem' : '0px' }}
     >
       <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
         <span className='text-white font-medium text-sm truncate'>Antecedentes Clínicos</span>
@@ -844,44 +844,50 @@ const MedicalHistoryCall: React.FC<MedicalHistoryCallType> = ({
         </div>
         {/* Section pathology */}
         <div className='flex flex-col w-full pl-8 pr-6'>
-          <div className='font-medium text-base w-full' style={{color: "#DB7D68"}}>Patologías</div>
+          <div className='font-medium text-base w-full' style={{ color: "#DB7D68" }}>Patologías</div>
           <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
             <CardList
               title={'Cardiopatías'}
               dataList={[]}
               typeCode='cardiopathies'
+              darkMode={true}
             />
             <CardList
               title={'Respiratorias'}
               dataList={[]}
               typeCode='respiratory'
+              darkMode={true}
             />
             <CardList
               title={'Digestivas'}
               dataList={[]}
               typeCode='digestive'
+              darkMode={true}
             />
           </div>
         </div>
         <div className='flex flex-col w-full gap-7 mb-5 pl-3 pr-3'>
           {/* Section procedures */}
           <CardList
-            TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Procedimientos</div>}
             dataList={[]}
             inputTypeWith="date"
             typeCode='procedures'
+            darkMode={true}
           />
           {/* Section Others */}
           <CardList
-            TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
             dataList={[]}
             inputTypeWith="date"
             typeCode='others_personal'
+            darkMode={true}
           />
           {/* Section Gynecology */}
           <TableGynecology
             gynecology={[]}
             typeCode='gynecology'
+            darkMode={true}
           />
         </div>
         {/* Familiar */}
@@ -896,18 +902,20 @@ const MedicalHistoryCall: React.FC<MedicalHistoryCallType> = ({
           </div>
           <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
             <CardList
-              TitleElement={() => <div className='font-medium text-base text-primary-500'>Enfermedades hereditarias</div>}
+              TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
               dataList={[]}
               inputTypeWith='relationship'
               typeCode='hereditary_diseases'
+              darkMode={true}
             />
             <CardList
               TitleElement={() =>
-                <div className='font-medium text-base text-primary-500'>Otros</div>
+                <div className='font-medium text-base text-orange-dark'>Otros</div>
               }
               dataList={[]}
               inputTypeWith="relationship"
               typeCode='others_family'
+              darkMode={true}
             />
           </div>
         </div>

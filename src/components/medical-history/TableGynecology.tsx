@@ -96,10 +96,11 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
 type Props = {
   gynecology: Gynecology,
   typeCode: string,
+  darkMode?: boolean
   //dispacth: Dispatch<any>
 }
 
-const TableGynecology = ({ gynecology, typeCode }) => {
+const TableGynecology = ({ gynecology, typeCode, darkMode = false }) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
@@ -120,13 +121,13 @@ const TableGynecology = ({ gynecology, typeCode }) => {
     >
       <div className='flex flex-row flex-no-wrap justify-between items center'>
         <div
-          className='font-medium text-primary-500 text-base leading-6'
+          className={`font-medium text-base leading-6 ${darkMode ? 'text-orange-dark' : 'text-primary-500'}`}
           style={{ letterSpacing: '0.15px' }}>
           Ginecología
         </div>
         <div className='flex flex-row flex-no-wrap relative w-6'>
           <button className='focus:outline-none absolute left-0' onClick={() => { handleClickEdit() }}>
-            {hover && !showEdit && <PencilEditIcon />}
+            {hover && !showEdit && <PencilEditIcon fill={darkMode ? '#DB7D68' : '#27BEC2'} />}
           </button>
           <AddClose
             show={showEdit}

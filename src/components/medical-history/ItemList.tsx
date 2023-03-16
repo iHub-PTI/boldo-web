@@ -8,12 +8,16 @@ type Props = {
   date?: Date,
   relationship?: string,
   deleteItem: () => void,
+  darkMode?: boolean
 }
 
-const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem }) => {
+const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem, darkMode = false }) => {
 
   const [hover, setHover] = useState(false)
   const bgColor = hover ? 'rgba(247, 244, 244, 0.6)' : ''
+  const descriptionClass = darkMode ? 'font-medium text-white group-hover:text-dark-cool' :
+    'font-medium text-cool-gray-700'
+  const subTitle = darkMode ? 'font-normal text-sm text-white group-hover:text-dark-cool' : 'font-normal text-sm text-color-disabled'
 
   //delete modal handler
   const [show, setShow] = useState(false)
@@ -26,18 +30,18 @@ const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem
 
   return (
     <>
-      <div className='flex flex-row flex-no-wrap w-full justify-between px-2 h-10 items-center mt-1'
+      <div className='flex flex-row flex-no-wrap w-full justify-between px-2 h-10 items-center mt-1 group'
         onMouseOver={() => { setHover(true) }}
         onMouseLeave={() => { setHover(false) }}
         style={{
           background: bgColor,
-          mixBlendMode: 'multiply',
+          mixBlendMode: darkMode ? 'initial' : 'multiply',
           borderRadius: '4px'
         }}
       >
-        <span className='font-medium text-cool-gray-700'>{description}</span>
+        <span className={descriptionClass}>{description}</span>
         <span className='flex flex-row flex-no-wrap gap-2 '>
-          <span className='font-normal text-sm text-color-disabled'>
+          <span className={subTitle}>
             {date && moment(date).format('DD/MM/YYYY')}
             {relationship}
           </span>
@@ -55,7 +59,7 @@ const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem
         date={date}
         relationship={relationship}
         callback={() => deleteItem()}
-        />
+      />
     </>
   )
 }
