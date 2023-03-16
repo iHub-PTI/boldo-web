@@ -42,3 +42,14 @@ export interface Organization {
   type: string,
   colorCode: string
 }
+
+export interface Prescription {
+    authoredOn?: string,
+    doctorId: string,
+    encounterId: string,
+    id: string,
+    medicationId: string,
+    medicationName?: string,
+    patientId: string,
+    status?: string
+}
