@@ -21,9 +21,12 @@ const TooltipInfo = (props: Props) => {
         <InfoIcon circularColor='#FFFFFF'/>
       </div>
       {/* this is the space for text info */}
-      <div className='flex flex-col h-full w-11/12 text-white'>
-        <p>Podés editar el diagnósitco para dar mejor contexto.</p>
-        <p>Esto no altera el diagnóstico consignado en el registro ambulatorio.</p>
+      <div className='flex flex-col h-auto w-11/12 text-white text-sm'>
+        <p>Podés editar el diagnósitco para dar</p>
+        <p>mejor contexto.</p>
+        <p>Esto no altera el diagnóstico</p>
+        <p>consignado en el registro</p>
+        <p>ambulatorio.</p>
       </div>
     </div>
   )

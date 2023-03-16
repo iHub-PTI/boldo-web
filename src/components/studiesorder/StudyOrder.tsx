@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
+import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton, InputAdornment } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
 import { ReactComponent as Spinner } from '../../assets/spinner.svg';
 import SelectCategory from './SelectCategory'
@@ -17,6 +17,8 @@ import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
 import Tooltip from '@material-ui/core/Tooltip';
 import * as Sentry from '@sentry/react'
+import InfoIcon from '../icons/info-icons/InfoIcon';
+import HoverInfo from '../hovers/TooltipInfo'
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -108,6 +110,8 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
     const [encounterId, setEncounterId] = useState('')
     // error types when sending -> category + orderId | diagnosis + orderId | studies + orderId
     const [errorType, setErrorType] = useState('')
+    // boolean handling the hover event
+    const [showTooltipInfo, setShowTooltipInfo] = useState(false);
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
@@ -116,6 +120,15 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
         let scrollDiv = document.getElementById(id).offsetTop - 150;
         document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
     }
+
+    useEffect(() => {
+        if (orders.length === 1) {
+            if (orders[0].diagnosis === "") {
+                orders[0].diagnosis = encounter?.soep?.evaluation ?? ''
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         const load = async () => {
@@ -166,7 +179,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
             id: orders[orders.length - 1].id + 1,
             category: "",
             urgent: false,
-            diagnosis: "",
+            diagnosis: encounter?.soep?.evaluation ?? '',
             studies_codes: [] as Array<StudiesWithIndication>,
             notes: ""
         }])
@@ -204,6 +217,13 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
         }
         return true
     }
+    // functions to handle the mouse event
+    const handleMouseEnter = () => {
+        setShowTooltipInfo(true);
+    }      
+    const handleMouseLeave = () => {
+        setShowTooltipInfo(false);
+    };
 
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
@@ -329,7 +349,17 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                                         variant='outlined' 
                                         className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} 
                                         index={index} 
-                                        value={encounter?.soep?.evaluation} 
+                                        value={item.diagnosis} 
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <div className='flex flex-row flex-no-wrap'>
+                                                        {showTooltipInfo && <HoverInfo />}
+                                                        <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+                                                    </div>
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                     />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
