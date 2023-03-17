@@ -57,6 +57,7 @@ export interface Encounter {
   soep?:            Soep;
   startTimeDate?:   string;
   status?:          string;
+  updatedDiagnosis: boolean;
 }
 
 export interface Prescription {
