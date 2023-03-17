@@ -28,7 +28,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const { prescriptions, updatePrescriptions } = usePrescriptionContext()
     const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
-    const [selectedSoep, setSelectedSoep] = useState()
+    const [selectedSoep, setSelectedSoep] = useState<Boldo.Soep>(undefined)
     const [diagnose, setDiagnose] = useState<string>('')
     const [encounterId, setEncounterId] = useState('')
     const [instructions, setInstructions] = useState<string>('')
@@ -77,7 +77,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     setMainReason(data.mainReason);
                     console.log(data.mainReason)
                     setEncounterId(res.data.encounter.partOfEncounterId)
-                    setSelectedSoep(res.data.encounter.soep)
+                    setSelectedSoep(res.data.encounter.soep as Boldo.Soep)
 
                     
                     // send if applicable to the first time
