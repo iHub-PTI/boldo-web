@@ -288,16 +288,27 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         </Typography>
 
                         <div className={`flex flex-row flex-no-wrap justify-between w-full ${(isAppointmentDisabled || mainReasonRequired) ? 'bg-gray-100':''} rounded-md transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5`}>
-                            <textarea
-                                id='Diagnostico'
-                                disabled={isAppointmentDisabled || mainReasonRequired}
-                                required
-                                // bg-transparent is used so that the textarea does not highlight
-                                className={`mr-1 w-11/12 bg-transparent resize-none outline-none`}
-                                placeholder=''
-                                onChange={e => setDiagnose(e.target.value)}
-                                value={diagnose}
-                            />
+                            <div className="flex flex-row w-full">
+                                {
+                                    diagnose.toLowerCase() !== selectedSoep.evaluation.toLowerCase()
+                                        ? <div 
+                                            className="flex rounded justify-center px-2 bg-gray-200 h-5"
+                                        >
+                                            <p className="font-bold text-xs">editado</p>
+                                        </div>
+                                        : <></>
+                                }
+                                <textarea
+                                    id='Diagnostico'
+                                    disabled={isAppointmentDisabled || mainReasonRequired}
+                                    required
+                                    // bg-transparent is used so that the textarea does not highlight
+                                    className={`mr-1 w-11/12 bg-transparent resize-none outline-none self-center place-content-center transform ${diagnose.toLowerCase() !== selectedSoep.evaluation.toLowerCase() ? ' translate-x-4 duration-700' : '-translate-x-1 duration-700'}`}
+                                    placeholder=''
+                                    onChange={e => setDiagnose(e.target.value)}
+                                    value={diagnose}
+                                />
+                            </div>
                             <div 
                                 className={`flex flex-row flex-no-wrap`}
                             >
