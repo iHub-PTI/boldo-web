@@ -316,6 +316,16 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                 <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
                             </div>
                         </div>
+                        {
+                            diagnose.toLowerCase() !== selectedSoep.evaluation.toLowerCase()
+                                ? <button 
+                                    onClick={() => setDiagnose(selectedSoep.evaluation ?? '')} 
+                                    className="pt-2 font-normal text-sm leading-3 focus:outline-none"
+                                >
+                                    <p style={{color: "#757575"}}>Click para restaurar</p>
+                                </button>
+                                : <></>
+                        }
                     </div>
                     <div className='mt-6'>
                         <Typography variant='body1' color='textPrimary'>
