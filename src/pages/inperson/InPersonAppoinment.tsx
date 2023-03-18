@@ -14,7 +14,7 @@ import { useToasts } from '../../components/Toast';
 import MedicalHistory from '../../components/MedicalHistory';
 
 
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
 
 export default function Dashboard() {
@@ -135,7 +135,7 @@ export default function Dashboard() {
               <MedicalHistory 
                 show={showMedicalHistory} 
                 setShow={setShowMedicalHistory} 
-                patient={appointment.patient}
+                appointment={appointment}
               />
             )}
           </div>

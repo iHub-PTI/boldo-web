@@ -1,4 +1,5 @@
-import React, { Dispatch, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import InputTextDate from './InputTextDate'
@@ -8,11 +9,15 @@ import { DataList, InputValue } from './Types'
 
 type Props = {
   title?: string,
-  TitleElement?: () => JSX.Element,
+  TitleElement?: () => JSX.Element
   dataList: DataList
   inputTypeWith?: "date" | "relationship" | undefined
-  typeCode: string,
-  //dispatch: Dispatch<any>
+  url?: string
+  typeCode?: string,
+  categoryCode?: string
+  patientId?: string
+  organizationId?: string
+  handlerSaveLoading?: (value: boolean) => void
 }
 
 const CardList: React.FC<Props> = ({
@@ -20,8 +25,12 @@ const CardList: React.FC<Props> = ({
   TitleElement = null,
   dataList = [],
   inputTypeWith = undefined,
+  url,
   typeCode,
-  //dispatch,
+  categoryCode,
+  patientId,
+  organizationId,
+  handlerSaveLoading,
   ...props
 }) => {
 
@@ -29,6 +38,9 @@ const CardList: React.FC<Props> = ({
   const [showInput, setShowInput] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
   const [list, setList] = useState(dataList)
+
+  const { loading: loadPost, error: ErrorPost, sendData } = useAxiosPost(url)
+  const { loading: loadDel, error: ErrorDel, deleteData } = useAxiosDelete(url)
 
   const Empty = () => {
     if (list && list.length > 0) return null
@@ -43,16 +55,36 @@ const CardList: React.FC<Props> = ({
     setShowInput(true)
   }
 
-  const handleAddList = (value: InputValue) => {
-    console.log(value)
+  const addItemList = (value: InputValue) => {
     setList([value, ...list])
   }
 
-  const handleDeleteList = (index: number) => {
-    let array = [...list]
-    array.splice(index, 1)
-    setList([...array])
+  const removeItemList = (value: InputValue) => {
+    setList(list.filter(item => item.id !== value.id))
   }
+
+  const handleAddList = (value: InputValue) => {
+    sendData({
+      patientId,
+      organizationId,
+      description: value.description,
+      category: categoryCode,
+    }, addItemList)
+  }
+
+  const handleDeleteList = (id: string) => {
+    deleteData(id, removeItemList)
+  }
+
+  useEffect(() => {
+    if(loadDel !== null )handlerSaveLoading(loadDel)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadDel])
+
+  useEffect(() => {
+    if(loadPost !== null )handlerSaveLoading(loadPost)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPost])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'
@@ -85,7 +117,7 @@ const CardList: React.FC<Props> = ({
             description={data.description}
             date={data.date}
             relationship={data.relationship}
-            deleteItem={() => handleDeleteList(i)}
+            deleteItem={() => handleDeleteList(data.id)}
           />)}
         <Empty />
       </div>

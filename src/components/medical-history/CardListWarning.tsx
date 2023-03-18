@@ -80,12 +80,12 @@ const CardListWarning: React.FC<Props> = ({
   }
 
   useEffect(() => {
-    handlerSaveLoading(loadDel)
+    if(loadDel !== null )handlerSaveLoading(loadDel)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadDel])
 
   useEffect(() => {
-    handlerSaveLoading(loadPost)
+    if(loadPost !== null )handlerSaveLoading(loadPost)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPost])
 

@@ -7,7 +7,7 @@ import ArrowBackIOS from './icons/ArrowBack-ios';
 import CardList from './medical-history/CardList';
 import CardListWarning from './medical-history/CardListWarning';
 import TableGynecology from './medical-history/TableGynecology';
-import { MedicalHistoryType, Allergy, Cardiopathy, Respiratory, Digestive, Procedure, Others, Gynecology } from './medical-history/Types';
+import { MedicalHistoryType } from './medical-history/Types';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
 import ProgressIcon from './icons/ProgressIcon';
 import CloudIcon from './icons/CloudIcon';
@@ -16,10 +16,11 @@ import CloudIcon from './icons/CloudIcon';
 
 const urls = {
   getHistory: '/profile/doctor/history',
-  allergies: '/profile/doctor/allergyIntolerance'
+  allergies: '/profile/doctor/allergyIntolerance',
+  pathology: '/profile/doctor/condition'
 }
 
-export type ActionType =
+/* export type ActionType =
   | { type: 'initial', value: Partial<MedicalHistoryType> }
   | { type: 'allergies_add', value: Allergy }
   | { type: 'allergies_del', id: string }
@@ -37,14 +38,12 @@ export type ActionType =
   | { type: 'hereditary_diseases_del', id: string }
   | { type: 'others_family_add', value: Others }
   | { type: 'others_family_del', id: string }
-  | { type: 'gynecology', value: Gynecology }
+  | { type: 'gynecology', value: Gynecology } */
 
 const initialState: MedicalHistoryType = {
   "personal": {
     "allergies": [],
-    "cardiopathies": [],
-    "respiratory": [],
-    "digestive": [],
+    "pathologies": [],
     "procedures": [],
     "others": [],
     "gynecology": {
@@ -146,23 +145,29 @@ const initialState: MedicalHistoryType = {
 type Props = {
   show: boolean,
   setShow: (value: boolean) => void
-  patient: iHub.Patient,
+  appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization },
 }
 
-const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...props }) => {
+const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, ...props }) => {
 
   const { width: screenWidth } = useWindowDimensions()
-  const { data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patient.id })
+
+  const patientId = appointment.patient.id
+  const organizationId = appointment.organization.id
+  //const encounterId = appointment.id
+
+  const { data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
+
   const handlerSaveLoading = (loading) => {
-    console.log("a")
     setSaveLoading(loading)
   }
 
   useEffect(() => {
     if (data) setDataHistory(data)
+    console.log(data)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
@@ -329,7 +334,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
                 title='Alergias y sensibilidades'
                 dataList={dataHistory?.personal?.allergies ?? []}
                 url={urls.allergies}
-                patientId={patient.id}
+                patientId={patientId}
                 handlerSaveLoading={handlerSaveLoading}
               />
             </div>
@@ -339,21 +344,33 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
                 <CardList
                   title={'Cardiopatías'}
-                  dataList={dataHistory?.personal?.cardiopathies ?? []}
+                  dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
                   typeCode='cardiopathies'
-                //dispatch={dispatch}
+                  categoryCode='CDP'
+                  url={urls.pathology}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
                 />
                 <CardList
                   title={'Respiratorias'}
-                  dataList={dataHistory?.personal?.respiratory ?? []}
+                  dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
                   typeCode='respiratory'
-                //dispatch={dispatch}
+                  categoryCode='RPT'
+                  url={urls.pathology}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
                 />
                 <CardList
                   title={'Digestivas'}
-                  dataList={dataHistory?.personal?.digestive ?? []}
+                  dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
                   typeCode='digestive'
-                //dispatch={dispatch}
+                  categoryCode='DGT'
+                  url={urls.pathology}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
                 />
               </div>
             </div>
@@ -365,7 +382,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               dataList={dataHistory?.personal?.procedures ?? []}
               inputTypeWith="date"
               typeCode='procedures'
-            //dispatch={dispatch}
             />
 
             {/* Section Others */}
@@ -374,13 +390,11 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
               dataList={dataHistory?.personal?.others ?? []}
               inputTypeWith="date"
               typeCode='others_personal'
-            //dispatch={dispatch}
             />
             {/* Section Gynecology */}
             <TableGynecology
               gynecology={dataHistory?.personal?.gynecology ?? {}}
               typeCode='gynecology'
-            //dispatch={dispatch} 
             />
           </div>
           {/* Family Section */}
@@ -394,7 +408,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
                 dataList={dataHistory?.family?.hereditary_diseases ?? []}
                 inputTypeWith='relationship'
                 typeCode='hereditary_diseases'
-              //dispatch={dispatch}
               />
               <CardList
                 TitleElement={() =>
@@ -403,7 +416,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, patient, ...pr
                 dataList={dataHistory?.family?.others ?? []}
                 inputTypeWith="relationship"
                 typeCode='others_family'
-              //dispatch={dispatch}
               />
             </div>
           </div>
