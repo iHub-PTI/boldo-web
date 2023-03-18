@@ -7,25 +7,16 @@ export type Allergy = {
   description: string,
 }
 
-export type Cardiopathy = {
+export type Pathology = {
   id?: string,
   description: string
-}
-
-export type Respiratory = {
-  id?: string, 
-  description: string
+  category: "CDP" | "RPT" | "DGT" 
 }
 
 export type Procedure = {
   id?: string,
   description: string,
   date?: Date,
-}
-
-export type Digestive = {
-  id?: string,
-  description: string
 }
 
 export type Others = {
@@ -52,9 +43,7 @@ export type HereditaryDiseas ={
 
 export type Personal = {
   allergies: Allergy[],
-  cardiopathies: Cardiopathy[],
-  respiratory: Respiratory[],
-  digestive: Digestive[],
+  pathologies: Pathology[]
   procedures: Procedure[],
   others: Others[],
   gynecology: Gynecology,
