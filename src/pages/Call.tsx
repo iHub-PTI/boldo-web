@@ -76,7 +76,7 @@ import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
 import SidebarMenuCall from '../components/SidebarMenuCall'
 
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
 type CallStatus = { connecting: boolean }
 
 const Gate = () => {

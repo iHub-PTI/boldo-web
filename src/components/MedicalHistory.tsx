@@ -14,7 +14,7 @@ import CloudIcon from './icons/CloudIcon';
 
 //import { mergeJSON } from '../util/helpers';
 
-const urls = {
+export const urls = {
   getHistory: '/profile/doctor/history',
   allergies: '/profile/doctor/allergyIntolerance',
   pathology: '/profile/doctor/condition'
@@ -40,7 +40,7 @@ const urls = {
   | { type: 'others_family_del', id: string }
   | { type: 'gynecology', value: Gynecology } */
 
-const initialState: MedicalHistoryType = {
+export const initialState: MedicalHistoryType = {
   "personal": {
     "allergies": [],
     "pathologies": [],
