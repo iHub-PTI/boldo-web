@@ -125,7 +125,7 @@ const CardList: React.FC<Props> = ({
             description={data.description}
             date={data.date}
             relationship={data.relationship}
-            darkMode={true}
+            darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}
           />)}
         <Empty />
