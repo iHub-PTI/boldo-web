@@ -13,8 +13,8 @@ const TooltipInfo = (props: Props) => {
   return(
     // all the tooltip
     <div 
-      className={`flex flex-row w-80 h-auto z-50 p-4 gap-3 absolute rounded-tl-lg rounded-br-lg rounded-bl-lg transform`}
-      style={{ background: backgorundColor, translate: "-20rem", marginTop: "1.5rem" }}
+      className={`flex flex-row w-80 h-auto p-4 gap-3 absolute rounded-tl-lg rounded-br-lg rounded-bl-lg transform`}
+      style={{ background: backgorundColor, translate: "-20rem", marginTop: "1.5rem", zIndex:100 }}
     >
       {/* this is the icon on left */}
       <div className='h-full w-1/12 justify-center'>
