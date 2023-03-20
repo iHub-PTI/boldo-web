@@ -299,7 +299,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
         <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                    return <div key={item.id} id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
