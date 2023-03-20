@@ -1,3 +1,4 @@
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
@@ -68,6 +69,7 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
+      performedDate: moment(value.date).format("YYYY-MM-DD"),
       category: categoryCode,
     }, addItemList)
   }

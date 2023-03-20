@@ -17,7 +17,8 @@ import CloudIcon from './icons/CloudIcon';
 const urls = {
   getHistory: '/profile/doctor/history',
   allergies: '/profile/doctor/allergyIntolerance',
-  pathology: '/profile/doctor/condition'
+  pathology: '/profile/doctor/condition',
+  procedures: '/profile/doctor/procedure'
 }
 
 /* export type ActionType =
@@ -382,6 +383,10 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               dataList={dataHistory?.personal?.procedures ?? []}
               inputTypeWith="date"
               typeCode='procedures'
+              url={urls.procedures}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
             />
 
             {/* Section Others */}
