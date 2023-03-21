@@ -6,7 +6,7 @@ import Layout from '../components/Layout'
 import Listbox from '../components/Listbox'
 import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
-import { organizationsFromMessage, validateDate, validateOpenHours } from '../util/helpers'
+import { daysFromMessage, organizationsFromMessage, validateDate, validateOpenHours } from '../util/helpers'
 import { UserContext } from '../App'
 import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
@@ -279,7 +279,8 @@ const Settings = (props: Props) => {
   const { addToast } = useToasts();
 
   const errorMsg = {
-    overlay: 'openHours settings overlay'
+    overlay: 'openHours settings overlay',
+    overlayTypes: 'openHours setting overlay between appointment types'
   }
 
   useEffect(() => {
@@ -402,15 +403,29 @@ const Settings = (props: Props) => {
               'headers': err.response.headers,
               'status_code': err.response.status
             })
-            if (err.response.status === 400 && err.response.data.message.includes(errorMsg.overlay)) {
-              let overlay = organizationsFromMessage(err.response.data.message, Organizations)
-              addToast({
-                type: 'warning',
-                title: 'Hubo un error en el formulario.',
-                text: overlay.length > 0
-                  ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
-                  : 'Existen horarios solapados que impiden la actualización.'
-              })
+            if (err.response.status === 400) {
+              if (err.response.data.message.includes(errorMsg.overlay)) {
+                let overlay = organizationsFromMessage(err.response.data.message, Organizations)
+                addToast({
+                  type: 'warning',
+                  title: 'Hubo un error en el formulario.',
+                  text: overlay.length > 0
+                    ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
+                    : 'Existen horarios solapados que impiden la actualización.'
+                })
+              } else if (err.response.data.message.includes(errorMsg.overlayTypes)) {
+                let days = ["mon","tue","wed","thu","fri","sat","sun"]
+                let orgOverlay = organizationsFromMessage(err.response.data.message, Organizations)
+                let dayOverlay = daysFromMessage(err.response.data.message, days)
+
+                addToast({
+                  type: 'warning',
+                  title: 'Hubo un error en el formulario.',
+                  text: orgOverlay.length > 0 && dayOverlay.length > 0
+                    ? `Existen horarios solapados el día ${dayOverlay[0]} en la organización ${orgOverlay[0]}`
+                    : 'Existen horarios solapados que impiden la actualización.'
+                })
+              }
             } else {
               addToast({
                 type: 'warning',

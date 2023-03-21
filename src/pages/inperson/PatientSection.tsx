@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import UserCircle from "../../components/icons/patient-register/UserCircle";
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../../util/constants"
+import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../../util/constants"
 import PastIcon from '../../components/icons/HistoryIcon'
 
 
@@ -232,7 +232,7 @@ export default (props) => {
       className='flex flex-col h-full overflow-y-auto scrollbar'
       style={{
         backgroundColor: '#F4F5F7',
-        height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`}`
+        height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`}`
       }}
     >
       {appointment !== undefined && encounter !== undefined ?

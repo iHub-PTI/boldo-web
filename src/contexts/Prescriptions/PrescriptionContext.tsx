@@ -15,8 +15,8 @@ type DefaultValue = symbol;
 
 // this is the structure of the context
 export interface PrescriptionStruct {
-  prescriptions: Array<any>;
-  updatePrescriptions: (id: string, payload?: Array<any>) => void;
+  prescriptions: Array<Boldo.Prescription>;
+  updatePrescriptions: (id: string, payload?: Array<Boldo.Prescription>) => void;
 }
 
 const PrescriptionContext = createContext<DefaultValue | PrescriptionStruct>(defaultValue);

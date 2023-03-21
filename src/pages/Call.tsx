@@ -68,17 +68,21 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
-import Print from '../components/icons/Print'
+// import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
-import { getReports } from '../util/helpers'
+// import { getReports } from '../util/helpers'
 import * as Sentry from '@sentry/react'
-
-
 import RecordOutPatientCall from '../components/RecordOutPatientCall'
-import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
+import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
+import SelectPrintOptions from '../components/SelectPrintOptions'
+import OrganizationBar from '../components/OrganizationBar'
+import CircleCounter from '../components/CircleCounter'
+
+
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
 type CallStatus = { connecting: boolean }
+
 
 const Gate = () => {
   const history = useHistory()
@@ -96,7 +100,8 @@ const Gate = () => {
   const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const { width } = useWindowDimensions()
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -308,6 +313,7 @@ const Gate = () => {
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
 
@@ -337,7 +343,7 @@ const Gate = () => {
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
@@ -356,9 +362,19 @@ const Gate = () => {
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
+                }
               }
             }}
+          /> */}
+          <ChildButton
+            icon={<SelectPrintOptions virtual={true} {...appointment}/>}
+            size={50}
           />
           <ChildButton
             icon={
@@ -378,7 +394,14 @@ const Gate = () => {
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                <div className='flex'>
+                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  {
+                    prescriptions.length > 0
+                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
+                      : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
@@ -420,47 +443,55 @@ const Gate = () => {
   }
   return (
     <Layout>
-      <RecordOutPatientCall appointment={appointment}>
-        {instance === 0 ? (
-          <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
-            <div className='flex h-full items-center w-8/12'>
-              {/* daiting screen here */}
-              <CallStatusMessage
-                status={appointment.status}
-                statusText={statusText}
-                updateStatus={updateStatus}
-                appointmentId={appointment.id}
-              />
-              {/* Togle Menu */}
-              <div
-                style={{
-                  position: 'fixed',
-                  bottom: '0',
-                  right: '34%',
-                  marginBottom: '20px',
-                  zIndex: 1
-                }}
-              >
-                <TogleMenu />
+      <div style={{
+        height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`
+      }}>
+        { appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} /> }
+        <RecordOutPatientCall appointment={appointment}>
+          {instance === 0 ? (
+            <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
+              <div className='flex h-full items-center w-8/12'>
+                {/* daiting screen here */}
+                <CallStatusMessage
+                  status={appointment.status}
+                  statusText={statusText}
+                  updateStatus={updateStatus}
+                  appointmentId={appointment.id}
+                />
+                {/* Togle Menu */}
+                <div
+                  style={{
+                    position: 'fixed',
+                    bottom: '0',
+                    right: '34%',
+                    marginBottom: '20px',
+                    zIndex: 1
+                  }}
+                >
+                  <TogleMenu />
+                </div>
               </div>
+              <Grid container item xs={4} style={{ display: 'grid' }}>
+                {/* patient data screen */}
+                <Card>{controlSideBarState()}</Card>
+              </Grid>
             </div>
-            <Grid container item xs={4} style={{ display: 'grid' }}>
-              {/* patient data screen */}
-              <Card>{controlSideBarState()}</Card>
-            </Grid>
-          </div>
-        ) : (
-          <Call
-            appointment={appointment}
-            id={id}
-            token={token}
-            instance={instance}
-            updateStatus={updateStatus}
-            onCallStateChange={onCallStateChange}
-            callStatus={callStatus}
-          />
-        )}
-      </RecordOutPatientCall>
+          ) : (
+            <Call
+              appointment={appointment}
+              id={id}
+              token={token}
+              instance={instance}
+              updateStatus={updateStatus}
+              onCallStateChange={onCallStateChange}
+              callStatus={callStatus}
+            />
+          )}
+        </RecordOutPatientCall>
+      </div>
     </Layout>
   )
 }
@@ -490,11 +521,11 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const [sideBarAction, setSideBarAction] = useState(0)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
-  const { width: screenWidth } = useWindowDimensions()
+  const { width } = useWindowDimensions()
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(0)
   //console.log(screenWidth)
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -526,6 +557,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
     useEffect(() => {
@@ -554,7 +586,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
@@ -573,9 +605,21 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
+                }
               }
             }}
+          /> */}
+          <ChildButton 
+            icon={
+              <SelectPrintOptions virtual={true} {...appointment}/>
+            }
+            size={50}
           />
           <ChildButton
             icon={
@@ -654,7 +698,17 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft: '88px' }}>
+    <div
+      ref={container}
+      className='flex w-full bg-cool-gray-50'
+      style={{
+        height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`,
+        marginLeft: '88px'
+      }}
+    >
       <div className='relative flex-1'>
         <Stream
           ref={stream}
