@@ -146,9 +146,9 @@ export default function Dashboard() {
           <div
             className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
             ${outpatientRecordShow ?
-                'absolute inset-0 left-10/12 opacity-25 cursor-default' :
+                'absolute inset-0 md:left-10/12 left-full opacity-25 cursor-default' :
                 showMedicalHistory ?
-                  'absolute inset-0 xl:left-6/12 lg:left-8/12 left-10/12 opacity-25 cursor-default' :
+                  'absolute inset-0 xl:left-7/12 lg:left-8/12 md:left-9/12 left-full opacity-25 cursor-default' :
                   ''
               }`}
             style={{ transition: 'left 0.5s linear, opacity 0.5s linear', top: `${ORGANIZATION_BAR + HEIGHT_BAR_STATE_APPOINTMENT}px` }}
