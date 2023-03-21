@@ -149,7 +149,7 @@ const PatientRecord = (props) => {
         <ButtonSlide
           show={props.showMedicalHistory}
           setShow={props.setShowMedicalHistory}
-          disabled={props.disabledRedcordButton}
+          //disabled={props.disabledRedcordButton}
           IconElement={() =>
             <PastIcon
               fill={`${props.showMedicalHistory ? '#13A5A9' : '#6B7280'}`}
@@ -160,7 +160,7 @@ const PatientRecord = (props) => {
         <ButtonSlide
           show={props.outpatientRecordShow}
           setShow={props.setOutpatientRecordShow}
-          disabled={props.disabledRedcordButton}
+          //disabled={props.disabledRedcordButton}
           IconElement={() =>
             <UserCircle
               fill={`${props.outpatientRecordShow ? '#13A5A9' : '#6B7280'}`}
