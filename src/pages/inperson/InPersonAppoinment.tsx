@@ -12,6 +12,8 @@ import { RecordsOutPatient } from '../../components/RecordsOutPatient'
 import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast';
 import MedicalHistory from '../../components/MedicalHistory';
+import OrganizationBar from '../../components/OrganizationBar';
+import { HEIGHT_BAR_STATE_APPOINTMENT, ORGANIZATION_BAR } from '../../util/constants';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -34,7 +36,8 @@ export default function Dashboard() {
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
 
-  useEffect(() => {
+
+  useEffect(()=>{
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
   }, [DynamicMenuSelector])
 
@@ -94,6 +97,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
+        { appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} /> }
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
@@ -142,12 +146,12 @@ export default function Dashboard() {
           <div
             className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
             ${outpatientRecordShow ?
-                'absolute inset-0 left-10/12 opacity-25 cursor-default' :
+                'absolute inset-0 md:left-10/12 left-full opacity-25 cursor-default' :
                 showMedicalHistory ?
-                  'absolute inset-0 xl:left-6/12 lg:left-8/12 left-10/12 opacity-25 cursor-default' :
+                  'absolute inset-0 xl:left-7/12 lg:left-8/12 md:left-9/12 left-full opacity-25 cursor-default' :
                   ''
               }`}
-            style={{ transition: 'left 0.5s linear, opacity 0.5s linear' }}
+            style={{ transition: 'left 0.5s linear, opacity 0.5s linear', top: `${ORGANIZATION_BAR + HEIGHT_BAR_STATE_APPOINTMENT}px` }}
             onClick={() => {
               if (outpatientRecordShow) setOutpatientRecordShow(false)
               if (showMedicalHistory) setShowMedicalHistory(false)

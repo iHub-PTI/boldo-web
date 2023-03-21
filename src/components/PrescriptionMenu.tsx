@@ -19,6 +19,8 @@ import useStyles from '../pages/inperson/style'
 import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
 import * as Sentry from '@sentry/react'
 import { useToasts } from "./Toast";
+import InfoIcon from "./icons/info-icons/InfoIcon";
+import TooltipInfo from "./hovers/TooltipInfo";
 
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
@@ -26,12 +28,11 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const { prescriptions, updatePrescriptions } = usePrescriptionContext()
     const [selectedMedication, setSelectedMedication] = useState(prescriptions)
     const [mainReason, setMainReason] = useState('')
-    const [selectedSoep, setSelectedSoep] = useState()
+    const [selectedSoep, setSelectedSoep] = useState<Boldo.Soep>(undefined)
     const [diagnose, setDiagnose] = useState<string>('')
     const [encounterId, setEncounterId] = useState('')
     const [instructions, setInstructions] = useState<string>('')
     const [initialLoad, setInitialLoad] = useState(true)
-
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
@@ -43,8 +44,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     const [mainReasonRequired, setMainReasonRequired] = useState(false)
     const [ width, setWidth ] = useState(window.innerWidth)
     const { addToast } = useToasts()
+    // boolean handling the hover event
+    const [showTooltipInfo, setShowTooltipInfo] = useState(false);
 
-    
+
     useEffect(() => {
         updatePrescriptions(id, selectedMedication);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,21 +64,93 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
     useEffect(() => {
         const load = async () => {
             const url = `/profile/doctor/appointments/${id}/encounter`
+            
+            await axios
+                .get(url)
+                .then((res) => {
+                    const data = res.data.encounter as Boldo.Encounter
+                    // console.log("res",res.data)
+                    //const { status = '' } = res.data.encounter
+                    setDiagnose(data.diagnosis ?? data.soep.evaluation);
+                    setInstructions(data.instructions);
+                    setSelectedMedication(data.prescriptions);
+                    setMainReason(data.mainReason);
+                    console.log(data.mainReason)
+                    setEncounterId(res.data.encounter.partOfEncounterId)
+                    setSelectedSoep(res.data.encounter.soep as Boldo.Soep)
+
+                    
+                    // send if applicable to the first time
+                    if (data.diagnosis === undefined && data.mainReason !== undefined && !isAppointmentDisabled) {
+                        debounce({
+                            encounterData: {
+                                diagnosis: data.soep.evaluation,
+                                instructions: data.instructions,
+                                prescriptions: [],
+                                encounterClass: data.encounterClass,
+                                soep: data.soep,
+                                mainReason: data.mainReason,
+                                partOfEncounterId: res.data.encounter.partOfEncounterId,
+                            }
+                        })
+                    }
+                })
+                .catch((err) => {
+                    Sentry.setTags({
+                        'endpoint': url,
+                        'method': 'GET',
+                        'appointment_id': id
+                    })
+                    if (err.response) {
+                        // The response was made and the server responded with a 
+                        // status code that is outside the 2xx range.
+                        Sentry.setTag('data', err.response.data)
+                        Sentry.setTag('headers', err.response.headers)
+                        Sentry.setTag('status_code', err.response.status)
+                    } else if (err.request) {
+                        // The request was made but no response was received
+                        Sentry.setTag('request', err.request)
+                    } else {
+                        // Something happened while preparing the request that threw an Error
+                        Sentry.setTag('message', err.message)
+                    }
+                    Sentry.captureMessage("Could not get the encounter")
+                    Sentry.captureException(err)
+                    addToast({
+                        type: 'error',
+                        title: 'Ha ocurrido un error.',
+                        text: 'No se pudieron cargar los detalles de la receta. ¡Inténtelo nuevamente más tarde!'
+                    })
+                })
+                .finally(() => setInitialLoad(false))
+        }
+
+        load()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(()=>{
+        if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
+        else setMainReasonRequired(false)
+    }, [mainReason])
+
+    const debounce = useCallback(
+        _.debounce(async (_encounter: object) => {
+            const url = `/profile/doctor/appointments/${id}/encounter`
             try {
-                const res = await axios.get(url)
-                console.log("res",res.data)
-                //const { status = '' } = res.data.encounter
-                setDiagnose(res.data.encounter.diagnosis);
-                setInstructions(res.data.encounter.instructions);
-                setSelectedMedication(res.data.encounter.prescriptions);
-                setMainReason(res.data.encounter.mainReason);
-                console.log(res.data.encounter.mainReason)
-                setEncounterId(res.data.encounter.partOfEncounterId)
-                setSelectedSoep(res.data.encounter.soep)
+                setLoading(true)
+                const res = await axios.put(url, _encounter)
+                setLoading(false)
+                setSuccess(true)
+                console.log('response', res.data)
+                console.log('se ha actualizado con exito!')
+                setError(false)
             } catch (err) {
+                setSuccess(false)
+                setLoading(false)
                 Sentry.setTags({
                     'endpoint': url,
-                    'method': 'GET',
+                    'method': 'PUT',
                     'appointment_id': id
                 })
                 if (err.response) {
@@ -91,67 +166,14 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     // Something happened while preparing the request that threw an Error
                     Sentry.setTag('message', err.message)
                 }
-                Sentry.captureMessage("Could not get the encounter")
+                Sentry.captureMessage("Could not update the encounter")
                 Sentry.captureException(err)
                 addToast({
                     type: 'error',
                     title: 'Ha ocurrido un error.',
-                    text: 'No se pudieron cargar los detalles de la receta. ¡Inténtelo nuevamente más tarde!'
+                    text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
                 })
-            } finally {
-                setInitialLoad(false)
             }
-        }
-
-        load()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    useEffect(()=>{
-        if(mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
-        else setMainReasonRequired(false)
-    }, [mainReason])
-
-    const debounce = useCallback(
-        _.debounce(async (_encounter: object) => {
-          const url = `/profile/doctor/appointments/${id}/encounter`
-            try {
-            setLoading(true)
-            const res = await axios.put(url, _encounter)
-            setLoading(false)
-            setSuccess(true)
-            console.log('response', res.data)
-            console.log('se ha actualizado con exito!')
-            setError(false)
-          } catch (err) {
-            setSuccess(false)
-            setLoading(false)
-            Sentry.setTags({
-                'endpoint': url,
-                'method': 'PUT',
-                'appointment_id': id
-            })
-            if (err.response) {
-                // The response was made and the server responded with a 
-                // status code that is outside the 2xx range.
-                Sentry.setTag('data', err.response.data)
-                Sentry.setTag('headers', err.response.headers)
-                Sentry.setTag('status_code', err.response.status)
-            } else if (err.request) {
-                // The request was made but no response was received
-                Sentry.setTag('request', err.request)
-            } else {
-                // Something happened while preparing the request that threw an Error
-                Sentry.setTag('message', err.message)
-            }
-            Sentry.captureMessage("Could not update the encounter")
-            Sentry.captureException(err)
-            addToast({
-                type: 'error',
-                title: 'Ha ocurrido un error.',
-                text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
-            })
-          }
         }, 1000),
         []
       )
@@ -196,6 +218,17 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
         }
         window.addEventListener('resize', handleResize)
     })
+
+
+    // functions to handle the mouse event
+    const handleMouseEnter = () => {
+        setShowTooltipInfo(true);
+    }      
+    const handleMouseLeave = () => {
+        setShowTooltipInfo(false);
+    };
+      
+
 
     if (initialLoad)
         return (
@@ -248,24 +281,51 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     </Grid>
                 }
                 <div className='w-full px-8'>
-                { mainReasonRequired && !isAppointmentDisabled && <span className="text-red-700 mt-7">Obs.: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
+                    { mainReasonRequired && !isAppointmentDisabled && <span className="text-red-700 mt-7">Obs.: El motivo principal de la visita es obligatoria para poder guardar cambios en esta sección</span>}
                     <div className="mt-3">
                         <Typography variant='body1' color='textPrimary'>
                             Diagnóstico
                         </Typography>
 
-                        <div className='rounded-md shadow-sm'>
-                            <textarea
-                                id='Diagnostico'
-                                disabled={isAppointmentDisabled || mainReasonRequired}
-                                required
-                                rows={!isFromInperson ? 3 : 5}
-                                className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5 disabled:bg-gray-100'
-                                placeholder=''
-                                onChange={e => setDiagnose(e.target.value)}
-                                value={diagnose}
-                            />
+                        <div className={`flex flex-row flex-no-wrap justify-between w-full ${(isAppointmentDisabled || mainReasonRequired) ? 'bg-gray-100':''} rounded-md transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5`}>
+                            <div className="flex flex-row w-full">
+                                { diagnose && selectedSoep &&
+                                    diagnose.toLowerCase().trim() !== selectedSoep.evaluation?.toLowerCase().trim()
+                                        ? <div 
+                                            className="flex rounded justify-center px-2 bg-gray-200 h-5"
+                                        >
+                                            <p className="font-bold text-xs">editado</p>
+                                        </div>
+                                        : <></>
+                                }
+                                <textarea
+                                    id='Diagnostico'
+                                    disabled={isAppointmentDisabled || mainReasonRequired}
+                                    required
+                                    // bg-transparent is used so that the textarea does not highlight
+                                    className={`mr-1 w-11/12 bg-transparent resize-none outline-none self-center place-content-center transform ${diagnose?.toLowerCase().trim() !== selectedSoep?.evaluation?.toLowerCase().trim() ? ' translate-x-4 duration-700' : '-translate-x-1 duration-700'}`}
+                                    placeholder=''
+                                    onChange={e => setDiagnose(e.target.value)}
+                                    value={diagnose}
+                                />
+                            </div>
+                            <div 
+                                className={`flex flex-row flex-no-wrap`}
+                            >
+                                {showTooltipInfo && <TooltipInfo />}
+                                <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+                            </div>
                         </div>
+                        { diagnose && selectedSoep &&
+                            diagnose.toLowerCase().trim() !== selectedSoep.evaluation?.toLowerCase().trim()
+                                ? <button 
+                                    onClick={() => setDiagnose(selectedSoep.evaluation ?? '')} 
+                                    className="pt-2 font-normal text-sm leading-3 focus:outline-none"
+                                >
+                                    <p style={{color: "#757575"}}>Click para restaurar</p>
+                                </button>
+                                : <></>
+                        }
                     </div>
                     <div className='mt-6'>
                         <Typography variant='body1' color='textPrimary'>

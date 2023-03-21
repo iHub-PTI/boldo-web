@@ -1,3 +1,4 @@
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
@@ -18,7 +19,7 @@ type Props = {
   categoryCode?: string
   patientId?: string
   organizationId?: string
-  handlerSaveLoading?: (value: boolean) => void
+  handlerSaveLoading?: (value: boolean | null) => void
 }
 
 const CardList: React.FC<Props> = ({
@@ -44,8 +45,8 @@ const CardList: React.FC<Props> = ({
 
   const [list, setList] = useState(dataList)
 
-  const { loading: loadPost, error: ErrorPost, sendData } = useAxiosPost(url)
-  const { loading: loadDel, error: ErrorDel, deleteData } = useAxiosDelete(url)
+  const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
+  const { loading: loadDel, error: errorDel, deleteData } = useAxiosDelete(url)
 
   const Empty = () => {
 
@@ -76,6 +77,7 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
+      performedDate: moment(value.date).format("YYYY-MM-DD"),
       category: categoryCode,
     }, addItemList)
   }
@@ -85,14 +87,23 @@ const CardList: React.FC<Props> = ({
   }
 
   useEffect(() => {
-    if(loadDel !== null )handlerSaveLoading(loadDel)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (errorPost) return
+    if (errorDel) return
+    if (loadDel !== null) handlerSaveLoading(loadDel)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadDel])
 
   useEffect(() => {
-    if(loadPost !== null )handlerSaveLoading(loadPost)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (errorPost) return
+    if (errorDel) return
+    if (loadPost !== null) handlerSaveLoading(loadPost)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPost])
+
+  useEffect(() => {
+    if (errorPost || errorDel) handlerSaveLoading(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorPost, errorDel])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'

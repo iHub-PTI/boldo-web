@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { useState, useEffect } from "react";
+import * as Sentry from '@sentry/react'
 
 export function useAxiosFetch<T>(url: string, params: {}) {
 
@@ -7,20 +8,45 @@ export function useAxiosFetch<T>(url: string, params: {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<AxiosError>(null);
 
-  useEffect(() => {
+  // to load the first time or to reload the data
+  const reload = () => {
     axios.get(url, {
       params: params,
     })
       .then((res) => setData(res.data))
       .catch((error) => {
         setError(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          ...params
+        })
+        if (error.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTags({
+            'data': error.response.data,
+            'headers': error.response.headers,
+            'status_code': error.response.status
+          })
+        } else if (error.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', error.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', error.message)
+        }
+        Sentry.captureException(error)
       })
       .finally(() => setLoading(false));
+  }
 
+  useEffect(() => {
+    reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { data, loading, error };
+  return { data, loading, error, reload };
 }
 
 export function useAxiosPost(url: string) {
@@ -31,12 +57,32 @@ export function useAxiosPost(url: string) {
     setLoading(true)
     axios.post(url, body)
       .then((res) => {
-        console.log(res.data)
         sendDataSuccess(res.data)
       }
       )
       .catch((error) => {
         setError(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          ...body
+        })
+        if (error.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTags({
+            'data': error.response.data,
+            'headers': error.response.headers,
+            'status_code': error.response.status
+          })
+        } else if (error.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', error.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', error.message)
+        }
+        Sentry.captureException(error)
       })
       .finally(() => setLoading(false));
   }
@@ -52,12 +98,32 @@ export function useAxiosDelete(url: string) {
     setLoading(true)
     axios.delete(url + "/" + id)
       .then((res) => {
-        console.log(res.data)
         deleteSuccessData(res.data)
       }
       )
       .catch((error) => {
         setError(error)
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'id_object_to_delete': id 
+        })
+        if (error.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTags({
+            'data': error.response.data,
+            'headers': error.response.headers,
+            'status_code': error.response.status
+          })
+        } else if (error.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', error.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', error.message)
+        }
+        Sentry.captureException(error)
       })
       .finally(() => setLoading(false));
   }
