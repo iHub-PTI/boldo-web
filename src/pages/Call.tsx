@@ -9,7 +9,7 @@ import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert'
 import MdClose from '@material-ui/icons/Clear'
-import PersonIcon from '@material-ui/icons/Person'
+// import PersonIcon from '@material-ui/icons/Person'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 // TODO: Clear comments
 // import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
@@ -96,10 +96,10 @@ const Gate = () => {
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
-  const [sideBarAction, setSideBarAction] = useState(0)
+  const [sideBarAction, setSideBarAction] = useState(1)
   const token = appointment?.token || ''
   // this help us for identify the selected button
-  const [selectedButton, setSelectedButton] = useState(0)
+  const [selectedButton, setSelectedButton] = useState(1)
   // const [loading, setLoading] = useState(false);
   const { width } = useWindowDimensions()
 
@@ -291,8 +291,8 @@ const Gate = () => {
     )
   const controlSideBarState = () => {
     switch (sideBarAction) {
-      case 0:
-        return <Sidebar appointment={appointment} />
+      // case 0:
+      //   return <Sidebar appointment={appointment} />
 
       case 1:
         return <SOEP appointment={appointment} />
@@ -424,7 +424,7 @@ const Gate = () => {
               setSelectedButton(1);
             }}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
@@ -436,7 +436,7 @@ const Gate = () => {
               setSideBarAction(0);
               setSelectedButton(0);
             }}
-          />
+          /> */}
         </FloatingMenu>
       </div>
     )
@@ -662,7 +662,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               setSelectedButton(1);
             }}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
@@ -674,7 +674,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               setSideBarAction(0);
               setSelectedButton(0);
             }}
-          />
+          /> */}
         </FloatingMenu>
       </>
     )
