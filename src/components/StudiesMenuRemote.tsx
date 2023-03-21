@@ -30,6 +30,7 @@ import * as Sentry from '@sentry/react'
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import { countDays } from "../util/helpers";
+import { useRouteMatch } from "react-router-dom";
 
 
 //HoverSelect theme
@@ -212,6 +213,12 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [selectOrderDetail, setSelectOrderDetail] = useState(undefined)
     //disabled issuedOrder button
     const [disabledButton, setDisabledButton] = useState(true)
+    // Encounter handler
+    let match = useRouteMatch<{ id: string }>('/appointments/:id/call/')
+    const id = match?.params.id
+    const [emptySoep, setEmptySoep] = useState(false)
+    const [encounter, setEncounter] = useState<Boldo.Encounter>(undefined)
+
 
     useEffect(() => {
         const load = async () => {
@@ -399,6 +406,61 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         if (appointment && !issueOrder) loadOrders()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [issueOrder, appointment])
+
+      // this get the encounter
+    useEffect(() => {
+        const load = async () => {
+        const url = `/profile/doctor/appointments/${id}/encounter`
+        
+        setDisabledButton(true)
+        await axios
+            .get(url)
+            .then((res) => {
+            const data = res.data.encounter as Boldo.Encounter
+            if (Object.keys(data.soep).length === 0) {
+                setEmptySoep(true)
+            } else if (!data.soep.evaluation || data.soep.evaluation.trim() === '') {
+                setEmptySoep(true)
+            } else {
+                setEmptySoep(false)
+                setEncounter(data)
+            }
+            })
+            .catch((err) => {
+            Sentry.setTags({
+                'endpoint': url,
+                'method': 'GET'
+            })
+            if (err.response) {
+                // The response was made and the server responded with a 
+                // status code that is outside the 2xx range.
+                Sentry.setTags({
+                'data': err.response.data,
+                'headers': err.response.headers,
+                'status_code': err.response.status
+                })
+            } else if (err.request) {
+                // The request was made but no response was received
+                Sentry.setTag('request', err.request)
+            } else {
+                // Something happened while preparing the request that threw an Error
+                Sentry.setTag('message', err.message)
+            }
+            Sentry.captureMessage("Could not get the encounter")
+            Sentry.captureException(err)
+            })
+        }
+        if (appointment)
+        load()
+    }, [appointment, id])
+
+    useEffect(() => {
+        if (emptySoep || appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+        setDisabledButton(true)
+        } else if(!emptySoep){
+        setDisabledButton(false)
+        }
+    }, [appointment, emptySoep])
 
     //Hover theme
     const classes = useStyles();
@@ -950,7 +1012,8 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
         return (
             <Provider>
                 <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
-                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
+                    {console.log("encounter => ", encounter)}
+                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true} encounter={encounter}></StudyOrder>
                 </div>
             </Provider>
         )
