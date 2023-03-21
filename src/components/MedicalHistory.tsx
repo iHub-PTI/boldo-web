@@ -157,7 +157,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const organizationId = appointment.organization.id
   //const encounterId = appointment.id
 
-  const { data, loading, error } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
@@ -260,7 +260,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               <div className='flex justify-center items-center w-full mt-6 sm:mt-8'>
                 <button
                   className='px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
-                  onClick={() => { }}
+                  onClick={() => reload()}
                 >
                   Intentar de nuevo
                 </button>
@@ -284,7 +284,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
     >
       <div className='flex flex-col justify-center items-center relative' style={{ minWidth: '450px' }}>
         {/* Header */}
-        <div className='flex flex-col w-full bg-white' style={{height: '148px'}}>
+        <div className='flex flex-col w-full bg-white' style={{ height: '148px' }}>
           <div className='flex flex-row pl-5'>
             <button
               className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
@@ -323,7 +323,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
         <div className='overflow-y-auto scrollbar w-full'>
           <div className='flex flex-col w-full gap-2'
             style={{
-              height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 148 }px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + 148}px)`}`
+              height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 148}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + 148}px)`}`
             }}>
             {/* Personal */}
             <div className='flex flex-col items-center w-full gap-3'>
