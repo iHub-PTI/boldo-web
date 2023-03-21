@@ -76,6 +76,7 @@ import RecordOutPatientCall from '../components/RecordOutPatientCall'
 import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
 import SelectPrintOptions from '../components/SelectPrintOptions'
 import OrganizationBar from '../components/OrganizationBar'
+import CircleCounter from '../components/CircleCounter'
 
 
 type Status = Boldo.Appointment['status']
@@ -393,7 +394,14 @@ const Gate = () => {
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                <div className='flex'>
+                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  {
+                    prescriptions.length > 0
+                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
+                      : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
