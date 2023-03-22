@@ -37,7 +37,7 @@ export default function Dashboard() {
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
 
 
-  useEffect(()=>{
+  useEffect(() => {
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
   }, [DynamicMenuSelector])
 
@@ -97,7 +97,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
-        { appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} /> }
+        {appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} />}
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
@@ -136,9 +136,9 @@ export default function Dashboard() {
               />
             )}
             {appointment !== undefined && (
-              <MedicalHistory 
-                show={showMedicalHistory} 
-                setShow={setShowMedicalHistory} 
+              <MedicalHistory
+                show={showMedicalHistory}
+                setShow={setShowMedicalHistory}
                 appointment={appointment}
               />
             )}
@@ -166,7 +166,7 @@ export default function Dashboard() {
                 appointment={appointment}
               />
             </div>
-            <div className='aboslute h-full w-11/12' style={{ pointerEvents: outpatientRecordShow ? 'none' : 'auto' }}>
+            <div className='aboslute h-full w-11/12' style={{ pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
               {DynamicMenuSelector === 'P' ? (
                 <PrescriptionMenu appointment={appointment} isFromInperson={true} />
               ) : DynamicMenuSelector === 'M' ? (
