@@ -1881,7 +1881,7 @@ function SOEP({ appointment }: { appointment: any }) {
       </div>
     )
   return (
-    <div className='flex flex-col h-full overflow-y-auto bg-white shadow-xl'>
+    <div className='flex flex-col h-full overflow-y-auto scrollbar bg-white shadow-xl'>
       <Grid>
         <CardHeader
           title='Notas médicas'
