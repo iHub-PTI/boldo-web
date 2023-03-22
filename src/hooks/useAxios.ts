@@ -1,15 +1,17 @@
 import axios, { AxiosError } from "axios";
 import { useState, useEffect } from "react";
 import * as Sentry from '@sentry/react'
+import { useToasts } from "../components/Toast"
 
 export function useAxiosFetch<T>(url: string, params: {}) {
-
+  const { addToast } = useToasts()
   const [data, setData] = useState<T>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
   // to load the first time or to reload the data
   const reload = () => {
+    setLoading(true)
     axios.get(url, {
       params: params,
     })
@@ -37,6 +39,11 @@ export function useAxiosFetch<T>(url: string, params: {}) {
           Sentry.setTag('message', error.message)
         }
         Sentry.captureException(error)
+        if (error.response?.status === 500) {
+          addToast({ type: 'error', title: 'Lo siento, hubo un error interno del servidor al procesar su solicitud', text: error.message })
+        } else {
+          addToast({ type: 'error', title: 'Lo siento, ocurrió un inesperado', text: error.message })
+        }
       })
       .finally(() => setLoading(false));
   }
@@ -50,6 +57,7 @@ export function useAxiosFetch<T>(url: string, params: {}) {
 }
 
 export function useAxiosPost(url: string) {
+  const { addToast } = useToasts()
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
@@ -83,6 +91,12 @@ export function useAxiosPost(url: string) {
           Sentry.setTag('message', error.message)
         }
         Sentry.captureException(error)
+
+        if (error.response?.status === 500) {
+          addToast({ type: 'error', title: 'Lo sentimos, hubo un error interno del servidor al procesar su solicitud', text: error.message })
+        } else {
+          addToast({ type: 'error', title: 'Lo sentimos, ocurrió un inesperado', text: error.message })
+        }
       })
       .finally(() => setLoading(false));
   }
@@ -91,10 +105,11 @@ export function useAxiosPost(url: string) {
 }
 
 export function useAxiosDelete(url: string) {
+  const { addToast } = useToasts()
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
-  const deleteData = <T>(id:string, deleteSuccessData?: (value) => void) => {
+  const deleteData = <T>(id: string, deleteSuccessData?: (value) => void) => {
     setLoading(true)
     axios.delete(url + "/" + id)
       .then((res) => {
@@ -106,7 +121,7 @@ export function useAxiosDelete(url: string) {
         Sentry.setTags({
           'endpoint': url,
           'method': 'GET',
-          'id_object_to_delete': id 
+          'id_object_to_delete': id
         })
         if (error.response) {
           // The response was made and the server responded with a 
@@ -124,6 +139,12 @@ export function useAxiosDelete(url: string) {
           Sentry.setTag('message', error.message)
         }
         Sentry.captureException(error)
+
+        if (error.response?.status === 500) {
+          addToast({ type: 'error', title: 'Lo siento, hubo un error interno del servidor al procesar su solicitud', text: error.message })
+        } else {
+          addToast({ type: 'error', title: 'Lo siento, ocurrió un inesperado', text: error.message })
+        }
       })
       .finally(() => setLoading(false));
   }

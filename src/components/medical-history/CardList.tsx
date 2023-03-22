@@ -65,7 +65,7 @@ const CardList: React.FC<Props> = ({
   }
 
   const addItemList = (value: InputValue) => {
-    setList([value, ...list])
+    setList([...list, value])
   }
 
   const removeItemList = (value: InputValue) => {
@@ -79,6 +79,7 @@ const CardList: React.FC<Props> = ({
       description: value.description,
       performedDate: moment(value.date).format("YYYY-MM-DD"),
       category: categoryCode,
+      relationship: value.relationship
     }, addItemList)
   }
 
