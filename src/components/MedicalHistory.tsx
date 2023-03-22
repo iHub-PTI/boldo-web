@@ -168,9 +168,18 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
 
   useEffect(() => {
     if (data) setDataHistory(data)
-    console.log(data)
+    //console.log(data)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
+
+  useEffect(() => {
+    //update data medical history on exit
+    if (!show) {
+      reload()
+      setSaveLoading(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show])
 
   if (loading) return (
     <Transition

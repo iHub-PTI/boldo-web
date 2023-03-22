@@ -57,7 +57,7 @@ const CardList: React.FC<Props> = ({
   }
 
   const addItemList = (value: InputValue) => {
-    setList([value, ...list])
+    setList([...list, value])
   }
 
   const removeItemList = (value: InputValue) => {
