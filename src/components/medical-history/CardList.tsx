@@ -71,6 +71,7 @@ const CardList: React.FC<Props> = ({
       description: value.description,
       performedDate: moment(value.date).format("YYYY-MM-DD"),
       category: categoryCode,
+      relationship: value.relationship
     }, addItemList)
   }
 

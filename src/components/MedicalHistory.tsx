@@ -18,7 +18,8 @@ const urls = {
   getHistory: '/profile/doctor/history',
   allergies: '/profile/doctor/allergyIntolerance',
   pathology: '/profile/doctor/condition',
-  procedures: '/profile/doctor/procedure'
+  procedures: '/profile/doctor/procedure',
+  familyHistory: '/profile/doctor/familyMemberHistory'
 }
 
 /* export type ActionType =
@@ -154,6 +155,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const { width: screenWidth } = useWindowDimensions()
 
   const patientId = appointment.patient.id
+  const { gender } = appointment.patient
   const organizationId = appointment.organization.id
   //const encounterId = appointment.id
 
@@ -407,10 +409,12 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 typeCode='others_personal'
               />
               {/* Section Gynecology */}
-              <TableGynecology
-                gynecology={dataHistory?.personal?.gynecology ?? {}}
-                typeCode='gynecology'
-              />
+              {gender === 'female' &&
+                <TableGynecology
+                  gynecology={dataHistory?.personal?.gynecology ?? {}}
+                  typeCode='gynecology'
+                />
+              }
             </div>
             {/* Family Section */}
             <div className='flex flex-col items-center w-full gap-3 pb-5'>
@@ -423,6 +427,10 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   dataList={dataHistory?.family?.hereditary_diseases ?? []}
                   inputTypeWith='relationship'
                   typeCode='hereditary_diseases'
+                  url={urls.familyHistory}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
                 />
                 <CardList
                   TitleElement={() =>
