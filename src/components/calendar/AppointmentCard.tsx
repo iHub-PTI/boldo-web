@@ -30,7 +30,7 @@ function AppointmentCard(eventInfo, color = "#27BEC2") {
       ? <div 
           className={
             `h-full w-full rounded-r-3xl hover:shadow transition-shadow delay-150 overflow-hidden ...`}
-          style={{ borderLeftWidth: '2px', borderLeftColor: borderColor }}  
+          style={{ borderLeftWidth: '4px', borderLeftColor: borderColor }}  
         >
         {/* header of the container */}
         <div className="flex">
