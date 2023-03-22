@@ -1355,6 +1355,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
+  const { width } = useWindowDimensions()
   // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
   //   setValue(newValue)
   // }
@@ -1880,7 +1881,7 @@ function SOEP({ appointment }: { appointment: any }) {
       </div>
     )
   return (
-    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+    <div className='flex flex-col h-full overflow-y-auto bg-white shadow-xl'>
       <Grid>
         <CardHeader
           title='Notas médicas'
