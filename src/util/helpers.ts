@@ -197,7 +197,7 @@ export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: strin
   let orgFound = orgs.find(organization => organization.id === orgIDSearch)
 
   if (orgFound && orgFound.colorCode) colorCode = orgFound.colorCode
-  debugger
+  
   return colorCode
 }
 
