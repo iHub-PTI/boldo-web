@@ -69,24 +69,23 @@ export const MedicalHistoryCall: React.FC<Props> = ({
 
   // to control panel hover
   useEffect(() => {
-    /**
-     * There is a conflict when removing element by the modal with the container of the panel. With * this we avoid that when deleting and clicking on the modal everything closes.
-     */
-    let modalDeleteConfirmation = document.getElementById('delete_confirmation_modal')
+
+
 
     function handleOutsideClick(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        if (!medicalHistoryButton) return
-        modalDeleteConfirmation?.addEventListener('click', (event) => {
-          if (!modalDeleteConfirmation?.contains(event.target as Node)) {
-            setMedicalHistoryButton(true)
-          } else {
-            setMedicalHistoryButton(false)
-          }
+      /**
+     * There is a conflict when removing element by the modal with the container of the panel. With * this we avoid that when deleting and clicking on the modal everything closes.
+     */
+      let modalDeleteConfirmation = document.getElementById('delete_confirmation_modal')
 
-        })
+      if (modalDeleteConfirmation?.contains(event.target as Node)) {
+        setMedicalHistoryButton(true)
+      } else if (!containerRef.current?.contains(event.target as Node)) {
+        if (!medicalHistoryButton) return
+        setMedicalHistoryButton(false)
       }
     }
+
     window.addEventListener('click', handleOutsideClick, true)
     return () => window.removeEventListener('click', handleOutsideClick, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
