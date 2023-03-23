@@ -6,7 +6,6 @@ import differenceInYears from 'date-fns/differenceInYears';
 import UserCircle from './icons/patient-register/UserCircle';
 import NoProfilePicture from './icons/NoProfilePicture';
 import HistoryIcon from './icons/HistoryIcon';
-import { AppointmentWithPatient } from './RecordsOutPatient';
 import { MedicalHistoryCall } from './MedicalHistoryCall';
 import { RecordOutPatientCall } from './RecordOutPatientCall';
 
@@ -18,7 +17,7 @@ export const stylePanelSidebar = {
 
 type PropsSidebarMenuCall = {
   children: React.ReactNode;
-  appointment: AppointmentWithPatient;
+  appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization };
 }
 
 const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment }) => {
