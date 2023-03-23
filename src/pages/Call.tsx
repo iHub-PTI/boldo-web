@@ -451,7 +451,7 @@ const Gate = () => {
           : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`
       }}>
-        { Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }
+        <div className='h-6'>{ Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }</div>
         <RecordOutPatientCall appointment={appointment}>
           {instance === 0 ? (
             <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
