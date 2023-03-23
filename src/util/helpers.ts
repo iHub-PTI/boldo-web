@@ -186,6 +186,21 @@ export function daysFromMessage(msg: string, days: Array<string>): Array<string>
 }
 
 
+/**
+ * 
+ * @param {Array<Boldo.Organization>} orgs - array of organizations in which we'll look for a specific id
+ * @param {string} orgIDSearch - this is the id we'll search
+ * @returns organization color hexadecimal code
+ */
+export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: string): string {
+  let colorCode = "#27BEC2"
+  let orgFound = orgs.find(organization => organization.id === orgIDSearch)
+
+  if (orgFound && orgFound.colorCode) colorCode = orgFound.colorCode
+  debugger
+  return colorCode
+}
+
 // uncomment if necessary
 // this function merges the ids of the organizations separated by commas
 // export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
