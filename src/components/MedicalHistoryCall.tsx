@@ -10,6 +10,8 @@ import { urls } from "./MedicalHistory";
 import { MedicalHistoryType } from './medical-history/Types';
 import { useAxiosFetch } from '../hooks/useAxios';
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
+import ProgressIcon from './icons/ProgressIcon';
+import CloudIcon from './icons/CloudIcon';
 
 export const initialState: MedicalHistoryType = {
   "personal": {
@@ -64,16 +66,25 @@ export const MedicalHistoryCall: React.FC<Props> = ({
     if (data) setDataHistory(data)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
-  useEffect(() => {
-    console.log(dataHistory)
-  }, [dataHistory])
 
   // to control panel hover
   useEffect(() => {
+    /**
+     * There is a conflict when removing element by the modal with the container of the panel. With * this we avoid that when deleting and clicking on the modal everything closes.
+     */
+    let modalDeleteConfirmation = document.getElementById('delete_confirmation_modal')
+
     function handleOutsideClick(event: MouseEvent) {
       if (!containerRef.current?.contains(event.target as Node)) {
         if (!medicalHistoryButton) return
-        setMedicalHistoryButton(false)
+        modalDeleteConfirmation?.addEventListener('click', (event) => {
+          if (!modalDeleteConfirmation?.contains(event.target as Node)) {
+            setMedicalHistoryButton(true)
+          } else {
+            setMedicalHistoryButton(false)
+          }
+
+        })
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
@@ -84,6 +95,8 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   useEffect(() => {
     if (medicalHistoryButton) return
     handleSidebarHoverOff()
+    reload()
+    setSaveLoading(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicalHistoryButton])
 
@@ -105,13 +118,31 @@ export const MedicalHistoryCall: React.FC<Props> = ({
           <CloseButton />
         </button>
       </div>
+      {saveLoading ?
+        <div className='flex flex-col items-center justify-center' style={stylePanelSidebar}>
+          <div className='flex flex-row gap-1 items-center bg-transparent'>
+            <h5
+              className='font-medium text-sm text-white font-sans'
+            >Guardando Antecendentes</h5>
+            <ProgressIcon className="animate-spin" />
+          </div>
+        </div> : saveLoading !== null ?
+          <div className='flex flex-col items-center justify-center' style={stylePanelSidebar}>
+            <div className='flex flex-row gap-1 bg-transparent'>
+              <h5
+                className='font-medium text-sm text-white font-sans items-center'
+              >Antecedentes clínicos guardado correctamente</h5>
+              <CloudIcon />
+            </div>
+          </div> :
+          null}
       {loading &&
         <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
           <SpinnerLoading />
         </div>
       }
       {!loading &&
-        <div className={`flex flex-col flex-1 py-2 pr-2 items-center gap-4 scrollbar overflow-y-auto`} style={stylePanelSidebar}>
+        <div className={`flex flex-col flex-1 py-2 pr-2 items-center gap-4 scrollbar overflow-y-auto relative`} style={stylePanelSidebar}>
           {/* Personal */}
           <div className='flex flex-row flew-no-wrap w-full'>
             <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
@@ -136,20 +167,35 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
               <CardList
                 title={'Cardiopatías'}
-                dataList={[]}
+                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
                 typeCode='cardiopathies'
+                categoryCode='CDP'
+                url={urls.pathology}
+                patientId={patientId}
+                organizationId={organizationId}
+                handlerSaveLoading={handlerSaveLoading}
                 darkMode={true}
               />
               <CardList
                 title={'Respiratorias'}
-                dataList={[]}
+                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
                 typeCode='respiratory'
+                categoryCode='RPT'
+                url={urls.pathology}
+                patientId={patientId}
+                organizationId={organizationId}
+                handlerSaveLoading={handlerSaveLoading}
                 darkMode={true}
               />
               <CardList
                 title={'Digestivas'}
-                dataList={[]}
+                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
                 typeCode='digestive'
+                categoryCode='DGT'
+                url={urls.pathology}
+                patientId={patientId}
+                organizationId={organizationId}
+                handlerSaveLoading={handlerSaveLoading}
                 darkMode={true}
               />
             </div>
@@ -158,9 +204,13 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             {/* Section procedures */}
             <CardList
               TitleElement={() => <div className='font-medium text-base text-orange-dark'>Procedimientos</div>}
-              dataList={[]}
+              dataList={dataHistory?.personal?.procedures ?? []}
               inputTypeWith="date"
               typeCode='procedures'
+              url={urls.procedures}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
             {/* Section Others */}
@@ -191,9 +241,13 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
               <CardList
                 TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
-                dataList={[]}
+                dataList={dataHistory?.family?.hereditary_diseases ?? []}
                 inputTypeWith='relationship'
                 typeCode='hereditary_diseases'
+                url={urls.familyHistory}
+                patientId={patientId}
+                organizationId={organizationId}
+                handlerSaveLoading={handlerSaveLoading}
                 darkMode={true}
               />
               <CardList
