@@ -77,6 +77,8 @@ import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
 import SelectPrintOptions from '../components/SelectPrintOptions'
 import OrganizationBar from '../components/OrganizationBar'
 import CircleCounter from '../components/CircleCounter'
+import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
+import { getColorCode } from '../util/helpers'
 
 
 type Status = Boldo.Appointment['status']
@@ -91,7 +93,7 @@ const Gate = () => {
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
-
+  const { Organizations } = useContext(AllOrganizationContext)
   const [instance, setInstance] = useState(0)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
@@ -449,7 +451,7 @@ const Gate = () => {
           : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`
       }}>
-        { appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} /> }
+        <div className='h-6'>{ Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }</div>
         <RecordOutPatientCall appointment={appointment}>
           {instance === 0 ? (
             <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
