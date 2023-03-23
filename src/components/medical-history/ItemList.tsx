@@ -5,12 +5,12 @@ import Modal from '../Modal'
 
 type Props = {
   description: string,
-  date?: Date,
+  performedDate?: Date,
   relationship?: string,
   deleteItem: () => void,
 }
 
-const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem }) => {
+const ItemList: React.FC<Props> = ({ description, performedDate, relationship, deleteItem }) => {
 
   const [hover, setHover] = useState(false)
   const bgColor = hover ? 'rgba(247, 244, 244, 0.6)' : ''
@@ -38,7 +38,7 @@ const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem
         <span className='font-medium text-cool-gray-700'>{description}</span>
         <span className='flex flex-row flex-no-wrap gap-2 '>
           <span className='font-normal text-sm text-color-disabled'>
-            {date && moment(date).format('DD/MM/YYYY')}
+            {performedDate && moment(performedDate).format('DD/MM/YYYY')}
             {relationship}
           </span>
           {hover &&
@@ -52,7 +52,7 @@ const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem
         show={show}
         setShow={setShow}
         description={description}
-        date={date}
+        date={performedDate}
         relationship={relationship}
         callback={() => deleteItem()}
         />

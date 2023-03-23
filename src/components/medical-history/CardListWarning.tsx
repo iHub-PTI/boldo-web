@@ -110,7 +110,7 @@ const CardListWarning: React.FC<Props> = ({
       <div className='flex flex-col w-full pr-5 pl-15'>
         <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
         {/* {loading && <div className='w-full text-center'>Guardando...</div>} */}
-        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={data.date} deleteItem={() => handleDeleteList(data.id)} />)}
+        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} performedDate={data.performedDate} deleteItem={() => handleDeleteList(data.id)} />)}
         <Empty />
       </div>
     </div>

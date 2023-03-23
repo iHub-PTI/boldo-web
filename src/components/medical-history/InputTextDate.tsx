@@ -14,7 +14,7 @@ type Props = {
   show: boolean,
   setShow?: (value?: boolean) => void,
   placeholder?: string,
-  addInput: (value: { description: string, date: Date }) => void,
+  addInput: (value: { description: string, performedDate: Date }) => void,
 }
 
 const InputTextDate: React.FC<Props> = ({
@@ -30,7 +30,7 @@ const InputTextDate: React.FC<Props> = ({
 
   const handleClickAdd = () => {
     if (text.split(' ').every((value) => value === '')) return
-    addInput({ description: text, date: valueDate })
+    addInput({ description: text, performedDate: valueDate })
     setText("")
     setValueDate(undefined)
   }

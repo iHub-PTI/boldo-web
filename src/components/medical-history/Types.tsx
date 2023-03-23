@@ -1,4 +1,4 @@
-export type InputValue = {id?: string, description: string, date?: Date, relationship?: string }
+export type InputValue = {id?: string, description: string, performedDate?: Date, relationship?: string }
 
 export type DataList = Array<InputValue>
 
