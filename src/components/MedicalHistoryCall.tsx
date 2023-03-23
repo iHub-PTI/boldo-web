@@ -104,6 +104,58 @@ export const MedicalHistoryCall: React.FC<Props> = ({
     setSaveLoading(loading)
   }
 
+  if (loading) return (
+    <div
+      className={`opacity-0 ${medicalHistoryButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
+      style={{ width: medicalHistoryButton ? '26rem' : '0px' }}
+    >
+      <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
+        <span className='text-white font-medium text-sm truncate'>Antecedentes Clínicos</span>
+        <button className='focus:outline-none' onClick={() => {
+          setMedicalHistoryButton(false)
+
+        }}>
+          <CloseButton />
+        </button>
+      </div>
+      <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
+        <SpinnerLoading />
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div
+      className={`opacity-0 ${medicalHistoryButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
+      style={{ width: medicalHistoryButton ? '26rem' : '0px' }}
+    >
+      <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
+        <span className='text-white font-medium text-sm truncate'>Antecedentes Clínicos</span>
+        <button className='focus:outline-none' onClick={() => {
+          setMedicalHistoryButton(false)
+        }}>
+          <CloseButton />
+        </button>
+      </div>
+      <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
+        <div className='mt-6 text-center sm:mt-5'>
+          <h3 className='text-base font-medium leading-6 text-white px-4' id='modal-headline'>
+            Ha ocurrido un error al traer los antecedentes clínicos personales y familiares
+          </h3>
+        </div>
+        <div className='flex justify-center items-center w-full mt-6 sm:mt-8'>
+          <button
+            className='px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+            onClick={() => reload()}
+          >
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+
   return (
     <div
       className={`opacity-0 ${medicalHistoryButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
@@ -136,133 +188,126 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             </div>
           </div> :
           null}
-      {loading &&
-        <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
-          <SpinnerLoading />
+      <div className={`flex flex-col flex-1 py-2 pr-2 items-center gap-4 scrollbar overflow-y-auto relative`} style={stylePanelSidebar}>
+        {/* Personal */}
+        <div className='flex flex-row flew-no-wrap w-full'>
+          <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
+            <span className='flex flex-row font-medium text-cool-gray-700 tracking-wide gap-2'>
+              <PersonOutline fill={"#364152"} />
+              Personal
+            </span>
+          </div>
         </div>
-      }
-      {!loading &&
-        <div className={`flex flex-col flex-1 py-2 pr-2 items-center gap-4 scrollbar overflow-y-auto relative`} style={stylePanelSidebar}>
-          {/* Personal */}
-          <div className='flex flex-row flew-no-wrap w-full'>
-            <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
-              <span className='flex flex-row font-medium text-cool-gray-700 tracking-wide gap-2'>
-                <PersonOutline fill={"#364152"} />
-                Personal
-              </span>
-            </div>
-          </div>
-          <div className='flex flex-col w-full pl-6 pr-2'>
-            <CardListWarning
-              title='Alergias y sensibilidades'
-              dataList={dataHistory?.personal?.allergies ?? []}
-              url={urls.allergies}
-              patientId={patientId}
-              handlerSaveLoading={handlerSaveLoading}
-            />
-          </div>
-          {/* Section pathology */}
-          <div className='flex flex-col w-full pl-8 pr-6'>
-            <div className='font-medium text-base w-full' style={{ color: "#DB7D68" }}>Patologías</div>
-            <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
-              <CardList
-                title={'Cardiopatías'}
-                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
-                typeCode='cardiopathies'
-                categoryCode='CDP'
-                url={urls.pathology}
-                patientId={patientId}
-                organizationId={organizationId}
-                handlerSaveLoading={handlerSaveLoading}
-                darkMode={true}
-              />
-              <CardList
-                title={'Respiratorias'}
-                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
-                typeCode='respiratory'
-                categoryCode='RPT'
-                url={urls.pathology}
-                patientId={patientId}
-                organizationId={organizationId}
-                handlerSaveLoading={handlerSaveLoading}
-                darkMode={true}
-              />
-              <CardList
-                title={'Digestivas'}
-                dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
-                typeCode='digestive'
-                categoryCode='DGT'
-                url={urls.pathology}
-                patientId={patientId}
-                organizationId={organizationId}
-                handlerSaveLoading={handlerSaveLoading}
-                darkMode={true}
-              />
-            </div>
-          </div>
-          <div className='flex flex-col w-full gap-7 mb-5 pl-3 pr-3'>
-            {/* Section procedures */}
+        <div className='flex flex-col w-full pl-6 pr-2'>
+          <CardListWarning
+            title='Alergias y sensibilidades'
+            dataList={dataHistory?.personal?.allergies ?? []}
+            url={urls.allergies}
+            patientId={patientId}
+            handlerSaveLoading={handlerSaveLoading}
+          />
+        </div>
+        {/* Section pathology */}
+        <div className='flex flex-col w-full pl-8 pr-6'>
+          <div className='font-medium text-base w-full' style={{ color: "#DB7D68" }}>Patologías</div>
+          <div className='flex flex-col w-full pl-2 pr-1 gap-1'>
             <CardList
-              TitleElement={() => <div className='font-medium text-base text-orange-dark'>Procedimientos</div>}
-              dataList={dataHistory?.personal?.procedures ?? []}
-              inputTypeWith="date"
-              typeCode='procedures'
-              url={urls.procedures}
+              title={'Cardiopatías'}
+              dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
+              typeCode='cardiopathies'
+              categoryCode='CDP'
+              url={urls.pathology}
               patientId={patientId}
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
-            {/* Section Others */}
             <CardList
-              TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
-              dataList={[]}
-              inputTypeWith="date"
-              typeCode='others_personal'
+              title={'Respiratorias'}
+              dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
+              typeCode='respiratory'
+              categoryCode='RPT'
+              url={urls.pathology}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
-            {/* Section Gynecology */}
-            <TableGynecology
-              gynecology={[]}
-              typeCode='gynecology'
+            <CardList
+              title={'Digestivas'}
+              dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
+              typeCode='digestive'
+              categoryCode='DGT'
+              url={urls.pathology}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
-          </div>
-          {/* Familiar */}
-          <div className='flex flex-col items-center w-full gap-3 pb-5'>
-            <div className='flex flex-row flew-no-wrap w-full'>
-              <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
-                <span className='flex flex-row gap-2 font-medium text-cool-gray-700 tracking-wide'>
-                  <FamilyIcon fill={"#364152"} />
-                  Familiar
-                </span>
-              </div>
-            </div>
-            <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
-              <CardList
-                TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
-                dataList={dataHistory?.family?.hereditary_diseases ?? []}
-                inputTypeWith='relationship'
-                typeCode='hereditary_diseases'
-                url={urls.familyHistory}
-                patientId={patientId}
-                organizationId={organizationId}
-                handlerSaveLoading={handlerSaveLoading}
-                darkMode={true}
-              />
-              <CardList
-                TitleElement={() =>
-                  <div className='font-medium text-base text-orange-dark'>Otros</div>
-                }
-                dataList={[]}
-                inputTypeWith="relationship"
-                typeCode='others_family'
-                darkMode={true}
-              />
-            </div>
           </div>
         </div>
-      }
+        <div className='flex flex-col w-full gap-7 mb-5 pl-3 pr-3'>
+          {/* Section procedures */}
+          <CardList
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Procedimientos</div>}
+            dataList={dataHistory?.personal?.procedures ?? []}
+            inputTypeWith="date"
+            typeCode='procedures'
+            url={urls.procedures}
+            patientId={patientId}
+            organizationId={organizationId}
+            handlerSaveLoading={handlerSaveLoading}
+            darkMode={true}
+          />
+          {/* Section Others */}
+          <CardList
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
+            dataList={[]}
+            inputTypeWith="date"
+            typeCode='others_personal'
+            darkMode={true}
+          />
+          {/* Section Gynecology */}
+          <TableGynecology
+            gynecology={[]}
+            typeCode='gynecology'
+            darkMode={true}
+          />
+        </div>
+        {/* Familiar */}
+        <div className='flex flex-col items-center w-full gap-3 pb-5'>
+          <div className='flex flex-row flew-no-wrap w-full'>
+            <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
+              <span className='flex flex-row gap-2 font-medium text-cool-gray-700 tracking-wide'>
+                <FamilyIcon fill={"#364152"} />
+                Familiar
+              </span>
+            </div>
+          </div>
+          <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
+            <CardList
+              TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
+              dataList={dataHistory?.family?.hereditary_diseases ?? []}
+              inputTypeWith='relationship'
+              typeCode='hereditary_diseases'
+              url={urls.familyHistory}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
+              darkMode={true}
+            />
+            <CardList
+              TitleElement={() =>
+                <div className='font-medium text-base text-orange-dark'>Otros</div>
+              }
+              dataList={[]}
+              inputTypeWith="relationship"
+              typeCode='others_family'
+              darkMode={true}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

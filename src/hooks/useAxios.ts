@@ -15,7 +15,11 @@ export function useAxiosFetch<T>(url: string, params: {}) {
     axios.get(url, {
       params: params,
     })
-      .then((res) => setData(res.data))
+      .then((res) => {
+        setData(res.data)
+        //reset
+        setError(null)
+      })
       .catch((error) => {
         setError(error)
         Sentry.setTags({
