@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
 import React, { useEffect, useState } from 'react'
 import { useAxiosFetch } from '../hooks/useAxios';
-import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants';
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants';
 import useWindowDimensions from '../util/useWindowDimensions';
 import ArrowBackIOS from './icons/ArrowBack-ios';
 import CardList from './medical-history/CardList';
@@ -321,7 +321,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
         <div className='overflow-y-auto scrollbar w-full'>
           <div className='flex flex-col w-full gap-2'
             style={{
-              height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + 148}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + 148}px)`}`
+              height: ` ${screenWidth >= WIDTH_XL ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + 148}px)` : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR + ORGANIZATION_BAR + 148}px)`}`
             }}>
             {/* Personal */}
             <div className='flex flex-col items-center w-full gap-3'>
