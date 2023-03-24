@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { usePrescriptionContext } from '../../contexts/Prescriptions/PrescriptionContext';
 import Layout from '../../components/Layout'
 import PatientSection from './PatientSection'
@@ -14,6 +14,8 @@ import { useToasts } from '../../components/Toast';
 import MedicalHistory from '../../components/MedicalHistory';
 import OrganizationBar from '../../components/OrganizationBar';
 import { HEIGHT_BAR_STATE_APPOINTMENT, ORGANIZATION_BAR } from '../../util/constants';
+import { AllOrganizationContext } from '../../contexts/Organizations/organizationsContext'
+import { getColorCode } from '../../util/helpers';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -32,6 +34,7 @@ export default function Dashboard() {
   //to manage the view of the medical history
   const [showMedicalHistory, setShowMedicalHistory] = useState(false)
 
+  const { Organizations } = useContext(AllOrganizationContext)
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
@@ -97,7 +100,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
-        {appointment && <OrganizationBar orgColor={`${appointment.organization.colorCode ?? '#27BEC2'}`} orgName={`${appointment.organization.name}`} />}
+        <div className='h-6'>{ Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }</div>
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
