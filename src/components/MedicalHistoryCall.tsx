@@ -252,22 +252,22 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             darkMode={true}
           />
           {/* Section Others */}
-          <CardList
+          {/* <CardList
             TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
             dataList={[]}
             inputTypeWith="date"
             typeCode='others_personal'
             darkMode={true}
-          />
+          /> */}
           {/* Section Gynecology */}
-          <TableGynecology
+          {gender === 'female' && <TableGynecology
             gynecologies={dataHistory?.personal?.gynecology ?? []}
             url={urls.gynecology}
             patientId={patientId}
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
-          />
+          />}
         </div>
         {/* Familiar */}
         <div className='flex flex-col items-center w-full gap-3 pb-5'>
@@ -291,7 +291,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
-            <CardList
+            {/* <CardList
               TitleElement={() =>
                 <div className='font-medium text-base text-orange-dark'>Otros</div>
               }
@@ -299,7 +299,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               inputTypeWith="relationship"
               typeCode='others_family'
               darkMode={true}
-            />
+            /> */}
           </div>
         </div>
       </div>

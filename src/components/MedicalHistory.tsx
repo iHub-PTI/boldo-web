@@ -389,12 +389,12 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               />
 
               {/* Section Others */}
-              <CardList
+              {/* <CardList
                 TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
                 dataList={dataHistory?.personal?.others ?? []}
                 inputTypeWith="date"
                 typeCode='others_personal'
-              />
+              /> */}
               {/* Section Gynecology */}
               {gender === 'female' &&
                 <TableGynecology
@@ -422,14 +422,14 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   organizationId={organizationId}
                   handlerSaveLoading={handlerSaveLoading}
                 />
-                <CardList
+                {/* <CardList
                   TitleElement={() =>
                     <div className='font-medium text-base text-primary-500'>Otros</div>
                   }
                   dataList={dataHistory?.family?.others ?? []}
                   inputTypeWith="relationship"
                   typeCode='others_family'
-                />
+                /> */}
               </div>
             </div>
           </div>
