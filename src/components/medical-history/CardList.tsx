@@ -77,7 +77,7 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
-      performedDate: moment(value.date).format("YYYY-MM-DD"),
+      ...(value.performedDate && { performedDate: moment(value.performedDate).format("YYYY-MM-DD") }),
       category: categoryCode,
       relationship: value.relationship
     }, addItemList)
@@ -135,7 +135,7 @@ const CardList: React.FC<Props> = ({
           <ItemList
             key={'card_list_' + i}
             description={data.description}
-            date={data.date}
+            performedDate={data.performedDate}
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}
