@@ -46,7 +46,7 @@ export function useAxiosFetch<T>(url: string, params: {}) {
         if (error.response?.status === 500) {
           addToast({ type: 'error', title: 'Lo siento, hubo un error interno del servidor al procesar su solicitud', text: error.message })
         } else {
-          addToast({ type: 'error', title: 'Lo siento, ocurrió un inesperado', text: error.message })
+          addToast({ type: 'error', title: 'Lo siento, ocurrió un error inesperado', text: error.message })
         }
       })
       .finally(() => setLoading(false));
