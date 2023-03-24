@@ -20,7 +20,7 @@ const InputTextHereditary: React.FC<Props> = ({ show, setShow, addInput, ...prop
 
 
     const handleClickAdd = () => {
-        if (disease.split(' ').every((value) => value === '')) return
+        if (disease.split(' ').every((value) => value === '') || relationShip.split(' ').every((value) => value === '')) return
         addInput({ description: disease, relationship: relationShip })
         setDisease("")
         setRelationShip("")
