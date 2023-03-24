@@ -163,7 +163,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
         </button>
       </div>
       {saveLoading ?
-        <div className='flex flex-col items-center justify-center' style={stylePanelSidebar}>
+        <div className='flex flex-col items-center justify-center py-2' style={stylePanelSidebar}>
           <div className='flex flex-row gap-1 items-center bg-transparent'>
             <h5
               className='font-medium text-sm text-white font-sans'
@@ -171,7 +171,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             <ProgressIcon className="animate-spin" />
           </div>
         </div> : saveLoading !== null ?
-          <div className='flex flex-col items-center justify-center' style={stylePanelSidebar}>
+          <div className='flex flex-col items-center justify-center py-2' style={stylePanelSidebar}>
             <div className='flex flex-row gap-1 bg-transparent'>
               <h5
                 className='font-medium text-sm text-white font-sans items-center'
