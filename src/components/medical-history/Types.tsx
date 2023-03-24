@@ -1,4 +1,4 @@
-export type InputValue = {id?: string, description: string, performedDate?: Date, relationship?: string }
+export type InputValue = { id?: string, description: string, performedDate?: Date, relationship?: string }
 
 export type DataList = Array<InputValue>
 
@@ -10,7 +10,7 @@ export type Allergy = {
 export type Pathology = {
   id?: string,
   description: string
-  category: "CDP" | "RPT" | "DGT" 
+  category: "CDP" | "RPT" | "DGT"
 }
 
 export type Procedure = {
@@ -26,16 +26,13 @@ export type Others = {
   relationship?: string
 }
 
-export type Gynecology = {
-  gestations_number: number,
-  births_number: number,
-  cesarean_number: number,
-  abortions_number: number,
-  menarche_age: number,
-  last_menstruation: number,
+export type GynecologyType = {
+  code: 'CBG' | 'CBH' | 'CSN' | 'MCE' | 'MRE' | 'LMT'
+  id?: string,
+  value: number
 }
 
-export type HereditaryDiseas ={
+export type HereditaryDiseas = {
   id?: string
   description: string,
   relationship?: string,
@@ -46,7 +43,7 @@ export type Personal = {
   pathologies: Pathology[]
   procedures: Procedure[],
   others: Others[],
-  gynecology: Gynecology,
+  gynecology: GynecologyType[],
 }
 
 export type Family = {
@@ -54,7 +51,7 @@ export type Family = {
   others: Others[],
 }
 
-export type MedicalHistoryType ={
+export type MedicalHistoryType = {
   personal: Personal,
   family: Family,
 }

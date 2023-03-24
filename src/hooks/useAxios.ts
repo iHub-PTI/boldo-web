@@ -65,7 +65,7 @@ export function useAxiosPost(url: string) {
     setLoading(true)
     axios.post(url, body)
       .then((res) => {
-        sendDataSuccess(res.data)
+        if (sendDataSuccess) sendDataSuccess(res.data)
       }
       )
       .catch((error) => {
@@ -113,7 +113,7 @@ export function useAxiosDelete(url: string) {
     setLoading(true)
     axios.delete(url + "/" + id)
       .then((res) => {
-        deleteSuccessData(res.data)
+        if (deleteSuccessData) deleteSuccessData(res.data)
       }
       )
       .catch((error) => {

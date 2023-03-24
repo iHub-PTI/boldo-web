@@ -19,7 +19,8 @@ const urls = {
   allergies: '/profile/doctor/allergyIntolerance',
   pathology: '/profile/doctor/condition',
   procedures: '/profile/doctor/procedure',
-  familyHistory: '/profile/doctor/familyMemberHistory'
+  familyHistory: '/profile/doctor/familyMemberHistory',
+  gynecology: '/profile/doctor/observation'
 }
 
 /* export type ActionType =
@@ -48,14 +49,7 @@ const initialState: MedicalHistoryType = {
     "pathologies": [],
     "procedures": [],
     "others": [],
-    "gynecology": {
-      "gestations_number": 0,
-      "births_number": 0,
-      "cesarean_number": 0,
-      "abortions_number": 0,
-      "menarche_age": 0,
-      "last_menstruation": 0
-    }
+    "gynecology": []
   },
   "family": {
     "hereditary_diseases": [],
@@ -404,8 +398,11 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               {/* Section Gynecology */}
               {gender === 'female' &&
                 <TableGynecology
-                  gynecology={dataHistory?.personal?.gynecology ?? {}}
-                  typeCode='gynecology'
+                  gynecologies={dataHistory?.personal?.gynecology ?? []}
+                  url={urls.gynecology}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
                 />
               }
             </div>

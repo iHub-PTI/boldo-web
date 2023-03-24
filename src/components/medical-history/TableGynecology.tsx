@@ -1,42 +1,43 @@
 import { Transition } from '@headlessui/react'
-import React, { ChangeEvent, Dispatch, useEffect, useState } from 'react'
+import _ from 'lodash'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useAxiosPost } from '../../hooks/useAxios'
 import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 import PencilEditIcon from '../icons/PencilEditIcon'
-import { Gynecology } from "./Types";
+import { GynecologyType } from "./Types";
 
 const titlesTypesGynecology = [
-  { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'gestations_number' },
-  { title: 'Partos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'births_number' },
-  { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'cesarean_number' },
-  { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'abortions_number' },
-  { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años', typeCode: 'menarche_age' },
-  { title: 'Ultima menstruación', beforeTitle: '', type: 'number', typeCode: 'last_menstruation' }
+  { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'CBG' },
+  { title: 'Partos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'CBH' },
+  { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'CSN' },
+  { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'MCE' },
+  { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años', typeCode: 'MRE' },
+  { title: 'Ultima menstruación', beforeTitle: '', type: 'number', typeCode: 'LMT' }
 ]
 
 type AddCloseProps = {
   show: boolean,
-  setshow: (value: boolean) => void,
-  typeCode: string,
-  //dispatch: Dispatch<any>,
-  gynecology: Gynecology
+  setShow: (value: boolean) => void,
+  gynecologies: GynecologyType[]
 }
 
-const AddClose = ({ show, setShow, typeCode, gynecology, ...props }) => {
+const AddClose: React.FC<AddCloseProps> = ({ show, setShow, gynecologies, ...props }) => {
+
 
   const handClickClose = () => {
     setShow(false)
   }
 
-  const handleClickAdd = () => {
-    //to add something it must be greater than 0
-    if (Object.values(gynecology).every((value: number) => value === 0)) {
-      setShow(false)
-      return
-    }
-    //dispatch({ type: typeCode, value: gynecology })
-    setShow(false)
-  }
+  // const handleClickAdd = () => {
+  //   //to add something it must be greater than 0
+  //   if (Object.values(gynecologies).every((g) => g.value === 0)) {
+  //     setShow(false)
+  //     return
+  //   }
+
+  //   setShow(false)
+  // }
 
   return (
     <Transition
@@ -49,24 +50,66 @@ const AddClose = ({ show, setShow, typeCode, gynecology, ...props }) => {
       leaveTo="opacity-0"
     >
       <div className='flex flex-row flex-no-wrap gap-3 items-center absolute' {...props}
-        style={{ left: '-2rem' }}
+        //style={{ left: '-2rem' }}
       >
         <button className='focus:outline-none' onClick={() => handClickClose()}>
           <CloseCrossIcon />
         </button>
-        <button className='focus:outline-none' onClick={() => handleClickAdd()}>
+        {/* <button className='focus:outline-none' onClick={() => handleClickAdd()}>
           <CheckIcon active={true} />
-        </button>
+        </button> */}
       </div>
     </Transition>
   )
 }
 
-const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', tag = '', typeCode, gynecology, setGynecology }) => {
+const RowTable = ({
+  beforeTitle,
+  title,
+  isDisabled,
+  placeholder = 'Sin datos',
+  //tag = '',
+  typeCode,
+  gynecologies,
+  setGynecology,
+  url,
+  patientId,
+  organizationId,
+  handlerSaveLoading
+}) => {
 
+  const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
+
+  useEffect(() => {
+    if (errorPost) return
+    if (loadPost !== null) handlerSaveLoading(loadPost)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPost])
+
+
+  const debounceSendData = useCallback(
+    _.debounce((
+      patientId,
+      organizationId,
+      code,
+      value
+    ) => {
+      sendData({
+        patientId,
+        organizationId,
+        code,
+        value
+      })
+    }, 1000)
+    , [])
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setGynecology({ ...gynecology, [event.target.name]: parseInt(event.target.value) })
+    debounceSendData(
+      patientId,
+      organizationId,
+      event.target.name,
+      event.target.value,
+    )
   }
 
   return (
@@ -77,11 +120,12 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
       </div>
       <div className='flex flex-row flex-no-wrap w-6/12 h-7 bg-white rounded-md'>
         <input className='text-center text-sm focus:outline-none bg-transparent disabled:bg-transparent w-full rounded-md'
+          id={gynecologies.find(x => x.code === typeCode)?.id}
           type="number"
           min="0"
           step="1"
           name={typeCode}
-          value={gynecology[typeCode]}
+          defaultValue={gynecologies.find(x => x.code === typeCode)?.value}
           placeholder={placeholder}
           disabled={isDisabled}
           onFocus={(event) => event.target.placeholder = ''}
@@ -94,18 +138,24 @@ const RowTable = ({ beforeTitle, title, isDisabled, placeholder = 'Sin datos', t
 }
 
 type Props = {
-  gynecology: Gynecology,
-  typeCode: string,
-  //dispacth: Dispatch<any>
+  gynecologies: GynecologyType[],
+  url?: string
+  patientId: string,
+  organizationId: string,
+  handlerSaveLoading?: (value: boolean | null) => void
 }
 
-const TableGynecology = ({ gynecology, typeCode }) => {
+const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organizationId, handlerSaveLoading}) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
   const background = hover ? 'rgba(247, 244, 244, 0.6)' : ''
 
-  const [gynecologyState, setGynecology] = useState<Gynecology>(gynecology)
+  const [gynecologyState, setGynecology] = useState<GynecologyType[]>(gynecologies)
+
+  useEffect(() => {
+    console.log(gynecologyState)
+  }, [gynecologyState])
 
   const handleClickEdit = () => {
     setShowEdit(!showEdit)
@@ -131,9 +181,7 @@ const TableGynecology = ({ gynecology, typeCode }) => {
           <AddClose
             show={showEdit}
             setShow={setShowEdit}
-            typeCode={typeCode}
-            //dispatch={dispatch}
-            gynecology={gynecologyState}
+            gynecologies={gynecologyState}
           />
         </div>
       </div>
@@ -145,8 +193,12 @@ const TableGynecology = ({ gynecology, typeCode }) => {
             title={row.title}
             isDisabled={!showEdit}
             typeCode={row.typeCode}
-            gynecology={gynecologyState}
+            gynecologies={gynecologyState}
             setGynecology={setGynecology}
+            url={url}
+            patientId={patientId}
+            organizationId={organizationId}
+            handlerSaveLoading={handlerSaveLoading}
           />
         )}
       </div>
