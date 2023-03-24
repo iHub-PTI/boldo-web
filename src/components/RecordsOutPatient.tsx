@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import ArrowBackIOS from '../components/icons/ArrowBack-ios'
 import SearchIcon from './icons/SearchIcon'
-import { Disclosure, Popover } from '@headlessui/react'
+import { Disclosure, Popover, Transition } from '@headlessui/react'
 import ArrowDown from './icons/ArrowDown'
 import NoProfilePicture from './icons/NoProfilePicture'
 import FilterListIcon from './icons/filter-icons/FilterListIcon'
@@ -267,101 +267,111 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     )
 
   return (
-    <div className='flex flex-col px-5 pt-5 w-full'>
-      {/* Head */}
-      <button
-        className='flex flex-row items-center mb-2 h-11 max-w-max-content focus:outline-none'
-        onClick={() => {
-          setShow(false)
-        }}
-      >
-        <ArrowBackIOS className='mr-3' /> <span className='text-primary-500'>regresar a consulta actual</span>
-      </button>
+    <Transition
+      show={show}
+      enter="transition-opacity ease-linear duration-300"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition-opacity ease-linear"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <div className='flex flex-col px-5 pt-5 w-full'>
+        {/* Head */}
+        <button
+          className='flex flex-row items-center mb-2 h-11 max-w-max-content focus:outline-none'
+          onClick={() => {
+            setShow(false)
+          }}
+        >
+          <ArrowBackIOS className='mr-3' /> <span className='text-primary-500'>regresar a consulta actual</span>
+        </button>
 
-      {/* title outpatientRecord */}
-      <div className='flex justify-start h-auto mb-1'>
-        <div className='text-black font-bold text-2xl'>
-          Registro de consultas ambulatorias
-          <div className='text-cool-gray-400 font-normal text-xl'>
-            Anotaciones, recetas y órdenes de estudios anteriores
+        {/* title outpatientRecord */}
+        <div className='flex justify-start h-auto mb-1'>
+          <div className='text-black font-bold text-2xl'>
+            Registro de consultas ambulatorias
+            <div className='text-cool-gray-400 font-normal text-xl'>
+              Anotaciones, recetas y órdenes de estudios anteriores
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className='flex flex-row gap-2 items-center'>
-        {/* input search */}
-        <div className='w-64 h-auto relative bg-cool-gray-50 rounded-lg mb-5 mt-5'>
-          <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-            <SearchIcon className='w-5 h-5' />
+        <div className='flex flex-row gap-2 items-center'>
+          {/* input search */}
+          <div className='w-64 h-auto relative bg-cool-gray-50 rounded-lg mb-5 mt-5'>
+            <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+              <SearchIcon className='w-5 h-5' />
+            </div>
+            <input
+              className='p-3 pl-10 w-full outline-none hover:bg-cool-gray-100 transition-colors delay-200 rounded-lg'
+              type='search'
+              name='search'
+              placeholder='Motivo principal de la visita'
+              title='Escriba el motivo principal de la visita'
+              autoComplete='off'
+              value={inputContent}
+              onChange={e => {
+                setInputContent(e.target.value)
+                debounce(e.target.value.trim())
+              }}
+            />
           </div>
-          <input
-            className='p-3 pl-10 w-full outline-none hover:bg-cool-gray-100 transition-colors delay-200 rounded-lg'
-            type='search'
-            name='search'
-            placeholder='Motivo principal de la visita'
-            title='Escriba el motivo principal de la visita'
-            autoComplete='off'
-            value={inputContent}
-            onChange={e => {
-              setInputContent(e.target.value)
-              debounce(e.target.value.trim())
-            }}
+          <QueryFilter
+            currentDoctor={doctor}
+            setFilterAuthor={setFilterDoctor}
+            setOrder={setFilterOrder}
+            getApiCall={getRecordsPatient}
+            inputContent={inputContent}
+            countPage={countPage}
           />
         </div>
-        <QueryFilter
-          currentDoctor={doctor}
-          setFilterAuthor={setFilterDoctor}
-          setOrder={setFilterOrder}
-          getApiCall={getRecordsPatient}
-          inputContent={inputContent}
-          countPage={countPage}
-        />
-      </div>
 
-      {/* body */}
-      <div className='flex flex-row w-full overflow-x-auto justify-center gap-3 relative overflow-y-hidden' style={{ minWidth: '600px' }}>
-        <div
-          className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${loading && 'justify-center items-center w-full'
-            }`}
-          style={{ height: 'calc(100vh - 380px)' }}
-          ref={scrollEvent}
-          onScroll={() => onScrollEnd()}
-        >
-          {loading && <SpinnerLoading />}
-          {!loading &&
-            recordsPatient.map((record, index) => (
-              <PatientRecord
-                key={index}
-                patientRecord={record}
-                getRecordPatientDetail={getRecordPatientDetail}
-                selected={activeID === record.encounterDto.id}
-                onActiveID={setActiveID}
-              />
-            ))}
+        {/* body */}
+        <div className='flex flex-row w-full overflow-x-auto justify-center gap-3 relative overflow-y-hidden' style={{ minWidth: '600px' }}>
+          <div
+            className={`flex flex-col min-w-min-content overflow-x-hidden mx-1 scrollbar ${loading && 'justify-center items-center w-full'
+              }`}
+            style={{ height: 'calc(100vh - 380px)' }}
+            ref={scrollEvent}
+            onScroll={() => onScrollEnd()}
+          >
+            {loading && <SpinnerLoading />}
+            {!loading &&
+              recordsPatient.map((record, index) => (
+                <PatientRecord
+                  key={index}
+                  patientRecord={record}
+                  getRecordPatientDetail={getRecordPatientDetail}
+                  selected={activeID === record.encounterDto.id}
+                  onActiveID={setActiveID}
+                />
+              ))}
+          </div>
+          <div
+            className={`flex flex-col w-full overflow-y-auto scrollbar ${loadingDetail && 'items-center justify-center'}`}
+            style={{ height: 'calc(100vh - 380px)' }}
+          >
+            {detailRecordPatient === null ? (
+              <div className='h-full w-full flex items-center justify-center text-gray-200    font-bold text-3xl'>
+                {loadingDetail ? (
+                  <SpinnerLoading />
+                ) : !loading && totalRecordsPatient === 0 ? (
+                  'No se han encontrado registros'
+                ) : (
+                  'Seleccione un elemento para mostrar'
+                )}
+              </div>
+            ) : !loadingDetail ? (
+              <DescripcionRecordPatientDetail data={detailRecordPatient} />
+            ) : (
+              <SpinnerLoading />
+            )}
+          </div>
+          <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50 left-28`} src={loadGif} alt='loading gif' style={{ bottom: '-1rem' }} />
         </div>
-        <div
-          className={`flex flex-col w-full overflow-y-auto scrollbar ${loadingDetail && 'items-center justify-center'}`}
-          style={{ height: 'calc(100vh - 380px)' }}
-        >
-          {detailRecordPatient === null ? (
-            <div className='h-full w-full flex items-center justify-center text-gray-200    font-bold text-3xl'>
-              {loadingDetail ? (
-                <SpinnerLoading />
-              ) : !loading && totalRecordsPatient === 0 ? (
-                'No se han encontrado registros'
-              ) : (
-                'Seleccione un elemento para mostrar'
-              )}
-            </div>
-          ) : !loadingDetail ? (
-            <DescripcionRecordPatientDetail data={detailRecordPatient} />
-          ) : (
-            <SpinnerLoading />
-          )}
-        </div>
-        <img className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50 left-28`} src={loadGif} alt='loading gif' style={{ bottom: '-1rem' }} />
       </div>
-    </div>
+    </Transition>
   )
 }
 

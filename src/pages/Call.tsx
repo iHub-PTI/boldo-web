@@ -72,7 +72,7 @@ import useWindowDimensions from '../util/useWindowDimensions'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
 // import { getReports } from '../util/helpers'
 import * as Sentry from '@sentry/react'
-import RecordOutPatientCall from '../components/RecordOutPatientCall'
+import SidebarMenuCall from '../components/SidebarMenuCall'
 import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
 import SelectPrintOptions from '../components/SelectPrintOptions'
 import OrganizationBar from '../components/OrganizationBar'
@@ -375,7 +375,7 @@ const Gate = () => {
             }}
           /> */}
           <ChildButton
-            icon={<SelectPrintOptions virtual={true} {...appointment}/>}
+            icon={<SelectPrintOptions virtual={true} {...appointment} />}
             size={50}
           />
           <ChildButton
@@ -449,10 +449,11 @@ const Gate = () => {
         height: ` ${width >= WIDTH_XL
           ? `calc(100vh - ${ORGANIZATION_BAR}px)`
           : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-        }`
+          }`
       }}>
-        <div className='h-6'>{ Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }</div>
-        <RecordOutPatientCall appointment={appointment}>
+        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
+
+        <SidebarMenuCall appointment={appointment}>
           {instance === 0 ? (
             <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
               <div className='flex h-full items-center w-8/12'>
@@ -492,7 +493,7 @@ const Gate = () => {
               callStatus={callStatus}
             />
           )}
-        </RecordOutPatientCall>
+        </SidebarMenuCall>
       </div>
     </Layout>
   )
@@ -617,9 +618,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               }
             }}
           /> */}
-          <ChildButton 
+          <ChildButton
             icon={
-              <SelectPrintOptions virtual={true} {...appointment}/>
+              <SelectPrintOptions virtual={true} {...appointment} />
             }
             size={50}
           />
@@ -707,7 +708,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         height: ` ${width >= WIDTH_XL
           ? `calc(100vh - ${ORGANIZATION_BAR}px)`
           : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-        }`,
+          }`,
         marginLeft: '88px'
       }}
     >
@@ -1657,26 +1658,26 @@ function SOEP({ appointment }: { appointment: any }) {
           'method': 'PUT',
           'appointment_id': id
         })
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
-      }
-      Sentry.captureMessage("Could not update the encounter")
-      Sentry.captureException(err)
-      addToast({
-        type: 'error',
-        title: 'Ha ocurrido un error.',
-        text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
-      })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+        })
       }
     }, 1000),
     []

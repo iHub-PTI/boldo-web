@@ -222,3 +222,29 @@ export function changeHours(date: Date, hours: number, operation: 'subtract' | '
   }
   return date.toISOString()
 }
+
+/**
+ * Function to merge objects deeply
+ * @param source1 
+ * @param source2 
+ * @returns returns the new merged object
+ */
+
+export function mergeJSON(source1, source2) {
+  let result = {};
+  for (let key in source1) {
+    if (source1.hasOwnProperty(key)) {
+      result[key] = source1[key];
+    }
+  }
+  for (let key in source2) {
+    if (source2.hasOwnProperty(key)) {
+      if (typeof source2[key] === "object" && !Array.isArray(source2[key])) {
+        result[key] = mergeJSON(result[key], source2[key]);
+      } else {
+        result[key] = source2[key];
+      }
+    }
+  }
+  return result;
+}
