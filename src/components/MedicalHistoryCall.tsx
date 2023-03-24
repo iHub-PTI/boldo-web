@@ -19,14 +19,7 @@ export const initialState: MedicalHistoryType = {
     "pathologies": [],
     "procedures": [],
     "others": [],
-    "gynecology": {
-      "gestations_number": 0,
-      "births_number": 0,
-      "cesarean_number": 0,
-      "abortions_number": 0,
-      "menarche_age": 0,
-      "last_menstruation": 0
-    }
+    "gynecology": []
   },
   "family": {
     "hereditary_diseases": [],
@@ -268,8 +261,11 @@ export const MedicalHistoryCall: React.FC<Props> = ({
           />
           {/* Section Gynecology */}
           <TableGynecology
-            gynecology={[]}
-            typeCode='gynecology'
+            gynecologies={dataHistory?.personal?.gynecology ?? []}
+            url={urls.gynecology}
+            patientId={patientId}
+            organizationId={organizationId}
+            handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
           />
         </div>
