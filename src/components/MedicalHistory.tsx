@@ -174,15 +174,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
-  useEffect(() => {
-    //update data medical history on exit
-    if (!show) {
-      reload()
-      setSaveLoading(null)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show])
-
   if (loading) return (
     <Transition
       show={show}
@@ -301,6 +292,8 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
               onClick={() => {
                 setShow(false)
+                reload()
+                setSaveLoading(null)
               }}
             >
               <ArrowBackIOS className='mr-3' /> <span className='text-primary-500'>regresar a consulta actual</span>
