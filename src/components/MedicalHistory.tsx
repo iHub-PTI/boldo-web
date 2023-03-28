@@ -386,6 +386,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 patientId={patientId}
                 organizationId={organizationId}
                 handlerSaveLoading={handlerSaveLoading}
+                logicalDelete={true}
               />
 
               {/* Section Others */}
