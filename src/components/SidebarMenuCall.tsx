@@ -35,6 +35,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
     setTransition(!transition)
   }
 
+  // this function simulate click on disclosure 
   const handleClickDisclosure = () => {
     disclosureRef.current.click()
   }
@@ -46,6 +47,8 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   const handleSidebarHoverOff = () => {
     if (recordOutPatientButton) return
     if (medicalHistoryButton) return
+    // call this function only transition is active
+    if (transition) handleClickDisclosure()
     setHoverSidebar(false)
   }
 
@@ -89,10 +92,10 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
           <Disclosure>
             {({ open }) => (
               <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ?'translate-y-12':''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
-                <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }} onClick={handleTransition} >
+                <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }} onClick={handleTransition} ref={disclosureRef} >
                   <div className='flex flex-row flex-no-wrap justify-center items-center text-xl text-cool-gray-700 font-semibold truncate'>
-                    <span className='truncate'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}{appointment.patient.birthDate && ', '} {differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || ''}</span>
-                    <ArrowDown className={`${open ? 'rotate-180 transform' : ''}`} />
+                    <span className='overflow-hidden'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}{appointment.patient.birthDate && ', '} {differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || ''}</span>
+                    <ArrowDown className={` w-6 ${open ? 'rotate-180 transform' : ''}`} />
                   </div>
                   <span className='font-semibold text-base' style={{ color: '#ABAFB6' }}>{appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
                     ? 'Paciente sin cédula'
