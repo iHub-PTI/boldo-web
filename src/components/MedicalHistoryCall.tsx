@@ -249,6 +249,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             patientId={patientId}
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
+            logicalDelete={true}
             darkMode={true}
           />
           {/* Section Others */}
