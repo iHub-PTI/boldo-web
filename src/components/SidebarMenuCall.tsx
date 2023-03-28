@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Disclosure } from '@headlessui/react'
+import { Disclosure, Transition } from '@headlessui/react'
 import { toUpperLowerCase } from '../util/helpers';
 import ArrowDown from './icons/ArrowDown';
 import differenceInYears from 'date-fns/differenceInYears';
@@ -24,8 +24,21 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
   const [medicalHistoryButton, setMedicalHistoryButton] = useState(false)
-
+  // this control the dropdown animations
+  const [transition, setTransition] = useState<boolean>(false)
   const [hoverSidebar, setHoverSidebar] = useState(false)
+  const disclosureRef = useRef<HTMLButtonElement>(null)
+
+
+  // this function control the transition value
+  const handleTransition = () => {
+    setTransition(!transition)
+  }
+
+  // this function simulate click on disclosure 
+  const handleClickDisclosure = () => {
+    disclosureRef.current.click()
+  }
 
   const handleSidebarHoverOn = () => {
     setHoverSidebar(true)
@@ -34,6 +47,8 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   const handleSidebarHoverOff = () => {
     if (recordOutPatientButton) return
     if (medicalHistoryButton) return
+    // call this function only transition is active
+    if (transition) handleClickDisclosure()
     setHoverSidebar(false)
   }
 
@@ -70,44 +85,53 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
         >
           <div className='flex flex-col w-full flex-no-wrap mt-10 items-center'>
             {appointment.patient.photoUrl ? <img src={appointment.patient.photoUrl} alt='Foto de Perfil'
-              className='border-1 border-white rounded-full w-15 h-15 object-cover' /> :
-              <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15' />
+              className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${transition && hoverSidebar ?'scale-150':'100'}`} /> :
+              <NoProfilePicture className={`bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15 transform origin-top duration-500 ${transition ?'scale-150':'100'}`} />
             }
           </div>
           <Disclosure>
             {({ open }) => (
-              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start bg-white rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
-                <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }}>
-                  <div className='flex flex-row flex-no-wrap justify-center text-xl text-cool-gray-700 font-semibold truncate'>
-                    <span className='truncate'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}</span>
-                    <ArrowDown className={`${open ? 'rotate-180 transform' : ''}`} />
+              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ?'translate-y-12':''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
+                <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }} onClick={handleTransition} ref={disclosureRef} >
+                  <div className='flex flex-row flex-no-wrap justify-center items-center text-xl text-cool-gray-700 font-semibold truncate'>
+                    <span className='overflow-hidden'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}{appointment.patient.birthDate && ', '} {differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || ''}</span>
+                    <ArrowDown className={` w-6 ${open ? 'rotate-180 transform' : ''}`} />
                   </div>
                   <span className='font-semibold text-base' style={{ color: '#ABAFB6' }}>{appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
                     ? 'Paciente sin cédula'
                     : 'CI ' + appointment.patient.identifier}</span>
                 </Disclosure.Button>
-                <Disclosure.Panel className="focus:outline-none ">
-                  <div className='flex flex-col'>
-                    <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Edad</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || '-'}</span>
-                  </div>
-                  <div className='flex flex-col'>
-                    <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Profesion</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.job || '-'}</span>
-                  </div>
-                  <div className='flex flex-col'>
-                    <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Teléfono</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.phone || '-'}</span>
-                  </div>
-                  <div className='flex flex-col'>
-                    <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Ciudad</span>
-                    <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.city || '-'}</span>
-                  </div>
-                </Disclosure.Panel>
+                <Transition
+                  enter="transition-all duration-500 transform origin-top ease-linear"
+                  enterFrom="opacity-0 scale-y-0"
+                  enterTo="opacity-100 scale-y-100"
+                  leave="transition-all duration-500 transform origin-top ease-linear"
+                  leaveFrom="opacity-100 scale-y-100"
+                  leaveTo="opacity-0 scale-y-0"
+                >
+                  <Disclosure.Panel className="focus:outline-none ">
+                    <div className='flex flex-col'>
+                      <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Edad</span>
+                      <span className='text-lg font-semibold text-cool-gray-700'>{differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || '-'}</span>
+                    </div>
+                    <div className='flex flex-col'>
+                      <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Profesion</span>
+                      <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.job || '-'}</span>
+                    </div>
+                    <div className='flex flex-col'>
+                      <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Teléfono</span>
+                      <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.phone || '-'}</span>
+                    </div>
+                    <div className='flex flex-col'>
+                      <span className='text-base font-normal' style={{ color: '#ABAFB6' }}>Ciudad</span>
+                      <span className='text-lg font-semibold text-cool-gray-700'>{appointment.patient.city || '-'}</span>
+                    </div>
+                  </Disclosure.Panel>
+                </Transition>
               </div>
             )}
           </Disclosure>
-          <div className='flex flex-col flex-no-wrap justify-center items-center '>
+          <div className={`flex flex-col flex-no-wrap justify-center items-center transform ease-linear duration-500 ${transition ?'translate-y-12':''}`}>
             <button className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} onClick={() => onClickOutPatientRecord()}>
               <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
               <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
