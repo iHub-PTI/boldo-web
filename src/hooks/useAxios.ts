@@ -155,3 +155,47 @@ export function useAxiosDelete(url: string) {
 
   return { loading, error, deleteData };
 }
+
+export function useAxiosPut(url: string) {
+  const { addToast } = useToasts();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+
+  const updateData = <T>(id: string, data?: {}, successCallback?: (value: T) => void) => {
+    setLoading(true);
+    axios
+      .put(`${url}/${id}`, data)
+      .then((res) => {
+        if (successCallback) successCallback(res.data);
+      })
+      .catch((error) => {
+        setError(error);
+        Sentry.setTags({
+          endpoint: url,
+          method: 'PUT',
+          id_object_to_update: id,
+        });
+        if (error.response) {
+          Sentry.setTags({
+            data: error.response.data,
+            headers: error.response.headers,
+            status_code: error.response.status,
+          });
+        } else if (error.request) {
+          Sentry.setTag('request', error.request);
+        } else {
+          Sentry.setTag('message', error.message);
+        }
+        Sentry.captureException(error);
+
+        if (error.response?.status === 500) {
+          addToast({ type: 'error', title: 'Lo siento, hubo un error interno del servidor al procesar su solicitud', text: error.message });
+        } else {
+          addToast({ type: 'error', title: 'Lo siento, ocurrió un error inesperado', text: error.message });
+        }
+      })
+      .finally(() => setLoading(false));
+  };
+
+  return { loading, error, updateData };
+}
