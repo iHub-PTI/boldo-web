@@ -13,7 +13,7 @@ type Props = {
   TitleElement?: () => JSX.Element
   dataList: DataList
   inputTypeWith?: "date" | "relationship" | undefined
-  typeCode: string,
+  typeCode?: string,
   darkMode?: boolean
   url?: string
   categoryCode?: string
@@ -103,6 +103,7 @@ const CardList: React.FC<Props> = ({
       organizationId,
       description: value.description,
       ...(value.performedDate && { performedDate: moment(value.performedDate).format("YYYY-MM-DD") }),
+      type: typeCode,
       category: categoryCode,
       relationship: value.relationship
     }, addItemList)

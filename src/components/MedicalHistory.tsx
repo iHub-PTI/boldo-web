@@ -17,7 +17,7 @@ import CloudIcon from './icons/CloudIcon';
 export const urls = {
   getHistory: '/profile/doctor/history',
   allergies: '/profile/doctor/allergyIntolerance',
-  pathology: '/profile/doctor/condition',
+  condition: '/profile/doctor/condition',
   procedures: '/profile/doctor/procedure',
   familyHistory: '/profile/doctor/familyMemberHistory',
   gynecology: '/profile/doctor/observation'
@@ -345,9 +345,8 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   <CardList
                     title={'Cardiopatías'}
                     dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
-                    typeCode='cardiopathies'
                     categoryCode='CDP'
-                    url={urls.pathology}
+                    url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
@@ -355,9 +354,8 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   <CardList
                     title={'Respiratorias'}
                     dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
-                    typeCode='respiratory'
                     categoryCode='RPT'
-                    url={urls.pathology}
+                    url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
@@ -365,9 +363,8 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   <CardList
                     title={'Digestivas'}
                     dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
-                    typeCode='digestive'
                     categoryCode='DGT'
-                    url={urls.pathology}
+                    url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
@@ -381,7 +378,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
                 dataList={dataHistory?.personal?.procedures ?? []}
                 inputTypeWith="date"
-                typeCode='procedures'
                 url={urls.procedures}
                 patientId={patientId}
                 organizationId={organizationId}
@@ -390,12 +386,16 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               />
 
               {/* Section Others */}
-              {/* <CardList
+              <CardList
                 TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
-                dataList={dataHistory?.personal?.others ?? []}
+                dataList={dataHistory?.personal?.others}
                 inputTypeWith="date"
-                typeCode='others_personal'
-              /> */}
+                categoryCode='OTH'
+                url={urls.condition}
+                patientId={patientId}
+                organizationId={organizationId}
+                handlerSaveLoading={handlerSaveLoading}
+              />
               {/* Section Gynecology */}
               {gender === 'female' &&
                 <TableGynecology
@@ -415,22 +415,26 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
                 <CardList
                   TitleElement={() => <div className='font-medium text-base text-primary-500'>Enfermedades hereditarias</div>}
-                  dataList={dataHistory?.family?.hereditary_diseases ?? []}
+                  dataList={dataHistory?.family?.hereditary_diseases.filter(value => value.type === "HDS") ?? []}
                   inputTypeWith='relationship'
-                  typeCode='hereditary_diseases'
+                  typeCode='HDS'
                   url={urls.familyHistory}
                   patientId={patientId}
                   organizationId={organizationId}
                   handlerSaveLoading={handlerSaveLoading}
                 />
-                {/* <CardList
+                <CardList
                   TitleElement={() =>
                     <div className='font-medium text-base text-primary-500'>Otros</div>
                   }
-                  dataList={dataHistory?.family?.others ?? []}
+                  dataList={dataHistory?.family?.others}
                   inputTypeWith="relationship"
-                  typeCode='others_family'
-                /> */}
+                  typeCode='OTH'
+                  url={urls.familyHistory}
+                  patientId={patientId}
+                  organizationId={organizationId}
+                  handlerSaveLoading={handlerSaveLoading}
+                />
               </div>
             </div>
           </div>

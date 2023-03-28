@@ -10,7 +10,7 @@ export type Allergy = {
 export type Pathology = {
   id?: string,
   description: string
-  category: "CDP" | "RPT" | "DGT"
+  category: "CDP" | "RPT" | "DGT" | 'OTH'
 }
 
 export type Procedure = {
@@ -22,8 +22,10 @@ export type Procedure = {
 export type Others = {
   id?: string,
   description: string,
-  date?: Date,
-  relationship?: string
+  perfomedDate?: Date,
+  relationship?: string,
+  category?: string,
+  OnSetDate?: Date
 }
 
 export type GynecologyType = {
@@ -36,6 +38,8 @@ export type HereditaryDiseas = {
   id?: string
   description: string,
   relationship?: string,
+  type: 'HDS' | 'OTH',
+  OnSetDate?: Date 
 }
 
 export type Personal = {

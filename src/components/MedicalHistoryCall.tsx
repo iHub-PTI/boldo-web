@@ -208,7 +208,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "CDP") ?? []}
               typeCode='cardiopathies'
               categoryCode='CDP'
-              url={urls.pathology}
+              url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
@@ -219,7 +219,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "RPT") ?? []}
               typeCode='respiratory'
               categoryCode='RPT'
-              url={urls.pathology}
+              url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
@@ -230,7 +230,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               dataList={dataHistory?.personal?.pathologies?.filter(value => value.category === "DGT") ?? []}
               typeCode='digestive'
               categoryCode='DGT'
-              url={urls.pathology}
+              url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
@@ -253,13 +253,17 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             darkMode={true}
           />
           {/* Section Others */}
-          {/* <CardList
-            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
-            dataList={[]}
+          <CardList
+            TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
+            dataList={dataHistory?.personal?.others}
             inputTypeWith="date"
-            typeCode='others_personal'
+            categoryCode='OTH'
+            url={urls.condition}
+            patientId={patientId}
+            organizationId={organizationId}
+            handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
-          /> */}
+          />
           {/* Section Gynecology */}
           {gender === 'female' && <TableGynecology
             gynecologies={dataHistory?.personal?.gynecology ?? []}
@@ -292,15 +296,19 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
             />
-            {/* <CardList
+            <CardList
               TitleElement={() =>
-                <div className='font-medium text-base text-orange-dark'>Otros</div>
+                <div className='font-medium text-base text-primary-500'>Otros</div>
               }
-              dataList={[]}
+              dataList={dataHistory?.family?.others}
               inputTypeWith="relationship"
-              typeCode='others_family'
+              typeCode='OTH'
+              url={urls.familyHistory}
+              patientId={patientId}
+              organizationId={organizationId}
+              handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
-            /> */}
+            />
           </div>
         </div>
       </div>
