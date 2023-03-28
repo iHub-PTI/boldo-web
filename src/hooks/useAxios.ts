@@ -11,6 +11,7 @@ export function useAxiosFetch<T>(url: string, params: {}) {
 
   // to load the first time or to reload the data
   const reload = () => {
+    setError(null)
     setLoading(true)
     axios.get(url, {
       params: params,
@@ -66,6 +67,7 @@ export function useAxiosPost(url: string) {
   const [error, setError] = useState<AxiosError>(null);
 
   const sendData = <T>(body: {}, sendDataSuccess?: (value) => void) => {
+    setError(null)
     setLoading(true)
     axios.post(url, body)
       .then((res) => {
@@ -114,6 +116,7 @@ export function useAxiosDelete(url: string) {
   const [error, setError] = useState<AxiosError>(null);
 
   const deleteData = <T>(id: string, deleteSuccessData?: (value) => void) => {
+    setError(null)
     setLoading(true)
     axios.delete(url + "/" + id)
       .then((res) => {
@@ -162,6 +165,7 @@ export function useAxiosPut(url: string) {
   const [error, setError] = useState<AxiosError | null>(null);
 
   const updateData = <T>(id: string, data?: {}, successCallback?: (value: T) => void) => {
+    setError(null)
     setLoading(true);
     axios
       .put(`${url}/${id}`, data)
