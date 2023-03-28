@@ -77,7 +77,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
         >
           <div className='flex flex-col w-full flex-no-wrap mt-10 items-center'>
             {appointment.patient.photoUrl ? <img src={appointment.patient.photoUrl} alt='Foto de Perfil'
-              className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${transition ?'scale-150':'100'}`} /> :
+              className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${transition && hoverSidebar ?'scale-150':'100'}`} /> :
               <NoProfilePicture className={`bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15 transform origin-top duration-500 ${transition ?'scale-150':'100'}`} />
             }
           </div>
