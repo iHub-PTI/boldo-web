@@ -35,6 +35,10 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
     setTransition(!transition)
   }
 
+  const handleClickDisclosure = () => {
+    disclosureRef.current.click()
+  }
+
   const handleSidebarHoverOn = () => {
     setHoverSidebar(true)
   }
