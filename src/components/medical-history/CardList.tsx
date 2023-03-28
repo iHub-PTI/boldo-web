@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
+import { useAxiosDelete, useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import InputTextDate from './InputTextDate'
@@ -19,8 +19,31 @@ type Props = {
   categoryCode?: string
   patientId?: string
   organizationId?: string
+  logicalDelete?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
+
+/**
+ * CardList Component
+ *
+ * Displays a list of cards based on a data list.
+ *
+ * @param {string} title - The title of the card list.
+ * @param {React.ElementType} TitleElement - The element to use as the title of the card list.
+ * @param {Array} dataList - The list of data to display as cards.
+ * @param {string} inputTypeWith - The input type to use for the card list (optional). "date" | "relationship" | undefined
+ * @param {string} url - The URL to fetch the data list from.
+ * @param {string} typeCode - The code that corresponds to the type of section
+ * @param {boolean} darkMode - Whether to display the card list in dark mode (optional).
+ * @param {string} categoryCode - The category of data to display in the card list.
+ * @param {string} patientId - The ID of the patient to display data 
+ * @param {string} organizationId - The ID of the organization to display data
+ * @param {function} handlerSaveLoading - The function to handle saving/loading (optional).
+ * @param {boolean} logicalDelete - Whether to logically delete data (optional).
+ * @param {...any} props - Additional props to pass to the component.
+ *
+ * @returns {JSX.Element} - The CardList component.
+ */
 
 const CardList: React.FC<Props> = ({
   title = '',
@@ -34,6 +57,7 @@ const CardList: React.FC<Props> = ({
   patientId,
   organizationId,
   handlerSaveLoading,
+  logicalDelete = false,
   ...props
 }) => {
 
@@ -47,6 +71,7 @@ const CardList: React.FC<Props> = ({
 
   const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
   const { loading: loadDel, error: errorDel, deleteData } = useAxiosDelete(url)
+  const { loading: loadPut, error: errorPut, updateData } = useAxiosPut(url)
 
   const Empty = () => {
 
@@ -84,27 +109,35 @@ const CardList: React.FC<Props> = ({
   }
 
   const handleDeleteList = (id: string) => {
-    deleteData(id, removeItemList)
+    if (logicalDelete) {
+      updateData(id, undefined, removeItemList)
+    } else {
+      deleteData(id, removeItemList)
+    }
   }
 
   useEffect(() => {
-    if (errorPost) return
-    if (errorDel) return
+    if (errorPost || errorDel || errorPut) return
     if (loadDel !== null) handlerSaveLoading(loadDel)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadDel])
 
   useEffect(() => {
-    if (errorPost) return
-    if (errorDel) return
+    if (errorPost || errorDel || errorPut) return
     if (loadPost !== null) handlerSaveLoading(loadPost)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPost])
 
   useEffect(() => {
-    if (errorPost || errorDel) handlerSaveLoading(null)
+    if (errorPost || errorDel || errorPut) return
+    if (loadPut !== null) handlerSaveLoading(loadPut)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorPost, errorDel])
+  }, [loadPut])
+
+  useEffect(() => {
+    if (errorPost || errorDel || errorPut) handlerSaveLoading(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorPost, errorDel, errorPut])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'
@@ -119,7 +152,7 @@ const CardList: React.FC<Props> = ({
         {title && <div className={classTitle}>{title}</div>}
         {TitleElement && <TitleElement />}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
-          <AddCircleIcon fill={darkMode ? '#FFFFFF': '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
+          <AddCircleIcon fill={darkMode ? '#FFFFFF' : '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
