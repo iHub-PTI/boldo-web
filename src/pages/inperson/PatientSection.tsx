@@ -40,6 +40,7 @@ const ButtonSlide: React.FC<PropsButton> = ({ setShow, show, disabled, IconEleme
       }}
       //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
       disabled={disabled}
+      title={`${disabled ? 'No es posible visualizar los antecedentes en una cita que se encuentra cerrada' : title}`}
     >
       <div className={`pl-2 text-gray-500 flex flex-row justify-start gap-2  ${show && 'text-primary-600 font-semibold'}`}>
         <div>
@@ -64,6 +65,7 @@ const PatientRecord = (props) => {
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '', job } = props.patient;
   //const { addErrorToast, addToast } = useToasts()
   const [transition, setTransition] = useState<boolean>(false)
+  const { status } = props.appointment
 
 
   const handleTransition = () => {
@@ -78,15 +80,15 @@ const PatientRecord = (props) => {
   return (
     <div className='flex flex-col flex-1' style={{ padding: '15px' }}>
       <div className='flex flex-col w-auto flex-no-wrap mt-10 items-center'>
-        { photoUrl 
+        {photoUrl
           ? <img src={photoUrl} alt='Foto de Perfil'
-            className={`border-2 border-white rounded-full w-24 h-24 object-cover transform origin-top duration-500 ${transition ?'scale-150':'100'}`} /> 
-          : <NoProfilePicture className={`bg-gray-200 rounded-full border-2 w-24 h-24 transform origin-top duration-500 ${transition ?'scale-150':'100'}`} />
+            className={`border-2 border-white rounded-full w-24 h-24 object-cover transform origin-top duration-500 ${transition ? 'scale-150' : '100'}`} />
+          : <NoProfilePicture className={`bg-gray-200 rounded-full border-2 w-24 h-24 transform origin-top duration-500 ${transition ? 'scale-150' : '100'}`} />
         }
       </div>
       <Disclosure>
         {({ open }) => (
-          <div className={`w-auto opacity-100 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ?'translate-y-12':''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
+          <div className={`w-auto opacity-100 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ? 'translate-y-12' : ''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
             <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }} onClick={handleTransition}>
               <div className='flex flex-row flex-no-wrap justify-center items-center text-xl text-cool-gray-700 font-semibold truncate'>
                 <span className='truncate'> {toUpperLowerCase(givenName.split(' ')[0] + ' ' + familyName.split(' ')[0])}{birthDate && ', '} {differenceInYears(Date.now(), new Date(birthDate)) || ''}</span>
@@ -127,22 +129,26 @@ const PatientRecord = (props) => {
         )}
       </Disclosure>
 
-      <div className={`flex flex-col justify-center items-center gap-1 transform ease-linear duration-500 ${transition ?'translate-y-12':''}`}>
+      <div className={`flex flex-col justify-center items-center gap-1 transform ease-linear duration-500 ${transition ? 'translate-y-12' : ''}`}>
         <ButtonSlide
           show={props.showMedicalHistory}
           setShow={props.setShowMedicalHistory}
-          //disabled={props.disabledRedcordButton}
+          disabled={
+            (status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
           IconElement={() =>
             <PastIcon
               fill={`${props.showMedicalHistory ? '#13A5A9' : '#6B7280'}`}
             />}
-          title={"Antecedentes Clínicos"}
+          title={'Antecedentes Clínicos'}
           callBackSwitch={handleSwitchButtonMedicalHistory}
         />
         <ButtonSlide
           show={props.outpatientRecordShow}
           setShow={props.setOutpatientRecordShow}
-          //disabled={props.disabledRedcordButton}
+          disabled={
+            // (status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
           IconElement={() =>
             <UserCircle
               fill={`${props.outpatientRecordShow ? '#13A5A9' : '#6B7280'}`}

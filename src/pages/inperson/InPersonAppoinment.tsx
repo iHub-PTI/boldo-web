@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   //to manage the view of the ambulatory record
   const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
-  
+
   //to manage the view of the medical history
   const [showMedicalHistory, setShowMedicalHistory] = useState(false)
 
@@ -101,7 +101,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
-        <div className='h-6'>{ Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} /> }</div>
+        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
         </div>
@@ -150,7 +150,7 @@ export default function Dashboard() {
           <div
             className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
             ${outpatientRecordShow ?
-                'absolute inset-0 md:left-10/12 left-full opacity-25 cursor-default' :
+                'absolute inset-0 lg:left-10/12 md:left-full left-full opacity-25 cursor-default' :
                 showMedicalHistory ?
                   'absolute inset-0 xl:left-7/12 lg:left-8/12 md:left-9/12 left-full opacity-25 cursor-default' :
                   ''
