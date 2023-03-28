@@ -31,6 +31,7 @@ export default function Dashboard() {
 
   //to manage the view of the ambulatory record
   const [outpatientRecordShow, setOutpatientRecordShow] = useState(false)
+  
   //to manage the view of the medical history
   const [showMedicalHistory, setShowMedicalHistory] = useState(false)
 

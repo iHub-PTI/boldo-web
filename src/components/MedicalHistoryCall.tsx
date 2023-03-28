@@ -87,7 +87,6 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   useEffect(() => {
     if (medicalHistoryButton) return
     handleSidebarHoverOff()
-    reload()
     setSaveLoading(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicalHistoryButton])
