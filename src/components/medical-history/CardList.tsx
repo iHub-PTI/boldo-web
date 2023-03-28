@@ -57,7 +57,6 @@ const CardList: React.FC<Props> = ({
   patientId,
   organizationId,
   handlerSaveLoading,
-  logicalDelete = false,
   ...props
 }) => {
 
@@ -70,7 +69,6 @@ const CardList: React.FC<Props> = ({
   const [list, setList] = useState(dataList)
 
   const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
-  const { loading: loadDel, error: errorDel, deleteData } = useAxiosDelete(url)
   const { loading: loadPut, error: errorPut, updateData } = useAxiosPut(url)
 
   const Empty = () => {
@@ -110,35 +108,26 @@ const CardList: React.FC<Props> = ({
   }
 
   const handleDeleteList = (id: string) => {
-    if (logicalDelete) {
-      updateData(id, undefined, removeItemList)
-    } else {
-      deleteData(id, removeItemList)
-    }
+    updateData(id, undefined, removeItemList)
   }
 
-  useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
-    if (loadDel !== null) handlerSaveLoading(loadDel)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDel])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
+    if (errorPost || errorPut) return
     if (loadPost !== null) handlerSaveLoading(loadPost)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPost])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
+    if (errorPost || errorPut) return
     if (loadPut !== null) handlerSaveLoading(loadPut)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPut])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) handlerSaveLoading(null)
+    if (errorPost || errorPut) handlerSaveLoading(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorPost, errorDel, errorPut])
+  }, [errorPost, errorPut])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'

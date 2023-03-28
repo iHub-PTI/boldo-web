@@ -51,7 +51,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   const { gender } = appointment.patient
   const organizationId = appointment.organization.id
 
-  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, medicalHistoryButton)
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
@@ -249,7 +249,6 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             patientId={patientId}
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
-            logicalDelete={true}
             darkMode={true}
           />
           {/* Section Others */}

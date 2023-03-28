@@ -153,7 +153,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const organizationId = appointment.organization.id
   //const encounterId = appointment.id
 
-  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, show)
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
@@ -382,7 +382,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 patientId={patientId}
                 organizationId={organizationId}
                 handlerSaveLoading={handlerSaveLoading}
-                logicalDelete={true}
               />
 
               {/* Section Others */}
