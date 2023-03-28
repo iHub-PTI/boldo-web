@@ -27,6 +27,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   // this control the dropdown animations
   const [transition, setTransition] = useState<boolean>(false)
   const [hoverSidebar, setHoverSidebar] = useState(false)
+  const disclosureRef = useRef<HTMLButtonElement>(null)
 
 
   // this function control the transition value
