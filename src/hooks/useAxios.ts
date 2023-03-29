@@ -3,16 +3,22 @@ import { useState, useEffect } from "react";
 import * as Sentry from '@sentry/react'
 import { useToasts } from "../components/Toast"
 
-export function useAxiosFetch<T>(url: string, params: {}) {
+/**
+ * 
+ * @param url - The URL to fetch the data list from.
+ * @param params 
+ * @param dependencies - boolean dependency, that only if it is true the request will be made
+ * @returns 
+ */
+export function useAxiosFetch<T>(url: string, params: {}, dependency: boolean) {
   const { addToast } = useToasts()
   const [data, setData] = useState<T>(null);
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError>(null);
 
-  // to load the first time or to reload the data
-  const reload = () => {
-    setError(null)
+  const load = () => {
     setLoading(true)
+    setError(null)
     axios.get(url, {
       params: params,
     })
@@ -53,10 +59,18 @@ export function useAxiosFetch<T>(url: string, params: {}) {
       .finally(() => setLoading(false));
   }
 
+  // to load the first time or to reload the data
+  const reload = () => {
+    setError(null)
+    setLoading(true)
+    load()
+  }
+
   useEffect(() => {
-    reload();
+    if(dependency)
+      load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dependency]);
 
   return { data, loading, error, reload };
 }
@@ -161,7 +175,7 @@ export function useAxiosDelete(url: string) {
 
 export function useAxiosPut(url: string) {
   const { addToast } = useToasts();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(null);
   const [error, setError] = useState<AxiosError | null>(null);
 
   const updateData = <T>(id: string, data?: {}, successCallback?: (value: T) => void) => {

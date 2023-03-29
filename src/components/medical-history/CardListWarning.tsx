@@ -1,5 +1,5 @@
-import React, {useEffect, useState } from 'react'
-import { useAxiosDelete, useAxiosPost } from '../../hooks/useAxios'
+import React, { useEffect, useState } from 'react'
+import { useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import { WarningIcon } from '../icons/WarningIcon'
 import InputAddClose from './InputAddClose'
@@ -28,7 +28,7 @@ const CardListWarning: React.FC<Props> = ({
   const [showInput, setShowInput] = useState(false)
   const [list, setList] = useState<DataList>(dataList)
   const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
-  const { loading: loadDel, error: errorDel, deleteData } = useAxiosDelete(url)
+  const { loading: loadDel, error: errorDel, updateData } = useAxiosPut(url)
 
   const Empty = () => {
     if (list && list.length > 0) return null
@@ -76,7 +76,7 @@ const CardListWarning: React.FC<Props> = ({
   }
 
   const handleDeleteList = (id: string) => {
-    deleteData(id, removeItemList)
+    updateData(id, {}, removeItemList)
   }
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const CardListWarning: React.FC<Props> = ({
       <div className='flex flex-col w-full pr-5 pl-15'>
         <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
         {/* {loading && <div className='w-full text-center'>Guardando...</div>} */}
-        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} performedDate={data.performedDate} deleteItem={() => handleDeleteList(data.id)} />)}
+        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={null} deleteItem={() => handleDeleteList(data.id)} />)}
         <Empty />
       </div>
     </div>

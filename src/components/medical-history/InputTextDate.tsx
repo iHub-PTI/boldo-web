@@ -14,7 +14,7 @@ type Props = {
   show: boolean,
   setShow?: (value?: boolean) => void,
   placeholder?: string,
-  addInput: (value: { description: string, performedDate: Date }) => void,
+  addInput: (value: { description: string, date: Date }) => void,
 }
 
 const InputTextDate: React.FC<Props> = ({
@@ -30,7 +30,7 @@ const InputTextDate: React.FC<Props> = ({
 
   const handleClickAdd = () => {
     if (text.split(' ').every((value) => value === '')) return
-    addInput({ description: text, performedDate: valueDate })
+    addInput({ description: text, date: valueDate })
     setText("")
     setValueDate(undefined)
   }
@@ -90,12 +90,14 @@ const InputTextDate: React.FC<Props> = ({
           <div className='w-5/12'>
             <DatePicker
               className="focus:outline-none font-sans pr-1 z-50 w-28"
+              dateFormat="dd-MM-yyyy"
               locale="es"
               selected={valueDate}
               onChange={(date) => handleChangeDate(date)}
               showYearDropdown
               yearDropdownItemNumber={100}
               scrollableYearDropdown
+              maxDate={new Date()}
             />
           </div>
         </div>

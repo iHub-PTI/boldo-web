@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { useAxiosDelete, useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
+import { useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import InputTextDate from './InputTextDate'
@@ -57,7 +57,6 @@ const CardList: React.FC<Props> = ({
   patientId,
   organizationId,
   handlerSaveLoading,
-  logicalDelete = false,
   ...props
 }) => {
 
@@ -70,7 +69,6 @@ const CardList: React.FC<Props> = ({
   const [list, setList] = useState(dataList)
 
   const { loading: loadPost, error: errorPost, sendData } = useAxiosPost(url)
-  const { loading: loadDel, error: errorDel, deleteData } = useAxiosDelete(url)
   const { loading: loadPut, error: errorPut, updateData } = useAxiosPut(url)
 
   const Empty = () => {
@@ -102,7 +100,9 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
-      ...(value.performedDate && { performedDate: moment(value.performedDate).format("YYYY-MM-DD") }),
+      //can be performedDate or OnSetDate depending on the component and if it admits date
+      ...(value.date && inputTypeWith === 'date' && {performedDate: moment(value.date).format("YYYY-MM-DD")}),
+      ...(value.date && inputTypeWith === 'date' && {onSetDate: moment(value.date).format("YYYY-MM-DD")}),
       type: typeCode,
       category: categoryCode,
       relationship: value.relationship
@@ -110,35 +110,26 @@ const CardList: React.FC<Props> = ({
   }
 
   const handleDeleteList = (id: string) => {
-    if (logicalDelete) {
-      updateData(id, undefined, removeItemList)
-    } else {
-      deleteData(id, removeItemList)
-    }
+    updateData(id, undefined, removeItemList)
   }
 
-  useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
-    if (loadDel !== null) handlerSaveLoading(loadDel)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadDel])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
+    if (errorPost || errorPut) return
     if (loadPost !== null) handlerSaveLoading(loadPost)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPost])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) return
+    if (errorPost || errorPut) return
     if (loadPut !== null) handlerSaveLoading(loadPut)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPut])
 
   useEffect(() => {
-    if (errorPost || errorDel || errorPut) handlerSaveLoading(null)
+    if (errorPost || errorPut) handlerSaveLoading(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorPost, errorDel, errorPut])
+  }, [errorPost, errorPut])
 
   return (
     <div className='flex flex-col w-full rounded-lg pb-4 px-2 pt-2 group'
@@ -169,7 +160,7 @@ const CardList: React.FC<Props> = ({
           <ItemList
             key={'card_list_' + i}
             description={data.description}
-            performedDate={data.performedDate}
+            date={inputTypeWith === 'relationship' || inputTypeWith === undefined ? undefined : data.performedDate || data.onSetDate}
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}

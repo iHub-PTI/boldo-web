@@ -153,7 +153,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const organizationId = appointment.organization.id
   //const encounterId = appointment.id
 
-  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, show)
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
@@ -167,6 +167,10 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
     //console.log(data)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
+
+  useEffect(() => {
+    if (!show) handlerSaveLoading(null)
+  }, [show])
 
   if (loading) return (
     <Transition
@@ -286,8 +290,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               className='flex flex-row items-center h-11 max-w-max-content focus:outline-none'
               onClick={() => {
                 setShow(false)
-                reload()
-                setSaveLoading(null)
               }}
             >
               <ArrowBackIOS className='mr-3' /> <span className='text-primary-500'>regresar a consulta actual</span>
@@ -382,7 +384,6 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 patientId={patientId}
                 organizationId={organizationId}
                 handlerSaveLoading={handlerSaveLoading}
-                logicalDelete={true}
               />
 
               {/* Section Others */}
@@ -415,7 +416,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
               <div className='flex flex-col w-full pl-2 pr-1 gap-1 mt-5'>
                 <CardList
                   TitleElement={() => <div className='font-medium text-base text-primary-500'>Enfermedades hereditarias</div>}
-                  dataList={dataHistory?.family?.hereditary_diseases.filter(value => value.type === "HDS") ?? []}
+                  dataList={dataHistory?.family?.hereditary_diseases ?? []}
                   inputTypeWith='relationship'
                   typeCode='HDS'
                   url={urls.familyHistory}
