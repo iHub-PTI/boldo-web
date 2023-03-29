@@ -100,9 +100,9 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
-      //can be performedDate or OnSetDate depending on the component
-      performedDate: moment(value.date).format("YYYY-MM-DD"),
-      onSetDate: moment(value.date).format("YYYY-MM-DD"),
+      //can be performedDate or OnSetDate depending on the component and if it admits date
+      ...(value.date && inputTypeWith === 'date' && {performedDate: moment(value.date).format("YYYY-MM-DD")}),
+      ...(value.date && inputTypeWith === 'date' && {onSetDate: moment(value.date).format("YYYY-MM-DD")}),
       type: typeCode,
       category: categoryCode,
       relationship: value.relationship
@@ -160,7 +160,7 @@ const CardList: React.FC<Props> = ({
           <ItemList
             key={'card_list_' + i}
             description={data.description}
-            date={inputTypeWith === 'relationship' ? undefined : data.performedDate || data.onSetDate}
+            date={inputTypeWith === 'relationship' || inputTypeWith === undefined ? undefined : data.performedDate || data.onSetDate}
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}
