@@ -46,7 +46,7 @@ import { ReactComponent as TesaiSource } from "../assets/svg-sources-studies/tes
 import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/ventrix-source.svg"
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
-import Provider from "./studiesorder/Provider";
+// import Provider from "./studiesorder/Provider";
 import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import * as Sentry from '@sentry/react'
@@ -77,6 +77,7 @@ export function LaboratoryMenu(props) {
   // Encounter handler
   let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson/')
   const id = match?.params.id
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [emptySoep, setEmptySoep] = useState(false)
   const [encounter, setEncounter] = useState<Boldo.Encounter>(undefined)
 

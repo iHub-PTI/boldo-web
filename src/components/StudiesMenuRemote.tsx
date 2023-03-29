@@ -25,7 +25,7 @@ import { useToasts } from './Toast';
 import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
-import Provider from "./studiesorder/Provider";
+// import Provider from "./studiesorder/Provider";
 import * as Sentry from '@sentry/react'
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
@@ -1011,10 +1011,10 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     function studyOrderView() {
         return (
             <Provider>
-                <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
-                    {console.log("encounter => ", encounter)}
-                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true} encounter={encounter}></StudyOrder>
-                </div>
+            <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
+                {console.log("encounter => ", encounter)}
+                <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true} encounter={encounter}></StudyOrder>
+            </div>
             </Provider>
         )
     }
