@@ -19,6 +19,7 @@ import { PrescriptionContextProvider } from './contexts/Prescriptions/Prescripti
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import { changeHours } from './util/helpers'
+import Provider from './components/studiesorder/Provider'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
@@ -166,56 +167,58 @@ const App = () => {
       <UserContext.Provider value={{ user, updateUser }}>
         <SocketsProvider>
           <RoomsProvider>
-            <div className='antialiased App'>
-              <Switch>
-                <Route exact path='/'>
-                  <PrescriptionContextProvider>
-                    <Dashboard />
-                  </PrescriptionContextProvider>
+            <Provider>
+              <div className='antialiased App'>
+                <Switch>
+                  <Route exact path='/'>
+                    <PrescriptionContextProvider>
+                      <Dashboard />
+                    </PrescriptionContextProvider>
+                  </Route>
+
+                  <Route exact path='/settings'>
+                    <Settings />
+                  </Route>
+
+                  <Route exact path='/validate'>
+                    <ValidatePatient />
+                  </Route>
+
+                  <Route exact path='/appointments/:id/call'>
+                    <PrescriptionContextProvider>
+                      <Call />
+                    </PrescriptionContextProvider>
+                  </Route>
+
+                  <Route exact path='/appointments/:id/inperson'>
+                    <PrescriptionContextProvider>
+                      <InPersonAppoinment />
+                    </PrescriptionContextProvider>
+                  </Route>
+
+                  <Route exact path='/boldo-app-privacy-policy'>
+                    <PrivacyPolicy />
+                  </Route>
+
+                  <Route exact path='/download'>
+                    <Download />
+                  </Route>
+
+                  <Route>
+                    <Redirect to='/' />
+                  </Route>
+
+                  {/* <Route exact path='/settingsnew'>
+                  <SettingsNew />
                 </Route>
 
-                <Route exact path='/settings'>
-                  <Settings />
-                </Route>
+                <Route exact path='/home'>
+                  <Home />
+                </Route> */}
 
-                <Route exact path='/validate'>
-                  <ValidatePatient />
-                </Route>
-
-                <Route exact path='/appointments/:id/call'>
-                  <PrescriptionContextProvider>
-                    <Call />
-                  </PrescriptionContextProvider>
-                </Route>
-
-                <Route exact path='/appointments/:id/inperson'>
-                  <PrescriptionContextProvider>
-                    <InPersonAppoinment />
-                  </PrescriptionContextProvider>
-                </Route>
-
-                <Route exact path='/boldo-app-privacy-policy'>
-                  <PrivacyPolicy />
-                </Route>
-
-                <Route exact path='/download'>
-                  <Download />
-                </Route>
-
-                <Route>
-                  <Redirect to='/' />
-                </Route>
-
-                {/* <Route exact path='/settingsnew'>
-                <SettingsNew />
-              </Route>
-
-              <Route exact path='/home'>
-                <Home />
-              </Route> */}
-
-              </Switch>
-            </div>
+                </Switch>
+              </div>
+            </Provider>
           </RoomsProvider>
         </SocketsProvider>
       </UserContext.Provider>

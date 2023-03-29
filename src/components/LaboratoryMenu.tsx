@@ -366,17 +366,15 @@ export function LaboratoryMenu(props) {
               <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
             </svg>
           </button>
-          <Provider>
-            <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
-              height: ` ${width >= WIDTH_XL
-                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
-                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-                }`,
-              overflowY: "auto"
-            }}>
-              <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder>
-            </div>
-          </Provider>
+          <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
+            height: ` ${width >= WIDTH_XL
+                ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+                : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+              }`,
+            overflowY: "auto"
+          }}>
+            <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder>
+          </div>
         </div>
 
       </>
