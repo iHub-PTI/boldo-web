@@ -168,6 +168,10 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
+  useEffect(() => {
+    if (!show) handlerSaveLoading(null)
+  }, [show])
+
   if (loading) return (
     <Transition
       show={show}

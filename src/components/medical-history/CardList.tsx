@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { useAxiosDelete, useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
+import { useAxiosPost, useAxiosPut } from '../../hooks/useAxios'
 import AddCircleIcon from '../icons/AddCircleIcon'
 import InputAddClose from './InputAddClose'
 import InputTextDate from './InputTextDate'
@@ -100,7 +100,9 @@ const CardList: React.FC<Props> = ({
       patientId,
       organizationId,
       description: value.description,
-      ...(value.performedDate && { performedDate: moment(value.performedDate).format("YYYY-MM-DD") }),
+      //can be performedDate or OnSetDate depending on the component
+      performedDate: moment(value.date).format("YYYY-MM-DD"),
+      onSetDate: moment(value.date).format("YYYY-MM-DD"),
       type: typeCode,
       category: categoryCode,
       relationship: value.relationship
@@ -158,7 +160,7 @@ const CardList: React.FC<Props> = ({
           <ItemList
             key={'card_list_' + i}
             description={data.description}
-            performedDate={data.performedDate}
+            date={inputTypeWith === 'relationship' ? undefined : data.performedDate || data.onSetDate}
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}

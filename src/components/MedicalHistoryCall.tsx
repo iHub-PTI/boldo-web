@@ -108,7 +108,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
         </button>
       </div>
       <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
-        <SpinnerLoading />
+        <SpinnerLoading style={{color:'#DB7D68'}} />
       </div>
     </div>
   )
@@ -165,7 +165,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             <h5
               className='font-medium text-sm text-white font-sans'
             >Guardando Antecendentes</h5>
-            <ProgressIcon className="animate-spin" />
+            <ProgressIcon className="animate-spin" fill={'#DB7D68'} />
           </div>
         </div> : saveLoading !== null ?
           <div className='flex flex-col items-center justify-center py-2' style={stylePanelSidebar}>
@@ -173,7 +173,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               <h5
                 className='font-medium text-sm text-white font-sans items-center'
               >Antecedentes clínicos guardado correctamente</h5>
-              <CloudIcon />
+              <CloudIcon fill={'#DB7D68'} />
             </div>
           </div> :
           null}
