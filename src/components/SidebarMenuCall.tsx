@@ -29,6 +29,8 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   const [hoverSidebar, setHoverSidebar] = useState(false)
   const disclosureRef = useRef<HTMLButtonElement>(null)
 
+  const { status } = appointment
+
 
   // this function control the transition value
   const handleTransition = () => {
@@ -85,13 +87,13 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
         >
           <div className='flex flex-col w-full flex-no-wrap mt-10 items-center'>
             {appointment.patient.photoUrl ? <img src={appointment.patient.photoUrl} alt='Foto de Perfil'
-              className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${transition && hoverSidebar ?'scale-150':'100'}`} /> :
-              <NoProfilePicture className={`bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15 transform origin-top duration-500 ${transition ?'scale-150':'100'}`} />
+              className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${transition && hoverSidebar ? 'scale-150' : '100'}`} /> :
+              <NoProfilePicture className={`bg-gray-200 rounded-full border-gray-200 border-1 w-15 h-15 transform origin-top duration-500 ${transition ? 'scale-150' : '100'}`} />
             }
           </div>
           <Disclosure>
             {({ open }) => (
-              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ?'translate-y-12':''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
+              <div className={`w-0 ${hoverSidebar && 'w-auto opacity-100'} opacity-0 flex flex-col justify-start rounded-lg mx-2 p-2 gap-5 mt-5 mb-5 truncate scrollbar transform duration-500 ${transition ? 'translate-y-12' : ''}`} style={{ height: open ? '310px' : '', overflowY: 'auto' }}>
                 <Disclosure.Button className="focus:outline-none" style={{ height: '54px' }} onClick={handleTransition} ref={disclosureRef} >
                   <div className='flex flex-row flex-no-wrap justify-center items-center text-xl text-cool-gray-700 font-semibold truncate'>
                     <span className='overflow-hidden'> {toUpperLowerCase(appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0])}{appointment.patient.birthDate && ', '} {differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || ''}</span>
@@ -131,14 +133,24 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
               </div>
             )}
           </Disclosure>
-          <div className={`flex flex-col flex-no-wrap justify-center items-center transform ease-linear duration-500 ${transition ?'translate-y-12':''}`}>
-            <button className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} onClick={() => onClickOutPatientRecord()}>
-              <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
-              <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
-            </button>
-            <button className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`} onClick={() => medicalHistoryToggleButton()}>
+          <div className={`flex flex-col flex-no-wrap justify-center items-center transform ease-linear duration-500 ${transition ? 'translate-y-12' : ''}`}>
+            <button
+              className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none disabled:cursor-not-allowed`}
+              onClick={() => medicalHistoryToggleButton()}
+              disabled={(status !== 'closed' && status !== 'open')}
+              title={`${(status !== 'closed' && status !== 'open') ? 'No es posible visualizar esta sección en una cita que se encuentra cerrada' : 'Antecedentes Clínicos'}`}
+            >
               <HistoryIcon fill={`${medicalHistoryButton ? '#13A5A9' : '#6B7280'}`} />
               <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${medicalHistoryButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Antecedentes Clínicos</div>
+            </button>
+            <button
+              className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
+              onClick={() => onClickOutPatientRecord()}
+            >
+              <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
+              <div
+                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`}
+                style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
             </button>
           </div>
         </div>

@@ -51,7 +51,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   const { gender } = appointment.patient
   const organizationId = appointment.organization.id
 
-  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId })
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, medicalHistoryButton)
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 
@@ -62,8 +62,6 @@ export const MedicalHistoryCall: React.FC<Props> = ({
 
   // to control panel hover
   useEffect(() => {
-
-
 
     function handleOutsideClick(event: MouseEvent) {
       /**
@@ -87,7 +85,6 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   useEffect(() => {
     if (medicalHistoryButton) return
     handleSidebarHoverOff()
-    reload()
     setSaveLoading(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicalHistoryButton])
@@ -111,7 +108,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
         </button>
       </div>
       <div className='flex flex-col flex-1 items-center justify-center' style={stylePanelSidebar}>
-        <SpinnerLoading />
+        <SpinnerLoading style={{color:'#DB7D68'}} />
       </div>
     </div>
   )
@@ -168,7 +165,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             <h5
               className='font-medium text-sm text-white font-sans'
             >Guardando Antecendentes</h5>
-            <ProgressIcon className="animate-spin" />
+            <ProgressIcon className="animate-spin" fill={'#DB7D68'} />
           </div>
         </div> : saveLoading !== null ?
           <div className='flex flex-col items-center justify-center py-2' style={stylePanelSidebar}>
@@ -176,7 +173,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               <h5
                 className='font-medium text-sm text-white font-sans items-center'
               >Antecedentes clínicos guardado correctamente</h5>
-              <CloudIcon />
+              <CloudIcon fill={'#DB7D68'} />
             </div>
           </div> :
           null}
@@ -249,12 +246,11 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             patientId={patientId}
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
-            logicalDelete={true}
             darkMode={true}
           />
           {/* Section Others */}
           <CardList
-            TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
             dataList={dataHistory?.personal?.others}
             inputTypeWith="date"
             categoryCode='OTH'
@@ -289,7 +285,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
               dataList={dataHistory?.family?.hereditary_diseases ?? []}
               inputTypeWith='relationship'
-              typeCode='hereditary_diseases'
+              typeCode='HDS'
               url={urls.familyHistory}
               patientId={patientId}
               organizationId={organizationId}
@@ -298,7 +294,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             />
             <CardList
               TitleElement={() =>
-                <div className='font-medium text-base text-primary-500'>Otros</div>
+                <div className='font-medium text-base text-orange-dark'>Otros</div>
               }
               dataList={dataHistory?.family?.others}
               inputTypeWith="relationship"

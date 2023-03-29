@@ -13,7 +13,7 @@ const titlesTypesGynecology = [
   { title: 'Cesáreas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'CSN' },
   { title: 'Abortos', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'MCE' },
   { title: 'Menarquía (en años)', beforeTitle: 'Edad de', type: 'number', tag: 'años', typeCode: 'MRE' },
-  { title: 'Ultima menstruación', beforeTitle: '', type: 'number', typeCode: 'LMT' }
+  { title: 'Ultima menstruación', beforeTitle: 'Edad de', type: 'number', typeCode: 'LMT' }
 ]
 
 type AddCloseProps = {
