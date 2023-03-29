@@ -79,6 +79,7 @@ import OrganizationBar from '../components/OrganizationBar'
 import CircleCounter from '../components/CircleCounter'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { getColorCode } from '../util/helpers'
+import { CategoriesContext } from '../components/studiesorder/Provider'
 
 
 type Status = Boldo.Appointment['status']
@@ -94,7 +95,7 @@ const Gate = () => {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
   const { Organizations } = useContext(AllOrganizationContext)
-  const [instance, setInstance] = useState(0)
+  const [instance, setInstance] = useState(1)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
@@ -104,10 +105,11 @@ const Gate = () => {
   const [selectedButton, setSelectedButton] = useState(1)
   // const [loading, setLoading] = useState(false);
   const { width } = useWindowDimensions()
+  const { orders } = useContext(CategoriesContext)
 
   const updateStatus = useCallback(
     async (status?: Status) => {
-      setInstance(0)
+      setInstance(1)
       if (!status) return
 
       const url = `/profile/doctor/appointments/${id}`
@@ -266,7 +268,7 @@ const Gate = () => {
         }
         case 'closed': {
           setCallStatus({ connecting: false })
-          setInstance(0)
+          setInstance(1)
           addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
           socket?.emit('ready?', { room: id, token })
           break
@@ -308,7 +310,7 @@ const Gate = () => {
         }} />
 
       default:
-        return <Sidebar appointment={appointment} />
+        return <SOEP appointment={appointment} />
     }
   }
 
@@ -381,9 +383,16 @@ const Gate = () => {
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                </svg>
+                <div className='flex'>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                  </svg>
+                  { orders &&
+                    orders.filter((order) => order.studies_codes.length > 0).length > 0
+                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
+                    : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
@@ -521,14 +530,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const video = useRef<HTMLVideoElement>(null)
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
-  const [sideBarAction, setSideBarAction] = useState(0)
+  const [sideBarAction, setSideBarAction] = useState(1)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
   const { width } = useWindowDimensions()
   // this help us for identify the selected button
-  const [selectedButton, setSelectedButton] = useState(0)
+  const [selectedButton, setSelectedButton] = useState(1)
   //console.log(screenWidth)
   // const [loading, setLoading] = useState(false);
+  const { orders } = useContext(CategoriesContext)
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -627,9 +637,16 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                </svg>
+                <div className='flex'>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                  </svg>
+                  { orders &&
+                    orders.filter((order) => order.studies_codes.length > 0).length > 0
+                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
+                    : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
@@ -642,7 +659,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                <div className='flex'>
+                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  {
+                    prescriptions.length > 0
+                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
+                      : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
@@ -1090,8 +1114,8 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
   }
   const controlSideBarState = () => {
     switch (sideBarAction) {
-      case 0:
-        return <Sidebar appointment={appointment} />
+      // case 0:
+      //   return <Sidebar appointment={appointment} />
 
       case 1:
         return <SOEP appointment={appointment} />
@@ -1105,7 +1129,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
         }} />
 
       default:
-        return <Sidebar appointment={appointment} />
+        return <SOEP appointment={appointment} />
     }
   }
   return (
@@ -1156,6 +1180,7 @@ interface SidebarProps {
   appointment: AppointmentWithPatient
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   // const [selectedTab, setSelectedTab] = useState(0)
 
@@ -1358,7 +1383,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
-  const { width } = useWindowDimensions()
+  // const { width } = useWindowDimensions()
   // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
   //   setValue(newValue)
   // }
