@@ -63,8 +63,6 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   // to control panel hover
   useEffect(() => {
 
-
-
     function handleOutsideClick(event: MouseEvent) {
       /**
      * There is a conflict when removing element by the modal with the container of the panel. With * this we avoid that when deleting and clicking on the modal everything closes.
@@ -252,7 +250,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
           />
           {/* Section Others */}
           <CardList
-            TitleElement={() => <div className='font-medium text-base text-primary-500'>Otros</div>}
+            TitleElement={() => <div className='font-medium text-base text-orange-dark'>Otros</div>}
             dataList={dataHistory?.personal?.others}
             inputTypeWith="date"
             categoryCode='OTH'
@@ -287,7 +285,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               TitleElement={() => <div className='font-medium text-base text-orange-dark'>Enfermedades hereditarias</div>}
               dataList={dataHistory?.family?.hereditary_diseases ?? []}
               inputTypeWith='relationship'
-              typeCode='hereditary_diseases'
+              typeCode='HDS'
               url={urls.familyHistory}
               patientId={patientId}
               organizationId={organizationId}
@@ -296,7 +294,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             />
             <CardList
               TitleElement={() =>
-                <div className='font-medium text-base text-primary-500'>Otros</div>
+                <div className='font-medium text-base text-orange-dark'>Otros</div>
               }
               dataList={dataHistory?.family?.others}
               inputTypeWith="relationship"

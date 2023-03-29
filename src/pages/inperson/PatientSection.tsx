@@ -40,7 +40,7 @@ const ButtonSlide: React.FC<PropsButton> = ({ setShow, show, disabled, IconEleme
       }}
       //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
       disabled={disabled}
-      title={`${disabled ? 'No es posible visualizar los antecedentes en una cita que se encuentra cerrada' : title}`}
+      title={`${disabled ? 'No es posible visualizar esta sección en una cita que se encuentra cerrada' : title}`}
     >
       <div className={`pl-2 text-gray-500 flex flex-row justify-start gap-2  ${show && 'text-primary-600 font-semibold'}`}>
         <div>
