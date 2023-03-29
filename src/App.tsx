@@ -19,6 +19,7 @@ import { PrescriptionContextProvider } from './contexts/Prescriptions/Prescripti
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import { changeHours } from './util/helpers'
+import Provider from './components/studiesorder/Provider'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
@@ -184,13 +185,17 @@ const App = () => {
 
                 <Route exact path='/appointments/:id/call'>
                   <PrescriptionContextProvider>
-                    <Call />
+                    <Provider>
+                      <Call />
+                    </Provider>
                   </PrescriptionContextProvider>
                 </Route>
 
                 <Route exact path='/appointments/:id/inperson'>
                   <PrescriptionContextProvider>
-                    <InPersonAppoinment />
+                    <Provider>
+                      <InPersonAppoinment />
+                    </Provider>
                   </PrescriptionContextProvider>
                 </Route>
 

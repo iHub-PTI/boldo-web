@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip'
 // import Print from '../../components/icons/Print'
@@ -8,6 +8,7 @@ import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 import SelectPrintOptions from '../../components/SelectPrintOptions'
 import CircleCounter from '../../components/CircleCounter'
+import { CategoriesContext } from '../../components/studiesorder/Provider'
 
 
 type Props = {
@@ -23,6 +24,7 @@ export default (props: Props) => {
   // const [loading, setLoading] = useState(false)
   // const { addToast } = useToasts()
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
+  const { orders } = useContext(CategoriesContext)
 
   const soep = {
     studies: 'Estudios',
@@ -146,6 +148,11 @@ export default (props: Props) => {
                 fill='white'
               />
             </svg>
+            { orders &&
+              orders.filter((order) => order.studies_codes.length > 0).length > 0
+              ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} />
+              : <></>
+            }
           </button>
         </Tooltip>
       </div>
