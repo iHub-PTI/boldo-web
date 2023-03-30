@@ -12,7 +12,7 @@ function NowIndicatorContent(eventInfo) {
 
   return (
     <div className="flex">
-      <div className="bg-orange-500 rounded-full items-center justify-center mb-8 px-1 -mt-3">
+      <div className="bg-orange-500 rounded-full items-center justify-center px-1 -mt-3">
         <p className="text-white font-medium text-xs py-1">{getTime()}</p>
       </div>
       <div className="h-1 line w-full"></div>

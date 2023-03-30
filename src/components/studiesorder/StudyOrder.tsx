@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton } from '@material-ui/core';
+import { FormControl, FormGroup, FormControlLabel, FormHelperText, Grid, Typography, IconButton, InputAdornment } from '@material-ui/core';
 import { ReactComponent as TrashIcon } from '../../assets/trash.svg';
 import { ReactComponent as Spinner } from '../../assets/spinner.svg';
 import SelectCategory from './SelectCategory'
@@ -17,6 +17,8 @@ import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
 import Tooltip from '@material-ui/core/Tooltip';
 import * as Sentry from '@sentry/react'
+import InfoIcon from '../icons/info-icons/InfoIcon';
+import HoverInfo from '../hovers/TooltipInfo'
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -100,7 +102,7 @@ const TooltipInfo = withStyles((theme) => ({
 }))(Tooltip);
 
 
-const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
+const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Boldo.Encounter }) => {
     const { addToast } = useToasts();
     const classes = useStyles()
     const { orders, setOrders, setIndexOrder } = useContext(CategoriesContext)
@@ -108,14 +110,25 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
     const [encounterId, setEncounterId] = useState('')
     // error types when sending -> category + orderId | diagnosis + orderId | studies + orderId
     const [errorType, setErrorType] = useState('')
+    // boolean handling the hover event
+    const [showTooltipInfo, setShowTooltipInfo] = useState(false);
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
 
     const scrollToBy = (id: string) => {
-        let scrollDiv = document.getElementById(id).offsetTop - 100;
+        let scrollDiv = document.getElementById(id).offsetTop - 150;
         document.getElementById("study_orders").scrollTo({ top: scrollDiv, behavior: 'smooth' })
     }
+
+    useEffect(() => {
+        if (orders.length === 1) {
+            if (orders[0].diagnosis === "") {
+                orders[0].diagnosis = encounter?.soep?.evaluation ?? ''
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         const load = async () => {
@@ -166,7 +179,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
             id: orders[orders.length - 1].id + 1,
             category: "",
             urgent: false,
-            diagnosis: "",
+            diagnosis: encounter?.soep?.evaluation ?? '',
             studies_codes: [] as Array<StudiesWithIndication>,
             notes: ""
         }])
@@ -176,9 +189,9 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
         if (orders.length > 1) {
             let update = [...orders]
             update.splice(key, 1)
-            setOrders(update)
+            setOrders([...update])
         }
-        //console.table(orders)
+        //console.table(update) 
     }
 
     const validateOrders = (orders: Array<Orders>) => {
@@ -204,6 +217,13 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
         }
         return true
     }
+    // functions to handle the mouse event
+    const handleMouseEnter = () => {
+        setShowTooltipInfo(true);
+    }      
+    const handleMouseLeave = () => {
+        setShowTooltipInfo(false);
+    };
 
     const [sendStudyLoading, setSendStudyLoading] = useState(false)
 
@@ -279,7 +299,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
         <div className="w-full">
             {
                 orders.map((item, index) => {
-                    return <div id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
+                    return <div key={item.id} id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
                             <Grid container>
                                 <Grid item container direction="row" justifyContent="flex-end" >
@@ -305,7 +325,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                                         :
                                         <>
                                             <Grid item xs={5}>
-                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} />
+                                                <SelectCategory variant='outlined' classes={classes} index={index} error={errorType === 'category' + item.id} value={item.category}  />
                                             </Grid>
                                             <Grid item xs={7}>
                                                 <FormGroup>
@@ -324,7 +344,23 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                             <Grid container direction='column'>
                                 <Grid style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                                     <Typography>Impresión diagnóstica</Typography>
-                                    <InputText name="diagnosis" variant='outlined' className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} index={index} />
+                                    <InputText 
+                                        name="diagnosis" 
+                                        variant='outlined' 
+                                        className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textfield} 
+                                        index={index} 
+                                        value={item.diagnosis} 
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <div className='flex flex-row flex-no-wrap'>
+                                                        {showTooltipInfo && <HoverInfo />}
+                                                        <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+                                                    </div>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
                                 </Grid>
                                 <Grid style={{ marginBottom: '1rem' }}>
                                     <Typography>Estudios a realizar</Typography>
@@ -336,7 +372,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false }) => {
                                 </Grid>
                                 <Grid >
                                     <Typography>Observaciones</Typography>
-                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} />
+                                    <InputText name="observation" variant='outlined' className={classes.textfield} multiline index={index} value={item.notes} />
                                 </Grid>
                             </Grid>
                         </FormControl>

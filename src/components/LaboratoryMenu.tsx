@@ -1,7 +1,6 @@
 
 import axios from "axios"
-import React, { useState, useEffect, ChangeEvent } from 'react'
-
+import React, { useState, useEffect, ChangeEvent, forwardRef } from 'react'
 import {
   Card,
   Divider,
@@ -11,7 +10,7 @@ import {
   MenuItem,
   Select
 } from '@material-ui/core';
-import { forwardRef } from 'react';
+import { useRouteMatch } from "react-router-dom";
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import CloseIcon from '@material-ui/icons/Close';
 import FilterListIcon from '@material-ui/icons/FilterList';
@@ -47,19 +46,20 @@ import { ReactComponent as TesaiSource } from "../assets/svg-sources-studies/tes
 import { ReactComponent as VentrixSource } from "../assets/svg-sources-studies/ventrix-source.svg"
 import { ReactComponent as WithoutSource } from "../assets/svg-sources-studies/without-origin.svg"
 import StudyOrder from "./studiesorder/StudyOrder";
-import Provider from "./studiesorder/Provider";
-import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL } from "../util/constants";
+// import Provider from "./studiesorder/Provider";
+import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
 import * as Sentry from '@sentry/react'
+import { countDays } from "../util/helpers";
 
 
 export function LaboratoryMenu(props) {
-  const { addToast, addErrorToast } = useToasts()
+  const { addToast } = useToasts()
   const { appointment } = props;
   const [loading, setLoading] = useState(true)
   const [selectedRow, setSelectedRow] = useState()
   const [studiesData, setStudiesData] = useState<any>()
-  const [studyDetail, setStudyDetail] = useState()
+  const [studyDetail, setStudyDetail] = useState<any>()
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPreview, setShowPreview] = useState({})
   const [categorySelect, setCategory] = useState("")
@@ -74,6 +74,12 @@ export function LaboratoryMenu(props) {
   const [disabledButton, setDisabledButton] = useState(true)
   //width 
   const { width } = useWindowDimensions()
+  // Encounter handler
+  let match = useRouteMatch<{ id: string }>('/appointments/:id/inperson/')
+  const id = match?.params.id
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [emptySoep, setEmptySoep] = useState(false)
+  const [encounter, setEncounter] = useState<Boldo.Encounter>(undefined)
 
   const tableIcons: Icons = {
     SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
@@ -95,78 +101,15 @@ export function LaboratoryMenu(props) {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   }
 
-    useEffect(() => {
-      const load = async () => {
-        const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
-        try {
-          setLoading(true)
-          if (appointment !== undefined) {
-              const res = await axios.get(url)
-              setStudiesData(res.data.items)
-              setLoading(false)
-          }
-        } catch (err) {
-          Sentry.setTags({
-            'endpoint': url,
-            'method': 'GET',
-            'appointment_id': appointment.id,
-            'doctor_id': appointment.doctorId,
-            'patient_id': appointment.patientId
-          })
-          if (err.response) {
-            // The response was made and the server responded with a 
-            // status code that is outside the 2xx range.
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
-          } else if (err.request) {
-            // The request was made but no response was received
-            Sentry.setTag('request', err.request)
-          } else {
-            // Something happened while preparing the request that threw an Error
-            Sentry.setTag('message', err.message)
-          }
-          Sentry.captureMessage("Could not get the diagnostic report")
-          Sentry.captureException(err)
-          addToast({ 
-            type: 'error', 
-            title: 'Ha ocurrido un error.', 
-            text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
-          })
-          // setLoading(false)
-          console.log(err)
-        } finally {
-            setLoading(false)
-        }
-      }
-      if (appointment)
-          load()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [appointment])
-
   useEffect(() => {
-    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
-      setDisabledButton(true)
-    } else {
-      setDisabledButton(false)
-    }
-  }, [appointment])
-
-
-    useEffect(() => {
-      const loadIssued = async () => {
-      const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
+    const load = async () => {
+      const url = `/profile/doctor/diagnosticReports?patient_id=${appointment.patientId}`
       try {
-        setLoadingIssued(true)
+        setLoading(true)
         if (appointment !== undefined) {
-          setLoadingIssued(true)
-          const res = await axios.get(url)
-          console.log("response issueds", res)
-          if (res.status === 200)
-            setIssuedStudiesData(res.data.items)
-          if (res.status === 204)
-            setIssuedStudiesData([])
-          setLoadingIssued(false)
+            const res = await axios.get(url)
+            setStudiesData(res.data.items)
+            setLoading(false)
         }
       } catch (err) {
         Sentry.setTags({
@@ -189,21 +132,84 @@ export function LaboratoryMenu(props) {
           // Something happened while preparing the request that threw an Error
           Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the study orders")
+        Sentry.captureMessage("Could not get the diagnostic report")
         Sentry.captureException(err)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error',
-          text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+        addToast({ 
+          type: 'error', 
+          title: 'Ha ocurrido un error.', 
+          text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
         })
+        // setLoading(false)
+        console.log(err)
       } finally {
-        setLoadingIssued(false)
+          setLoading(false)
       }
     }
-    if (appointment && !showMakeOrder) 
-      loadIssued()
+    if (appointment)
+        load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showMakeOrder, appointment, addErrorToast])
+  }, [appointment])
+
+  useEffect(() => {
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setDisabledButton(true)
+    } else {
+      setDisabledButton(false)
+    }
+  }, [appointment])
+
+
+  useEffect(() => {
+    const loadIssued = async () => {
+    const url = `/profile/doctor/serviceRequests?patient_id=${appointment.patientId}`
+    try {
+      setLoadingIssued(true)
+      if (appointment !== undefined) {
+        setLoadingIssued(true)
+        const res = await axios.get(url)
+        console.log("response issueds", res)
+        if (res.status === 200)
+          setIssuedStudiesData(res.data.items)
+        if (res.status === 204)
+          setIssuedStudiesData([])
+        setLoadingIssued(false)
+      }
+    } catch (err) {
+      Sentry.setTags({
+        'endpoint': url,
+        'method': 'GET',
+        'appointment_id': appointment.id,
+        'doctor_id': appointment.doctorId,
+        'patient_id': appointment.patientId
+      })
+      if (err.response) {
+        // The response was made and the server responded with a 
+        // status code that is outside the 2xx range.
+        Sentry.setTag('data', err.response.data)
+        Sentry.setTag('headers', err.response.headers)
+        Sentry.setTag('status_code', err.response.status)
+      } else if (err.request) {
+        // The request was made but no response was received
+        Sentry.setTag('request', err.request)
+      } else {
+        // Something happened while preparing the request that threw an Error
+        Sentry.setTag('message', err.message)
+      }
+      Sentry.captureMessage("Could not get the study orders")
+      Sentry.captureException(err)
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un error',
+        text: 'No se pudieron cargar las órdenes de estudios. ¡Inténtelo nuevamente más tarde!'
+      })
+    } finally {
+      setLoadingIssued(false)
+    }
+  }
+  if (appointment && !showMakeOrder) 
+    loadIssued()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showMakeOrder, appointment])
 
 
   const downloadBlob = (url, title, contentType, download) => {
@@ -239,26 +245,83 @@ export function LaboratoryMenu(props) {
   }
 
 
-    useEffect(() => {
-      const load = async () => {
-        try {
-          if (selectedRow !== undefined) {
-              //@ts-ignore
-              const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-              setStudyDetail(res.data)
-          }
-        } catch (err) {
-          if (selectedRow !== undefined) { 
+  useEffect(() => {
+    const load = async () => {
+      setStudyDetail(undefined)
+      try {
+        if (selectedRow !== undefined) {
             //@ts-ignore
-            Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+            const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+            setStudyDetail(res.data)
+        }
+      } catch (err) {
+        if (selectedRow !== undefined) { 
+          //@ts-ignore
+          Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+        }
+        Sentry.setTag('method', 'GET')
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the study description")
+        Sentry.captureException(err)
+        setSelectedRow(undefined)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error',
+          text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
+        })
+      } finally {
+          // setInitialLoad(false)
+      }
+    }
+    selectedRow !== undefined &&
+        load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRow])
+
+  // this get the encounter
+  useEffect(() => {
+    const load = async () => {
+      const url = `/profile/doctor/appointments/${id}/encounter`
+      
+      setDisabledButton(true)
+      await axios
+        .get(url)
+        .then((res) => {
+          const data = res.data.encounter as Boldo.Encounter
+          if (Object.keys(data.soep).length === 0) {
+            setEmptySoep(true)
+          } else if (!data.soep.evaluation || data.soep.evaluation.trim() === '') {
+            setEmptySoep(true)
+          } else {
+            setEmptySoep(false)
+            setEncounter(data)
           }
-          Sentry.setTag('method', 'GET')
+        })
+        .catch((err) => {
+          Sentry.setTags({
+            'endpoint': url,
+            'method': 'GET'
+          })
           if (err.response) {
             // The response was made and the server responded with a 
             // status code that is outside the 2xx range.
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
+            Sentry.setTags({
+              'data': err.response.data,
+              'headers': err.response.headers,
+              'status_code': err.response.status
+            })
           } else if (err.request) {
             // The request was made but no response was received
             Sentry.setTag('request', err.request)
@@ -266,22 +329,21 @@ export function LaboratoryMenu(props) {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', err.message)
           }
-          Sentry.captureMessage("Could not get the study description")
+          Sentry.captureMessage("Could not get the encounter")
           Sentry.captureException(err)
-          setSelectedRow(undefined)
-          addToast({
-            type: 'error',
-            title: 'Ha ocurrido un error',
-            text: 'No pudimos cargar la descripción del estudio. ¡Inténtelo nuevamente más tarde!'
-          })
-        } finally {
-            // setInitialLoad(false)
-        }
-      }
-      selectedRow !== undefined &&
-          load()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedRow])
+        })
+    }
+    if (appointment)
+      load()
+  }, [appointment, id])
+
+  useEffect(() => {
+    if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+      setDisabledButton(true)
+    } else {
+      setDisabledButton(false)
+    }
+  }, [appointment])
 
 
   if (selectedRow)
@@ -305,17 +367,15 @@ export function LaboratoryMenu(props) {
               <path d="M15 7.0007H3.82998L8.70998 2.1207C9.09998 1.7307 9.09998 1.0907 8.70998 0.700703C8.31998 0.310703 7.68998 0.310703 7.29998 0.700703L0.70998 7.2907C0.31998 7.6807 0.31998 8.3107 0.70998 8.7007L7.29998 15.2907C7.68998 15.6807 8.31998 15.6807 8.70998 15.2907C9.09998 14.9007 9.09998 14.2707 8.70998 13.8807L3.82998 9.0007H15C15.55 9.0007 16 8.5507 16 8.0007C16 7.4507 15.55 7.0007 15 7.0007Z" fill="white" />
             </svg>
           </button>
-          <Provider>
-            <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
-              height: ` ${width >= WIDTH_XL
-                  ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-                  : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
-                }`,
-              overflowY: "auto"
-            }}>
-              <StudyOrder setShowMakeOrder={setShowMakeOrder}></StudyOrder>
-            </div>
-          </Provider>
+          <div id="study_orders" className="flex flex-col flex-no-wrap flex-1 w-full" style={{
+            height: ` ${width >= WIDTH_XL
+                ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+                : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+              }`,
+            overflowY: "auto"
+          }}>
+            <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder>
+          </div>
         </div>
 
       </>
@@ -325,8 +385,8 @@ export function LaboratoryMenu(props) {
   return (
     <div className='flex flex-col bg-white' style={{
       height: ` ${width >= WIDTH_XL
-          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT}px)`
-          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + HEIGHT_NAVBAR}px)`
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
         }`,
       overflowY: "auto"
     }}>
@@ -399,7 +459,7 @@ export function LaboratoryMenu(props) {
           }
           <Grid className="mt-5">
 
-            {loading && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            {loading && <div className='flex items-center justify-center w-full h-full py-64'>
               <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                 <SpinnerLoading />
               </div>
@@ -412,7 +472,7 @@ export function LaboratoryMenu(props) {
             {
               !toggleStudies && loadingIssued === false && issuedStudiesTable()
             }
-            {!toggleStudies && loadingIssued && <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            {!toggleStudies && loadingIssued && <div className='flex items-center justify-center w-full h-full py-64'>
               <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                 <SpinnerLoading />
               </div>
@@ -583,13 +643,14 @@ export function LaboratoryMenu(props) {
             title: 'Estudios a realizar',
             field: 'studiesCodes',
             sorting: false,
+            width:"80%",
             render: rowData => {
               // console.log(rowData.diagnosis)
               //@ts-ignore
               return (
-                <div style={{ width: '30rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                <p className="truncate sm:w-32 md:w-52 lg:56 xl:w-72">
                   {rowData.studiesCodes.map(i => { return i.display }).join(', ')}
-                </div>
+                </p>
               )
             },
           }
@@ -599,7 +660,6 @@ export function LaboratoryMenu(props) {
         onRowClick={(evt, selectedRowIssued) => {
           //@ts-ignore
           setSelectedRowIssued(selectedRowIssued)
-          console.log(selectedRowIssued)
         }
         }
         options={{
@@ -620,24 +680,14 @@ export function LaboratoryMenu(props) {
 
   function laboratoryDetail() {
 
-    var days_diff = -1;
-
     if (studyDetail === undefined)
       return (
-        <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+        <div className='flex flex-row items-center justify-center w-full h-full'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <SpinnerLoading />
           </div>
         </div>
       )
-
-    if (studyDetail !== undefined) {
-      const currentDate = moment(new Date());
-      //@ts-ignore
-      const returnDate = moment(studyDetail.effectiveDate);
-      days_diff = currentDate.diff(returnDate, 'days');
-
-    }
 
     const getSourceSVG = (source: string) => {
       if (source === '' || source === null) return <WithoutSource />;
@@ -646,8 +696,14 @@ export function LaboratoryMenu(props) {
       return <PatientSource />;
     }
 
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+        ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+        : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+      }`,
+    overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -721,7 +777,7 @@ export function LaboratoryMenu(props) {
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
 
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                     countDays(studyDetail?.effectiveDate)
                     }
                   </Typography>
                 </Grid>
@@ -789,7 +845,7 @@ export function LaboratoryMenu(props) {
 
           <Grid className="mt-3" container>
             <svg className="mt-2" width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.172 4.99968L5.58602 11.5857C5.395 11.7702 5.24264 11.9909 5.13782 12.2349C5.033 12.4789 4.97783 12.7413 4.97552 13.0069C4.97321 13.2724 5.02381 13.5358 5.12438 13.7816C5.22494 14.0274 5.37344 14.2507 5.56123 14.4385C5.74902 14.6263 5.97232 14.7748 6.21811 14.8753C6.4639 14.9759 6.72726 15.0265 6.99282 15.0242C7.25838 15.0219 7.52082 14.9667 7.76483 14.8619C8.00884 14.7571 8.22953 14.6047 8.41402 14.4137L14.828 7.82768C15.5567 7.07327 15.9598 6.06286 15.9507 5.01407C15.9416 3.96528 15.5209 2.96203 14.7793 2.2204C14.0377 1.47877 13.0344 1.05809 11.9856 1.04898C10.9368 1.03987 9.92643 1.44304 9.17202 2.17168L2.75702 8.75668C1.63171 9.88199 0.999512 11.4082 0.999512 12.9997C0.999512 14.5911 1.63171 16.1174 2.75702 17.2427C3.88233 18.368 5.40859 19.0002 7.00002 19.0002C8.59145 19.0002 10.1177 18.368 11.243 17.2427L17.5 10.9997" stroke="#364152" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12.172 4.99968L5.58602 11.5857C5.395 11.7702 5.24264 11.9909 5.13782 12.2349C5.033 12.4789 4.97783 12.7413 4.97552 13.0069C4.97321 13.2724 5.02381 13.5358 5.12438 13.7816C5.22494 14.0274 5.37344 14.2507 5.56123 14.4385C5.74902 14.6263 5.97232 14.7748 6.21811 14.8753C6.4639 14.9759 6.72726 15.0265 6.99282 15.0242C7.25838 15.0219 7.52082 14.9667 7.76483 14.8619C8.00884 14.7571 8.22953 14.6047 8.41402 14.4137L14.828 7.82768C15.5567 7.07327 15.9598 6.06286 15.9507 5.01407C15.9416 3.96528 15.5209 2.96203 14.7793 2.2204C14.0377 1.47877 13.0344 1.05809 11.9856 1.04898C10.9368 1.03987 9.92643 1.44304 9.17202 2.17168L2.75702 8.75668C1.63171 9.88199 0.999512 11.4082 0.999512 12.9997C0.999512 14.5911 1.63171 16.1174 2.75702 17.2427C3.88233 18.368 5.40859 19.0002 7.00002 19.0002C8.59145 19.0002 10.1177 18.368 11.243 17.2427L17.5 10.9997" stroke="#364152" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
 
             <Typography variant='h6' noWrap style={{ paddingLeft: '10px', textAlign: 'left', color: '#6B7280' }}>
@@ -823,7 +879,7 @@ export function LaboratoryMenu(props) {
                         }}
                       >
                         <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
 
 
@@ -905,18 +961,14 @@ export function LaboratoryMenu(props) {
   }
 
   function issuedDetail(order) {
-
-    var days_diff = -1;
-
-    if (order !== undefined) {
-      const currentDate = moment(new Date());
-      //@ts-ignore
-      const returnDate = moment(order.authoredDate);
-      days_diff = currentDate.diff(returnDate, 'days');
-    }
-
-    return <div>
-      <Grid className='w-full px-8 mt-10'>
+    return <div className="flex flex-col flex-no-wrap" style={{
+      height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`,
+      overflowY: "auto"
+    }}>
+      <Grid className='w-full px-8'>
         <Grid container>
           <button
             style={{ backgroundColor: '#27BEC2', height: '48px', width: '48px' }}
@@ -964,12 +1016,12 @@ export function LaboratoryMenu(props) {
                 <Grid>
                   <Typography variant='body2' color='textSecondary'>
                     {
-                      moment(order.effectiveDate).format('DD/MM/YYYY')
+                      order.authoredDate ? moment(order.authoredDate).format('DD/MM/YYYY') : 'Fecha Desconocida'
                     }
                   </Typography>
                   <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                     {
-                      days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                      order.authoredDate ? countDays(order.authoredDate) : ''
                     }
                   </Typography>
                 </Grid>
@@ -1040,7 +1092,7 @@ export function LaboratoryMenu(props) {
             <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
               Observaciones
             </Typography>
-            {order.notes}
+            {order.notes ?? 'Sin observaciones.'}
           </Typography>
         </Card>
       </Grid>

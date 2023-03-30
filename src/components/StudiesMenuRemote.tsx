@@ -25,10 +25,12 @@ import { useToasts } from './Toast';
 import Modal from "./Modal";
 import type * as CSS from 'csstype';
 import StudyOrder from "./studiesorder/StudyOrder";
-import Provider from "./studiesorder/Provider";
+// import Provider from "./studiesorder/Provider";
 import * as Sentry from '@sentry/react'
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
+import { countDays } from "../util/helpers";
+import { useRouteMatch } from "react-router-dom";
 
 
 //HoverSelect theme
@@ -193,7 +195,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [loading, setLoading] = useState(true)
     const [selectedRow, setSelectedRow] = useState()
     const [studiesData, setStudiesData] = useState(undefined)
-    const [studyDetail, setStudyDetail] = useState()
+    const [studyDetail, setStudyDetail] = useState<any>()
     const [showEditModal, setShowEditModal] = useState(false)
     const [showPreview, setShowPreview] = useState({})
     const [categorySelect, setCategory] = useState("")
@@ -211,6 +213,12 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     const [selectOrderDetail, setSelectOrderDetail] = useState(undefined)
     //disabled issuedOrder button
     const [disabledButton, setDisabledButton] = useState(true)
+    // Encounter handler
+    let match = useRouteMatch<{ id: string }>('/appointments/:id/call/')
+    const id = match?.params.id
+    const [emptySoep, setEmptySoep] = useState(false)
+    const [encounter, setEncounter] = useState<Boldo.Encounter>(undefined)
+
 
     useEffect(() => {
         const load = async () => {
@@ -247,10 +255,10 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                 }
                 Sentry.captureMessage("Could not get the diagnostic report")
                 Sentry.captureException(err)
-                addToast({ 
-                    type: 'error', 
-                    title: 'Ha ocurrido un error.', 
-                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
+                addToast({
+                    type: 'error',
+                    title: 'Ha ocurrido un error.',
+                    text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!'
                 })
                 // setLoading(false)
             } finally {
@@ -308,16 +316,16 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
     useEffect(() => {
         const load = async () => {
             try {
-
+                setStudyDetail(undefined)
                 if (selectedRow !== undefined) {
                     //@ts-ignore
                     const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
                     setStudyDetail(res.data)
                 }
             } catch (err) {
-                if (selectedRow !== undefined) { 
+                if (selectedRow !== undefined) {
                     //@ts-ignore
-                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+                    Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`)
                 }
                 Sentry.setTag('method', 'GET')
                 if (err.response) {
@@ -396,8 +404,63 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
             }
         }
         if (appointment && !issueOrder) loadOrders()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [issueOrder, appointment])
+
+      // this get the encounter
+    useEffect(() => {
+        const load = async () => {
+        const url = `/profile/doctor/appointments/${id}/encounter`
+        
+        setDisabledButton(true)
+        await axios
+            .get(url)
+            .then((res) => {
+            const data = res.data.encounter as Boldo.Encounter
+            if (Object.keys(data.soep).length === 0) {
+                setEmptySoep(true)
+            } else if (!data.soep.evaluation || data.soep.evaluation.trim() === '') {
+                setEmptySoep(true)
+            } else {
+                setEmptySoep(false)
+                setEncounter(data)
+            }
+            })
+            .catch((err) => {
+            Sentry.setTags({
+                'endpoint': url,
+                'method': 'GET'
+            })
+            if (err.response) {
+                // The response was made and the server responded with a 
+                // status code that is outside the 2xx range.
+                Sentry.setTags({
+                'data': err.response.data,
+                'headers': err.response.headers,
+                'status_code': err.response.status
+                })
+            } else if (err.request) {
+                // The request was made but no response was received
+                Sentry.setTag('request', err.request)
+            } else {
+                // Something happened while preparing the request that threw an Error
+                Sentry.setTag('message', err.message)
+            }
+            Sentry.captureMessage("Could not get the encounter")
+            Sentry.captureException(err)
+            })
+        }
+        if (appointment)
+        load()
+    }, [appointment, id])
+
+    useEffect(() => {
+        if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
+        setDisabledButton(true)
+        } else {
+        setDisabledButton(false)
+        }
+    }, [appointment, emptySoep])
 
     //Hover theme
     const classes = useStyles();
@@ -433,7 +496,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
                 </Grid>
                 <Grid className='w-full px-4 mt-2 h-full'>
-                    <Grid container>
+                    <div className="flex flex-row flex-no-wrap w-full truncate" title={`${appointment?.patient?.givenName.split(' ')[0]} ${appointment.patient.familyName.split(' ')[0]} CI: ${appointment.patient.identifier}`}>
                         <Avatar
                             style={{
                                 width: `60px`,
@@ -445,16 +508,18 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         >
                             {/* <PatientIcon /> */}
                         </Avatar>
-                        <Grid className='p-3 '>
-                            <Typography variant='body1' color='textPrimary'>
-                                {appointment && appointment.patient.givenName}  {appointment && appointment.patient.familyName}
-                            </Typography>
+                        <div className='flex flex-col flex-no-wrap p-3 '>
+                            <div className="flex flex-row flex-no-wrap w-full truncate">
+                                {appointment && appointment.patient.givenName.split(' ')[0]}  {appointment && appointment.patient.familyName.split(' ')[0]}
+                            </div>
                             <Typography variant='body2' color='textSecondary'>
-                                Ci:   {appointment && appointment.patient.identifier}
+                                {appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
+                                    ? 'Paciente sin cédula'
+                                    : 'CI ' + appointment.patient.identifier}
                             </Typography>
 
-                        </Grid>
-                    </Grid>
+                        </div>
+                    </div>
 
                     {!issueOrder && !selectedRow && !selectOrderDetail &&
                         <div className="flex flex-row flex-no-wrap">
@@ -626,8 +691,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function laboratoryDetail() {
 
-        var days_diff = -1;
-
         if (studyDetail === undefined)
             return (
                 <div className='flex items-center justify-center w-full h-full py-64'>
@@ -636,14 +699,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                     </div>
                 </div>
             )
-
-        if (studyDetail !== undefined) {
-            const currentDate = moment(new Date());
-            //@ts-ignore
-            const returnDate = moment(studyDetail.effectiveDate);
-            days_diff = currentDate.diff(returnDate, 'days');
-
-        }
 
         return <div>
             <Grid className='w-full '>
@@ -665,7 +720,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
                         <Grid container>
                             <svg className="m-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 5V1M14 5V1M5 9H15M3 19H17C17.5304 19 18.0391 18.7893 18.4142 18.4142C18.7893 18.0391 19 17.5304 19 17V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H3C2.46957 3 1.96086 3.21071 1.58579 3.58579C1.21071 3.96086 1 4.46957 1 5V17C1 17.5304 1.21071 18.0391 1.58579 18.4142C1.96086 18.7893 2.46957 19 3 19Z" stroke="#DF6D51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6 5V1M14 5V1M5 9H15M3 19H17C17.5304 19 18.0391 18.7893 18.4142 18.4142C18.7893 18.0391 19 17.5304 19 17V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H3C2.46957 3 1.96086 3.21071 1.58579 3.58579C1.21071 3.96086 1 4.46957 1 5V17C1 17.5304 1.21071 18.0391 1.58579 18.4142C1.96086 18.7893 2.46957 19 3 19Z" stroke="#DF6D51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <Grid>
                                 <Typography variant='subtitle1' color='textSecondary'>
@@ -675,7 +730,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                                     {
-                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'hace ' + days_diff + ' días'
+                                        countDays(studyDetail?.effectiveDate)
                                     }
                                 </Typography>
                             </Grid>
@@ -753,7 +808,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                         padding: '15px',
                     }} container>
                         <svg className="mt-2" width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.172 4.99968L5.58602 11.5857C5.395 11.7702 5.24264 11.9909 5.13782 12.2349C5.033 12.4789 4.97783 12.7413 4.97552 13.0069C4.97321 13.2724 5.02381 13.5358 5.12438 13.7816C5.22494 14.0274 5.37344 14.2507 5.56123 14.4385C5.74902 14.6263 5.97232 14.7748 6.21811 14.8753C6.4639 14.9759 6.72726 15.0265 6.99282 15.0242C7.25838 15.0219 7.52082 14.9667 7.76483 14.8619C8.00884 14.7571 8.22953 14.6047 8.41402 14.4137L14.828 7.82768C15.5567 7.07327 15.9598 6.06286 15.9507 5.01407C15.9416 3.96528 15.5209 2.96203 14.7793 2.2204C14.0377 1.47877 13.0344 1.05809 11.9856 1.04898C10.9368 1.03987 9.92643 1.44304 9.17202 2.17168L2.75702 8.75668C1.63171 9.88199 0.999512 11.4082 0.999512 12.9997C0.999512 14.5911 1.63171 16.1174 2.75702 17.2427C3.88233 18.368 5.40859 19.0002 7.00002 19.0002C8.59145 19.0002 10.1177 18.368 11.243 17.2427L17.5 10.9997" stroke="#364152" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12.172 4.99968L5.58602 11.5857C5.395 11.7702 5.24264 11.9909 5.13782 12.2349C5.033 12.4789 4.97783 12.7413 4.97552 13.0069C4.97321 13.2724 5.02381 13.5358 5.12438 13.7816C5.22494 14.0274 5.37344 14.2507 5.56123 14.4385C5.74902 14.6263 5.97232 14.7748 6.21811 14.8753C6.4639 14.9759 6.72726 15.0265 6.99282 15.0242C7.25838 15.0219 7.52082 14.9667 7.76483 14.8619C8.00884 14.7571 8.22953 14.6047 8.41402 14.4137L14.828 7.82768C15.5567 7.07327 15.9598 6.06286 15.9507 5.01407C15.9416 3.96528 15.5209 2.96203 14.7793 2.2204C14.0377 1.47877 13.0344 1.05809 11.9856 1.04898C10.9368 1.03987 9.92643 1.44304 9.17202 2.17168L2.75702 8.75668C1.63171 9.88199 0.999512 11.4082 0.999512 12.9997C0.999512 14.5911 1.63171 16.1174 2.75702 17.2427C3.88233 18.368 5.40859 19.0002 7.00002 19.0002C8.59145 19.0002 10.1177 18.368 11.243 17.2427L17.5 10.9997" stroke="#364152" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
 
                         <Typography variant='h6' noWrap style={{ paddingLeft: '10px', textAlign: 'left', color: 'textPrimary' }}>
@@ -766,7 +821,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                             studyDetail.attachmentUrls.map((book, idx) => {
                                 const { contentType, title, url } = book;
                                 return (
-                                    <section style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full mb-3">
+                                    <section key={idx} style={{ backgroundColor: '#F7FAFC' }} className="flex-shrink-0 rounded-full mb-3">
                                         <Grid className="p-2" container wrap="nowrap">
                                             {
                                                 contentType.includes("pdf") ? <svg className="mt-2 w-12" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -787,7 +842,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                                 }}
                                             >
                                                 <svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M1 13V14C1 14.7956 1.31607 15.5587 1.87868 16.1213C2.44129 16.6839 3.20435 17 4 17H14C14.7956 17 15.5587 16.6839 16.1213 16.1213C16.6839 15.5587 17 14.7956 17 14V13M13 9L9 13M9 13L5 9M9 13V1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
 
 
@@ -869,16 +924,6 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function orderDetail(detail) {
 
-        var days_diff = -1;
-
-        if (detail !== undefined) {
-            const currentDate = moment(new Date());
-            //@ts-ignore
-            const returnDate = moment(detail.authoredDate);
-            days_diff = currentDate.diff(returnDate, 'days');
-
-        }
-
         return <div>
             <Grid className='w-full '>
                 <Grid container justifyContent="space-between">
@@ -902,7 +947,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                 </Typography>
                                 <Typography style={{ marginTop: '-5px' }} variant='body1' color='textPrimary'>
                                     {
-                                        days_diff < 0 ? 'día invalido' : days_diff === 0 ? 'Hoy' : days_diff === 1 ? 'Ayer' : 'Hace ' + days_diff + ' días'
+                                        countDays(detail.authoredDate)
                                     }
                                 </Typography>
                             </Grid>
@@ -951,13 +996,13 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                             </Typography>
                         </div>
                         <Typography style={{ marginLeft: '1rem', marginTop: '1rem' }}>
-                            {detail.studiesCodes.map((i) => (<li>{i.display}</li>))}
+                            {detail.studiesCodes.map((i, index) => (<li key={index}>{i.display}</li>))}
                         </Typography>
                     </Typography>
                     <Typography variant='subtitle1' noWrap style={{ textAlign: 'left', color: '#6B7280', marginTop: '1rem' }}>
                         Observaciones
                     </Typography>
-                    {detail.notes}
+                    {detail.notes ?? 'Sin observaciones.'}
                 </Card>
             </Grid>
         </div>
@@ -965,11 +1010,10 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
 
     function studyOrderView() {
         return (
-            <Provider>
-                <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
-                    <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true}></StudyOrder>
-                </div>
-            </Provider>
+            <div id="study_orders" className="overflow-y-auto scrollbar" style={{ height: 'calc( 100vh - 220px)' }}>
+                {console.log("encounter => ", encounter)}
+                <StudyOrder setShowMakeOrder={setIssueOrder} remoteMode={true} encounter={encounter}></StudyOrder>
+            </div>
         )
     }
 }
