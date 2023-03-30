@@ -103,7 +103,16 @@ export default function Dashboard() {
       <div className='flex flex-col h-full overflow-hidden relative'>
         <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
-          Consulta {appointment && appointment.status !== 'locked' ? 'presencial' : 'finalizada'}
+          Consulta
+          {
+            appointment?.appointmentType === 'A' && appointment?.status !== 'locked' ?
+              ' presencial' :
+              appointment?.appointmentType === 'A' && appointment?.status === 'locked' ?
+                ' presencial finalizada' :
+                appointment?.appointmentType === 'V' && appointment?.status === 'locked' ?
+                  ' virtual finalizada' :
+                  ' ...'
+          }
         </div>
         <div className='flex flex-row flex-no-wrap flex-1 h-full'>
           <div className='flex flex-col w-80 flex-1 h-full' style={{ maxWidth: '20rem', minWidth: '20rem' }}>
