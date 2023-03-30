@@ -95,7 +95,7 @@ const Gate = () => {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
   const { Organizations } = useContext(AllOrganizationContext)
-  const [instance, setInstance] = useState(1)
+  const [instance, setInstance] = useState(0)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
@@ -109,7 +109,7 @@ const Gate = () => {
 
   const updateStatus = useCallback(
     async (status?: Status) => {
-      setInstance(1)
+      setInstance(0)
       if (!status) return
 
       const url = `/profile/doctor/appointments/${id}`
@@ -268,7 +268,7 @@ const Gate = () => {
         }
         case 'closed': {
           setCallStatus({ connecting: false })
-          setInstance(1)
+          setInstance(0)
           addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
           socket?.emit('ready?', { room: id, token })
           break
