@@ -143,10 +143,11 @@ type Props = {
   patientId: string,
   organizationId: string,
   darkMode?: boolean
+  isEditable?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
 
-const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organizationId, handlerSaveLoading, darkMode = false }) => {
+const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organizationId, handlerSaveLoading, darkMode = false, isEditable = false }) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
@@ -177,7 +178,7 @@ const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organi
         </div>
         <div className='flex flex-row flex-no-wrap relative w-6'>
           <button className='focus:outline-none absolute left-0' onClick={() => { handleClickEdit() }}>
-            {hover && !showEdit && <PencilEditIcon fill={darkMode ? '#DB7D68' : '#27BEC2'} />}
+            {hover && !showEdit && isEditable && <PencilEditIcon fill={darkMode ? '#DB7D68' : '#27BEC2'} />}
           </button>
           <AddClose
             show={showEdit}

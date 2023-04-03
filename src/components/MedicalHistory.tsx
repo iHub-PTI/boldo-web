@@ -150,6 +150,9 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
 
   const patientId = appointment.patient.id
   const { gender } = appointment.patient
+  //rectrict medical history
+  const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
+  console.log(isEditable, appointment.status)
   const organizationId = appointment.organization.id
   //const encounterId = appointment.id
 
@@ -338,6 +341,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   url={urls.allergies}
                   patientId={patientId}
                   handlerSaveLoading={handlerSaveLoading}
+                  isEditable={isEditable}
                 />
               </div>
               {/* Section pathology */}
@@ -352,6 +356,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
+                    isEditable={isEditable}
                   />
                   <CardList
                     title={'Respiratorias'}
@@ -361,6 +366,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
+                    isEditable={isEditable}
                   />
                   <CardList
                     title={'Digestivas'}
@@ -370,6 +376,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     patientId={patientId}
                     organizationId={organizationId}
                     handlerSaveLoading={handlerSaveLoading}
+                    isEditable={isEditable}
                   />
                 </div>
               </div>
@@ -384,6 +391,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 patientId={patientId}
                 organizationId={organizationId}
                 handlerSaveLoading={handlerSaveLoading}
+                isEditable={isEditable}
               />
 
               {/* Section Others */}
@@ -396,6 +404,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 patientId={patientId}
                 organizationId={organizationId}
                 handlerSaveLoading={handlerSaveLoading}
+                isEditable={isEditable}
               />
               {/* Section Gynecology */}
               {gender === 'female' &&
@@ -405,6 +414,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   patientId={patientId}
                   organizationId={organizationId}
                   handlerSaveLoading={handlerSaveLoading}
+                  isEditable={isEditable}
                 />
               }
             </div>
@@ -423,6 +433,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   patientId={patientId}
                   organizationId={organizationId}
                   handlerSaveLoading={handlerSaveLoading}
+                  isEditable={isEditable}
                 />
                 <CardList
                   TitleElement={() =>
@@ -435,6 +446,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   patientId={patientId}
                   organizationId={organizationId}
                   handlerSaveLoading={handlerSaveLoading}
+                  isEditable={isEditable}
                 />
               </div>
             </div>
