@@ -65,7 +65,7 @@ const App = () => {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', error.message)
           }
-          Sentry.captureException(error)
+          if (error.response.status !== 401) Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
