@@ -137,8 +137,8 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
             <button
               className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none disabled:cursor-not-allowed`}
               onClick={() => medicalHistoryToggleButton()}
-              disabled={(status !== 'closed' && status !== 'open')}
-              title={`${(status !== 'closed' && status !== 'open') ? 'No es posible visualizar esta sección en una cita que se encuentra cerrada' : 'Antecedentes Clínicos'}`}
+              //disabled={(status !== 'closed' && status !== 'open')}
+              //title={`${(status !== 'closed' && status !== 'open') ? 'No es posible visualizar esta sección en una cita que se encuentra cerrada' : 'Antecedentes Clínicos'}`}
             >
               <HistoryIcon fill={`${medicalHistoryButton ? '#13A5A9' : '#6B7280'}`} />
               <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${medicalHistoryButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Antecedentes Clínicos</div>

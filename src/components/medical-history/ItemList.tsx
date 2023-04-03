@@ -9,9 +9,10 @@ type Props = {
   relationship?: string,
   deleteItem: () => void,
   darkMode?: boolean
+  isEditable?: boolean
 }
 
-const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem, darkMode = false }) => {
+const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem, darkMode = false, isEditable = false }) => {
 
   const [hover, setHover] = useState(false)
   const bgColor = hover ? 'rgba(247, 244, 244, 0.6)' : ''
@@ -45,7 +46,7 @@ const ItemList: React.FC<Props> = ({ description, date, relationship, deleteItem
             {date && moment(date).format('DD/MM/YYYY')}
             {relationship}
           </span>
-          {hover &&
+          {hover && isEditable &&
             <button className='focus:outline-none' onClick={() => handleDeleteItem()}>
               <TrashIcon />
             </button>

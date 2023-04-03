@@ -50,6 +50,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   const patientId = appointment.patient.id
   const { gender } = appointment.patient
   const organizationId = appointment.organization.id
+  const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
 
   const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, medicalHistoryButton)
   const [saveLoading, setSaveLoading] = useState(null)
@@ -194,6 +195,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.allergies}
             patientId={patientId}
             handlerSaveLoading={handlerSaveLoading}
+            isEditable={isEditable}
           />
         </div>
         {/* Section pathology */}
@@ -210,6 +212,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               title={'Respiratorias'}
@@ -221,6 +224,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               title={'Digestivas'}
@@ -232,6 +236,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
           </div>
         </div>
@@ -247,6 +252,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />
           {/* Section Others */}
           <CardList
@@ -259,6 +265,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />
           {/* Section Gynecology */}
           {gender === 'female' && <TableGynecology
@@ -268,6 +275,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             organizationId={organizationId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />}
         </div>
         {/* Familiar */}
@@ -291,6 +299,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               TitleElement={() =>
@@ -304,6 +313,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
           </div>
         </div>

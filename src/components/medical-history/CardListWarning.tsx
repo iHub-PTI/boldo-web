@@ -11,7 +11,8 @@ type Props = {
   dataList: DataList
   backgroundColor?: string
   url: string,
-  patientId: string
+  patientId?: string
+  isEditable?: boolean
   handlerSaveLoading?: (value: boolean) => void
 }
 
@@ -22,6 +23,7 @@ const CardListWarning: React.FC<Props> = ({
   url,
   patientId,
   handlerSaveLoading,
+  isEditable = false,
   ...props
 }) => {
 
@@ -104,13 +106,13 @@ const CardListWarning: React.FC<Props> = ({
         <WarningIcon />
         {title}
         <button className='focus:outline-none' onClick={() => { handleClickAdd() }}>
-          <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-all duration-500' />
+          {isEditable && <AddCircleIcon className='opacity-0 group-hover:opacity-100 transition-all duration-500' />}
         </button>
       </div>
       <div className='flex flex-col w-full pr-5 pl-15'>
         <InputAddClose show={showInput} setShow={setShowInput} addInput={handleAddList} />
         {/* {loading && <div className='w-full text-center'>Guardando...</div>} */}
-        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={null} deleteItem={() => handleDeleteList(data.id)} />)}
+        {list.map((data, i) => <ItemList key={'card_list_w' + i} description={data.description} date={null} deleteItem={() => handleDeleteList(data.id)} isEditable={isEditable} />)}
         <Empty />
       </div>
     </div>

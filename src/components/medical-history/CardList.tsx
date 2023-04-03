@@ -19,7 +19,7 @@ type Props = {
   categoryCode?: string
   patientId?: string
   organizationId?: string
-  logicalDelete?: boolean
+  isEditable?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
 
@@ -39,7 +39,7 @@ type Props = {
  * @param {string} patientId - The ID of the patient to display data 
  * @param {string} organizationId - The ID of the organization to display data
  * @param {function} handlerSaveLoading - The function to handle saving/loading (optional).
- * @param {boolean} logicalDelete - Whether to logically delete data (optional).
+ * @param {boolean} isEditable - to restrict editing
  * @param {...any} props - Additional props to pass to the component.
  *
  * @returns {JSX.Element} - The CardList component.
@@ -57,6 +57,7 @@ const CardList: React.FC<Props> = ({
   patientId,
   organizationId,
   handlerSaveLoading,
+  isEditable = false,
   ...props
 }) => {
 
@@ -144,7 +145,9 @@ const CardList: React.FC<Props> = ({
         {title && <div className={classTitle}>{title}</div>}
         {TitleElement && <TitleElement />}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
-          <AddCircleIcon fill={darkMode ? '#FFFFFF' : '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
+          {isEditable &&
+            <AddCircleIcon fill={darkMode ? '#FFFFFF' : '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
+          }
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
@@ -164,6 +167,7 @@ const CardList: React.FC<Props> = ({
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}
+            isEditable={isEditable}
           />)}
         <Empty />
       </div>
