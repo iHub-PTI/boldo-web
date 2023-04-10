@@ -152,9 +152,9 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const { gender } = appointment.patient
   //rectrict medical history
   const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
-  console.log(isEditable, appointment.status)
+  //console.log(isEditable, appointment.status)
   const organizationId = appointment.organization.id
-  //const encounterId = appointment.id
+  const appointmentId = appointment.id
 
   const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, show)
   const [saveLoading, setSaveLoading] = useState(null)
@@ -340,6 +340,8 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   dataList={dataHistory?.personal?.allergies ?? []}
                   url={urls.allergies}
                   patientId={patientId}
+                  organizationId={organizationId}
+                  appointmentId={appointmentId}
                   handlerSaveLoading={handlerSaveLoading}
                   isEditable={isEditable}
                 />
