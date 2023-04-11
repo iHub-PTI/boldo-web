@@ -12,6 +12,8 @@ type Props = {
   backgroundColor?: string
   url: string,
   patientId?: string
+  appointmentId?: string
+  organizationId?: string
   isEditable?: boolean
   handlerSaveLoading?: (value: boolean) => void
 }
@@ -22,6 +24,8 @@ const CardListWarning: React.FC<Props> = ({
   backgroundColor = "#FFF3F0",
   url,
   patientId,
+  appointmentId,
+  organizationId,
   handlerSaveLoading,
   isEditable = false,
   ...props
@@ -74,7 +78,7 @@ const CardListWarning: React.FC<Props> = ({
   }
 
   const handleAddList = async (value: InputValue) => {
-    sendData({ patientId: patientId, description: value.description }, addItemList)
+    sendData({ patientId: patientId, description: value.description, organizationId, appointmentId }, addItemList)
   }
 
   const handleDeleteList = (id: string) => {
