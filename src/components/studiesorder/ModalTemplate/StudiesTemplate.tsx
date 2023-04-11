@@ -39,10 +39,10 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
 
   const { addToast } = useToasts()
 
-  useEffect(()=>{
-    console.log("page", page)
-    console.log("slide", maxPagination)
-  })
+  // useEffect(()=>{
+  //   console.log("page", page)
+  //   console.log("slide", maxPagination)
+  // })
 
   const confirmationStudies = () => {
     let orderStudies = []
@@ -85,7 +85,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     try {
       setLoading(true)
       const res = await axios.get(url)
-      console.log(res)
+      // console.log(res)
       if (res.status === 200) {
         let templates = []
         res.data
@@ -104,7 +104,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             })
             templates.push(temp)
           })
-        console.log('response templates', templates)
+        // console.log('response templates', templates)
         validateStudiesTemplates(studies)
         setStudies(templates)
         setTemplate(templates[0])
@@ -170,7 +170,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   }, [show])
 
   useEffect(() => {
-    console.log('study', studies.length)
+    // console.log('study', studies.length)
     if (studies.length > 0) {
       //reset pagination
       setMaxPagination(Math.ceil(studies.length / perPage))

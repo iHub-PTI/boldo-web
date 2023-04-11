@@ -60,7 +60,7 @@ export const SelectStudies = ({ template, setTemplate }) => {
   return (
     <>
       <div className='flex items-center mr-4'>
-        <CheckStyle checked={selectAll} className='w-5 h-5' onClick={handleSelectAll}></CheckStyle>
+        <CheckStyle checked={selectAll} className='w-5 h-5' onClick={handleSelectAll} onChange={() => { }}></CheckStyle>
         <label className='ml-2 text-sm font-medium'>Seleccionar Todo</label>
       </div>
       <div
@@ -69,8 +69,9 @@ export const SelectStudies = ({ template, setTemplate }) => {
       >
         {template.studiesIndication
           .filter(obj => obj.status === true)
-          .map(data => (
+          .map((data, index) => (
             <StudyIndication
+              key={'study_i_' + index}
               id={data.id}
               name={data.name}
               indication={data.indication}
@@ -80,7 +81,6 @@ export const SelectStudies = ({ template, setTemplate }) => {
               disabled={!data.select}
             />
           ))}
-        {console.table(template.studiesIndication)}
       </div>
     </>
   )
