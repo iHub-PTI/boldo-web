@@ -214,6 +214,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
               isEditable={isEditable}
@@ -226,6 +227,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
               isEditable={isEditable}
@@ -238,6 +240,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
               isEditable={isEditable}
@@ -254,6 +257,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.procedures}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
             isEditable={isEditable}
@@ -267,6 +271,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.condition}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
             isEditable={isEditable}
@@ -277,12 +282,13 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.gynecology}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
             isEditable={isEditable}
           />}
         </div>
-        {/* Familiar */}
+        {/* Family Section */}
         <div className='flex flex-col items-center w-full gap-3 pb-5'>
           <div className='flex flex-row flew-no-wrap w-full'>
             <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
