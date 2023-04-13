@@ -24,6 +24,8 @@ import ListboxColor from '../components/ListboxColor'
 import { OrganizationContext } from '../contexts/Organizations/organizationSelectedContext'
 import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 // import { type } from 'os'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -324,23 +326,11 @@ export default function Dashboard() {
         text: '¡Se ha creado el evento privado con éxito!',
       })
     } catch (err) {
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'POST')
-      if (err.response) {
-        // La respuesta fue hecha y el servidor respondió con un código de estado
-        // que esta fuera del rango de 2xx
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        Sentry.setTag('request', err.request)
-      } else {
-        // Algo paso al preparar la petición que lanzo un Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": "POST"
       }
-      Sentry.captureMessage("Could not create the private event")
-      Sentry.captureException(err)
+      handleSendSentry(tags, err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_CREATE)
       addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No fue posible crear el evento privado. ¡Inténtelo nuevamente más tarde!' })
     }
 
@@ -898,26 +888,12 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
       setLoading(false)
       setShow(false)
     } catch (err) {
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'DELETE')
-      Sentry.setTag('appointment_id', id)
-      if (err.response) {
-        // La respuesta fue hecha y el servidor respondió con un código de estado
-        // que esta fuera del rango de 2xx
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        Sentry.setTag('request', err.request)
-        console.log(err.request)
-      } else {
-        // Algo paso al preparar la petición que lanzo un Error
-        Sentry.setTag('message', err.message)
-        console.log('Error', err)
+      const tags = {
+        "endpoint": url,
+        "method": "DELETE",
+        "appointment_id": `${id}`
       }
-      Sentry.captureMessage("Could not delete the private event")
-      Sentry.captureException(err)
+      handleSendSentry(tags, err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_DELETE)
       setLoading(false)
       addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
       console.log(err)
