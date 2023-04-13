@@ -134,7 +134,7 @@ const PatientRecord = (props) => {
           show={props.showMedicalHistory}
           setShow={props.setShowMedicalHistory}
           disabled={
-            (status !== 'closed' && status !== 'open') ||
+            //(status !== 'closed' && status !== 'open') ||
             props.disabledRedcordButton}
           IconElement={() =>
             <PastIcon

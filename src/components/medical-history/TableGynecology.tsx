@@ -75,6 +75,7 @@ const RowTable = ({
   url,
   patientId,
   organizationId,
+  appointmentId,
   handlerSaveLoading
 }) => {
 
@@ -91,12 +92,14 @@ const RowTable = ({
     _.debounce((
       patientId,
       organizationId,
+      appointmentId,
       code,
       value
     ) => {
       sendData({
         patientId,
         organizationId,
+        appointmentId,
         code,
         value
       })
@@ -107,6 +110,7 @@ const RowTable = ({
     debounceSendData(
       patientId,
       organizationId,
+      appointmentId,
       event.target.name,
       event.target.value,
     )
@@ -142,11 +146,13 @@ type Props = {
   url?: string
   patientId: string,
   organizationId: string,
+  appointmentId: string
   darkMode?: boolean
+  isEditable?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
 
-const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organizationId, handlerSaveLoading, darkMode = false }) => {
+const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organizationId, appointmentId, handlerSaveLoading, darkMode = false, isEditable = false }) => {
 
   const [showEdit, setShowEdit] = useState(false)
   const [hover, setHover] = useState(false)
@@ -177,7 +183,7 @@ const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organi
         </div>
         <div className='flex flex-row flex-no-wrap relative w-6'>
           <button className='focus:outline-none absolute left-0' onClick={() => { handleClickEdit() }}>
-            {hover && !showEdit && <PencilEditIcon fill={darkMode ? '#DB7D68' : '#27BEC2'} />}
+            {hover && !showEdit && isEditable && <PencilEditIcon fill={darkMode ? '#DB7D68' : '#27BEC2'} />}
           </button>
           <AddClose
             show={showEdit}
@@ -199,6 +205,7 @@ const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organi
             url={url}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
           />
         )}

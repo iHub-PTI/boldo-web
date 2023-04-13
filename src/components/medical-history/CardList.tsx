@@ -19,7 +19,8 @@ type Props = {
   categoryCode?: string
   patientId?: string
   organizationId?: string
-  logicalDelete?: boolean
+  appointmentId?: string
+  isEditable?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
 
@@ -38,8 +39,9 @@ type Props = {
  * @param {string} categoryCode - The category of data to display in the card list.
  * @param {string} patientId - The ID of the patient to display data 
  * @param {string} organizationId - The ID of the organization to display data
+ * @param {string} appointmentId - The ID of the appointment to display data
  * @param {function} handlerSaveLoading - The function to handle saving/loading (optional).
- * @param {boolean} logicalDelete - Whether to logically delete data (optional).
+ * @param {boolean} isEditable - to restrict editing
  * @param {...any} props - Additional props to pass to the component.
  *
  * @returns {JSX.Element} - The CardList component.
@@ -56,7 +58,9 @@ const CardList: React.FC<Props> = ({
   categoryCode,
   patientId,
   organizationId,
+  appointmentId,
   handlerSaveLoading,
+  isEditable = false,
   ...props
 }) => {
 
@@ -99,6 +103,7 @@ const CardList: React.FC<Props> = ({
     sendData({
       patientId,
       organizationId,
+      appointmentId,
       description: value.description,
       //can be performedDate or OnSetDate depending on the component and if it admits date
       ...(value.date && inputTypeWith === 'date' && {performedDate: moment(value.date).format("YYYY-MM-DD")}),
@@ -144,7 +149,9 @@ const CardList: React.FC<Props> = ({
         {title && <div className={classTitle}>{title}</div>}
         {TitleElement && <TitleElement />}
         <button className='focus:outline-none' onClick={() => handleClickAdd()}>
-          <AddCircleIcon fill={darkMode ? '#FFFFFF' : '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
+          {isEditable &&
+            <AddCircleIcon fill={darkMode ? '#FFFFFF' : '#27BEC2'} className='opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out' />
+          }
         </button>
       </div>
       <div className='flex flex-col w-full pr-3 pl-2 gap-1'>
@@ -164,6 +171,7 @@ const CardList: React.FC<Props> = ({
             relationship={data.relationship}
             darkMode={darkMode}
             deleteItem={() => handleDeleteList(data.id)}
+            isEditable={isEditable}
           />)}
         <Empty />
       </div>

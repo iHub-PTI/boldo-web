@@ -50,6 +50,9 @@ export const MedicalHistoryCall: React.FC<Props> = ({
   const patientId = appointment.patient.id
   const { gender } = appointment.patient
   const organizationId = appointment.organization.id
+  const appointmentId = appointment.id
+
+  const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
 
   const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, medicalHistoryButton)
   const [saveLoading, setSaveLoading] = useState(null)
@@ -193,7 +196,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             dataList={dataHistory?.personal?.allergies ?? []}
             url={urls.allergies}
             patientId={patientId}
+            organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
+            isEditable={isEditable}
           />
         </div>
         {/* Section pathology */}
@@ -208,8 +214,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               title={'Respiratorias'}
@@ -219,8 +227,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               title={'Digestivas'}
@@ -230,8 +240,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               url={urls.condition}
               patientId={patientId}
               organizationId={organizationId}
+              appointmentId={appointmentId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
           </div>
         </div>
@@ -245,8 +257,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.procedures}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />
           {/* Section Others */}
           <CardList
@@ -257,8 +271,10 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.condition}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />
           {/* Section Gynecology */}
           {gender === 'female' && <TableGynecology
@@ -266,11 +282,13 @@ export const MedicalHistoryCall: React.FC<Props> = ({
             url={urls.gynecology}
             patientId={patientId}
             organizationId={organizationId}
+            appointmentId={appointmentId}
             handlerSaveLoading={handlerSaveLoading}
             darkMode={true}
+            isEditable={isEditable}
           />}
         </div>
-        {/* Familiar */}
+        {/* Family Section */}
         <div className='flex flex-col items-center w-full gap-3 pb-5'>
           <div className='flex flex-row flew-no-wrap w-full'>
             <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
@@ -291,6 +309,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
             <CardList
               TitleElement={() =>
@@ -304,6 +323,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
               organizationId={organizationId}
               handlerSaveLoading={handlerSaveLoading}
               darkMode={true}
+              isEditable={isEditable}
             />
           </div>
         </div>
