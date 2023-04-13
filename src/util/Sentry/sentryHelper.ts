@@ -6,12 +6,12 @@ type CustomTags = Record<string, string>
 
 
 /**
+ * Function to handle exception before send to sentry
  * @param {CustomTags} customTags - any object with key value pairs (like <string, string>)
  * @param error - the exception that was thrown
  * @param {string} msgToSend - header of the card of error in sentry
  */
 const handleSendSentry = (customTags:CustomTags, error, msgToSend:string) => {
-
   if (error) {
     if (msgToSend) Sentry.captureMessage(msgToSend)
     if (customTags) Sentry.setTags(customTags)
