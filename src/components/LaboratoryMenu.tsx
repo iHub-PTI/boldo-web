@@ -49,8 +49,9 @@ import StudyOrder from "./studiesorder/StudyOrder";
 // import Provider from "./studiesorder/Provider";
 import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
-import * as Sentry from '@sentry/react'
 import { countDays } from "../util/helpers";
+import handleSendSentry from "../util/Sentry/sentryHelper";
+import { ERROR_HEADERS } from "../util/Sentry/errorHeaders";
 
 
 export function LaboratoryMenu(props) {
@@ -112,35 +113,21 @@ export function LaboratoryMenu(props) {
             setLoading(false)
         }
       } catch (err) {
-        Sentry.setTags({
-          'endpoint': url,
-          'method': 'GET',
-          'appointment_id': appointment.id,
-          'doctor_id': appointment.doctorId,
-          'patient_id': appointment.patientId
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
+        const tags = {
+          "endpoint": url,
+          "method": 'GET',
+          "appointment-id": appointment.id,
+          "doctor-id": appointment.doctorId,
+          "patient-id": appointment.patientId
         }
-        Sentry.captureMessage("Could not get the diagnostic report")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.DIAGNOSTIC_REPORT.FAILURE_GET, tags)
         addToast({ 
           type: 'error', 
           title: 'Ha ocurrido un error.', 
           text: 'No pudimos obtener los estudios realizados. ¡Inténtelo nuevamente más tarde!' 
         })
         // setLoading(false)
-        console.log(err)
+        // console.log(err)
       } finally {
           setLoading(false)
       }
@@ -167,7 +154,7 @@ export function LaboratoryMenu(props) {
       if (appointment !== undefined) {
         setLoadingIssued(true)
         const res = await axios.get(url)
-        console.log("response issueds", res)
+        // console.log("response issueds", res)
         if (res.status === 200)
           setIssuedStudiesData(res.data.items)
         if (res.status === 204)
@@ -175,28 +162,14 @@ export function LaboratoryMenu(props) {
         setLoadingIssued(false)
       }
     } catch (err) {
-      Sentry.setTags({
-        'endpoint': url,
-        'method': 'GET',
-        'appointment_id': appointment.id,
-        'doctor_id': appointment.doctorId,
-        'patient_id': appointment.patientId
-      })
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": 'GET',
+        "appointment-id": appointment.id,
+        "doctor-id": appointment.doctorId,
+        "patient-id": appointment.patientId
       }
-      Sentry.captureMessage("Could not get the study orders")
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET, tags)
       addToast({
         type: 'error',
         title: 'Ha ocurrido un error',
@@ -250,31 +223,18 @@ export function LaboratoryMenu(props) {
       setStudyDetail(undefined)
       try {
         if (selectedRow !== undefined) {
-            //@ts-ignore
-            const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
-            setStudyDetail(res.data)
+          //@ts-ignore
+          const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+          setStudyDetail(res.data)
         }
       } catch (err) {
-        if (selectedRow !== undefined) { 
+        let tags = {}
+        if (selectedRow) { 
           //@ts-ignore
-          Sentry.setTag('endpoint', `/profile/doctor/diagnosticReport/${selectedRow.id}`) 
+          tags = {"endpoint": `/profile/doctor/diagnosticReport/${selectedRow.id}`}
         }
-        Sentry.setTag('method', 'GET')
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
-        }
-        Sentry.captureMessage("Could not get the study description")
-        Sentry.captureException(err)
+        tags = { ...tags, ...{"method": "GET"}}
+        handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET_DESCRIPTION, tags)
         setSelectedRow(undefined)
         addToast({
           type: 'error',
@@ -310,27 +270,14 @@ export function LaboratoryMenu(props) {
           }
         })
         .catch((err) => {
-          Sentry.setTags({
+          const tags = {
             'endpoint': url,
-            'method': 'GET'
-          })
-          if (err.response) {
-            // The response was made and the server responded with a 
-            // status code that is outside the 2xx range.
-            Sentry.setTags({
-              'data': err.response.data,
-              'headers': err.response.headers,
-              'status_code': err.response.status
-            })
-          } else if (err.request) {
-            // The request was made but no response was received
-            Sentry.setTag('request', err.request)
-          } else {
-            // Something happened while preparing the request that threw an Error
-            Sentry.setTag('message', err.message)
+            'method': 'GET',
+            'appointment-id': appointment.id,
+            "doctor-id": appointment.doctorId,
+            "patient-id": appointment.patientId
           }
-          Sentry.captureMessage("Could not get the encounter")
-          Sentry.captureException(err)
+          handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
         })
     }
     if (appointment)
