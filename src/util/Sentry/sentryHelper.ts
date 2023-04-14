@@ -2,20 +2,20 @@ import * as Sentry from '@sentry/react';
 
 
 // for example, we use to add the id of the appointment, doctor or patient
-type CustomTags = Record<string, string>
+type CustomTags = Record<string, string | number | bigint | boolean | symbol>
 
 
 /**
  * Function to handle exception before send to sentry
- * @param {CustomTags} customTags - any object with key value pairs (like <string, string>)
  * @param error - the exception that was thrown
- * @param {string} msgToSend - header of the card of error in sentry
+ * @param {string} msgToSend - the header of the error in sentry
+ * @param {CustomTags} customTags - (optional) any object with key value pairs (like <string, Primitive>)
  */
 const handleSendSentry = (error, msgToSend:string, customTags?:CustomTags) => {
-  if (error) {
-    if (msgToSend) Sentry.captureMessage(msgToSend)
-    if (customTags) Sentry.setTags(customTags)
-    // The response was made and the server responded with a 
+  // in any situation we set the tags
+  if (customTags) Sentry.setTags(customTags)
+  if (error) { // if we have the exception
+    // The response was made and the server responded with a
     // status code that is outside the 2xx range.
     if (error.response) {
       Sentry.setTags({
@@ -33,10 +33,13 @@ const handleSendSentry = (error, msgToSend:string, customTags?:CustomTags) => {
     }
     // avoid sending when the code is 401 so as not to saturate Sentry
     if (error.response) {
-      if (error.response?.status !== 401) Sentry.captureException(error)
+      if (error.response?.status !== 401) Sentry.captureMessage(msgToSend ?? "Empty description")
     } else {
-      Sentry.captureException(error)
+      Sentry.captureMessage(msgToSend ?? "Empty description")
     }
+  } else { // In this case we cannot show a complete stack of errors.
+    // if we only have message, then we capture it
+    if (msgToSend) Sentry.captureMessage(msgToSend ?? "Empty description")
   }
 }
 
