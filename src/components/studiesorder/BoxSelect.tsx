@@ -29,7 +29,7 @@ const BoxSelect = props => {
                 <TemplateStudy title="Seleccionar estudios"></TemplateStudy>
             </button>
             {data && data.map( (item, i) => {
-                return <SelectItem value={item.name} handleDelete={()=>deleteData(i)} {...otherProps}></SelectItem>
+                return <SelectItem key={'item' + i} value={item.name} handleDelete={()=>deleteData(i)} {...otherProps}></SelectItem>
             })}
             
         </div>

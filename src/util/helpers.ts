@@ -64,10 +64,11 @@ export const toUpperLowerCase = (sentence: string) => {
     .join(' ')
 }
 
-//count the days
-export const countDays = (days: string) => {
-  const currentDate = moment(new Date())
-  const days_diff = currentDate.diff(moment(days), 'days')
+//count the days @days: the days is string with format inlcude 'T'
+export const countDays = (days: string | undefined ) => {
+  if(days === undefined) return 
+  const currentDate = moment(new Date(), 'DD/MM/YYYY')
+  const days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
   switch (days_diff) {
     case 0:
       return 'Hoy'
@@ -149,6 +150,57 @@ export function organizationsFromMessage(msg: String, organizations: Array<Boldo
   return organizationsMatches
 }
 
+/**
+ * @param {string} day - a day of the week, first three letter format
+ * @retuns The day but in spanish
+ */
+export function flipDays(day: string): string {
+  const map = {
+    "mon": "Lunes",
+    "tue": "Martes",
+    "wed": "Miercoles",
+    "thu": "Jueves",
+    "fri": "Viernes",
+    "sat": "Sábado",
+    "sun": "Domingo"
+  }
+  // lowerCase to prevent conflicts
+  return map[day.toLowerCase()]
+}
+
+/**
+ * @param {String} msg - any string in which we'll search if they include other strings
+ * @param {Array<String>} days - string of days that we search into msg
+ * @returns A string of the days found in the msg parameter supplied by the day parameter
+ */
+export function daysFromMessage(msg: string, days: Array<string>): Array<string> {
+  let dayMatch = [] as Array<string>
+
+  days.forEach((day) => {
+    if (msg.includes(day)) {
+      dayMatch.push(flipDays(day))
+    }
+  })
+
+  return dayMatch
+}
+
+
+/**
+ * 
+ * @param {Array<Boldo.Organization>} orgs - array of organizations in which we'll look for a specific id
+ * @param {string} orgIDSearch - this is the id we'll search
+ * @returns organization color hexadecimal code
+ */
+export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: string): string {
+  let colorCode = "#27BEC2"
+  let orgFound = orgs.find(organization => organization.id === orgIDSearch)
+
+  if (orgFound && orgFound.colorCode) colorCode = orgFound.colorCode
+  
+  return colorCode
+}
+
 // uncomment if necessary
 // this function merges the ids of the organizations separated by commas
 // export function joinOrganizations(organizations: Array<Boldo.Organization>): String {
@@ -169,4 +221,30 @@ export function changeHours(date: Date, hours: number, operation: 'subtract' | '
     date.setHours(date.getHours() + hours)
   }
   return date.toISOString()
+}
+
+/**
+ * Function to merge objects deeply
+ * @param source1 
+ * @param source2 
+ * @returns returns the new merged object
+ */
+
+export function mergeJSON(source1, source2) {
+  let result = {};
+  for (let key in source1) {
+    if (source1.hasOwnProperty(key)) {
+      result[key] = source1[key];
+    }
+  }
+  for (let key in source2) {
+    if (source2.hasOwnProperty(key)) {
+      if (typeof source2[key] === "object" && !Array.isArray(source2[key])) {
+        result[key] = mergeJSON(result[key], source2[key]);
+      } else {
+        result[key] = source2[key];
+      }
+    }
+  }
+  return result;
 }

@@ -9,7 +9,7 @@ import { SocketContext } from '../App'
 import { useToasts } from '../components/Toast'
 import MdAdd from '@material-ui/icons/MoreVert'
 import MdClose from '@material-ui/icons/Clear'
-import PersonIcon from '@material-ui/icons/Person'
+// import PersonIcon from '@material-ui/icons/Person'
 import { ReactComponent as PillIcon } from '../assets/pill.svg'
 // TODO: Clear comments
 // import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
@@ -68,17 +68,24 @@ import CancelAppointmentModal from '../components/CancelAppointmentModal'
 import { PrescriptionMenu } from '../components/PrescriptionMenu'
 import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import useWindowDimensions from '../util/useWindowDimensions'
-import Print from '../components/icons/Print'
+// import Print from '../components/icons/Print'
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
-import { getReports } from '../util/helpers'
+// import { getReports } from '../util/helpers'
 import * as Sentry from '@sentry/react'
+import SidebarMenuCall from '../components/SidebarMenuCall'
+import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
+import SelectPrintOptions from '../components/SelectPrintOptions'
+import OrganizationBar from '../components/OrganizationBar'
+import CircleCounter from '../components/CircleCounter'
+import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
+import { getColorCode } from '../util/helpers'
+import { CategoriesContext } from '../components/studiesorder/Provider'
 
 
-import RecordOutPatientCall from '../components/RecordOutPatientCall'
-import { HEIGHT_NAVBAR, WIDTH_XL } from '../util/constants'
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
 type CallStatus = { connecting: boolean }
+
 
 const Gate = () => {
   const history = useHistory()
@@ -87,16 +94,18 @@ const Gate = () => {
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
-
+  const { Organizations } = useContext(AllOrganizationContext)
   const [instance, setInstance] = useState(0)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
-  const [sideBarAction, setSideBarAction] = useState(0)
+  const [sideBarAction, setSideBarAction] = useState(1)
   const token = appointment?.token || ''
   // this help us for identify the selected button
-  const [selectedButton, setSelectedButton] = useState(0)
-  const [loading, setLoading] = useState(false);
+  const [selectedButton, setSelectedButton] = useState(1)
+  // const [loading, setLoading] = useState(false);
+  const { width } = useWindowDimensions()
+  const { orders } = useContext(CategoriesContext)
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -286,8 +295,8 @@ const Gate = () => {
     )
   const controlSideBarState = () => {
     switch (sideBarAction) {
-      case 0:
-        return <Sidebar appointment={appointment} />
+      // case 0:
+      //   return <Sidebar appointment={appointment} />
 
       case 1:
         return <SOEP appointment={appointment} />
@@ -301,13 +310,14 @@ const Gate = () => {
         }} />
 
       default:
-        return <Sidebar appointment={appointment} />
+        return <SOEP appointment={appointment} />
     }
   }
 
 
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
 
@@ -337,7 +347,7 @@ const Gate = () => {
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
@@ -356,16 +366,33 @@ const Gate = () => {
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
+                }
               }
             }}
+          /> */}
+          <ChildButton
+            icon={<SelectPrintOptions virtual={true} {...appointment} />}
+            size={50}
           />
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                </svg>
+                <div className='flex'>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                  </svg>
+                  { orders &&
+                    orders.filter((order) => order.studies_codes.length > 0).length > 0
+                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
+                    : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
@@ -378,7 +405,14 @@ const Gate = () => {
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                <div className='flex'>
+                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  {
+                    prescriptions.length > 0
+                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
+                      : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
@@ -401,7 +435,7 @@ const Gate = () => {
               setSelectedButton(1);
             }}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
@@ -413,54 +447,63 @@ const Gate = () => {
               setSideBarAction(0);
               setSelectedButton(0);
             }}
-          />
+          /> */}
         </FloatingMenu>
       </div>
     )
   }
   return (
     <Layout>
-      <RecordOutPatientCall appointment={appointment}>
-        {instance === 0 ? (
-          <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
-            <div className='flex h-full items-center w-8/12'>
-              {/* daiting screen here */}
-              <CallStatusMessage
-                status={appointment.status}
-                statusText={statusText}
-                updateStatus={updateStatus}
-                appointmentId={appointment.id}
-              />
-              {/* Togle Menu */}
-              <div
-                style={{
-                  position: 'fixed',
-                  bottom: '0',
-                  right: '34%',
-                  marginBottom: '20px',
-                  zIndex: 1
-                }}
-              >
-                <TogleMenu />
+      <div style={{
+        height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+          }`
+      }}>
+        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
+
+        <SidebarMenuCall appointment={appointment}>
+          {instance === 0 ? (
+            <div className='flex h-full w-full flex-row flex-no-wrap' style={{ marginLeft: '88px' }}>
+              <div className='flex h-full items-center w-8/12'>
+                {/* daiting screen here */}
+                <CallStatusMessage
+                  status={appointment.status}
+                  statusText={statusText}
+                  updateStatus={updateStatus}
+                  appointmentId={appointment.id}
+                />
+                {/* Togle Menu */}
+                <div
+                  style={{
+                    position: 'fixed',
+                    bottom: '0',
+                    right: '34%',
+                    marginBottom: '20px',
+                    zIndex: 1
+                  }}
+                >
+                  <TogleMenu />
+                </div>
               </div>
+              <Grid container item xs={4} style={{ display: 'grid' }}>
+                {/* patient data screen */}
+                <Card>{controlSideBarState()}</Card>
+              </Grid>
             </div>
-            <Grid container item xs={4} style={{ display: 'grid' }}>
-              {/* patient data screen */}
-              <Card>{controlSideBarState()}</Card>
-            </Grid>
-          </div>
-        ) : (
-          <Call
-            appointment={appointment}
-            id={id}
-            token={token}
-            instance={instance}
-            updateStatus={updateStatus}
-            onCallStateChange={onCallStateChange}
-            callStatus={callStatus}
-          />
-        )}
-      </RecordOutPatientCall>
+          ) : (
+            <Call
+              appointment={appointment}
+              id={id}
+              token={token}
+              instance={instance}
+              updateStatus={updateStatus}
+              onCallStateChange={onCallStateChange}
+              callStatus={callStatus}
+            />
+          )}
+        </SidebarMenuCall>
+      </div>
     </Layout>
   )
 }
@@ -487,14 +530,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const video = useRef<HTMLVideoElement>(null)
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
-  const [sideBarAction, setSideBarAction] = useState(0)
+  const [sideBarAction, setSideBarAction] = useState(1)
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
-  const { width: screenWidth } = useWindowDimensions()
+  const { width } = useWindowDimensions()
   // this help us for identify the selected button
-  const [selectedButton, setSelectedButton] = useState(0)
+  const [selectedButton, setSelectedButton] = useState(1)
   //console.log(screenWidth)
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const { orders } = useContext(CategoriesContext)
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -526,6 +570,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   const TogleMenu = () => {
     const [isOpen, setIsOpen] = useState(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prescriptions, updatePrescriptions } = usePrescriptionContext();
 
     useEffect(() => {
@@ -554,7 +599,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
             size={50}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Print
                 className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
@@ -573,16 +618,35 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 }
               } else {
                 console.log("there is not prescriptions");
-                addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                if (appointment?.status === 'open' || appointment?.status === 'closed') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
+                } else if (appointment?.status === 'locked') {
+                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
+                } else if (appointment?.status === 'upcoming') {
+                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
+                }
               }
             }}
+          /> */}
+          <ChildButton
+            icon={
+              <SelectPrintOptions virtual={true} {...appointment} />
+            }
+            size={50}
           />
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                </svg>
+                <div className='flex'>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
+                  </svg>
+                  { orders &&
+                    orders.filter((order) => order.studies_codes.length > 0).length > 0
+                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
+                    : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 3 ? '#667EEA' : '#323030'}
@@ -595,7 +659,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                <div className='flex'>
+                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  {
+                    prescriptions.length > 0
+                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
+                      : <></>
+                  }
+                </div>
               </Tooltip>
             }
             background={selectedButton === 2 ? '#667EEA' : '#323030'}
@@ -618,7 +689,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               setSelectedButton(1);
             }}
           />
-          <ChildButton
+          {/* <ChildButton
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <PersonIcon style={{ fontSize: 20, color: 'white' }} />
@@ -630,7 +701,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               setSideBarAction(0);
               setSelectedButton(0);
             }}
-          />
+          /> */}
         </FloatingMenu>
       </>
     )
@@ -654,7 +725,17 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   }
 
   return (
-    <div ref={container} className='flex w-full bg-cool-gray-50' style={{ height: `${screenWidth > 1535 ? ' 100vh ' : 'calc( 100vh - 64px )'}`, marginLeft: '88px' }}>
+    <div
+      ref={container}
+      className='flex w-full bg-cool-gray-50'
+      style={{
+        height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+          }`,
+        marginLeft: '88px'
+      }}
+    >
       <div className='relative flex-1'>
         <Stream
           ref={stream}
@@ -1033,8 +1114,8 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
   }
   const controlSideBarState = () => {
     switch (sideBarAction) {
-      case 0:
-        return <Sidebar appointment={appointment} />
+      // case 0:
+      //   return <Sidebar appointment={appointment} />
 
       case 1:
         return <SOEP appointment={appointment} />
@@ -1048,7 +1129,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
         }} />
 
       default:
-        return <Sidebar appointment={appointment} />
+        return <SOEP appointment={appointment} />
     }
   }
   return (
@@ -1099,6 +1180,7 @@ interface SidebarProps {
   appointment: AppointmentWithPatient
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
   // const [selectedTab, setSelectedTab] = useState(0)
 
@@ -1301,6 +1383,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
+  // const { width } = useWindowDimensions()
   // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
   //   setValue(newValue)
   // }
@@ -1600,28 +1683,28 @@ function SOEP({ appointment }: { appointment: any }) {
           'method': 'PUT',
           'appointment_id': id
         })
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not update the encounter")
+        Sentry.captureException(err)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+        })
       }
-      Sentry.captureMessage("Could not update the encounter")
-      Sentry.captureException(err)
-      addToast({
-        type: 'error',
-        title: 'Ha ocurrido un error.',
-        text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
-      })
-      }
-    }, 1000),
+    }, 5000),
     []
   )
 
@@ -1826,7 +1909,7 @@ function SOEP({ appointment }: { appointment: any }) {
       </div>
     )
   return (
-    <div className='flex flex-col h-full overflow-y-scroll bg-white shadow-xl'>
+    <div className='flex flex-col h-full overflow-y-auto scrollbar bg-white shadow-xl'>
       <Grid>
         <CardHeader
           title='Notas médicas'

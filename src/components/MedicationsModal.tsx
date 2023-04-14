@@ -46,43 +46,49 @@ export default function MedicationsModal({
   }, [showEditModal])
 
   async function fetchData(content: string) {
-    const url = `/profile/doctor/medications${content ? `?content=${content}` : ''} `
-    try {
-      setShowError(false)
-      setMedicationsLoading(true)
-      const res = await axios.get(url)
-      setMedicationsItems(res.data.items)
-      setMedicationsLoading(false)
-    } catch (err) {
-      Sentry.setTags({
-        'endpoint': url,
-        'method': 'GET',
-        'content_search': content ?? ''
+    const url = `/profile/doctor/medications`
+    
+    await axios
+      .get(url, {
+        params: {
+          content: content ?? ""
+        }
       })
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
-      }
-      Sentry.captureMessage("Could not get the medications")
-      Sentry.captureException(err)
-      setMedicationsLoading(false)
-      addToast({
-        type: 'error',
-        title: 'Ha ocurrido un error.',
-        text: 'No pudimos obtener el listado de medicamentos. ¡Inténtelo nuevamente más tarde!'
+      .then((res) => {
+        setShowError(false)
+        setMedicationsItems(res.data.items)
+        setMedicationsLoading(false)
       })
-      setGetMedError(true)
-      setShowError(true)
-    }
+      .catch((err) => {
+        Sentry.setTags({
+          'endpoint': url,
+          'method': 'GET',
+          'content_search': content ?? ''
+        })
+        if (err.response) {
+          // The response was made and the server responded with a 
+          // status code that is outside the 2xx range.
+          Sentry.setTag('data', err.response.data)
+          Sentry.setTag('headers', err.response.headers)
+          Sentry.setTag('status_code', err.response.status)
+        } else if (err.request) {
+          // The request was made but no response was received
+          Sentry.setTag('request', err.request)
+        } else {
+          // Something happened while preparing the request that threw an Error
+          Sentry.setTag('message', err.message)
+        }
+        Sentry.captureMessage("Could not get the medications")
+        Sentry.captureException(err)
+        setMedicationsLoading(false)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error.',
+          text: 'No pudimos obtener el listado de medicamentos. ¡Inténtelo nuevamente más tarde!'
+        })
+        setGetMedError(true)
+        setShowError(true)
+      })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

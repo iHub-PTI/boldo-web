@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { ChangeEvent } from "react"
 import { FormControl, MenuItem, Select, InputBase } from '@material-ui/core';
 import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
@@ -8,7 +8,7 @@ import { ReactComponent as IconOther } from "../../assets/icon-other.svg";
 import { CategoriesContext } from "./Provider";
 
 
-const SelectCategory = ({error=false, ...props}) => {
+const SelectCategory = ({ error = false, value = "", ...props }) => {
 
   const SelectStyled = withStyles((theme: Theme) =>
     createStyles({
@@ -34,7 +34,7 @@ const SelectCategory = ({error=false, ...props}) => {
     }),
   )(InputBase);
 
-  const [categorySelect, setCategory] = useState("")
+  const [categorySelect, setCategory] = useState(value)
   const { orders, setOrders } = useContext(CategoriesContext)
 
   //Handle Change Event Select
@@ -42,9 +42,13 @@ const SelectCategory = ({error=false, ...props}) => {
     setCategory(event.target.value as string);
     let update = [...orders]
     update[props.index].category = event.target.value as string
-    setOrders(update)
+    setOrders([...update])
     //console.table(orders)
   };
+
+  useEffect(() => {
+    setCategory(value)
+  }, [value])
 
 
   return (
