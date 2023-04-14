@@ -16,5 +16,11 @@ export const ERROR_HEADERS = {
   },
   APPOINTMENT: {
     FAILURE_GET_ON_DASHBOARD: "Could not reload the appointments on the Dashboard."
+  },
+  SETTINGS: {
+    FAILURE_PUT_PHOTO: "Could not upload the doctor photo."
+  },
+  SPECIALIZATIONS: {
+    FAILURE_GET: "Could not get specializations."
   }
 }

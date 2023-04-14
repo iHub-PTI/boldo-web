@@ -19,6 +19,8 @@ import { useToasts } from '../components/Toast'
 import { ReactComponent as ArrowDown } from '../assets/keyboard-arrow-down.svg'
 import { ReactComponent as ArrowUp } from '../assets/keyboard-arrow-up.svg'
 import imageCompression from 'browser-image-compression'
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 
 // export const fileTypes = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/webp']
 export const fileTypes = ['image/jpeg', 'image/png']
@@ -49,8 +51,7 @@ export const upload = async (file: File | string) => {
     })
     if (ress.status === 201) return res.data.location
   } catch (err) {
-    Sentry.captureMessage('Could not upload the doctor photo')
-    Sentry.captureException(err)
+    handleSendSentry(err, ERROR_HEADERS.SETTINGS.FAILURE_PUT_PHOTO)
     // console.log(err)
   }
 }
@@ -308,8 +309,7 @@ const Settings = (props: Props) => {
         }
       } catch (err) {
         // console.log(err)
-        Sentry.captureMessage('Could not get the doctor profile with the specializations')
-        Sentry.captureException(err)
+        handleSendSentry(err, "Could not get the doctor profile with the specializations")
         if (mounted) {
           addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'Falló la carga inicial de los datos.' })
           setShow(true)
@@ -452,6 +452,8 @@ const Settings = (props: Props) => {
           }
           Sentry.captureMessage("Could not update doctor profile")
           Sentry.captureException(err)
+        } finally {
+          setLoading(false)
         }
       }
     } else {
@@ -459,7 +461,6 @@ const Settings = (props: Props) => {
       addToast({ type: 'warning', title: errorSend, text: errorText.organizations })
     }
 
-    setLoading(false)
   }
 
   const getOrganizationNameById = (idOrganization: String) => {
