@@ -330,7 +330,7 @@ export default function Dashboard() {
         "endpoint": url,
         "method": "POST"
       }
-      handleSendSentry(tags, err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_CREATE)
+      handleSendSentry(err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_CREATE, tags)
       addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No fue posible crear el evento privado. ¡Inténtelo nuevamente más tarde!' })
     }
 
@@ -893,7 +893,7 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
         "method": "DELETE",
         "appointment_id": `${id}`
       }
-      handleSendSentry(tags, err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_DELETE)
+      handleSendSentry(err, ERROR_HEADERS.PRIVATE_EVENTS.FAILURE_DELETE, tags)
       setLoading(false)
       addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'No se pudo eliminar el evento privado. Vuelva a intentarlo más tarde.' })
       console.log(err)

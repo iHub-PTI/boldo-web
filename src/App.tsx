@@ -90,7 +90,7 @@ const App = () => {
           "endpoint": url,
           "method": "GET"
         }
-        handleSendSentry(tags, err, ERROR_HEADERS.DOCTOR.FAILURE_GET_PROFILE)
+        handleSendSentry(err, ERROR_HEADERS.DOCTOR.FAILURE_GET_PROFILE, tags)
       }
     }
     if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
@@ -123,7 +123,7 @@ const App = () => {
         "endpoint": url,
         "method": "GET"
       }
-      handleSendSentry(tags, err, ERROR_HEADERS.ORGANIZATION.FAILURE_GET)
+      handleSendSentry(err, ERROR_HEADERS.ORGANIZATION.FAILURE_GET, tags)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -313,7 +313,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
           "method": "GET",
           "org_id": `${Organization.id}`
         }
-        handleSendSentry(tags, err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT)
+        handleSendSentry(err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT, tags)
       })
     }
 
