@@ -7,7 +7,8 @@ import { StudiesWithIndication } from './types'
 import { useToasts } from '../../../components/Toast'
 import { ReactComponent as Spinner } from '../../../assets/spinner.svg'
 import axios from 'axios'
-import * as Sentry from '@sentry/react'
+import handleSendSentry from '../../../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../../../util/Sentry/errorHeaders'
 
 export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPage }) => {
   const [state, setState] = useState({
@@ -111,23 +112,11 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido guardada exito!' })
       }
     } catch (err) {
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'POST')
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": "POST"
       }
-      Sentry.captureMessage("Could not add a new study order template")
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_POST, tags)
       addToast({
         type: 'error',
         title: 'Ha ocurrido un error.',
