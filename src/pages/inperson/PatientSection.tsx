@@ -4,7 +4,6 @@ import axios from 'axios'
 import { useRouteMatch } from 'react-router-dom'
 // import moment from 'moment'
 //import useStyles from './style'
-import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import UserCircle from "../../components/icons/patient-register/UserCircle";
@@ -15,6 +14,8 @@ import { Disclosure, Transition } from '@headlessui/react'
 import { toUpperLowerCase } from '../../util/helpers'
 import ArrowDown from '../../components/icons/ArrowDown'
 import differenceInYears from 'date-fns/differenceInYears'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 
 
 type PropsButton = {
@@ -181,26 +182,12 @@ export default (props) => {
         setEncounter(res.data.encounter)
         // setInitialLoad(false)
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the encounter")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET_IN_PATIENT_SECTION, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
