@@ -62,7 +62,7 @@ export default function Dashboard() {
           'method': 'GET',
           'appointment_id': id
         }
-        handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_GET_ON_APPOINTMENT_VIEW, tags)
+        handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_GET, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
