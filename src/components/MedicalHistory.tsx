@@ -357,6 +357,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
+                    appointmentId={appointmentId}
                     handlerSaveLoading={handlerSaveLoading}
                     isEditable={isEditable}
                   />
@@ -367,6 +368,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
+                    appointmentId={appointmentId}
                     handlerSaveLoading={handlerSaveLoading}
                     isEditable={isEditable}
                   />
@@ -377,6 +379,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                     url={urls.condition}
                     patientId={patientId}
                     organizationId={organizationId}
+                    appointmentId={appointmentId}
                     handlerSaveLoading={handlerSaveLoading}
                     isEditable={isEditable}
                   />
@@ -392,6 +395,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 url={urls.procedures}
                 patientId={patientId}
                 organizationId={organizationId}
+                appointmentId={appointmentId}
                 handlerSaveLoading={handlerSaveLoading}
                 isEditable={isEditable}
               />
@@ -405,6 +409,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                 url={urls.condition}
                 patientId={patientId}
                 organizationId={organizationId}
+                appointmentId={appointmentId}
                 handlerSaveLoading={handlerSaveLoading}
                 isEditable={isEditable}
               />
@@ -415,6 +420,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
                   url={urls.gynecology}
                   patientId={patientId}
                   organizationId={organizationId}
+                  appointmentId={appointmentId}
                   handlerSaveLoading={handlerSaveLoading}
                   isEditable={isEditable}
                 />

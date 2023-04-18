@@ -13,7 +13,7 @@ const CheckOrder = props => {
         orders[props.index].urgent = event.target.checked
         let update = [...orders]
         setOrders(update)
-        console.table(orders)
+        //console.table(orders)
     }
 
     return <Checkbox onChange={handleCheck} name="orden" {...props}/>

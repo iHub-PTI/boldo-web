@@ -19,6 +19,7 @@ type Props = {
   categoryCode?: string
   patientId?: string
   organizationId?: string
+  appointmentId?: string
   isEditable?: boolean
   handlerSaveLoading?: (value: boolean | null) => void
 }
@@ -38,6 +39,7 @@ type Props = {
  * @param {string} categoryCode - The category of data to display in the card list.
  * @param {string} patientId - The ID of the patient to display data 
  * @param {string} organizationId - The ID of the organization to display data
+ * @param {string} appointmentId - The ID of the appointment to display data
  * @param {function} handlerSaveLoading - The function to handle saving/loading (optional).
  * @param {boolean} isEditable - to restrict editing
  * @param {...any} props - Additional props to pass to the component.
@@ -56,6 +58,7 @@ const CardList: React.FC<Props> = ({
   categoryCode,
   patientId,
   organizationId,
+  appointmentId,
   handlerSaveLoading,
   isEditable = false,
   ...props
@@ -100,6 +103,7 @@ const CardList: React.FC<Props> = ({
     sendData({
       patientId,
       organizationId,
+      appointmentId,
       description: value.description,
       //can be performedDate or OnSetDate depending on the component and if it admits date
       ...(value.date && inputTypeWith === 'date' && {performedDate: moment(value.date).format("YYYY-MM-DD")}),

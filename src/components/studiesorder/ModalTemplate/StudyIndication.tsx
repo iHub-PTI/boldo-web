@@ -13,6 +13,7 @@ export const StudyIndication = ({ id, name, indication, check=false, disabled=tr
                     onClick={()=>{
                         selectCheck(id)
                     }}
+                    onChange={()=>{}}
                 />
                 <label className="ml-2 w-full">{name}</label>
             </div>

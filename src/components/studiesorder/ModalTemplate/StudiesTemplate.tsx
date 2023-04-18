@@ -40,10 +40,10 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
 
   const { addToast } = useToasts()
 
-  useEffect(()=>{
-    console.log("page", page)
-    console.log("slide", maxPagination)
-  })
+  // useEffect(()=>{
+  //   console.log("page", page)
+  //   console.log("slide", maxPagination)
+  // })
 
   const confirmationStudies = () => {
     let orderStudies = []
@@ -86,7 +86,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     try {
       setLoading(true)
       const res = await axios.get(url)
-      console.log(res)
+      // console.log(res)
       if (res.status === 200) {
         let templates = []
         res.data
@@ -105,7 +105,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
             })
             templates.push(temp)
           })
-        console.log('response templates', templates)
+        // console.log('response templates', templates)
         validateStudiesTemplates(studies)
         setStudies(templates)
         setTemplate(templates[0])
@@ -142,28 +142,34 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setShowAddTemplate(false)
       setShowEditTemplate(false)
     }
-    if(show) {
+    if (show) {
       studies.forEach(el => {
         el.studiesIndication.forEach(elem => {
-          if (elem.select) {
-            //clean
-            elem.select = false
-            elem.indication = ''
-          }
+          //clean
+          elem.select = false
+          elem.indication = ''
+
+          orders[indexOrder].studies_codes.forEach(item => {
+            if (item.id === elem.id) {
+              elem.select = true
+              elem.indication = item.indication
+            }
+          })
+
         })
       })
       setPage(1)
       setTemplate(studies[0])
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
   useEffect(() => {
-    console.log('study', studies.length)
+    // console.log('study', studies.length)
     if (studies.length > 0) {
       //reset pagination
       setMaxPagination(Math.ceil(studies.length / perPage))
-      switch(actionPage){
+      switch (actionPage) {
         case 'add':
           setPage(maxPagination)
           setTemplate(studies[studies.length - 1])
@@ -174,7 +180,7 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
           break
         case 'update':
           let temp = studies.find((data) => data.id === template.id)
-          setTemplate({...temp})
+          setTemplate({ ...temp })
           break
       }
       //reset view on change
@@ -186,11 +192,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       setEmptyTemp(true)
       setTemplate(undefined)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studies, actionPage, maxPagination])
 
   useEffect(() => {
-    if(actionPage === 'pagination') setTemplate(studies[(page - 1) * perPage])
+    if (actionPage === 'pagination') setTemplate(studies[(page - 1) * perPage])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, maxPagination])
 
@@ -199,15 +205,15 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
       <div className='p-5'>
         <div className='relative'>
           <h2 className='text-2xl font-normal leading-normal mt-0 pt-0 mb-2'>
-            Plantillas: Orden de estudios laboratoriales
+            Plantillas: Orden de estudios
           </h2>
           <button className='absolute focus:outline-none top-0 right-0' onClick={() => setShow(false)}>
             <CloseIcon></CloseIcon>
           </button>
         </div>
         {(loading === false && showAddTemplate && show && template !== undefined) ||
-        (loading === false && showAddTemplate && show && template === undefined) ||
-        (emptyTemp && loading === false)? (
+          (loading === false && showAddTemplate && show && template === undefined) ||
+          (emptyTemp && loading === false) ? (
           <CreateStudyTemplate studies={studies} setStudies={setStudies} setShow={setShowAddTemplate} setActionPage={setActionPage} />
         ) : loading === false && showEditTemplate && show && template !== undefined ? (
           <EditStudyTemplate
@@ -225,15 +231,13 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
                 {studies.slice((page - 1) * perPage, (page - 1) * perPage + perPage).map((data, i) => (
                   <div
                     key={i}
-                    className={`flex flex-row justify-center border-b-2 ${
-                      data.id === template.id ? 'border-primary-600' : 'border-gray-300'
-                    }`}
+                    className={`flex flex-row justify-center border-b-2 ${data.id === template.id ? 'border-primary-600' : 'border-gray-300'
+                      }`}
                     style={{ width: '100%', height: '3rem' }}
                   >
                     <button
-                      className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${
-                        data.id === template.id ? 'text-primary-600' : 'text-gray-400'
-                      }`}
+                      className={`flex items-center h-ful text-sm font-semibold focus:outline-none ${data.id === template.id ? 'text-primary-600' : 'text-gray-400'
+                        }`}
                       onClick={() => {
                         setTemplate(data)
                       }}

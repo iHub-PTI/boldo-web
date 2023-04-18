@@ -1649,7 +1649,7 @@ function SOEP({ appointment }: { appointment: any }) {
           text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
         })
       }
-    }, 1000),
+    }, 5000),
     []
   )
 
