@@ -10,10 +10,11 @@ import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import _ from 'lodash'
 import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
-import * as Sentry from '@sentry/react'
 
 import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -110,26 +111,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
         // setInitialLoad(false)
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the encounter")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET_IN_MEDICAL_SECTION, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
@@ -238,26 +225,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           setInitialLoad(false)
         } catch (err) {
           //console.log(err)
-          Sentry.setTags({
+          const tags = {
             'endpoint': url,
             'method': 'GET',
             'encounter_id': encounterId
-          })
-          if (err.response) {
-            // The response was made and the server responded with a 
-            // status code that is outside the 2xx range.
-            Sentry.setTag('data', err.response.data)
-            Sentry.setTag('headers', err.response.headers)
-            Sentry.setTag('status_code', err.response.status)
-          } else if (err.request) {
-            // The request was made but no response was received
-            Sentry.setTag('request', err.request)
-          } else {
-            // Something happened while preparing the request that threw an Error
-            Sentry.setTag('message', err.message)
           }
-          Sentry.captureMessage("Could not get the history of encounters")
-          Sentry.captureException(err)
+          handleSendSentry(err, ERROR_HEADERS.ENCOUNTER_HISTORY.FAILURE_GET, tags)
           setInitialLoad(false)
           setInitialLoad(false)
           addToast({
@@ -297,26 +270,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           setErrorSave(false)
         }
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'PUT',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not update the encounter")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_PUT_IN_MEDICAL_SECTION, tags)
         setIsLoading(false)
         addToast({
           type: 'error',
