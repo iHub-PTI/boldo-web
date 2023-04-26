@@ -71,14 +71,14 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const config = {
     iceServers: [
       {
-        urls: 'turn:coturn.pti.org.py:3478',
-        username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo',
+        urls: process.env.REACT_APP_ICE_SERVER_TURN_URL,
+        username: process.env.REACT_APP_ICE_SERVER_TURN_USERNAME,
+        credential: process.env.REACT_APP_ICE_SERVER_TURN_CREDENTIAL,
       },
       {
-        urls: 'stun:coturn.pti.org.py:3478',
-        username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo',
+        urls: process.env.REACT_APP_ICE_SERVER_STUN_URL,
+        username: process.env.REACT_APP_ICE_SERVER_STUN_USERNAME,
+        credential: process.env.REACT_APP_ICE_SERVER_STUN_CREDENTIAL,
       },
     ],
   }
