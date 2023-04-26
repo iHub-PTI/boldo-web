@@ -58,5 +58,8 @@ export const ERROR_HEADERS = {
   },
   PRIVATE_COMMETS: {
     FAILURE_GET: "Could not get get private comments"
+  },
+  OPEN_HOURS: {
+    FAILURE_VALIDATE: "Could not validate open hours."
   }
 }
