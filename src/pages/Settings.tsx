@@ -452,15 +452,14 @@ const Settings = (props: Props) => {
           }
           Sentry.captureMessage("Could not update doctor profile")
           Sentry.captureException(err)
-        } finally {
-          setLoading(false)
         }
       }
     } else {
       validationError = true
       addToast({ type: 'warning', title: errorSend, text: errorText.organizations })
     }
-
+    setLoading(false)
+    
   }
 
   const getOrganizationNameById = (idOrganization: String) => {
