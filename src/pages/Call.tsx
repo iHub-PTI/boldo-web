@@ -804,14 +804,13 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         </div>
         <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
           <div className='absolute'>
-            <div className='aspect-h-16 aspect-w-9' style={{ maxWidth: '14rem', minWidth: '8rem', width: '15vw' }}>
+            <div className='aspect-h-9 aspect-w-16' style={{ maxWidth: '14rem', minWidth: '8rem', width: '12rem', height:'8rem'}}>
               <video
                 ref={video}
                 onCanPlay={e => (e.target as HTMLVideoElement).play()}
                 autoPlay
                 playsInline
                 muted
-                style={{ transform: 'rotateY(180deg)' }}
                 className='object-cover rounded-lg'
               />
             </div>
