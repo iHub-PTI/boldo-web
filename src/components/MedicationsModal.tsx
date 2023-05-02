@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import _ from 'lodash'
 import Modal from './Modal'
-import * as Sentry from '@sentry/react'
 import { useToasts } from './Toast'
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 
 export default function MedicationsModal({
   showEditModal,
@@ -60,26 +61,12 @@ export default function MedicationsModal({
         setMedicationsLoading(false)
       })
       .catch((err) => {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
-          'content_search': content ?? ''
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
+          'content_search': content ?? 'empty content'
         }
-        Sentry.captureMessage("Could not get the medications")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.MEDICATION.FAILURE_GET, tags)
         setMedicationsLoading(false)
         addToast({
           type: 'error',

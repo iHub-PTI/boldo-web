@@ -9,13 +9,14 @@ import { LaboratoryMenu } from '../../components/LaboratoryMenu'
 import { useRouteMatch } from 'react-router-dom'
 import axios from 'axios'
 import { RecordsOutPatient } from '../../components/RecordsOutPatient'
-import * as Sentry from '@sentry/react'
 import { useToasts } from '../../components/Toast';
 import MedicalHistory from '../../components/MedicalHistory';
 import OrganizationBar from '../../components/OrganizationBar';
 import { HEIGHT_BAR_STATE_APPOINTMENT, ORGANIZATION_BAR } from '../../util/constants';
 import { AllOrganizationContext } from '../../contexts/Organizations/organizationsContext'
 import { getColorCode } from '../../util/helpers';
+import handleSendSentry from '../../util/Sentry/sentryHelper';
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -56,26 +57,12 @@ export default function Dashboard() {
           setAppointment(res.data)
         }
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the appointment")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_GET, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
