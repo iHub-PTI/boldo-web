@@ -17,7 +17,11 @@ const UploadStudies = () => {
     <div className='flex flex-col justify-between h-full w-full'>
       {/* header and body */}
       <div className='flex flex-col items-center'>
-        <p className='w-full not-italic font-sans font-bold text-xl leading-6 m-6'>Añadir resultado de estudio</p>
+        <div className='w-full'>
+          <p className='w-full not-italic font-sans font-bold text-xl leading-6 m-6'>
+            Añadir resultado de estudio
+          </p>
+        </div>
         <p className='not-italic font-sans font-normal text-xl leading-6 m-6'>Busque una orden o adjunte un nuevo estudio</p>
         <div className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200'>
           <SearchIcon />
