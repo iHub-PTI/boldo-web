@@ -23,7 +23,7 @@ const UploadStudies = () => {
           </p>
         </div>
         <p className='not-italic font-sans font-normal text-xl leading-6 m-6'>Busque una orden o adjunte un nuevo estudio</p>
-        <div className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200'>
+        <div className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'>
           <SearchIcon />
           <input 
             id='searchStudy'
