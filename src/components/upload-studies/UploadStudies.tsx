@@ -6,15 +6,16 @@ import TableOfStudies from './TableOfStudies';
 
 
 type Props = {
-
+  patientId: string
 }
 
 
-const UploadStudies = () => {
+const UploadStudies = (props: Props) => {
+  const {patientId} = props
   const [searchValue, setSearchValue] = useState<string>('')
   const [searchError, setSearchError] = useState<boolean>(false)
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
-  const [showTable, setShowTAble] = useState<boolean>(false)
+  const [showTable, setShowTable] = useState<boolean>(false)
   
   // This function handles the visibility of the back button
   const handleShowNewStudyWithOutOrder = () => {
@@ -23,7 +24,7 @@ const UploadStudies = () => {
   
   // this function handles the visibilitu of the table
   const handleShowTable = (show: boolean) => {
-    setShowTAble(show)
+    setShowTable(show)
   }
 
 
@@ -37,7 +38,7 @@ const UploadStudies = () => {
           className={`flex flex-row ml-6 mt-2 w-full focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
           onClick={() => {
             handleShowNewStudyWithOutOrder()
-            setShowTAble(true)
+            setShowTable(true)
           }}
         >
           <BackIcon />
@@ -78,7 +79,7 @@ const UploadStudies = () => {
             className='flex flex-row mt-4 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
             onClick={() => {
               handleShowNewStudyWithOutOrder()
-              setShowTAble(false)
+              setShowTable(false)
             }}
           >
             <PlusIcon />
@@ -91,7 +92,7 @@ const UploadStudies = () => {
           </button>
         }
         { showTable &&
-          <TableOfStudies />
+          <TableOfStudies patientId={patientId}/>
         }
       </div>
       {/* footer */}

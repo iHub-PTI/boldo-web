@@ -46,7 +46,7 @@ export default function Dashboard() {
     'P': <PrescriptionMenu appointment={appointment} isFromInperson={true} />,
     'M': <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />,
     'L': <LaboratoryMenu appointment={appointment} isFromInperson={true} />,
-    'U': <UploadStudies />
+    'U': <UploadStudies patientId={`${appointment?.patientId ?? ''}`} />
   }
 
   useEffect(() => {
