@@ -1,9 +1,10 @@
 import * as React from "react"
-const ImgIcon = ({ fill = '#364152', ...props }) => (
+const ImgIcon = ({ fill = '#364152', width = 36, height = 36, ...props  }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={36}
-    height={36}
+    viewBox="0 0 36 36"
+    width={width}
+    height={height}
     fill="none"
     {...props}
   >
