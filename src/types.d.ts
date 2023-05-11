@@ -91,3 +91,39 @@ export interface Soep {
   plan?:       string;
   subjective?: string;
 }
+
+export interface OrderStudy {
+  authoredDate?: string
+  category?: string
+  diagnosis?: string
+  diagnosticReports?: DiagnosticReport[]
+  encounterId?: string
+  id?: string
+  identifier?: string
+  orderNumber?: string
+  studiesCodes?: StudiesCode[]
+  urgent?: boolean
+}
+
+export interface DiagnosticReport {
+  attachmentNumber?: string
+  attachmentUrls?: AttachmentUrl[]
+  category?: string
+  description?: string
+  effectiveDate?: string
+  id?: string
+  patientId?: string
+  source?: string
+  sourceID?: string
+  sourceType?: string
+}
+
+export interface AttachmentUrl {
+  contentType?: string
+  title?: string
+  url?: string
+}
+
+export interface StudiesCode {
+  display: string
+}
