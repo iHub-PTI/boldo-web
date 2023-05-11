@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import SearchIcon from './SearchIcon';
-import PlusIcon from './PlusIcon';
-import BackIcon from './BackIcon';
+import SearchIcon from '../icons/upload-icons/SearchIcon';
+import PlusIcon from '../icons/upload-icons/PlusIcon';
+import BackIcon from '../icons/upload-icons/BackIcon';
 import TableOfStudies from './TableOfStudies';
 
 
