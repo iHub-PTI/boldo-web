@@ -17,6 +17,7 @@ import { AllOrganizationContext } from '../../contexts/Organizations/organizatio
 import { getColorCode } from '../../util/helpers';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
+import StudyHistory from '../../components/StudyHistory';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -35,6 +36,10 @@ export default function Dashboard() {
 
   //to manage the view of the medical history
   const [showMedicalHistory, setShowMedicalHistory] = useState(false)
+
+  //to manage the view of the studies history
+  const [showStudiesHistory, setShowStudiesHistory] = useState(false)
+
 
   const { Organizations } = useContext(AllOrganizationContext)
   /*FIXME: Medical Records Section
@@ -111,13 +116,15 @@ export default function Dashboard() {
                 setOutpatientRecordShow={setOutpatientRecordShow}
                 showMedicalHistory={showMedicalHistory}
                 setShowMedicalHistory={setShowMedicalHistory}
+                showStudiesHistory={showStudiesHistory}
+                setShowStudiesHistory={setShowStudiesHistory}
               />
             )}
           </div>
           <div
             className=
             {`flex-col w-0 opacity-0
-              ${outpatientRecordShow ?
+              ${outpatientRecordShow || showStudiesHistory ?
                 'flex w-7/12 opacity-100' :
                 showMedicalHistory ?
                   'flex w-3/12 opacity-100' :
@@ -142,10 +149,17 @@ export default function Dashboard() {
                 appointment={appointment}
               />
             )}
+            {appointment !== undefined && (
+              <StudyHistory
+                show={showStudiesHistory}
+                setShow={setShowStudiesHistory}
+                appointment={appointment}
+              />
+            )}
           </div>
           <div
             className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
-            ${outpatientRecordShow ?
+            ${outpatientRecordShow || showStudiesHistory ?
                 'absolute inset-0 lg:left-10/12 md:left-full left-full opacity-25 cursor-default' :
                 showMedicalHistory ?
                   'absolute inset-0 xl:left-7/12 lg:left-8/12 md:left-9/12 left-full opacity-25 cursor-default' :
@@ -155,9 +169,10 @@ export default function Dashboard() {
             onClick={() => {
               if (outpatientRecordShow) setOutpatientRecordShow(false)
               if (showMedicalHistory) setShowMedicalHistory(false)
+              if (showStudiesHistory) setShowStudiesHistory(false)
             }}
           >
-            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
+            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow || showMedicalHistory || showStudiesHistory ? 'none' : 'auto' }}>
               <SelectorSection
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
