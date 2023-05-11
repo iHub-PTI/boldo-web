@@ -6,6 +6,8 @@ import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import NextPage from '../icons/upload-icons/NextPage';
 import PreviousPage from '../icons/upload-icons/PreviousPage';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import DetailPanel from './DetailPanel';
 
 
 type Props = {
@@ -14,8 +16,8 @@ type Props = {
 
 const tableIcons: Icons = {
   NextPage: forwardRef(() => <NextPage />),
-  PreviousPage: forwardRef(() => <PreviousPage />)
-
+  PreviousPage: forwardRef(() => <PreviousPage />),
+  DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />)
 }
 
 
@@ -27,15 +29,20 @@ const TableOfStudies = (props: Props) => {
       icons={tableIcons}
       columns={[
         {
+          title: "id",
+          field: "id",
+          hidden: true
+        },
+        {
           title: "Categoria",
           field: "category",
           sorting: false
         },
         {
           title: "Fecha",
-          field: "effectiveDate",
+          field: "authoredDate",
           width: "10%",
-          render: rowData => (moment(rowData.effectiveDate).format('DD/MM/YYYY'))
+          render: rowData => (moment(rowData.authoredDate).format('DD/MM/YYYY'))
         },
         {
           title: "Nro Orden",
@@ -72,6 +79,12 @@ const TableOfStudies = (props: Props) => {
             })
         })
       }
+      detailPanel={rowData => {
+        return (
+          <DetailPanel orderId={`${rowData.id ?? ''}`}/>
+        )
+      }}
+      onRowClick={(event, rowData, togglePanel) => togglePanel()}
       localization={{
         body: {
           emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
@@ -96,6 +109,9 @@ const TableOfStudies = (props: Props) => {
         draggable: false,
         paging: true,
         pageSize: 5,
+        overflowY: "auto",
+        detailPanelColumnAlignment: "right",
+        showFirstLastPageButtons: false
       }}
     />
   );
