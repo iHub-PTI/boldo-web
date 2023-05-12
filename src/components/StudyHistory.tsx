@@ -11,9 +11,11 @@ import ArrowUpWardIcon from './icons/filter-icons/ArrowUpWardIcon'
 import OrderWithIcon from './icons/filter-icons/OrderWithIcon'
 import OrderWithoutIcon from './icons/filter-icons/OrderWithoutIcon'
 import LabIcon from './icons/studies-category/LabIcon'
-import useWindowDimensions from '../util/useWindowDimensions'
+//import useWindowDimensions from '../util/useWindowDimensions'
 import { ReactComponent as CalendarIcon } from "../assets/calendar-detail.svg"
 import ImgIcon from './icons/studies-category/ImgIcon'
+import PdfIcon from './icons/study_icon/PdfIcon'
+import PictureIcon from './icons/study_icon/PictureIcon'
 
 
 type Props = {
@@ -39,7 +41,7 @@ const StudyHistory: React.FC<Props> = ({
 	//states filters
 	const [inputContent, setInputContent] = useState('')
 
-	const { width: winWidth } = useWindowDimensions()
+	//const { width: winWidth } = useWindowDimensions()
 
 	return (
 		<Transition
@@ -51,7 +53,7 @@ const StudyHistory: React.FC<Props> = ({
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
 		>
-			<div className='flex flex-col px-5 pt-5 w-full'>
+			<div className='flex flex-col px-5 w-full'>
 				{/* Head */}
 				<button
 					className='flex flex-row items-center mb-2 h-11 max-w-max-content focus:outline-none'
@@ -103,7 +105,7 @@ const StudyHistory: React.FC<Props> = ({
 					/>
 				</div>
 				{/* body */}
-				<div className='flex flex-row w-full'>
+				<div className='flex flex-row overflow-x-visible' style={{ minWidth: '720px' }}>
 					<div className="flex flex-col w-80 px-4 py-2 overflow-y-auto scrollbar" style={{ height: 'calc(100vh - 380px)' }}>
 						<CardStudy />
 						<CardStudy />
@@ -112,7 +114,11 @@ const StudyHistory: React.FC<Props> = ({
 						<CardStudy />
 						<CardStudy />
 					</div>
-					<div className="flex flex-col px-4 py-2 gap-1" style={{ width: '406px' }}>
+					<div className="flex flex-col px-4 py-2 gap-1 overflow-y-auto scrollbar"
+						style={{
+							width: '420px',
+							height: 'calc(100vh - 380px)'
+						}}>
 						<CardDetailStudy />
 					</div>
 				</div>
@@ -411,7 +417,7 @@ const CardDetailStudy = () => {
 						</div>
 					</div>
 				</div>
-				<div className='flex flex-row justify-end' style={{ width: '374px' }}>
+				<div className='flex flex-row justify-end w-full'>
 					<a href='#a' className='text-orange-dark border-b border-orange-dark focus:outline-none text-sm'>
 						Ver consulta origen
 					</a>
@@ -443,14 +449,21 @@ const CardDetailStudy = () => {
 				<div className='text-primary-500'>
 					Estudios solicitados
 				</div>
-				<div className='flex flex-col p-2' style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}>
+				<div className='flex flex-col p-3' style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}>
 					{/* Header Study */}
 					<div className='flex flex-row justify-between'>
 						<div className='flex flex-row gap-2'>
 							<ImgIcon width={18} height={18} />
 							<div className='text-cool-gray-700 text-sm' style={{ lineHeight: '20px' }}>Imágenes</div>
 						</div>
-						<div className='flex flex-row justify-center' style={{ padding: '1px 6px', width: '54px', height: '18px', background: '#E8431F', borderRadius: '4px' }}>
+						<div className='flex flex-row justify-center'
+							style={{
+								padding: '1px 6px',
+								width: '54px',
+								height: '18px',
+								background: '#E8431F',
+								borderRadius: '4px'
+							}}>
 							<span className='font-semibold text-white' style={{
 								fontSize: '10px',
 								lineHeight: '16px',
@@ -470,6 +483,22 @@ const CardDetailStudy = () => {
 					<div className='flex flex-col mt-2'>
 						<div className='text-sm text-cool-gray-700'>Observaciones:</div>
 						<div className='text-sm text-cool-gray-700'>Paciente con diabetes</div>
+					</div>
+
+					{/* added results*/}
+					<div className='flex flex-col mt-2'>
+						<div className='text-sm text-cool-gray-700 mb-2'>Resultados añadidos</div>
+						<div className='flex flex-col gap-2'>
+							<div className='flex flex-row w-full h-16 bg-bluish-500 rounded-lg pt-1 px-2'>
+								<PdfIcon />
+							</div>
+							<div className='flex flex-row w-full h-16 bg-bluish-500 rounded-lg pt-1 px-2'>
+								<PictureIcon />
+							</div>
+							<div className='flex flex-row w-full h-16 bg-bluish-500 rounded-lg pt-1 px-2'>
+								Prueba
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

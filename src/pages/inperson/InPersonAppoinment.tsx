@@ -125,7 +125,7 @@ export default function Dashboard() {
             className=
             {`flex-col w-0 opacity-0
               ${outpatientRecordShow || showStudiesHistory ?
-                'flex w-7/12 opacity-100' :
+                'flex w-7/12 opacity-100 overflow-x-auto' :
                 showMedicalHistory ?
                   'flex w-3/12 opacity-100' :
                   ''
