@@ -8,6 +8,7 @@ import NextPage from '../icons/upload-icons/NextPage';
 import PreviousPage from '../icons/upload-icons/PreviousPage';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import DetailPanel from './DetailPanel';
+import Category from './Category';
 
 
 type Props = {
@@ -36,7 +37,8 @@ const TableOfStudies = (props: Props) => {
         {
           title: "Categoria",
           field: "category",
-          sorting: false
+          sorting: false,
+          render: rowData => <Category category={rowData.category}/>
         },
         {
           title: "Fecha",
