@@ -110,7 +110,7 @@ const StudyHistory: React.FC<Props> = ({
         </div>
         {/* body */}
         <div className='flex flex-row overflow-x-visible' style={{ minWidth: '720px' }}>
-          <div className="flex flex-col w-80 px-4 py-2 overflow-y-auto scrollbar" style={{ height: 'calc(100vh - 380px)' }}>
+          <div className="flex flex-col w-80 px-4 py-2 overflow-y-auto overflow-x-hidden scrollbar" style={{ height: 'calc(100vh - 380px)', minWidth: '280px' }}>
             <CardStudy />
             <CardStudy />
             <CardStudy />
@@ -118,9 +118,9 @@ const StudyHistory: React.FC<Props> = ({
             <CardStudy />
             <CardStudy />
           </div>
-          <div className="flex flex-col px-4 py-2 gap-1 overflow-y-auto scrollbar"
+          <div className="flex flex-col px-4 py-2 gap-1 overflow-y-auto overflow-x-hidden scrollbar lg:w-full"
             style={{
-              width: '420px',
+              minWidth: '420px',
               height: 'calc(100vh - 380px)'
             }}>
             <CardDetailStudy />
@@ -497,7 +497,7 @@ const CardDetailStudy = () => {
                 <div className='flex flex-row'>
                   <div className='flex flex-row gap-1 items-center'>
                     <PdfIcon width={20} height={20} />
-                    <a className='ml-1 w-40 font-medium text-sm truncate'
+                    <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
                       href='#a'
                       style={{
                         lineHeight: '17px',
@@ -507,7 +507,7 @@ const CardDetailStudy = () => {
                     </a>
                     <ChevronRight width={6} height={9} />
                   </div>
-                  <div className='flex flex-row flex-1 items-center justify-center gap-3'>
+                  <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
                     <button className='focus:outline-none'>
                       <EyeIcon width={18} height={12} />
                     </button>
@@ -538,7 +538,7 @@ const CardDetailStudy = () => {
                 <div className='flex flex-row'>
                   <div className='flex flex-row gap-1 items-center'>
                     <PictureIcon width={18} height={18} />
-                    <a className='ml-1 w-40 font-medium text-sm truncate'
+                    <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
                       href='#a'
                       style={{
                         lineHeight: '17px',
@@ -548,7 +548,7 @@ const CardDetailStudy = () => {
                     </a>
                     <ChevronRight width={6} height={9} />
                   </div>
-                  <div className='flex flex-row flex-1 items-center justify-center gap-3'>
+                  <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
                     <button className='focus:outline-none'>
                       <EyeIcon width={18} height={12} />
                     </button>
@@ -596,7 +596,7 @@ const CardDetailStudy = () => {
             <div className='flex flex-row'>
               <div className='flex flex-row gap-1 items-center'>
                 <PictureIcon width={18} height={18} />
-                <a className='ml-1 w-40 font-medium text-sm truncate'
+                <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
                   href='#a'
                   style={{
                     lineHeight: '17px',
@@ -606,7 +606,7 @@ const CardDetailStudy = () => {
                 </a>
                 <ChevronRight width={6} height={9} />
               </div>
-              <div className='flex flex-row flex-1 items-center justify-center gap-3'>
+              <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
                 <button className='focus:outline-none'>
                   <EyeIcon width={18} height={12} />
                 </button>
