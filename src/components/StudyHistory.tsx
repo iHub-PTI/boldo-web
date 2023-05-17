@@ -18,8 +18,9 @@ import PdfIcon from './icons/study_icon/PdfIcon'
 import PictureIcon from './icons/study_icon/PictureIcon'
 import ChevronRight from './icons/ChevronRight'
 import EyeIcon from './icons/EyeIcon'
-import ArrowDown from './icons/ArrowDown'
 import PaperClipIcon from './icons/PaperClipIcon'
+import { WIDTH_XL } from '../util/constants'
+import useWindowDimensions from '../util/useWindowDimensions'
 
 
 type Props = {
@@ -45,7 +46,7 @@ const StudyHistory: React.FC<Props> = ({
   //states filters
   const [inputContent, setInputContent] = useState('')
 
-  //const { width: winWidth } = useWindowDimensions()
+  const { width: screenWidth } = useWindowDimensions()
 
   return (
     <Transition
@@ -110,7 +111,11 @@ const StudyHistory: React.FC<Props> = ({
         </div>
         {/* body */}
         <div className='flex flex-row overflow-x-visible' style={{ minWidth: '720px' }}>
-          <div className="flex flex-col w-80 px-4 py-2 overflow-y-auto overflow-x-hidden scrollbar" style={{ height: 'calc(100vh - 380px)', minWidth: '280px' }}>
+          <div className="flex flex-col w-80 px-4 py-2 overflow-y-auto overflow-x-hidden scrollbar"
+            style={{
+              height: `calc(100vh - ${WIDTH_XL > screenWidth ? 385 : 287}px)`,
+              minWidth: '280px'
+            }}>
             <CardStudy />
             <CardStudy />
             <CardStudy />
@@ -121,7 +126,7 @@ const StudyHistory: React.FC<Props> = ({
           <div className="flex flex-col px-4 py-2 gap-1 overflow-y-auto overflow-x-hidden scrollbar lg:w-full"
             style={{
               minWidth: '420px',
-              height: 'calc(100vh - 380px)'
+              height: `calc(100vh - ${WIDTH_XL > screenWidth ? 380 : 287}px)`,
             }}>
             <CardDetailStudy />
           </div>
