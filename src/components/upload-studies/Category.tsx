@@ -15,7 +15,7 @@ const CategoryNameMap = {
   "": "Categoría desconocida"
 }
 // map the icon of the category
-const CategoryIconMap = {
+export const CategoryIconMap = {
   "Laboratory": <LabIcon />,
   "Diagnostic Imaging": <ImgIcon />,
   "Other": <OtherIcon />,

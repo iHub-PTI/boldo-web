@@ -1,73 +1,108 @@
+import React, { forwardRef, useState } from 'react';
 import MaterialTable, { Icons } from 'material-table';
-import moment from 'moment';
-import React, { forwardRef } from 'react';
 import axios from 'axios'
+import moment from 'moment';
+import DetailPanel from './DetailPanel';
+import Category from './Category';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import NextPage from '../icons/upload-icons/NextPage';
 import PreviousPage from '../icons/upload-icons/PreviousPage';
 import ChevronRight from '@material-ui/icons/ChevronRight';
-import DetailPanel from './DetailPanel';
-import Category from './Category';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import FilterIcon from '../icons/upload-icons/FilterIcon';
+import SelectCategory from './SelectCategory';
 
 
 type Props = {
   patientId: string
 }
+// types of order study
+export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
+
+// map the code of the category
+const CategoryCode = {
+  "Laboratory": "LAB",
+  "Diagnostic": "IMG",
+  "Other": "OTH",
+  "": "",
+}
+
 
 const tableIcons: Icons = {
+  DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+  Filter: forwardRef(() => <FilterIcon />),
   NextPage: forwardRef(() => <NextPage />),
   PreviousPage: forwardRef(() => <PreviousPage />),
-  DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />)
+  SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
 }
 
 
 const TableOfStudies = (props: Props) => {
   const {patientId} = props
+  const [categorySelected, setCategorySelected] = useState<Categories>('')
 
   return (
     <MaterialTable
       icons={tableIcons}
       columns={[
         {
-          title: "id",
           field: "id",
-          hidden: true
+          hidden: true,
+          title: "id",
         },
         {
-          title: "Categoria",
           field: "category",
+          render: rowData => <Category category={rowData.category} />,
           sorting: false,
-          render: rowData => <Category category={rowData.category}/>
+          title: <SelectCategory categorySelected={categorySelected} setCategorySelected={setCategorySelected} />,
         },
         {
-          title: "Fecha",
           field: "authoredDate",
-          width: "10%",
-          render: rowData => (moment(rowData.authoredDate).format('DD/MM/YYYY'))
+          title: "Fecha",
+          render: rowData => (moment(rowData.authoredDate).format('DD/MM/YYYY')),
         },
         {
-          title: "Nro Orden",
           field: "orderNumber",
-          sorting: false
+          sorting: false,
+          title: "Nro Orden",
         }
       ]}
+      localization={{
+        body: {
+          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
+        },
+        pagination: {
+          firstAriaLabel: 'Primera página',
+          firstTooltip: 'Primera página',
+          labelDisplayedRows: '{from}-{to} de {count}',
+          labelRowsPerPage: 'Filas por página:',
+          labelRowsSelect: 'filas',
+          lastAriaLabel: 'Última página',
+          lastTooltip: 'Última página',
+          nextAriaLabel: 'Página siguiente',
+          nextTooltip: 'Página siguiente',
+          previousAriaLabel: 'Página anterior',
+          previousTooltip: 'Página anterior',
+        },
+      }}
       data={query =>
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
           await axios
             .get(url, {
               params: {
-                patient_id: patientId,
+                patient_id: patientId ?? '',
                 page: (query.page + 1),
-                count: query.pageSize
+                count: query.pageSize,
+                category: CategoryCode[categorySelected] ?? ''
               }
             })
             .then((res) => {
               resolve({
                 data: res.data.items,
                 page: (query.page - 1),
-                totalCount: res.data.total,
+                totalCount: res.data.total
               })
             })
             .catch((err) => {
@@ -87,33 +122,16 @@ const TableOfStudies = (props: Props) => {
         )
       }}
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
-      localization={{
-        body: {
-          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-        },
-        pagination: {
-          firstAriaLabel: 'Primera página',
-          firstTooltip: 'Primera página',
-          labelDisplayedRows: '{from}-{to} de {count}',
-          labelRowsPerPage: 'Filas por página:',
-          labelRowsSelect: 'filas',
-          lastAriaLabel: 'Última página',
-          lastTooltip: 'Última página',
-          nextAriaLabel: 'Página siguiente',
-          nextTooltip: 'Página siguiente',
-          previousAriaLabel: 'Página anterior',
-          previousTooltip: 'Página anterior',
-        },
-      }}
       options={{
-        search: false,
-        toolbar: false,
-        draggable: false,
-        paging: true,
-        pageSize: 5,
-        overflowY: "auto",
         detailPanelColumnAlignment: "right",
-        showFirstLastPageButtons: false
+        draggable: false,
+        hideFilterIcons: false,
+        loadingType: "overlay",
+        maxBodyHeight: "340px",
+        overflowY: "auto",
+        toolbar: false,
+        search: false,
+        showFirstLastPageButtons: false,
       }}
     />
   );
