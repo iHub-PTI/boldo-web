@@ -15,6 +15,7 @@ import SelectCategory from './SelectCategory';
 import NoProfilePicture from '../icons/NoProfilePicture';
 import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
+import DoctorName from './DoctorName';
 
 
 type Props = {
@@ -61,7 +62,8 @@ const TableOfStudies = (props: Props) => {
           width: "5%"
         },
         {
-          render: () => <p>Dr. Mario Cabañas</p>,
+          field: "doctor",
+          render: rowData => <DoctorName doctor={rowData.doctor} />,
           title: "Nombre del médico",
           sorting: false,
           width: "15%",
@@ -74,13 +76,14 @@ const TableOfStudies = (props: Props) => {
         },
         {
           field: "authoredDate",
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{(moment(rowData.authoredDate).format('DD/MM/YYYY'))}</p>,
           title: "Fecha",
-          render: rowData => (moment(rowData.authoredDate).format('DD/MM/YYYY')),
         },
         {
           field: "orderNumber",
           sorting: false,
           title: "Nro Orden",
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber}</p>,
           width: "5%"
         }
       ]}
