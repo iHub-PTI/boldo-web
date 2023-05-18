@@ -63,7 +63,7 @@ const TableOfStudies = (props: Props) => {
         },
         {
           field: "doctor",
-          render: rowData => <DoctorName doctor={rowData.doctor} />,
+          render: rowData => <DoctorName doctor={rowData.doctor} className='not-italic font-normal text-sm leading-6 text-gray-700' />,
           title: "Nombre del médico",
           sorting: false,
           width: "15%",

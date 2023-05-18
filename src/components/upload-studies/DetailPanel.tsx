@@ -9,6 +9,7 @@ import CalendarIcon from '../icons/upload-icons/CalendarIcon';
 import moment from 'moment';
 import Category from './Category';
 import Urgency from './Urgency';
+import DoctorName from './DoctorName';
 
 
 type Props = {
@@ -76,7 +77,7 @@ const DetailPanel = (props: Props) => {
                       {/* name and description */}
                       <div className='flex flex-col'>
                         {/* prefix and name */}
-                        <p className='font-normal text-base not-italic leading-6 text-gray-700'>Dr. Mario Cabañas</p>
+                        <DoctorName doctor={orderStudy.doctor} className='font-normal text-base not-italic leading-6 text-gray-700' />
                         {/* description */}
                         <div className='flex flex-row items-center space-x-1'>
                           {/* specialty */}
