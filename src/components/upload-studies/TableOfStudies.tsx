@@ -12,6 +12,7 @@ import ChevronRight from '@material-ui/icons/ChevronRight';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import FilterIcon from '../icons/upload-icons/FilterIcon';
 import SelectCategory from './SelectCategory';
+import NoProfilePicture from '../icons/NoProfilePicture';
 
 
 type Props = {
@@ -50,6 +51,17 @@ const TableOfStudies = (props: Props) => {
           field: "id",
           hidden: true,
           title: "id",
+        },
+        {
+          render: () => <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-9 h-9' />,
+          title: "",
+          sorting: false
+        },
+        {
+          render: () => <p>Dr. Mario Cabañas</p>,
+          title: "Nombre del médico",
+          sorting: false,
+          width: "30%",
         },
         {
           field: "category",
@@ -129,6 +141,8 @@ const TableOfStudies = (props: Props) => {
         loadingType: "overlay",
         maxBodyHeight: "340px",
         overflowY: "auto",
+        pageSize: 3,
+        pageSizeOptions: [3,5,8,10],
         toolbar: false,
         search: false,
         showFirstLastPageButtons: false,
