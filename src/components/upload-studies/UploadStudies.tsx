@@ -51,7 +51,7 @@ const UploadStudies = (props: Props) => {
         </button>
         {/* principal header */}
         <div className='w-full'>
-          <p className='w-full not-italic font-sans font-bold text-xl leading-6 ml-6 mb-6 mt-2'>
+          <p className='w-full not-italic font-sans font-bold text-xl leading-6 ml-6 mb-2 mt-2'>
             Añadir resultado de estudio
           </p>
         </div>

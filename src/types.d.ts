@@ -103,6 +103,7 @@ export interface OrderStudy {
   orderNumber?: string
   studiesCodes?: StudiesCode[]
   urgent?: boolean
+  notes?: string
 }
 
 export interface DiagnosticReport {
