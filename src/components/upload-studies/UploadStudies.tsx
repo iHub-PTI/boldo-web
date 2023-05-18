@@ -43,7 +43,7 @@ const UploadStudies = (props: Props) => {
       }}
     >
       {/* header and body */}
-      <div className='flex flex-col items-center'>
+      <div className='flex flex-col'>
         {/* this only show when new study is clicked */}
         <button 
           className={`flex flex-row ml-6 mt-2 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
@@ -60,53 +60,55 @@ const UploadStudies = (props: Props) => {
             atrás
           </p>
         </button>
-        {/* principal header */}
-        <div className='w-full'>
-          <p className='w-auto not-italic font-sans font-bold text-xl leading-6 ml-6 mb-2 mt-2'>
-            Añadir resultado de estudio
-          </p>
-        </div>
-        {/* secondary header */}
-        <p className='not-italic font-sans font-normal text-xl leading-6 m-6'>Busque una orden o adjunte un nuevo estudio</p>
-        {/* bar for search studies for order number */}
-        <div 
-          className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'
-          onClick={() => handleShowTable(true)}
-        >
-          <SearchIcon />
-          <input 
-            id='searchStudy'
-            type='text'
-            className='flex flex-grow bg-transparent focus:outline-none text-gray-500'
-            placeholder='Haga click para desplegar el listado o coloque el número de orden'
-            onChange={event => setSearchValue(event.target.value)}
-            value={searchValue}
-            disabled={searchError}
-          />
-        </div>
-        {/* It is only shown when we want to associate it with an order */}
-        { showNewStudyWithOutOrder &&
-          <button 
-            className='flex flex-row mt-4 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
-            onClick={() => {
-              handleShowNewStudyWithOutOrder()
-              setShowTable(false)
-            }}
-          >
-            <PlusIcon />
-            <p 
-              className='not-italic font-sans font-normal text-base leading-6' 
-              style={{color: '#27BEC2'}}
-            >
-              Adjuntar nuevo estudio sin orden
+        <div className='flex flex-col items-center'>
+          {/* principal header */}
+          <div className='w-full'>
+            <p className='w-auto not-italic font-sans font-bold text-xl leading-6 ml-6 mb-2 mt-2'>
+              Añadir resultado de estudio
             </p>
-          </button>
-        }
-        { showTable &&
-          <div className='w-5/6'>
-            <TableOfStudies patientId={patientId}/>
           </div>
-        }
+          {/* secondary header */}
+          <p className='not-italic font-sans font-normal text-xl leading-6 m-6'>Busque una orden o adjunte un nuevo estudio</p>
+          {/* bar for search studies for order number */}
+          <div 
+            className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'
+            onClick={() => handleShowTable(true)}
+          >
+            <SearchIcon />
+            <input 
+              id='searchStudy'
+              type='text'
+              className='flex flex-grow bg-transparent focus:outline-none text-gray-500'
+              placeholder='Haga click para desplegar el listado o coloque el número de orden'
+              onChange={event => setSearchValue(event.target.value)}
+              value={searchValue}
+              disabled={searchError}
+            />
+          </div>
+          {/* It is only shown when we want to associate it with an order */}
+          { showNewStudyWithOutOrder &&
+            <button 
+              className='flex flex-row mt-4 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
+              onClick={() => {
+                handleShowNewStudyWithOutOrder()
+                setShowTable(false)
+              }}
+            >
+              <PlusIcon />
+              <p 
+                className='not-italic font-sans font-normal text-base leading-6' 
+                style={{color: '#27BEC2'}}
+              >
+                Adjuntar nuevo estudio sin orden
+              </p>
+            </button>
+          }
+          { showTable &&
+            <div style={{width: "95%"}}>
+              <TableOfStudies patientId={patientId}/>
+            </div>
+          }
+        </div>
       </div>
       {/* footer */}
 
