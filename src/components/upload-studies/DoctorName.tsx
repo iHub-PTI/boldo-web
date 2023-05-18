@@ -4,14 +4,15 @@ import { toUpperLowerCase } from '../../util/helpers';
 
 type Props = {
   doctor: iHub.Doctor;
+  className: string;
 }
 
 
 const DoctorName = (props: Props) => {
-  const {doctor} = props
+  const {doctor, className=''} = props
 
   return(
-    <p className='not-italic font-normal text-sm leading-6 text-gray-700'>
+    <p className={className}>
       { doctor?.gender &&
         doctor.gender === 'female'
           ? 'Dra. '
