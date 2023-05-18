@@ -20,10 +20,10 @@ const DoctorName = (props: Props) => {
             : ''
       }
       {
-        toUpperLowerCase(doctor.familyName.split(' ')[0]) + ' '
+        toUpperLowerCase(doctor.givenName.split(' ')[0]) + ' '
       }
       {
-        toUpperLowerCase(doctor.givenName.split(' ')[0])
+        toUpperLowerCase(doctor.familyName.split(' ')[0])
       }
     </p>
   );
