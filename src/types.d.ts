@@ -97,7 +97,7 @@ export interface OrderStudy {
   category?: string
   diagnosis?: string
   diagnosticReports?: DiagnosticReport[]
-  doctor: iHub.Doctor[]
+  doctor: iHub.Doctor
   encounterId?: string
   id?: string
   identifier?: string
