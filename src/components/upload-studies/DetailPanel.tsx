@@ -58,7 +58,7 @@ const DetailPanel = (props: Props) => {
             : orderStudy &&
               <div className='flex flex-col space-y-6'>
                 {/* profile and date */}
-                <div className='flex flex-row content-between'>
+                <div className='flex flex-row justify-between'>
                   {/* profile */}
                   <div className='flex flex-col space-y-2'>
                     {/* text */}
