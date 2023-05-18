@@ -13,6 +13,8 @@ import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import FilterIcon from '../icons/upload-icons/FilterIcon';
 import SelectCategory from './SelectCategory';
 import NoProfilePicture from '../icons/NoProfilePicture';
+import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
+import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 
 
 type Props = {
@@ -55,13 +57,14 @@ const TableOfStudies = (props: Props) => {
         {
           render: () => <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-9 h-9' />,
           title: "",
-          sorting: false
+          sorting: false,
+          width: "5%"
         },
         {
           render: () => <p>Dr. Mario Cabañas</p>,
           title: "Nombre del médico",
           sorting: false,
-          width: "30%",
+          width: "15%",
         },
         {
           field: "category",
@@ -78,6 +81,7 @@ const TableOfStudies = (props: Props) => {
           field: "orderNumber",
           sorting: false,
           title: "Nro Orden",
+          width: "5%"
         }
       ]}
       localization={{
@@ -128,11 +132,16 @@ const TableOfStudies = (props: Props) => {
             })
         })
       }
-      detailPanel={rowData => {
-        return (
-          <DetailPanel orderId={`${rowData.id ?? ''}`}/>
-        )
-      }}
+      detailPanel={[{
+        render: rowData => {
+          return (
+            <DetailPanel orderId={`${rowData.id ?? ''}`}/>
+          )
+        },
+        icon: () => <UnderlinedIcon text='ver más'/>,
+        openIcon: () => <KeyboardArrowUpIcon />,
+        disabled: true // this disables all the dumb styles that are added to the icon
+      }]}
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",
@@ -141,7 +150,8 @@ const TableOfStudies = (props: Props) => {
         loadingType: "overlay",
         maxBodyHeight: "340px",
         overflowY: "auto",
-        pageSize: 3,
+        padding: "dense",
+        pageSize: 5,
         pageSizeOptions: [3,5,8,10],
         toolbar: false,
         search: false,
