@@ -31,7 +31,7 @@ const Category = (props:Props) => {
     // space-x-2 put horizontal space between the children
     <div className='flex flex-row space-x-2 items-center'>
       <div className='flex items-center'>{CategoryIconMap[category]}</div>
-      <p className='flex items-center'>{CategoryNameMap[category]}</p>
+      <p className='flex items-center not-italic font-normal text-sm leading-5 text-gray-900'>{CategoryNameMap[category]}</p>
     </div>
   );
 }
