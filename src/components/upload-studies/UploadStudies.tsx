@@ -3,6 +3,8 @@ import SearchIcon from '../icons/upload-icons/SearchIcon';
 import PlusIcon from '../icons/upload-icons/PlusIcon';
 import BackIcon from '../icons/upload-icons/BackIcon';
 import TableOfStudies from './TableOfStudies';
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../../util/constants';
+import useWindowDimensions from "../../util/useWindowDimensions";
 
 
 type Props = {
@@ -16,6 +18,7 @@ const UploadStudies = (props: Props) => {
   const [searchError, setSearchError] = useState<boolean>(false)
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
   const [showTable, setShowTable] = useState<boolean>(false)
+  const { width } = useWindowDimensions()
   
   // This function handles the visibility of the back button
   const handleShowNewStudyWithOutOrder = () => {
@@ -30,12 +33,20 @@ const UploadStudies = (props: Props) => {
 
   return (
     // container for all the upload studies section
-    <div className='flex flex-col justify-between h-full w-full'>
+    <div 
+      className='flex flex-col justify-between overflow-auto scrollbar'
+      style={{
+        height: ` ${width >= WIDTH_XL
+          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`,
+      }}
+    >
       {/* header and body */}
       <div className='flex flex-col items-center'>
         {/* this only show when new study is clicked */}
         <button 
-          className={`flex flex-row ml-6 mt-2 w-full focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
+          className={`flex flex-row ml-6 mt-2 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
           onClick={() => {
             handleShowNewStudyWithOutOrder()
             setShowTable(true)
@@ -51,7 +62,7 @@ const UploadStudies = (props: Props) => {
         </button>
         {/* principal header */}
         <div className='w-full'>
-          <p className='w-full not-italic font-sans font-bold text-xl leading-6 ml-6 mb-2 mt-2'>
+          <p className='w-auto not-italic font-sans font-bold text-xl leading-6 ml-6 mb-2 mt-2'>
             Añadir resultado de estudio
           </p>
         </div>
@@ -92,7 +103,9 @@ const UploadStudies = (props: Props) => {
           </button>
         }
         { showTable &&
-          <TableOfStudies patientId={patientId}/>
+          <div className='w-5/6'>
+            <TableOfStudies patientId={patientId}/>
+          </div>
         }
       </div>
       {/* footer */}
