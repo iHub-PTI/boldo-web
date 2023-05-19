@@ -56,7 +56,14 @@ const TableOfStudies = (props: Props) => {
           title: "id",
         },
         {
-          render: () => <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-9 h-9' />,
+          field: "doctor.photoUrl",
+          render: (rowData) => rowData?.doctor?.photoUrl !== undefined 
+            ? <img
+                src={rowData.doctor.photoUrl}
+                alt='Foto de Perfil'
+                className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
+              />
+            : <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-11 h-11' />,
           title: "",
           sorting: false,
           width: "5%"
@@ -120,7 +127,7 @@ const TableOfStudies = (props: Props) => {
             .then((res) => {
               resolve({
                 data: res.data.items,
-                page: (query.page - 1),
+                page: (query.page),
                 totalCount: res.data.total
               })
             })

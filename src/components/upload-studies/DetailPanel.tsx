@@ -31,7 +31,7 @@ const DetailPanel = (props: Props) => {
     axios
       .get(url)
       .then((res) => {
-        console.log(res.data)
+        // console.log(res.data)
         setOrderStudy(res.data as Boldo.OrderStudy)
       })
       .catch((err) => {
@@ -66,9 +66,9 @@ const DetailPanel = (props: Props) => {
                     <p className='font-semibold text-xs not-italic leading-4 text-gray-500'>Orden</p>
                     {/* photo and description */}
                     <div className='flex flex-row space-x-4'>
-                      { false
+                      { orderStudy?.doctor?.photoUrl !== undefined
                         ? <img
-                            src=''
+                            src={orderStudy.doctor.photoUrl}
                             alt='Foto de Perfil'
                             className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
                           />
