@@ -9,7 +9,7 @@ type Props = {
 
 
 const DoctorName = (props: Props) => {
-  const {doctor, className=''} = props
+  const {doctor={} as iHub.Doctor, className=''} = props
 
   return(
     <p className={className}>
@@ -21,10 +21,10 @@ const DoctorName = (props: Props) => {
             : ''
       }
       {
-        toUpperLowerCase(doctor.givenName.split(' ')[0]) + ' '
+        doctor?.givenName && toUpperLowerCase(doctor.givenName.split(' ')[0]) + ' '
       }
       {
-        toUpperLowerCase(doctor.familyName.split(' ')[0])
+        doctor?.familyName && toUpperLowerCase(doctor.familyName.split(' ')[0])
       }
     </p>
   );
