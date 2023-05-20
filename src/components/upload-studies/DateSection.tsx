@@ -19,10 +19,20 @@ const DateSection = (props: Props) => {
         {/* icon and date */}
         <div className='flex flex-row items-center space-x-2'>
           <CalendarIcon />
-          <p className='font-normal text-sm not-italic leading-4'>{(moment(authoredDate)).format('DD/MM/YYYY')}</p>
+          <p className='font-normal text-sm not-italic leading-4'>
+            { authoredDate !== ''
+              ? (moment(authoredDate)).format('DD/MM/YYYY')
+              : 'Fecha desconocida'
+            }
+          </p>
         </div>
         {/* count days ago */}
-        <p className='font-normal text-sm not-italic leading-4 text-gray-500'>{countDays(authoredDate) ?? 'No fue posible calcular'}</p>
+        <p className='font-normal text-sm not-italic leading-4 text-gray-500'>
+          { authoredDate !== ''
+            ? countDays(authoredDate)
+            : 'No es posible calcular'
+          }
+        </p>
       </div>
     </div>
   );
