@@ -16,10 +16,13 @@ import NoProfilePicture from '../icons/NoProfilePicture';
 import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import DoctorName from './DoctorName';
+import ImportIcon from '../icons/upload-icons/ImportIcon';
 
 
 type Props = {
-  patientId: string
+  patientId: string;
+  handleShowOrderImported: () => void;
+  
 }
 // types of order study
 export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
@@ -43,12 +46,21 @@ const tableIcons: Icons = {
 
 
 const TableOfStudies = (props: Props) => {
-  const {patientId} = props
+  const {patientId, handleShowOrderImported} = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
 
   return (
     <MaterialTable
-      icons={tableIcons}
+      actions={[
+        {
+          icon: () => <ImportIcon />,
+          onClick: (event, rowData) => {
+            handleShowOrderImported()
+            // alert("Usuario importado")
+          },
+          tooltip: 'Importar orden de estudios',
+        }
+      ]}
       columns={[
         {
           field: "id",
@@ -94,24 +106,6 @@ const TableOfStudies = (props: Props) => {
           width: "5%"
         }
       ]}
-      localization={{
-        body: {
-          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-        },
-        pagination: {
-          firstAriaLabel: 'Primera página',
-          firstTooltip: 'Primera página',
-          labelDisplayedRows: '{from}-{to} de {count}',
-          labelRowsPerPage: 'Filas por página:',
-          labelRowsSelect: 'filas',
-          lastAriaLabel: 'Última página',
-          lastTooltip: 'Última página',
-          nextAriaLabel: 'Página siguiente',
-          nextTooltip: 'Página siguiente',
-          previousAriaLabel: 'Página anterior',
-          previousTooltip: 'Página anterior',
-        },
-      }}
       data={query =>
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
@@ -152,6 +146,25 @@ const TableOfStudies = (props: Props) => {
         openIcon: () => <KeyboardArrowUpIcon />,
         disabled: true // this disables all the dumb styles that are added to the icon
       }]}
+      icons={tableIcons}
+      localization={{
+        body: {
+          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
+        },
+        pagination: {
+          firstAriaLabel: 'Primera página',
+          firstTooltip: 'Primera página',
+          labelDisplayedRows: '{from}-{to} de {count}',
+          labelRowsPerPage: 'Filas por página:',
+          labelRowsSelect: 'filas',
+          lastAriaLabel: 'Última página',
+          lastTooltip: 'Última página',
+          nextAriaLabel: 'Página siguiente',
+          nextTooltip: 'Página siguiente',
+          previousAriaLabel: 'Página anterior',
+          previousTooltip: 'Página anterior',
+        },
+      }}
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",

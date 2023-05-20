@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchIcon from '../icons/upload-icons/SearchIcon';
 import PlusIcon from '../icons/upload-icons/PlusIcon';
 import BackIcon from '../icons/upload-icons/BackIcon';
@@ -18,6 +18,7 @@ const UploadStudies = (props: Props) => {
   const [searchError, setSearchError] = useState<boolean>(false)
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
   const [showTable, setShowTable] = useState<boolean>(false)
+  const [showOrderImported, setShowOrderImported] = useState<boolean>(false)
   const { width } = useWindowDimensions()
   
   // This function handles the visibility of the back button
@@ -27,8 +28,13 @@ const UploadStudies = (props: Props) => {
   
   // this function handles the visibilitu of the table
   const handleShowTable = (show: boolean) => {
+    if (show) setShowOrderImported(false)
     setShowTable(show)
   }
+
+  useEffect(() => {
+    if (showOrderImported) setShowTable(false)
+  }, [showOrderImported])
 
 
   return (
@@ -105,7 +111,12 @@ const UploadStudies = (props: Props) => {
           }
           { showTable &&
             <div style={{width: "95%"}}>
-              <TableOfStudies patientId={patientId}/>
+              <TableOfStudies patientId={patientId} handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
+            </div>
+          }
+          { showOrderImported &&
+            <div style={{width: "95%"}}>
+
             </div>
           }
         </div>
