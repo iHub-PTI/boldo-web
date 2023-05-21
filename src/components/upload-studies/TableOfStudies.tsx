@@ -1,9 +1,12 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useContext, useState } from 'react';
 import MaterialTable, { Icons } from 'material-table';
 import axios from 'axios'
 import moment from 'moment';
+import { OrderStudyImportedContext } from '../../contexts/OrderImportedContext';
 import DetailPanel from './DetailPanel';
 import Category from './Category';
+import DoctorName from './DoctorName';
+import SelectCategory from './SelectCategory';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import NextPage from '../icons/upload-icons/NextPage';
@@ -11,12 +14,11 @@ import PreviousPage from '../icons/upload-icons/PreviousPage';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import FilterIcon from '../icons/upload-icons/FilterIcon';
-import SelectCategory from './SelectCategory';
 import NoProfilePicture from '../icons/NoProfilePicture';
 import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
-import DoctorName from './DoctorName';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
+import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
 
 
 type Props = {
@@ -48,15 +50,40 @@ const tableIcons: Icons = {
 const TableOfStudies = (props: Props) => {
   const {patientId, handleShowOrderImported} = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
+  const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
+  const {setOrderImported} = useContext(OrderStudyImportedContext)
+
+  const getOrderStudyImported = (rowData) => {
+    setLoadingOrderImported(true)
+    let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
+
+    axios
+      .get(url)
+      .then((res) => {
+        // console.log("ORDER STUDY => ", res.data)
+        setOrderImported(res.data as Boldo.OrderStudy)
+      })
+      .catch((err) => {
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET_DESCRIPTION, tags)
+        setOrderImported({} as Boldo.OrderStudy)
+      })
+      .finally(() => {
+        setLoadingOrderImported(false)
+        handleShowOrderImported()
+      })
+  }
 
   return (
     <MaterialTable
       actions={[
         {
-          icon: () => <ImportIcon />,
-          onClick: (event, rowData) => {
-            handleShowOrderImported()
-            // alert("Usuario importado")
+          icon: () => loadingOrderImported ? <SpinnerLoading /> : <ImportIcon />,
+          onClick: async (event, rowData) => {
+            getOrderStudyImported(rowData)
           },
           tooltip: 'Importar orden de estudios',
         }

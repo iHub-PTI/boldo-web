@@ -5,6 +5,7 @@ import BackIcon from '../icons/upload-icons/BackIcon';
 import TableOfStudies from './TableOfStudies';
 import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../../util/constants';
 import useWindowDimensions from "../../util/useWindowDimensions";
+import OrderImported from './OrderImported';
 
 
 type Props = {
@@ -116,7 +117,7 @@ const UploadStudies = (props: Props) => {
           }
           { showOrderImported &&
             <div style={{width: "95%"}}>
-
+              <OrderImported handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
             </div>
           }
         </div>

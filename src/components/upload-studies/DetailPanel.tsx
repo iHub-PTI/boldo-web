@@ -68,8 +68,8 @@ const DetailPanel = (props: Props) => {
                   <div className='flex flex-col py-3'>
                     {/* category and urgency */}
                     <div className='flex flex-row space-x-4'>
-                      <Category category={orderStudy.category}/>
-                      {orderStudy.urgent && <Urgency />}
+                      <Category category={orderStudy?.category ?? 'Other'}/>
+                      {orderStudy?.urgent && <Urgency />}
                     </div>
                     {/* study codes */}
                     { orderStudy?.studiesCodes &&

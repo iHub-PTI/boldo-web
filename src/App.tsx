@@ -18,6 +18,7 @@ import * as Sentry from "@sentry/react";
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
+import OrderStudyImportedProvider from './contexts/OrderImportedContext'
 import { changeHours } from './util/helpers'
 import Provider from './components/studiesorder/Provider'
 import handleSendSentry from './util/Sentry/sentryHelper'
@@ -167,7 +168,9 @@ const App = () => {
                 <Route exact path='/appointments/:id/inperson'>
                   <PrescriptionContextProvider>
                     <Provider>
-                      <InPersonAppoinment />
+                      <OrderStudyImportedProvider>
+                        <InPersonAppoinment />
+                      </OrderStudyImportedProvider>
                     </Provider>
                   </PrescriptionContextProvider>
                 </Route>
