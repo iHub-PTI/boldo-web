@@ -19,6 +19,7 @@ import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
 import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
+import _ from "lodash";
 
 
 type Props = {
@@ -168,7 +169,14 @@ const TableOfStudies = (props: Props) => {
             })
             .then((res) => {
               resolve({
-                data: res.data.items,
+                data:
+                  query.orderBy && query.orderDirection
+                    ? _.orderBy(
+                      res.data.items,
+                      [query.orderBy.field],
+                      [query.orderDirection]
+                    )
+                    : res.data.items,
                 page: (query.page),
                 totalCount: res.data.total
               })
