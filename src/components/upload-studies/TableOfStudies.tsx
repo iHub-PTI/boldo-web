@@ -24,7 +24,7 @@ import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.s
 type Props = {
   patientId: string;
   handleShowOrderImported: () => void;
-  
+
 }
 // types of order study
 export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
@@ -46,12 +46,33 @@ const tableIcons: Icons = {
   SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
 }
 
+const CONFIG_LOCALIZATION = {
+  body: {
+    emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
+  },
+  header: {
+    actions: ''
+  },
+  pagination: {
+    firstAriaLabel: 'Primera página',
+    firstTooltip: 'Primera página',
+    labelDisplayedRows: '{from}-{to} de {count}',
+    labelRowsPerPage: 'Filas por página:',
+    labelRowsSelect: 'filas',
+    lastAriaLabel: 'Última página',
+    lastTooltip: 'Última página',
+    nextAriaLabel: 'Página siguiente',
+    nextTooltip: 'Página siguiente',
+    previousAriaLabel: 'Página anterior',
+    previousTooltip: 'Página anterior',
+  },
+}
 
 const TableOfStudies = (props: Props) => {
-  const {patientId, handleShowOrderImported} = props
+  const { patientId, handleShowOrderImported } = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
   const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
-  const {setOrderImported} = useContext(OrderStudyImportedContext)
+  const { setOrderImported } = useContext(OrderStudyImportedContext)
 
   const getOrderStudyImported = (rowData) => {
     setLoadingOrderImported(true)
@@ -96,12 +117,12 @@ const TableOfStudies = (props: Props) => {
         },
         {
           field: "doctor.photoUrl",
-          render: (rowData) => rowData?.doctor?.photoUrl !== undefined 
+          render: (rowData) => rowData?.doctor?.photoUrl !== undefined
             ? <img
-                src={rowData.doctor.photoUrl}
-                alt='Foto de Perfil'
-                className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
-              />
+              src={rowData.doctor.photoUrl}
+              alt='Foto de Perfil'
+              className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
+            />
             : <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-11 h-11' />,
           title: "",
           sorting: false,
@@ -166,32 +187,15 @@ const TableOfStudies = (props: Props) => {
       detailPanel={[{
         render: rowData => {
           return (
-            <DetailPanel orderId={`${rowData.id ?? ''}`}/>
+            <DetailPanel orderId={`${rowData.id ?? ''}`} />
           )
         },
-        icon: () => <UnderlinedIcon text='ver más'/>,
+        icon: () => <UnderlinedIcon text='ver más' />,
         openIcon: () => <KeyboardArrowUpIcon />,
         disabled: true // this disables all the dumb styles that are added to the icon
       }]}
       icons={tableIcons}
-      localization={{
-        body: {
-          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-        },
-        pagination: {
-          firstAriaLabel: 'Primera página',
-          firstTooltip: 'Primera página',
-          labelDisplayedRows: '{from}-{to} de {count}',
-          labelRowsPerPage: 'Filas por página:',
-          labelRowsSelect: 'filas',
-          lastAriaLabel: 'Última página',
-          lastTooltip: 'Última página',
-          nextAriaLabel: 'Página siguiente',
-          nextTooltip: 'Página siguiente',
-          previousAriaLabel: 'Página anterior',
-          previousTooltip: 'Página anterior',
-        },
-      }}
+      localization={CONFIG_LOCALIZATION}
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",
@@ -202,7 +206,7 @@ const TableOfStudies = (props: Props) => {
         overflowY: "auto",
         padding: "dense",
         pageSize: 5,
-        pageSizeOptions: [3,5,8,10],
+        pageSizeOptions: [3, 5, 8, 10],
         toolbar: false,
         search: false,
         showFirstLastPageButtons: false,
