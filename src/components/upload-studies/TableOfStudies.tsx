@@ -23,9 +23,10 @@ import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.s
 
 type Props = {
   patientId: string;
+  searchByOrder: string;
   handleShowOrderImported: () => void;
-
 }
+
 // types of order study
 export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
 
@@ -36,7 +37,6 @@ const CategoryCode = {
   "Other": "OTH",
   "": "",
 }
-
 
 const tableIcons: Icons = {
   DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
@@ -69,7 +69,7 @@ const CONFIG_LOCALIZATION = {
 }
 
 const TableOfStudies = (props: Props) => {
-  const { patientId, handleShowOrderImported } = props
+  const { patientId, handleShowOrderImported, searchByOrder } = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
   const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
   const { setOrderImported } = useContext(OrderStudyImportedContext)
@@ -103,9 +103,8 @@ const TableOfStudies = (props: Props) => {
 
   useEffect(() => {
     if (!tableRef) return
-    console.log(CategoryCode[categorySelected])
     tableRef?.current?.onQueryChange()
-  }, [categorySelected])
+  }, [categorySelected, searchByOrder])
 
   return (
     <MaterialTable
@@ -172,6 +171,7 @@ const TableOfStudies = (props: Props) => {
             .get(url, {
               params: {
                 patient_id: patientId ?? '',
+                orderNumber: searchByOrder,
                 page: (query.page + 1),
                 count: query.pageSize,
                 dateOrder: query.orderDirection,
@@ -179,6 +179,13 @@ const TableOfStudies = (props: Props) => {
               }
             })
             .then((res) => {
+              if (res.status === 204) {
+                resolve({
+                  data: [],
+                  page: (query.page),
+                  totalCount: 0
+                })
+              }
               resolve({
                 data: res.data.items,
                 page: (query.page),
