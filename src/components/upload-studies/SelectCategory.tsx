@@ -22,7 +22,7 @@ const categories = Object.keys(CategoryNameMap)
 
 
 const SelectCategory = (props: Props) => {
-  const {categorySelected="", setCategorySelected} = props
+  const { categorySelected = "", setCategorySelected } = props
 
   return (
     <Popover>
@@ -35,7 +35,7 @@ const SelectCategory = (props: Props) => {
             <span>{CategoryNameMap[categorySelected]}</span>
             <FilterIcon />
           </Popover.Button>
-          
+
           <Transition
             show={open}
             enter="transition duration-100 ease-out"
@@ -49,8 +49,10 @@ const SelectCategory = (props: Props) => {
             <Popover.Panel
               className="absolute rounded-2xl shadow-xl bg-white"
             >
+              <Popover.Button></Popover.Button>
+
               {categories.map((category, idx) => (
-                <button
+                <Popover.Button
                   className='relative w-full px-4 py-2 rounded-2xl focus:outline-none hover:bg-gray-100'
                   key={idx}
                   value={category}
@@ -61,7 +63,7 @@ const SelectCategory = (props: Props) => {
                   >
                     {CategoryNameMap[category]}
                   </span>
-                </button>
+                </Popover.Button>
               ))}
             </Popover.Panel>
           </Transition>

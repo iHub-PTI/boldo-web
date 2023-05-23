@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import MaterialTable, { Icons } from 'material-table';
 import axios from 'axios'
 import moment from 'moment';
@@ -12,14 +12,13 @@ import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import NextPage from '../icons/upload-icons/NextPage';
 import PreviousPage from '../icons/upload-icons/PreviousPage';
 import ChevronRight from '@material-ui/icons/ChevronRight';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import FilterIcon from '../icons/upload-icons/FilterIcon';
 import NoProfilePicture from '../icons/NoProfilePicture';
 import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
 import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
-import _ from "lodash";
 
 
 type Props = {
@@ -33,7 +32,7 @@ export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
 // map the code of the category
 const CategoryCode = {
   "Laboratory": "LAB",
-  "Diagnostic": "IMG",
+  "Diagnostic Imaging": "IMG",
   "Other": "OTH",
   "": "",
 }
@@ -44,7 +43,7 @@ const tableIcons: Icons = {
   Filter: forwardRef(() => <FilterIcon />),
   NextPage: forwardRef(() => <NextPage />),
   PreviousPage: forwardRef(() => <PreviousPage />),
-  SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
+  SortArrow: forwardRef((props, ref) => <ArrowDownward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
 }
 
 const CONFIG_LOCALIZATION = {
@@ -75,6 +74,9 @@ const TableOfStudies = (props: Props) => {
   const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
   const { setOrderImported } = useContext(OrderStudyImportedContext)
 
+  //table ref
+  const tableRef = useRef(null)
+
   const getOrderStudyImported = (rowData) => {
     setLoadingOrderImported(true)
     let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
@@ -99,8 +101,15 @@ const TableOfStudies = (props: Props) => {
       })
   }
 
+  useEffect(() => {
+    if (!tableRef) return
+    console.log(CategoryCode[categorySelected])
+    tableRef?.current?.onQueryChange()
+  }, [categorySelected])
+
   return (
     <MaterialTable
+      tableRef={tableRef}
       actions={[
         {
           icon: () => loadingOrderImported ? <SpinnerLoading /> : <ImportIcon />,
@@ -158,25 +167,20 @@ const TableOfStudies = (props: Props) => {
       data={query =>
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
+          console.log(query.orderDirection)
           await axios
             .get(url, {
               params: {
                 patient_id: patientId ?? '',
                 page: (query.page + 1),
                 count: query.pageSize,
+                dateOrder: query.orderDirection,
                 category: CategoryCode[categorySelected] ?? ''
               }
             })
             .then((res) => {
               resolve({
-                data:
-                  query.orderBy && query.orderDirection
-                    ? _.orderBy(
-                      res.data.items,
-                      [query.orderBy.field],
-                      [query.orderDirection]
-                    )
-                    : res.data.items,
+                data: res.data.items,
                 page: (query.page),
                 totalCount: res.data.total
               })
