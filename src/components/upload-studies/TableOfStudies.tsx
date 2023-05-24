@@ -68,17 +68,30 @@ const CONFIG_LOCALIZATION = {
   },
 }
 
+type loaderRowData = {
+  id: string,
+  loading: boolean
+}
+
 const TableOfStudies = (props: Props) => {
   const { patientId, handleShowOrderImported, searchByOrder } = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
-  const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
+  const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
+    id: '',
+    loading: false,
+  })
   const { setOrderImported } = useContext(OrderStudyImportedContext)
 
   //table ref
   const tableRef = useRef(null)
 
   const getOrderStudyImported = (rowData) => {
-    setLoadingOrderImported(true)
+
+    setLoadingOrderImported({
+      id: rowData?.id,
+      loading: true
+    })
+
     let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
 
     axios
@@ -96,7 +109,10 @@ const TableOfStudies = (props: Props) => {
         setOrderImported({} as Boldo.OrderStudy)
       })
       .finally(() => {
-        setLoadingOrderImported(false)
+        setLoadingOrderImported({
+          id: '',
+          loading: false,
+        })
         handleShowOrderImported()
       })
   }
@@ -111,13 +127,26 @@ const TableOfStudies = (props: Props) => {
       tableRef={tableRef}
       actions={[
         {
-          icon: () => loadingOrderImported ? <SpinnerLoading /> : <ImportIcon />,
+          icon: '',
           onClick: async (event, rowData) => {
             getOrderStudyImported(rowData)
           },
-          tooltip: 'Importar orden de estudios',
         }
       ]}
+      components={{
+        Action: props => {
+          console.log(props)
+          return (
+            <button
+              className='focus:outline-none'
+              onClick={(event) => props.action.onClick(event, props.data)}
+              title='Importar orden de estudios'
+            >
+              {loadingOrderImported.loading && props.data.id === loadingOrderImported.id ? <SpinnerLoading /> : <ImportIcon />}
+            </button>
+          )
+        },
+      }}
       columns={[
         {
           field: "id",
