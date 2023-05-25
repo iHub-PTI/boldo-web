@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import MaterialTable, { Icons } from 'material-table';
 import axios from 'axios'
 import moment from 'moment';
@@ -12,7 +12,7 @@ import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import NextPage from '../icons/upload-icons/NextPage';
 import PreviousPage from '../icons/upload-icons/PreviousPage';
 import ChevronRight from '@material-ui/icons/ChevronRight';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import FilterIcon from '../icons/upload-icons/FilterIcon';
 import NoProfilePicture from '../icons/NoProfilePicture';
 import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
@@ -23,38 +23,75 @@ import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.s
 
 type Props = {
   patientId: string;
+  searchByOrder: string;
   handleShowOrderImported: () => void;
-  
 }
+
 // types of order study
 export type Categories = "" | "Laboratory" | "Diagnostic" | "Other";
 
 // map the code of the category
 const CategoryCode = {
   "Laboratory": "LAB",
-  "Diagnostic": "IMG",
+  "Diagnostic Imaging": "IMG",
   "Other": "OTH",
   "": "",
 }
-
 
 const tableIcons: Icons = {
   DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
   Filter: forwardRef(() => <FilterIcon />),
   NextPage: forwardRef(() => <NextPage />),
   PreviousPage: forwardRef(() => <PreviousPage />),
-  SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
+  SortArrow: forwardRef((props, ref) => <ArrowDownward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
 }
 
+const CONFIG_LOCALIZATION = {
+  body: {
+    emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
+  },
+  header: {
+    actions: ''
+  },
+  pagination: {
+    firstAriaLabel: 'Primera página',
+    firstTooltip: 'Primera página',
+    labelDisplayedRows: '{from}-{to} de {count}',
+    labelRowsPerPage: 'Filas por página:',
+    labelRowsSelect: 'filas',
+    lastAriaLabel: 'Última página',
+    lastTooltip: 'Última página',
+    nextAriaLabel: 'Página siguiente',
+    nextTooltip: 'Página siguiente',
+    previousAriaLabel: 'Página anterior',
+    previousTooltip: 'Página anterior',
+  },
+}
+
+type loaderRowData = {
+  id: string,
+  loading: boolean
+}
 
 const TableOfStudies = (props: Props) => {
-  const {patientId, handleShowOrderImported} = props
+  const { patientId, handleShowOrderImported, searchByOrder } = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
-  const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
-  const {setOrderImported, setPatientId} = useContext(OrderStudyImportedContext)
+  const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
+    id: '',
+    loading: false,
+  })
+  const { setOrderImported, setPatientId } = useContext(OrderStudyImportedContext)
+
+  //table ref
+  const tableRef = useRef(null)
 
   const getOrderStudyImported = (rowData) => {
-    setLoadingOrderImported(true)
+
+    setLoadingOrderImported({
+      id: rowData?.id,
+      loading: true
+    })
+
     let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
 
     axios
@@ -72,26 +109,48 @@ const TableOfStudies = (props: Props) => {
         setOrderImported({} as Boldo.OrderStudy)
       })
       .finally(() => {
-        setLoadingOrderImported(false)
+        setLoadingOrderImported({
+          id: '',
+          loading: false,
+        })
         handleShowOrderImported()
       })
   }
 
+  useEffect(() => {
+    if (!tableRef) return
+    tableRef?.current?.onQueryChange()
+  }, [categorySelected, searchByOrder])
+  
   useEffect(() => {
     setPatientId(patientId)
   }, [patientId, setPatientId])
 
   return (
     <MaterialTable
+      tableRef={tableRef}
       actions={[
         {
-          icon: () => loadingOrderImported ? <SpinnerLoading /> : <ImportIcon />,
+          icon: '',
           onClick: async (event, rowData) => {
             getOrderStudyImported(rowData)
           },
-          tooltip: 'Importar orden de estudios',
         }
       ]}
+      components={{
+        Action: props => {
+          console.log(props)
+          return (
+            <button
+              className='focus:outline-none'
+              onClick={(event) => props.action.onClick(event, props.data)}
+              title='Importar orden de estudios'
+            >
+              {loadingOrderImported.loading && props.data.id === loadingOrderImported.id ? <SpinnerLoading /> : <ImportIcon />}
+            </button>
+          )
+        },
+      }}
       columns={[
         {
           field: "id",
@@ -100,12 +159,12 @@ const TableOfStudies = (props: Props) => {
         },
         {
           field: "doctor.photoUrl",
-          render: (rowData) => rowData?.doctor?.photoUrl !== undefined 
+          render: (rowData) => rowData?.doctor?.photoUrl !== undefined
             ? <img
-                src={rowData.doctor.photoUrl}
-                alt='Foto de Perfil'
-                className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
-              />
+              src={rowData.doctor.photoUrl}
+              alt='Foto de Perfil'
+              className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
+            />
             : <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-11 h-11' />,
           title: "",
           sorting: false,
@@ -140,16 +199,26 @@ const TableOfStudies = (props: Props) => {
       data={query =>
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
+          console.log(query.orderDirection)
           await axios
             .get(url, {
               params: {
                 patient_id: patientId ?? '',
+                orderNumber: searchByOrder,
                 page: (query.page + 1),
                 count: query.pageSize,
+                dateOrder: query.orderDirection,
                 category: CategoryCode[categorySelected] ?? ''
               }
             })
             .then((res) => {
+              if (res.status === 204) {
+                resolve({
+                  data: [],
+                  page: (query.page),
+                  totalCount: 0
+                })
+              }
               resolve({
                 data: res.data.items,
                 page: (query.page),
@@ -170,32 +239,15 @@ const TableOfStudies = (props: Props) => {
       detailPanel={[{
         render: rowData => {
           return (
-            <DetailPanel orderId={`${rowData.id ?? ''}`}/>
+            <DetailPanel orderId={`${rowData.id ?? ''}`} />
           )
         },
-        icon: () => <UnderlinedIcon text='ver más'/>,
+        icon: () => <UnderlinedIcon text='ver más' />,
         openIcon: () => <KeyboardArrowUpIcon />,
         disabled: true // this disables all the dumb styles that are added to the icon
       }]}
       icons={tableIcons}
-      localization={{
-        body: {
-          emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-        },
-        pagination: {
-          firstAriaLabel: 'Primera página',
-          firstTooltip: 'Primera página',
-          labelDisplayedRows: '{from}-{to} de {count}',
-          labelRowsPerPage: 'Filas por página:',
-          labelRowsSelect: 'filas',
-          lastAriaLabel: 'Última página',
-          lastTooltip: 'Última página',
-          nextAriaLabel: 'Página siguiente',
-          nextTooltip: 'Página siguiente',
-          previousAriaLabel: 'Página anterior',
-          previousTooltip: 'Página anterior',
-        },
-      }}
+      localization={CONFIG_LOCALIZATION}
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",
@@ -206,7 +258,7 @@ const TableOfStudies = (props: Props) => {
         overflowY: "auto",
         padding: "dense",
         pageSize: 5,
-        pageSizeOptions: [3,5,8,10],
+        pageSizeOptions: [3, 5, 8, 10],
         toolbar: false,
         search: false,
         showFirstLastPageButtons: false,
