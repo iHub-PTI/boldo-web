@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useState } from 'react';
 import MaterialTable, { Icons } from 'material-table';
 import axios from 'axios'
 import moment from 'moment';
@@ -51,7 +51,7 @@ const TableOfStudies = (props: Props) => {
   const {patientId, handleShowOrderImported} = props
   const [categorySelected, setCategorySelected] = useState<Categories>('')
   const [loadingOrderImported, setLoadingOrderImported] = useState<boolean>(false)
-  const {setOrderImported} = useContext(OrderStudyImportedContext)
+  const {setOrderImported, setPatientId} = useContext(OrderStudyImportedContext)
 
   const getOrderStudyImported = (rowData) => {
     setLoadingOrderImported(true)
@@ -76,6 +76,10 @@ const TableOfStudies = (props: Props) => {
         handleShowOrderImported()
       })
   }
+
+  useEffect(() => {
+    setPatientId(patientId)
+  }, [patientId, setPatientId])
 
   return (
     <MaterialTable
