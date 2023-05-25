@@ -80,7 +80,7 @@ const TableOfStudies = (props: Props) => {
     id: '',
     loading: false,
   })
-  const { setOrderImported } = useContext(OrderStudyImportedContext)
+  const { setOrderImported, setPatientId } = useContext(OrderStudyImportedContext)
 
   //table ref
   const tableRef = useRef(null)
@@ -121,6 +121,10 @@ const TableOfStudies = (props: Props) => {
     if (!tableRef) return
     tableRef?.current?.onQueryChange()
   }, [categorySelected, searchByOrder])
+  
+  useEffect(() => {
+    setPatientId(patientId)
+  }, [patientId, setPatientId])
 
   return (
     <MaterialTable

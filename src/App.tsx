@@ -19,6 +19,7 @@ import { PrescriptionContextProvider } from './contexts/Prescriptions/Prescripti
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import OrderStudyImportedProvider from './contexts/OrderImportedContext'
+import AttachmentFilesProvider from './contexts/AttachmentFiles'
 import { changeHours } from './util/helpers'
 import Provider from './components/studiesorder/Provider'
 import handleSendSentry from './util/Sentry/sentryHelper'
@@ -169,7 +170,9 @@ const App = () => {
                   <PrescriptionContextProvider>
                     <Provider>
                       <OrderStudyImportedProvider>
-                        <InPersonAppoinment />
+                        <AttachmentFilesProvider>
+                          <InPersonAppoinment />
+                        </AttachmentFilesProvider>
                       </OrderStudyImportedProvider>
                     </Provider>
                   </PrescriptionContextProvider>

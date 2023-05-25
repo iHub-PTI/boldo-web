@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import SearchIcon from '../icons/upload-icons/SearchIcon';
 import PlusIcon from '../icons/upload-icons/PlusIcon';
 import BackIcon from '../icons/upload-icons/BackIcon';
@@ -7,6 +7,7 @@ import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL
 import useWindowDimensions from "../../util/useWindowDimensions";
 import OrderImported from './OrderImported';
 import _ from 'lodash';
+import LockIcon from '../icons/upload-icons/LockIcon';
 
 
 type Props = {
@@ -17,10 +18,12 @@ type Props = {
 const UploadStudies = (props: Props) => {
   const { patientId } = props
   const [searchValue, setSearchValue] = useState<string>('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchError, setSearchError] = useState<boolean>(false)
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
   const [showTable, setShowTable] = useState<boolean>(false)
   const [showOrderImported, setShowOrderImported] = useState<boolean>(false)
+  const saveButtonRef = useRef<HTMLButtonElement>(null)
   const { width } = useWindowDimensions()
 
   // This function handles the visibility of the back button
@@ -60,7 +63,7 @@ const UploadStudies = (props: Props) => {
       }}
     >
       {/* header and body */}
-      <div className='flex flex-col'>
+      <div className={`flex flex-col overflow-auto scrollbar ${width >= WIDTH_XL ? 'h-11/12' : 'h-10/12' }`}>
         {/* this only show when new study is clicked */}
         <button
           className={`flex flex-row ml-6 mt-2 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
@@ -85,7 +88,7 @@ const UploadStudies = (props: Props) => {
             </p>
           </div>
           {/* secondary header */}
-          <p className='not-italic font-sans font-normal text-xl leading-6 m-6'>Busque una orden o adjunte un nuevo estudio</p>
+          <p className='not-italic font-sans font-normal text-xl leading-6 m-4'>Busque una orden o adjunte un nuevo estudio</p>
           {/* bar for search studies for order number */}
           <div
             className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'
@@ -124,15 +127,26 @@ const UploadStudies = (props: Props) => {
               <TableOfStudies patientId={patientId} searchByOrder={searchValue} handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
             </div>
           }
-          {showOrderImported &&
-            <div style={{ width: "95%" }}>
-              <OrderImported handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
+          { showOrderImported &&
+            <div style={{width: "95%"}}>
+              <OrderImported handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} saveRef={saveButtonRef} />
             </div>
           }
         </div>
       </div>
       {/* footer */}
-
+      <div className='flex flex-row items-center justify-end pr-6 pb-6 h-1/12'>
+        <button
+          className='focus:outline-none rounded-lg bg-teal-400 p-2'
+          // the onClick is handle in other component
+          ref={saveButtonRef}
+        >
+          <div className='flex flex-row space-x-2'>
+            <p className='text-white'>Guardar</p>
+            <LockIcon />
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
