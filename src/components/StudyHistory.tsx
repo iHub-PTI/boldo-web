@@ -1,10 +1,10 @@
 import { Popover, Transition } from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ArrowBackIOS from './icons/ArrowBack-ios'
 import SearchIcon from './icons/SearchIcon'
 import FilterListIcon from './icons/filter-icons/FilterListIcon'
 import PersonIcon from './icons/filter-icons/PersonIcon'
-import { toUpperLowerCase } from '../util/helpers'
+import { countDays, toUpperLowerCase } from '../util/helpers'
 import StethoscopeIcon from './icons/filter-icons/StethoscopeIcon'
 import ArrowDownWardIcon from './icons/filter-icons/ArrowDownWardIcon'
 import ArrowUpWardIcon from './icons/filter-icons/ArrowUpWardIcon'
@@ -19,9 +19,25 @@ import PictureIcon from './icons/study_icon/PictureIcon'
 import ChevronRight from './icons/ChevronRight'
 import EyeIcon from './icons/EyeIcon'
 import PaperClipIcon from './icons/PaperClipIcon'
-import { WIDTH_XL } from '../util/constants'
+import { STUDY_TYPE, WIDTH_XL } from '../util/constants'
 import useWindowDimensions from '../util/useWindowDimensions'
+import moment from 'moment'
+import axios from 'axios'
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
+import { useToasts } from './Toast'
+import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
 
+type StudyType = {
+  authoredDate?: string;
+  category?: string;
+  description?: string;
+  diagnosticReportAttachmentCount?: number;
+  id?: string;
+  sourceName?: string;
+  sourceType?: string;
+  type?: string;
+};
 
 type Props = {
   show: boolean,
@@ -43,10 +59,61 @@ const StudyHistory: React.FC<Props> = ({
     lastName: appointment?.doctor.familyName.split(' ')[0],
   }
 
+  const { addToast } = useToasts()
+
+  const patientId = appointment?.patientId
+  console.log(patientId)
+
   //states filters
   const [inputContent, setInputContent] = useState('')
 
+  // list of study
+  const [dataStudy, setDataStudy] = useState<StudyType[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+
+  const [selectedStudy, setSelectedStudy] = useState<StudyType>(null)
+
   const { width: screenWidth } = useWindowDimensions()
+
+  const getDataStudyHistory = () => {
+    let api = '/profile/doctor/studies'
+    let url = api + `?patient_id=${patientId}`
+    setLoading(true)
+    axios.get(url)
+      .then(res => {
+        if (res.status === 200) {
+          setDataStudy(res.data.items)
+        } else if (res.status === 201) {
+          setDataStudy([])
+        }
+      })
+      .catch((error) => {
+        setError(error)
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
+        handleSendSentry(
+          error,
+          ERROR_HEADERS.DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY.FAILURE_GET,
+          tags
+        )
+      })
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    if (!show) return
+    getDataStudyHistory()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show])
+
+  useEffect(() => {
+    //reset selected study
+    setSelectedStudy(null)
+  }, [dataStudy])
 
   return (
     <Transition
@@ -116,24 +183,46 @@ const StudyHistory: React.FC<Props> = ({
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 385 : 287}px)`,
               minWidth: '280px'
             }}>
-            <CardStudy />
-            <CardStudy />
-            <CardStudy />
-            <CardStudy />
-            <CardStudy />
-            <CardStudy />
+
+            {loading &&
+              <div className='flex flex-row h-52 items-center justify-center'>
+                <SpinnerLoading />
+              </div>}
+
+
+            {!loading &&
+              dataStudy.map(study =>
+                <CardStudy
+                  key={`order_${study.id}}`}
+                  study={study}
+                  selectecStudy={selectedStudy?.id === study?.id}
+                  setSelectedStudy={setSelectedStudy}
+                />
+              )}
           </div>
           <div className="flex flex-col px-4 py-2 gap-1 overflow-y-auto overflow-x-hidden scrollbar lg:w-full"
             style={{
               minWidth: '420px',
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 380 : 287}px)`,
             }}>
-            <CardDetailStudy />
+            {/* <CardDetailStudy /> */}
+
+            {!selectedStudy &&
+              <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
+                Seleccione un estudio para mostrar
+              </div>
+            }
+
+            {!loading && dataStudy.length === 0 &&
+              <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
+                No se han encontrado estudios
+              </div>
+            }
           </div>
         </div>
       </div>
 
-    </Transition>
+    </Transition >
   )
 }
 
@@ -321,9 +410,22 @@ export const QueryFilter = ({
 }
 
 
-const CardStudy = () => {
+type PropsCardStudy = {
+  study?: StudyType,
+  selectecStudy?: boolean,
+  setSelectedStudy?: (study: StudyType) => void
+}
+
+const CardStudy: React.FC<PropsCardStudy> = (
+  {
+    study,
+    selectecStudy,
+    setSelectedStudy,
+    ...props
+  }
+) => {
   return (
-    <div className='flex flex-col p-2 group hover:bg-neutral-gray rounded-lg'
+    <div className={`flex flex-col p-2 group ${selectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
         width: '250px',
         height: '171px',
@@ -331,46 +433,54 @@ const CardStudy = () => {
         transition: 'background-color 0.3s ease-out',
         cursor: 'pointer'
       }}
+      onClick={() => { setSelectedStudy(study) }}
     >
       {/* Head */}
       <div className='flex flex-row items-center gap-2'>
         <LabIcon width={27} height={27} />
         <h2 className='text-cool-gray-700 font-normal'
           style={{ fontSize: '20px' }}
-        >Laboratorio</h2>
+        >{study?.category}</h2>
       </div>
       {/* Studies added */}
-      <div className='flex flex-row px-1 py-2 text-dark-cool text-sm bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker items-center' style={{
-        width: '164px',
-        height: '26px',
-        borderRadius: '1000px',
-        lineHeight: '16px',
-        letterSpacing: '0.1px',
-        transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
+      <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
+      ${selectecStudy ? 'bg-primary-100 text-green-darker' : 'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
+          width: '164px',
+          height: '26px',
+          borderRadius: '1000px',
+          lineHeight: '16px',
+          letterSpacing: '0.1px',
+          transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
 
-      }}>
-        2 Resultados añadidos
+        }}>
+        {study?.type === STUDY_TYPE.WITH_ORDER ? `${study?.diagnosticReportAttachmentCount} resultados añadidos` :
+          'Sin orden asociada'}
       </div>
 
-      {/* study container*/}
+      {/* study container */}
       <div className='flex flex-col gap-1 w-56'>
         <div className='w-56 truncate text-dark-cool font-semibold text-sm'
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
           }}
-          title='Hemograma completo, glucosa asdasdasd'
+          title={study?.description}
         >
-          Hemograma completo, glucosa asdasdasd
+          {study?.description}
         </div>
         <div className='w-56 truncate font-normal text-xs text-dark-cool'
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
           }}
-          title='Solicitado por el Dr. Mario Cabañas'
+          title={study?.type === STUDY_TYPE.WITH_ORDER ? `Solicitado por: Dr(a). ${study.sourceName}` :
+            'Subido por el paciente'}
         >
-          Solicitado por el Dr. Mario Cabañas
+          {/* En el prototipo del diseño solo se muestra el mensaje del estudio subido solo por el paciente
+            TODO: Hacer el cambio cuando sea necesario  
+          */}
+          {study?.type === STUDY_TYPE.WITH_ORDER ? `Solicitado por: Dr(a). ${study.sourceName}` :
+            'Subido por el paciente'}
         </div>
       </div>
 
@@ -382,7 +492,7 @@ const CardStudy = () => {
             letterSpacing: '0.1px'
           }}
         >
-          10/11/2022
+          {moment(study.authoredDate).format('DD/MM/YYYY')}
         </div>
         <div className='text-gray-500'
           style={{
@@ -390,7 +500,7 @@ const CardStudy = () => {
             letterSpacing: '0.1px'
           }}
         >
-          Hace 7 días
+          {countDays(study.authoredDate)}
         </div>
       </div>
       <span style={{ borderBottom: '2px solid #F7F4F4' }}></span>
