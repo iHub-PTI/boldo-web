@@ -66,7 +66,7 @@ const UploadStudies = (props: Props) => {
       <div className={`flex flex-col overflow-auto scrollbar ${width >= WIDTH_XL ? 'h-11/12' : 'h-10/12' }`}>
         {/* this only show when new study is clicked */}
         <button
-          className={`flex flex-row ml-6 mt-2 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
+          className={`flex flex-row ml-6 mt-1 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
           onClick={() => {
             handleShowNewStudyWithOutOrder()
             setShowTable(true)
@@ -88,7 +88,7 @@ const UploadStudies = (props: Props) => {
             </p>
           </div>
           {/* secondary header */}
-          <p className='not-italic font-sans font-normal text-xl leading-6 m-4'>Busque una orden o adjunte un nuevo estudio</p>
+          <p className='not-italic font-sans font-normal text-xl leading-6 m-2'>Busque una orden o adjunte un nuevo estudio</p>
           {/* bar for search studies for order number */}
           <div
             className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'
@@ -107,7 +107,7 @@ const UploadStudies = (props: Props) => {
           {/* It is only shown when we want to associate it with an order */}
           {showNewStudyWithOutOrder &&
             <button
-              className='flex flex-row mt-4 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
+              className='flex flex-row mt-2 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
               onClick={() => {
                 handleShowNewStudyWithOutOrder()
                 setShowTable(false)
