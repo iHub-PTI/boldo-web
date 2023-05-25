@@ -1,5 +1,5 @@
 import { Popover, Transition } from '@headlessui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ArrowBackIOS from './icons/ArrowBack-ios'
 import SearchIcon from './icons/SearchIcon'
 import FilterListIcon from './icons/filter-icons/FilterListIcon'
@@ -19,7 +19,7 @@ import PictureIcon from './icons/study_icon/PictureIcon'
 import ChevronRight from './icons/ChevronRight'
 import EyeIcon from './icons/EyeIcon'
 import PaperClipIcon from './icons/PaperClipIcon'
-import { STUDY_TYPE, WIDTH_XL } from '../util/constants'
+import { SOURCE_TYPE_STUDY, STUDY_TYPE, WIDTH_XL } from '../util/constants'
 import useWindowDimensions from '../util/useWindowDimensions'
 import moment from 'moment'
 import axios from 'axios'
@@ -27,6 +27,7 @@ import handleSendSentry from '../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 import { useToasts } from './Toast'
 import { ReactComponent as SpinnerLoading } from '../assets/spinner-loading.svg'
+import _ from 'lodash'
 
 type StudyType = {
   authoredDate?: string;
@@ -66,6 +67,9 @@ const StudyHistory: React.FC<Props> = ({
 
   //states filters
   const [inputContent, setInputContent] = useState('')
+  const [currentDoctor, setCurrentDoctor] = useState(false)
+  const [newFirst, setNewFirst] = useState(true)
+  const [withOrder, setWithOrder] = useState(undefined) // true or false or undefined
 
   // list of study
   const [dataStudy, setDataStudy] = useState<StudyType[]>([])
@@ -76,9 +80,15 @@ const StudyHistory: React.FC<Props> = ({
 
   const { width: screenWidth } = useWindowDimensions()
 
-  const getDataStudyHistory = () => {
+  const getDataStudyHistory = ({
+    newFirst = true,
+    currentDoctorOnly = false,
+    withOrder = undefined,
+    inputContent = ''
+  }) => {
     let api = '/profile/doctor/studies'
-    let url = api + `?patient_id=${patientId}`
+    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}
+    `
     setLoading(true)
     axios.get(url)
       .then(res => {
@@ -104,9 +114,26 @@ const StudyHistory: React.FC<Props> = ({
       .finally(() => setLoading(false));
   }
 
+  const debounce = useCallback(
+    _.debounce(_inputContent => {
+      getDataStudyHistory({
+        newFirst: newFirst,
+        currentDoctorOnly: currentDoctor,
+        withOrder: withOrder,
+        inputContent: _inputContent
+      })
+    }, 500),
+    [currentDoctor, newFirst, withOrder]
+  )
+
   useEffect(() => {
     if (!show) return
-    getDataStudyHistory()
+    getDataStudyHistory({
+      newFirst: true,
+      currentDoctorOnly: false,
+      withOrder: undefined,
+      inputContent: inputContent
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
@@ -163,17 +190,17 @@ const StudyHistory: React.FC<Props> = ({
               value={inputContent}
               onChange={e => {
                 setInputContent(e.target.value)
-                //debounce(e.target.value.trim())
+                debounce(e.target.value.trim())
               }}
             />
           </div>
           <QueryFilter
             currentDoctor={doctor}
-          // setFilterAuthor={setFilterDoctor}
-          // setOrder={setFilterOrder}
-          // getApiCall={getRecordsPatient}
-          // inputContent={inputContent}
-          // countPage={countPage}
+            setFilterAuthor={setCurrentDoctor}
+            setFilterOrderStudy={setWithOrder}
+            setFilterSequence={setNewFirst}
+            getApiCall={getDataStudyHistory}
+            inputContent={inputContent}
           />
         </div>
         {/* body */}
@@ -228,94 +255,110 @@ const StudyHistory: React.FC<Props> = ({
 
 export const QueryFilter = ({
   currentDoctor = {} as { id: string; name: string; lastName: string },
-  // setFilterAuthor,
-  // setOrder,
-  // getApiCall,
-  // inputContent,
-  // countPage,
-  // activeColor = false
+  getApiCall,
+  inputContent,
+  setFilterAuthor,
+  setFilterOrderStudy,
+  setFilterSequence,
 }) => {
-  //Current Doctor or all Doctors [ 'all' || 'current' ]
-  const [author, setAuthor] = useState('ALL')
-  //Asc or Desc [ 'asc' || 'desc' ]
-  const [sequence, setSequence] = useState('DESC')
-  //
-  const [orderStudy, setOrderStudy] = useState('WITH_ORDER')
+  //Current Doctor or all Doctors true: current | false: all
+  const [author, setAuthor] = useState(false)
+  //Asc or Desc [ 'false' || 'true' ]
+  const [sequence, setSequence] = useState(true)
+  //true withOrder | false withoutOrder | undefined all
+  const [orderStudy, setOrderStudy] = useState(undefined)
 
   const ORDER_STATE = {
-    order: 'WITH_ORDER' === orderStudy,
-    withoutOrder: 'WITHOUT_ORDER' === orderStudy,
+    order: true === orderStudy,
+    withoutOrder: false === orderStudy,
+    all: undefined === orderStudy
   }
 
   const AUTHOR_STATE = {
-    current: 'CURRENT' === author,
-    all: 'ALL' === author,
+    current: true === author,
+    all: false === author,
   }
 
   const SEQUENCE_STATE = {
-    asc: 'ASC' === sequence,
-    desc: 'DESC' === sequence,
+    asc: false === sequence,
+    desc: true === sequence,
   }
 
   const onClickWithOrder = () => {
-    setOrderStudy('WITH_ORDER')
+    setOrderStudy(true)
+    getApiCall({
+      newFirst: sequence,
+      currentDoctorOnly: author,
+      withOrder: true,
+      inputContent: inputContent
+    })
   }
 
   const onClickWithoutOrder = () => {
-    setOrderStudy('WITHOUT_ORDER')
+    setOrderStudy(false)
+    getApiCall({
+      newFirst: sequence,
+      currentDoctorOnly: author,
+      withOrder: false,
+      inputContent: inputContent
+    })
+  }
+
+  const onClickAllOrder = () => {
+    setOrderStudy(undefined)
+    getApiCall({
+      newFirst: sequence,
+      currentDoctorOnly: author,
+      withOrder: undefined,
+      inputContent: inputContent
+    })
   }
 
   const onClickCurrentDoctor = () => {
-    setAuthor('CURRENT')
-    // getApiCall({
-    //   doctorId: 'CURRENT',
-    //   content: inputContent,
-    //   count: countPage,
-    //   offset: 1,
-    //   order: sequence,
-    // })
+    setAuthor(true)
+    getApiCall({
+      newFirst: sequence,
+      currentDoctorOnly: true,
+      withOrder: orderStudy,
+      inputContent: inputContent
+    })
   }
 
   const onClickAllDoctor = () => {
-    setAuthor('ALL')
-    // getApiCall({
-    //   doctorId: 'ALL',
-    //   content: inputContent,
-    //   count: countPage,
-    //   offset: 1,
-    //   order: sequence,
-    // })
+    setAuthor(false)
+    getApiCall({
+      newFirst: sequence,
+      currentDoctorOnly: false,
+      withOrder: orderStudy,
+      inputContent: inputContent
+    })
   }
 
   const onClickSequenceAsc = () => {
-    setSequence('ASC')
-    // console.log(author)
-    // getApiCall({
-    //   doctorId: author,
-    //   content: inputContent,
-    //   count: countPage,
-    //   offset: 1,
-    //   order: 'ASC',
-    // })
+    setSequence(false)
+    getApiCall({
+      newFirst: false,
+      currentDoctorOnly: author,
+      withOrder: orderStudy,
+      inputContent: inputContent
+    })
   }
 
   const onClickSequenceDesc = () => {
-    setSequence('DESC')
-    // console.log(author)
-    // getApiCall({
-    //   doctorId: author,
-    //   content: inputContent,
-    //   count: countPage,
-    //   offset: 1,
-    //   order: 'DESC',
-    // })
+    setSequence(true)
+    getApiCall({
+      newFirst: true,
+      currentDoctorOnly: author,
+      withOrder: orderStudy,
+      inputContent: inputContent
+    })
   }
-
-  // useEffect(() => {
-  //   setOrder(sequence)
-  //   setFilterAuthor(author)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [sequence, author])
+  useEffect(() => {
+    setFilterSequence(sequence)
+    setFilterAuthor(author)
+    setFilterOrderStudy(orderStudy)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sequence, author, orderStudy])
 
   return (
     <Popover className='relative'>
@@ -345,12 +388,21 @@ export const QueryFilter = ({
                   </button>
                   <button
                     className={`flex flex-row items-center gap-2 cursor-pointer focus:outline-none ${ORDER_STATE['withoutOrder'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
-                      } p-3 rounded-b-2xl`}
+                      } p-3`}
                     onClick={() => onClickWithoutOrder()}
                   >
                     <OrderWithoutIcon className='mr-1' active={ORDER_STATE['withoutOrder']} />
                     <div className={`font-semibold ${ORDER_STATE['withoutOrder'] && 'text-primary-500'}`}>
                       Sin orden asociada
+                    </div>
+                  </button>
+                  <button
+                    className={`flex flex-row items-center justify-center gap-2 cursor-pointer focus:outline-none ${ORDER_STATE['all'] ? 'bg-primary-100' : 'bg-white hover:bg-gray-100'
+                      } p-3 rounded-b-2xl`}
+                    onClick={() => onClickAllOrder()}
+                  >
+                    <div className={`font-semibold ${ORDER_STATE['all'] && 'text-primary-500'}`}>
+                      Todos
                     </div>
                   </button>
                 </div>
@@ -424,6 +476,21 @@ const CardStudy: React.FC<PropsCardStudy> = (
     ...props
   }
 ) => {
+
+  const getMessageSource = () => {
+    if (study?.type === STUDY_TYPE.WITH_ORDER) {
+      return `Solicitado por Dr. Dra. ${study.sourceName}`
+    } else if (study.type === STUDY_TYPE.WITHOUT_ORDER) {
+      if (study?.sourceType === SOURCE_TYPE_STUDY.patient)
+        return `Subido por el paciente ${study?.sourceName ?? ''}`
+      if (study?.sourceType === SOURCE_TYPE_STUDY.practitioner)
+        return `Subido por ${study?.sourceName ?? ''}`
+      if (study?.sourceType === SOURCE_TYPE_STUDY.organization)
+        return `Subido por la organización ${study?.sourceName ?? ''}`
+      return `Subido por ${study?.sourceName ?? ''}`
+    }
+  }
+
   return (
     <div className={`flex flex-col p-2 group ${selectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
@@ -442,20 +509,35 @@ const CardStudy: React.FC<PropsCardStudy> = (
           style={{ fontSize: '20px' }}
         >{study?.category}</h2>
       </div>
-      {/* Studies added */}
-      <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
-      ${selectecStudy ? 'bg-primary-100 text-green-darker' : 'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
-          width: '164px',
-          height: '26px',
-          borderRadius: '1000px',
-          lineHeight: '16px',
-          letterSpacing: '0.1px',
-          transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
 
-        }}>
-        {study?.type === STUDY_TYPE.WITH_ORDER ? `${study?.diagnosticReportAttachmentCount} resultados añadidos` :
-          'Sin orden asociada'}
-      </div>
+
+      {/* Studies added */}
+      {study?.type === STUDY_TYPE.WITH_ORDER ?
+        <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
+      ${selectecStudy ? 'bg-primary-100 text-green-darker' :
+            'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
+              width: '164px',
+              height: '26px',
+              borderRadius: '1000px',
+              lineHeight: '16px',
+              letterSpacing: '0.1px',
+              transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
+
+            }}>
+          {`${study?.diagnosticReportAttachmentCount} resultados añadidos`}
+        </div> :
+        <div className={`flex flex-row px-1 py-2 text-gray-500 text-sm items-center 
+        ${selectecStudy ? 'text-green-darker' : 'group-hover:text-green-darker'}`} style={{
+            width: '164px',
+            height: '26px',
+            lineHeight: '16px',
+            letterSpacing: '0.1px',
+            transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
+
+          }}>
+          Sin orden asociada
+        </div>
+      }
 
       {/* study container */}
       <div className='flex flex-col gap-1 w-56'>
@@ -473,14 +555,9 @@ const CardStudy: React.FC<PropsCardStudy> = (
             lineHeight: '16px',
             letterSpacing: '0.1px'
           }}
-          title={study?.type === STUDY_TYPE.WITH_ORDER ? `Solicitado por: Dr(a). ${study.sourceName}` :
-            'Subido por el paciente'}
+          title={getMessageSource()}
         >
-          {/* En el prototipo del diseño solo se muestra el mensaje del estudio subido solo por el paciente
-            TODO: Hacer el cambio cuando sea necesario  
-          */}
-          {study?.type === STUDY_TYPE.WITH_ORDER ? `Solicitado por: Dr(a). ${study.sourceName}` :
-            'Subido por el paciente'}
+          {getMessageSource()}
         </div>
       </div>
 

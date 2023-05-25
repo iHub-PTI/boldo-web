@@ -14,3 +14,9 @@ export const STUDY_TYPE = {
   WITH_ORDER: 'serviceRequest',
   WITHOUT_ORDER: 'diagnosticReport'
 }
+
+export const SOURCE_TYPE_STUDY = {
+  patient: 'Patient',
+  practitioner: 'Practitioner',
+  organization: 'Organization'
+}
