@@ -277,7 +277,7 @@ const OrderImported = (props: Props) => {
               {OrderImported?.urgent && <Urgency />}
             </div>
             {/* list of requested studies */}
-            {OrderImported?.studiesCodes?.map((code) => (<li className='not-italic font-normal text-sm leading-4 text-gray-700'>{code?.display ?? ''}</li>))}
+            {OrderImported?.studiesCodes?.map((code, idx) => (<li key={idx} className='not-italic font-normal text-sm leading-4 text-gray-700'>{code?.display ?? ''}</li>))}
           </div>
           {/* observations */}
           { OrderImported?.notes &&
