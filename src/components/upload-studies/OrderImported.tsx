@@ -152,7 +152,6 @@ const OrderImported = (props: Props) => {
       setAttachmentFiles(updatedList.files)
 
       console.log("Archivos seleccionados => ", files)
-      console.log("files to show => ", filesToShow)
       
     }
   }
@@ -196,16 +195,15 @@ const OrderImported = (props: Props) => {
         })
       })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [OrderImported])
 
   useEffect(() => {
     const button = saveRef.current
 
     const handleButtonClick = async () => {
-      console.log('Clic en el botón en Guardar')
-      
       let attachmentUrls: Boldo.AttachmentUrl[] = []
-      console.log("FILE LIST FOR => ", attachmentFiles)
+      
       for (let i = 0; i < attachmentFiles.length; i++) {
         let presigned: Presigned = await getUploadUrl()
 
@@ -232,11 +230,9 @@ const OrderImported = (props: Props) => {
         button.removeEventListener('click', handleButtonClick)
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveRef])
 
-  useEffect(() => {
-    console.log(filesToShow)
-  }, [filesToShow])
 
   return(
     <div className='flex flex-col space-y-8 p-5'>

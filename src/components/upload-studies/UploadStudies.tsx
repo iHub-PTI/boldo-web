@@ -17,6 +17,7 @@ type Props = {
 const UploadStudies = (props: Props) => {
   const {patientId} = props
   const [searchValue, setSearchValue] = useState<string>('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchError, setSearchError] = useState<boolean>(false)
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
   const [showTable, setShowTable] = useState<boolean>(false)
