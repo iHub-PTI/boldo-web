@@ -20,6 +20,7 @@ import InfoIcon from '../icons/info-icons/InfoIcon';
 import HoverInfo from '../hovers/TooltipInfo'
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
+import { OrganizationContext } from '../../contexts/Organizations/organizationSelectedContext';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -113,6 +114,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
     const [errorType, setErrorType] = useState('')
     // boolean handling the hover event
     const [showTooltipInfo, setShowTooltipInfo] = useState(false);
+    const { Organization } = useContext(OrganizationContext)
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
@@ -229,7 +231,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                 ordersCopy.push({
                     "category": object.category, "diagnosis": object.diagnosis,
                     "encounterId": object.encounterId, "notes": object.notes, "urgent": object.urgent,
-                    "studiesCodes": studiesCodes
+                    "studiesCodes": studiesCodes, "organizationId": Organization?.id ?? ''
                 })
             });
             // console.log(ordersCopy)
