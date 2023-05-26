@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { OrderStudyImportedContext } from '../../contexts/OrderImportedContext';
 import { AttachmentFilesContext } from '../../contexts/AttachmentFiles';
+import { useToasts } from '../Toast';
 import DeleteOrderImported from '../icons/upload-icons/DeleteOrderImported';
 import DateSection from './DateSection';
 import DoctorProfile from './DoctorProfile';
@@ -31,6 +32,7 @@ const OrderImported = (props: Props) => {
   const {handleShowOrderImported, saveRef} = props
   const {OrderImported, setOrderImported, patientId} = useContext(OrderStudyImportedContext)
   const {attachmentFiles, setAttachmentFiles} = useContext(AttachmentFilesContext)
+  const { addToast } = useToasts()
   const [filesState, setFilesState] = useState<FilesToShow[]>([])
   let filesToShow: FilesToShow[] = [] as FilesToShow[]
   // this reference we use to simulate the click on the custom button
@@ -209,19 +211,24 @@ const OrderImported = (props: Props) => {
 
     const handleButtonClick = async () => {
       
-      let attachmentUrls: Boldo.AttachmentUrl[] = []
+      if (attachmentFiles.length > 0) {
+        let attachmentUrls: Boldo.AttachmentUrl[] = []
       
-      for (let i = 0; i < attachmentFiles.length; i++) {
-        let presigned: Presigned = await getUploadUrl()
-        
-        const file = attachmentFiles[i]
-        
-        let attachmentUrl = await uploadFile(file, presigned)
+        for (let i = 0; i < attachmentFiles.length; i++) {
+          let presigned: Presigned = await getUploadUrl()
+          
+          const file = attachmentFiles[i]
+          
+          let attachmentUrl = await uploadFile(file, presigned)
 
-        attachmentUrls.push(attachmentUrl)
+          attachmentUrls.push(attachmentUrl)
+        }
+        
+        let response = await uploadStudy(attachmentUrls)
+
+      } else if (attachmentFiles.length === 0) {
+        addToast({type: 'info', title: 'Atención', text: 'Debe agregar al menos un estudio para subirlo.'})
       }
-      
-      let response = await uploadStudy(attachmentUrls)
 
 
     }
