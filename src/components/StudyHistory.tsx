@@ -36,7 +36,7 @@ type StudyType = {
   diagnosticReportAttachmentCount?: number;
   id?: string;
   sourceName?: string;
-  sourceType?: string;
+  sourceType?: 'diagnosticReport' | 'serviceRequest';
   type?: string;
 };
 
@@ -90,11 +90,12 @@ const StudyHistory: React.FC<Props> = ({
     let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}
     `
     setLoading(true)
+    setSelectedStudy(null)
     axios.get(url)
       .then(res => {
         if (res.status === 200) {
           setDataStudy(res.data.items)
-        } else if (res.status === 201) {
+        } else if (res.status === 204) {
           setDataStudy([])
         }
       })
@@ -222,7 +223,7 @@ const StudyHistory: React.FC<Props> = ({
                 <CardStudy
                   key={`order_${study.id}}`}
                   study={study}
-                  selectecStudy={selectedStudy?.id === study?.id}
+                  isSelectecStudy={selectedStudy?.id === study?.id}
                   setSelectedStudy={setSelectedStudy}
                 />
               )}
@@ -232,19 +233,14 @@ const StudyHistory: React.FC<Props> = ({
               minWidth: '420px',
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 380 : 287}px)`,
             }}>
-            {/* <CardDetailStudy /> */}
-
-            {!selectedStudy &&
-              <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
-                Seleccione un estudio para mostrar
-              </div>
-            }
 
             {!loading && dataStudy.length === 0 &&
               <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
                 No se han encontrado estudios
               </div>
             }
+
+            {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} />}
           </div>
         </div>
       </div>
@@ -464,14 +460,14 @@ export const QueryFilter = ({
 
 type PropsCardStudy = {
   study?: StudyType,
-  selectecStudy?: boolean,
+  isSelectecStudy?: boolean,
   setSelectedStudy?: (study: StudyType) => void
 }
 
 const CardStudy: React.FC<PropsCardStudy> = (
   {
     study,
-    selectecStudy,
+    isSelectecStudy,
     setSelectedStudy,
     ...props
   }
@@ -492,7 +488,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
   }
 
   return (
-    <div className={`flex flex-col p-2 group ${selectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
+    <div className={`flex flex-col p-2 group ${isSelectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
         width: '250px',
         height: '171px',
@@ -514,7 +510,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
       {/* Studies added */}
       {study?.type === STUDY_TYPE.WITH_ORDER ?
         <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
-      ${selectecStudy ? 'bg-primary-100 text-green-darker' :
+      ${isSelectecStudy ? 'bg-primary-100 text-green-darker' :
             'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
               width: '164px',
               height: '26px',
@@ -527,7 +523,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
           {`${study?.diagnosticReportAttachmentCount} resultados añadidos`}
         </div> :
         <div className={`flex flex-row px-1 py-2 text-gray-500 text-sm items-center 
-        ${selectecStudy ? 'text-green-darker' : 'group-hover:text-green-darker'}`} style={{
+        ${isSelectecStudy ? 'text-green-darker' : 'group-hover:text-green-darker'}`} style={{
             width: '164px',
             height: '26px',
             lineHeight: '16px',
@@ -585,7 +581,71 @@ const CardStudy: React.FC<PropsCardStudy> = (
   )
 }
 
-const CardDetailStudy = () => {
+
+type PropsDetailStudy = {
+  selectedStudy: StudyType
+}
+
+
+const CardDetailStudy: React.FC<PropsDetailStudy> = ({
+  selectedStudy
+}) => {
+
+  const { addToast } = useToasts()
+
+  const [studyOrder, setStudyOrder] = useState()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState()
+  //const [studyResult, setStudyResult] = useState()
+
+  //const getDiagnosticReport = (id:string) => {}
+
+  const getServiceRequest = (id) => {
+    let url = '/profile/doctor/serviceRequest/' + id
+
+    setLoading(true)
+    axios.get(url)
+      .then(res => {
+        setStudyOrder(res.data)
+        console.table(res.data)
+      })
+      .catch((error) => {
+        setError(error)
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el detalle de la orden' })
+        handleSendSentry(
+          error,
+          ERROR_HEADERS.DIAGNOSTIC_REPORT.FAILURE_GET,
+          tags
+        )
+      })
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    if (!selectedStudy) return
+    if (selectedStudy.type === 'serviceRequest')
+      getServiceRequest(selectedStudy.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStudy])
+
+  if (loading) return (
+    <div className='flex flex-col'>
+      <div className='flex flex-row w-full h-80 justify-center items-center'>
+        <SpinnerLoading />
+      </div>
+    </div>
+  )
+
+  if (!selectedStudy) return (
+    <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
+      Seleccione un estudio para mostrar
+    </div>
+  )
+
   return (
     <>
       {/* Order Header */}
