@@ -36,6 +36,12 @@ const OrderImported = (props: Props) => {
   // this reference we use to simulate the click on the custom button
   const fileInputRef = useRef<HTMLInputElement>(null)
   
+  const CategoryMap = {
+    "DIAGNOSTIC IMAGING": "IMAGE",
+    "LABORATORY": "LABORATORY",
+    "OTHER": "OTHER",
+    "": "OTHER"
+  }
 
   const getUploadUrl = (): Promise<Presigned> => {
     let url = '/presigned'
@@ -84,7 +90,7 @@ const OrderImported = (props: Props) => {
           'method': 'PUT'
         }
         handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
-        console.log("ERROR IN UPLOAD FILE => ", err)
+        // console.log("ERROR IN UPLOAD FILE => ", err)
       })
     })
   }
@@ -105,9 +111,9 @@ const OrderImported = (props: Props) => {
       axios
       .post(url, {
         attachmentUrls: attachmentUrls,
-        category: OrderImported.category.toUpperCase(),
+        category: CategoryMap[OrderImported?.category?.toUpperCase() ?? ''],
         // conclusion: OrderImported.diagnosis,
-        description: OrderImported.studiesCodes.map((study) => study.display).join(', '),
+        description: OrderImported?.studiesCodes?.map((study) => study.display)?.join(', ') ?? '',
         effectiveDate: formattedDate,
         patientId: patientId,
         serviceRequestId: OrderImported.id,
@@ -151,7 +157,7 @@ const OrderImported = (props: Props) => {
       // and then we assign it again
       setAttachmentFiles(updatedList.files)
 
-      console.log("Archivos seleccionados => ", files)
+      // console.log("Archivos seleccionados => ", files)
       
     }
   }
@@ -202,22 +208,21 @@ const OrderImported = (props: Props) => {
     const button = saveRef.current
 
     const handleButtonClick = async () => {
+      
       let attachmentUrls: Boldo.AttachmentUrl[] = []
       
       for (let i = 0; i < attachmentFiles.length; i++) {
         let presigned: Presigned = await getUploadUrl()
-
+        
         const file = attachmentFiles[i]
         
         let attachmentUrl = await uploadFile(file, presigned)
-        
+
         attachmentUrls.push(attachmentUrl)
       }
       
       let response = await uploadStudy(attachmentUrls)
 
-      console.log("PUDO SUBIR? => ", response)
-      console.log('Archivos seleccionados:', attachmentFiles)
 
     }
 
@@ -230,8 +235,8 @@ const OrderImported = (props: Props) => {
         button.removeEventListener('click', handleButtonClick)
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRef])
+  
+  }, [saveRef, attachmentFiles])
 
 
   return(

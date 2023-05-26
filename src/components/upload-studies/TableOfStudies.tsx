@@ -139,7 +139,7 @@ const TableOfStudies = (props: Props) => {
       ]}
       components={{
         Action: props => {
-          console.log(props)
+          // console.log(props)
           return (
             <button
               className='focus:outline-none'
@@ -199,7 +199,7 @@ const TableOfStudies = (props: Props) => {
       data={query =>
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
-          console.log(query.orderDirection)
+          // console.log(query.orderDirection)
           await axios
             .get(url, {
               params: {
