@@ -5,11 +5,12 @@ import DoctorName from './DoctorName';
 
 type Props = {
   doctor: iHub.Doctor;
+  organization?: Boldo.OrganizationInOrderStudy
 }
 
 
 const DoctorProfile = (props: Props) => {
-  const {doctor={} as iHub.Doctor} = props
+  const {doctor={} as iHub.Doctor, organization=undefined} = props
 
   return(
     <div className='flex flex-col space-y-2'>
@@ -34,9 +35,9 @@ const DoctorProfile = (props: Props) => {
             {/* specialty */}
             <p className='font-normal text-xs not-italic leading-4 text-gray-600'>Cardiólogo</p>
             {/* circle */}
-            <div className="h-2 w-2 rounded-full bg-gray-500"></div>
+            {organization && <div className="h-2 w-2 rounded-full bg-gray-500"></div>}
             {/* Hospital */}
-            <p className='font-normal text-xs not-italic leading-4 text-gray-600'>Hospital Los Ángeles</p>
+            {organization && <p className='font-normal text-xs not-italic leading-4 text-gray-600'>{organization?.name ?? 'Sin nombre'}</p>}
           </div>
         </div>
       </div>

@@ -58,7 +58,7 @@ const DetailPanel = (props: Props) => {
                 {/* profile and date */}
                 <div className='flex flex-row justify-between'>
                   {/* profile */}
-                  <DoctorProfile doctor={orderStudy?.doctor} />
+                  <DoctorProfile doctor={orderStudy?.doctor} organization={orderStudy?.organization} />
                   {/* date section */}
                   <DateSection authoredDate={orderStudy?.authoredDate} />
                 </div>

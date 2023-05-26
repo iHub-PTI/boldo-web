@@ -43,6 +43,15 @@ export interface Organization {
   colorCode: string
 }
 
+// organization for study update
+export interface OrganizationInOrderStudy {
+  active: boolean,
+  id: string,
+  name: string,
+  type: string,
+  typeList: string[]
+}
+
 export interface Encounter {
   appointmentId?:   string;
   diagnosis?:       string;
@@ -102,6 +111,7 @@ export interface OrderStudy {
   id?: string
   identifier?: string
   orderNumber?: string
+  organization?: OrganizationInOrderStudy
   studiesCodes?: StudiesCode[]
   urgent?: boolean
   notes?: string
