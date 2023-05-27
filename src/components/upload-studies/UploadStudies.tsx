@@ -146,9 +146,10 @@ const UploadStudies = (props: Props) => {
       {/* footer */}
       <div className='flex flex-row items-center justify-end pr-6 pb-6 h-1/12'>
         <button
-          className='focus:outline-none rounded-lg bg-teal-400 p-2'
+          className={`focus:outline-none rounded-lg bg-teal-400 p-2 ${loadingSubmit ? 'cursor-not-allowed' : ''}`}
           // the onClick is handle in other component
           ref={saveButtonRef}
+          disabled={loadingSubmit}
         >
           <div className='flex flex-row space-x-2'>
             <p className='text-white'>Guardar</p>
