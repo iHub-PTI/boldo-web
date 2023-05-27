@@ -8,6 +8,7 @@ import useWindowDimensions from "../../util/useWindowDimensions";
 import OrderImported from './OrderImported';
 import _ from 'lodash';
 import LockIcon from '../icons/upload-icons/LockIcon';
+import LoadingSpinner from '../icons/sumary-print/LoadingSpinner';
 
 
 type Props = {
@@ -23,7 +24,9 @@ const UploadStudies = (props: Props) => {
   const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
   const [showTable, setShowTable] = useState<boolean>(false)
   const [showOrderImported, setShowOrderImported] = useState<boolean>(false)
+  const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
   const saveButtonRef = useRef<HTMLButtonElement>(null)
+  const inputButtonRef = useRef<HTMLInputElement>(null)
   const { width } = useWindowDimensions()
 
   // This function handles the visibility of the back button
@@ -96,6 +99,7 @@ const UploadStudies = (props: Props) => {
           >
             <SearchIcon />
             <input
+              ref={inputButtonRef}
               id='searchStudy'
               type='text'
               className='flex flex-grow bg-transparent focus:outline-none text-gray-500'
@@ -129,7 +133,12 @@ const UploadStudies = (props: Props) => {
           }
           { showOrderImported &&
             <div style={{width: "95%"}}>
-              <OrderImported handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} saveRef={saveButtonRef} />
+              <OrderImported
+                searchRef={inputButtonRef}
+                setLoadingSubmit={setLoadingSubmit}
+                handleShowOrderImported={() => setShowOrderImported(!showOrderImported)}
+                saveRef={saveButtonRef}
+              />
             </div>
           }
         </div>
@@ -143,7 +152,10 @@ const UploadStudies = (props: Props) => {
         >
           <div className='flex flex-row space-x-2'>
             <p className='text-white'>Guardar</p>
-            <LockIcon />
+            { loadingSubmit
+                ? <LoadingSpinner />
+                : <LockIcon />
+            }
           </div>
         </button>
       </div>

@@ -17,7 +17,9 @@ import StudyCard from './StudyCard';
 
 type Props = {
   handleShowOrderImported: () => void;
+  setLoadingSubmit: (loading: boolean) => void;
   saveRef: React.MutableRefObject<HTMLButtonElement>;
+  searchRef: React.MutableRefObject<HTMLInputElement>;
 }
 
 type Presigned = {
@@ -29,7 +31,7 @@ type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {ne
 
 
 const OrderImported = (props: Props) => {
-  const {handleShowOrderImported, saveRef} = props
+  const {handleShowOrderImported, saveRef, setLoadingSubmit, searchRef} = props
   const {OrderImported, setOrderImported, patientId} = useContext(OrderStudyImportedContext)
   const {attachmentFiles, setAttachmentFiles} = useContext(AttachmentFilesContext)
   const { addToast } = useToasts()
@@ -43,6 +45,10 @@ const OrderImported = (props: Props) => {
     "LABORATORY": "LABORATORY",
     "OTHER": "OTHER",
     "": "OTHER"
+  }
+
+  const handleSearchClick = () => {
+    searchRef.current.click()
   }
 
   const getUploadUrl = (): Promise<Presigned> => {
@@ -212,6 +218,9 @@ const OrderImported = (props: Props) => {
     const handleButtonClick = async () => {
       
       if (attachmentFiles.length > 0) {
+        // init the submit
+        setLoadingSubmit(true)
+
         let attachmentUrls: Boldo.AttachmentUrl[] = []
       
         for (let i = 0; i < attachmentFiles.length; i++) {
@@ -225,6 +234,15 @@ const OrderImported = (props: Props) => {
         }
         
         let response = await uploadStudy(attachmentUrls)
+
+        setLoadingSubmit(false)
+        // when all its ok, is redirected to order study search
+        if (response) {
+          addToast({type: 'info', title: 'Operación exitosa.', text: 'Resultado adjuntado correctamente.'})
+          handleSearchClick()
+        } else {
+          addToast({type: 'error', title: 'Ocurrió un error.', text: 'No se han podido adjuntar los estudios. Por favor, vuelva a intentarlo más tarde.'})
+        }
 
       } else if (attachmentFiles.length === 0) {
         addToast({type: 'info', title: 'Atención', text: 'Debe agregar al menos un estudio para subirlo.'})
