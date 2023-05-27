@@ -6,6 +6,7 @@ import PdfIcon from '../icons/upload-icons/PdfIcon';
 import ImageIcon from '../icons/upload-icons/ImageIcon';
 import PreviewIcon from '../icons/upload-icons/PreviewIcon';
 import TrashIcon from '../icons/upload-icons/TrashIcon';
+import { toUpperLowerCase } from '../../util/helpers';
 
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
   source: string;
   date: string;
   isNew: boolean;
-  type?: string;
+  type: string;
   index: number;
 }
 
@@ -49,11 +50,8 @@ const StudyCard = (props: Props) => {
         <div className='flex flex-row space-x-1 items-center'>
           {/* ICON */}
           <div>
-            { isNew
-              ? type.includes('pdf')
-                ? <PdfIcon />
-                : <ImageIcon />
-              : name.includes('.pdf')
+            { 
+              type.includes('pdf')
                 ? <PdfIcon />
                 : <ImageIcon />
             }
@@ -73,7 +71,7 @@ const StudyCard = (props: Props) => {
         { !isNew &&
           <div className='flex flex-row items-center space-x-1'>
             {/* source */}
-            <p className='not-italic font-medium text-xs leading-4'>{source !== '' ? `Subido por ${source}` : 'Nombre desconocido'}</p>
+            <p className='not-italic font-medium text-xs leading-4'>{source !== '' ? `Subido por ${toUpperLowerCase(source)}` : 'Nombre desconocido'}</p>
             {/* date */}
             <p className='not-italic font-medium text-xs leading-4'>{date !== '' ? `${moment(date).format('DD/MM/YYYY')}` : 'Fecha desconocida'}</p>
           </div>

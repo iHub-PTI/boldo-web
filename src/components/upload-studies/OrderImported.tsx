@@ -248,7 +248,6 @@ const OrderImported = (props: Props) => {
         addToast({type: 'info', title: 'Atención', text: 'Debe agregar al menos un estudio para subirlo.'})
       }
 
-
     }
 
     if (button) {
@@ -356,6 +355,7 @@ const OrderImported = (props: Props) => {
                                 name={file?.title}
                                 date={file?.date}
                                 source={file?.source}
+                                type={file?.contentType}
                                 isNew={file?.new}
                                 index={idx}
                               />
