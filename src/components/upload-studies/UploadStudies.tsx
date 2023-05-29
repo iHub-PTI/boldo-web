@@ -109,7 +109,7 @@ const UploadStudies = (props: Props) => {
             />
           </div>
           {/* It is only shown when we want to associate it with an order */}
-          {showNewStudyWithOutOrder &&
+          {/* {showNewStudyWithOutOrder &&
             <button
               className='flex flex-row mt-2 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
               onClick={() => {
@@ -125,7 +125,7 @@ const UploadStudies = (props: Props) => {
                 Adjuntar nuevo estudio sin orden
               </p>
             </button>
-          }
+          } */}
           {showTable &&
             <div style={{ width: "95%" }}>
               <TableOfStudies patientId={patientId} searchByOrder={searchValue} handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
