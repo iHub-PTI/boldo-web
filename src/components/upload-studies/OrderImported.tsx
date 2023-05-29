@@ -283,7 +283,7 @@ const OrderImported = (props: Props) => {
       {/* profile and date */}
       <div className='flex flex-row justify-between'>
         {/* profile */}
-        <DoctorProfile doctor={OrderImported?.doctor as unknown as iHub.Doctor} />
+        <DoctorProfile doctor={OrderImported?.doctor as unknown as iHub.Doctor} organization={OrderImported?.organization as Boldo.OrganizationInOrderStudy} />
         {/* date section */}
         <DateSection authoredDate={OrderImported?.authoredDate} />
       </div>

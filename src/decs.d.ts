@@ -21,7 +21,7 @@ export interface Doctor {
   city?: string
   neighborhood?: string
   addressDescription?: string
-  specializations: string[]
+  specializations: Specialization[]
   license?: string // not writable
 }
 

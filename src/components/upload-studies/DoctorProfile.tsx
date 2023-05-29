@@ -1,6 +1,7 @@
 import React from 'react';
 import NoProfilePicture from '../icons/NoProfilePicture';
 import DoctorName from './DoctorName';
+import { toUpperLowerCase } from '../../util/helpers';
 
 
 type Props = {
@@ -33,7 +34,17 @@ const DoctorProfile = (props: Props) => {
           {/* description */}
           <div className='flex flex-row items-center space-x-1'>
             {/* specialty */}
-            <p className='font-normal text-xs not-italic leading-4 text-gray-600'>Cardiólogo</p>
+            { doctor?.specializations &&
+              <div
+                className='overflow-hidden whitespace-no-wrap flex flex-row items-center'
+                style={{maxWidth: '200px'}}
+                title={toUpperLowerCase(doctor.specializations.map(speciality => speciality.description).join(', '))}
+              >
+                <p className='inline-block truncate font-normal text-xs not-italic leading-4 text-gray-600'>
+                  {doctor.specializations?.map((speciality, index) => toUpperLowerCase(speciality?.description ?? '')).join(', ')}
+                </p>
+              </div>
+            }
             {/* circle */}
             {organization && <div className="h-2 w-2 rounded-full bg-gray-500"></div>}
             {/* Hospital */}
