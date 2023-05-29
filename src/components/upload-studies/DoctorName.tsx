@@ -3,13 +3,13 @@ import { toUpperLowerCase } from '../../util/helpers';
 
 
 type Props = {
-  doctor: iHub.Doctor;
+  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] };
   className: string;
 }
 
 
 const DoctorName = (props: Props) => {
-  const {doctor={} as iHub.Doctor, className=''} = props
+  const {doctor={} as Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }, className=''} = props
 
   return(
     <p className={className}>

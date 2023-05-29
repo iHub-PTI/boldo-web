@@ -5,13 +5,13 @@ import { toUpperLowerCase } from '../../util/helpers';
 
 
 type Props = {
-  doctor: iHub.Doctor;
+  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] };
   organization?: Boldo.OrganizationInOrderStudy
 }
 
 
 const DoctorProfile = (props: Props) => {
-  const {doctor={} as iHub.Doctor, organization=undefined} = props
+  const {doctor={} as Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }, organization=undefined} = props
 
   return(
     <div className='flex flex-col space-y-2'>
@@ -38,7 +38,7 @@ const DoctorProfile = (props: Props) => {
               <div
                 className='overflow-hidden whitespace-no-wrap flex flex-row items-center'
                 style={{maxWidth: '200px'}}
-                title={toUpperLowerCase(doctor.specializations.map(speciality => speciality.description).join(', '))}
+                title={toUpperLowerCase(doctor.specializations.map(speciality => speciality?.description ?? '').join(', '))}
               >
                 <p className='inline-block truncate font-normal text-xs not-italic leading-4 text-gray-600'>
                   {doctor.specializations?.map((speciality, index) => toUpperLowerCase(speciality?.description ?? '')).join(', ')}
