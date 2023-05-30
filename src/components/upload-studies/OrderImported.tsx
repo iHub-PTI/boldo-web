@@ -205,6 +205,7 @@ const OrderImported = (props: Props) => {
             source: source,
             new: false
           })
+          filesToShow.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           setFilesState(filesToShow)
         })
       })
@@ -345,6 +346,10 @@ const OrderImported = (props: Props) => {
                   </div>
                 </button>
               </div>
+              {/* list of attchment files */}
+              {
+                renderFileList()
+              }
               {/* list of existing files */}
               { filesState.length > 0 &&
                 <div className='flex flex-col space-y-2 p-2'>
@@ -362,10 +367,6 @@ const OrderImported = (props: Props) => {
                     })
                   }
                 </div>
-              }
-              {/* list of attchment files */}
-              {
-                renderFileList()
               }
             </div>
           </div>
