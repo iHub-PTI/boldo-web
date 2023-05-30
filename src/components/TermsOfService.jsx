@@ -58,7 +58,7 @@ export default function TermsOfService() {
         <Typography variant="body1" className={classes.separator}>Boldo se reserva el derecho de modificar el contenido del presente acuerdo, en cualquier momento y a su entero criterio, mediante la publicación de una nueva versión de este en el sitio web de Boldo. La versión revisada entrará en vigor al momento de su publicación. Es responsabilidad exclusiva suya la revisión frecuente de este documento.</Typography>
         <Typography variant="body1" className={classes.separator}>Usted es el único responsable de comprender y dar cumplimiento a todas y cada una de las leyes, normas y regulaciones que se le puedan aplicar en relación con el uso que haga de los servicios de Boldo, incluyendo, pero sin limitarse a, toda actividad relacionada a la generación de recetas médicas, fichas médicas, registro de medicamentos, farmacias, laboratorios, etc. y cualquier otro servicios tangibles e intangibles.</Typography>
 
-        <Typography variant="h5" component="h2" gutterBottom>DEFINICIONES</Typography>
+        <Typography variant="h5" component="h2" gutterBottom className={classes.separator}>DEFINICIONES</Typography>
 
         <Typography variant="body1" className={classes.separator}>Boldo es la proveedora de los servicios que se ofrecen a través de una plataforma de gestión y automatización de recetas médicas, consultas médicas, fichas médicas y otros servicios conexos, que serán descritos a lo largo de este documento y sus anexos.</Typography>
         <Typography variant="body1" className={classes.separator}>Receta médica electrónica (RME). Es la receta médica con validez legal en el país que permite generar Boldo de manera electrónica.</Typography>
