@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
         POLITICA DE PRIVACIDAD
         </Typography>
         <Typography variant="h5" component="h2" gutterBottom>
-          {'ALCANCE Y CONCENTIMIENTO'}
+          {'ALCANCE Y CONSENTIMIENTO'}
         </Typography>
         <Typography variant="body1" className={classes.separator}>Usted acepta esta Política de Privacidad al registrarse, acceder o utilizar los servicios, contenido, funcionalidades, tecnología o funciones disponibles de Boldo.</Typography>
         <Typography variant="h5" component="h2" gutterBottom className={classes.separator}>

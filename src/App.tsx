@@ -20,6 +20,7 @@ import { OrganizationContext } from "../src/contexts/Organizations/organizationS
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import { changeHours } from './util/helpers'
 import Provider from './components/studiesorder/Provider'
+import TermsOfService from './components/TermsOfService'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
@@ -35,6 +36,7 @@ export const UserContext = createContext<{
 })
 
 const App = () => {
+  const ALLOWED_ROUTES = ["/boldo-app-privacy-policy", "/boldo-app-terms-of-service", "/download"];
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
   // Context API Organization Boldo MultiOrganization
@@ -42,7 +44,7 @@ const App = () => {
   const { setOrganizations } = useContext(AllOrganizationContext)
 
   useEffect(() => {
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       axios.interceptors.response.use(
         response => response,
         async error => {
@@ -107,7 +109,7 @@ const App = () => {
         if (err?.response?.status !== 401) setError(true)
       }
     }
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       effect()
     } else {
       setError(false)
@@ -160,7 +162,7 @@ const App = () => {
   }
 
   if (error) return <Error />
-  if (!user && window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') return <div className='h-1 fakeload-15 bg-primary-500' />
+  if (!user && !ALLOWED_ROUTES.includes(window.location.pathname)) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <ToastProvider>
@@ -202,6 +204,10 @@ const App = () => {
                 <Route exact path='/boldo-app-privacy-policy'>
                   <PrivacyPolicy />
                 </Route>
+
+                <Route exact path='/boldo-app-terms-of-service'>
+                  <TermsOfService />
+                </Route>                
 
                 <Route exact path='/download'>
                   <Download />
