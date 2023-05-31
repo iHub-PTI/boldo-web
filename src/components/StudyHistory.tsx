@@ -11,7 +11,6 @@ import ArrowUpWardIcon from './icons/filter-icons/ArrowUpWardIcon'
 import OrderWithIcon from './icons/filter-icons/OrderWithIcon'
 import OrderWithoutIcon from './icons/filter-icons/OrderWithoutIcon'
 import LabIcon from './icons/studies-category/LabIcon'
-//import useWindowDimensions from '../util/useWindowDimensions'
 import { ReactComponent as CalendarIcon } from "../assets/calendar-detail.svg"
 import ImgIcon from './icons/studies-category/ImgIcon'
 import PdfIcon from './icons/study_icon/PdfIcon'
@@ -22,7 +21,7 @@ import PaperClipIcon from './icons/PaperClipIcon'
 import { SOURCE_TYPE_STUDY, STUDY_TYPE, WIDTH_XL } from '../util/constants'
 import useWindowDimensions from '../util/useWindowDimensions'
 import moment from 'moment'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import handleSendSentry from '../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 import { useToasts } from './Toast'
@@ -65,7 +64,7 @@ const StudyHistory: React.FC<Props> = ({
     lastName: appointment?.doctor.familyName.split(' ')[0],
   }
 
-  const { addToast } = useToasts()
+  //const { addToast } = useToasts()
 
   const patientId = appointment?.patientId
   console.log(patientId)
@@ -79,7 +78,7 @@ const StudyHistory: React.FC<Props> = ({
   // list of study
   const [dataStudy, setDataStudy] = useState<StudyType[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<AxiosError>()
 
   const [selectedStudy, setSelectedStudy] = useState<StudyType>(null)
 
@@ -96,6 +95,7 @@ const StudyHistory: React.FC<Props> = ({
     `
     setLoading(true)
     setSelectedStudy(null)
+    setError(null)
     axios.get(url)
       .then(res => {
         if (res.status === 200) {
@@ -110,14 +110,16 @@ const StudyHistory: React.FC<Props> = ({
           "endpoint": url,
           "method": "GET"
         }
-        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
+        //addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
         handleSendSentry(
           error,
           ERROR_HEADERS.DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY.FAILURE_GET,
           tags
         )
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false)
+      });
   }
 
   const debounce = useCallback(
@@ -147,6 +149,58 @@ const StudyHistory: React.FC<Props> = ({
     //reset selected study
     setSelectedStudy(null)
   }, [dataStudy])
+
+  if (error)
+    return <Transition
+      show={show}
+      enter="transition-opacity ease-linear duration-300"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition-opacity ease-linear duration-75"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <div className='flex flex-col px-5 w-full'>
+        {/* Head */}
+        <button
+          className='flex flex-row items-center mb-2 h-11 max-w-max-content focus:outline-none'
+          onClick={() => {
+            setShow(false)
+          }}
+        >
+          <ArrowBackIOS className='mr-3' /> <span className='text-primary-500'>regresar a consulta actual</span>
+        </button>
+
+        {/* title study history */}
+        <div className='flex justify-start h-auto mb-1'>
+          <div className='text-black font-bold text-2xl'>
+            Listado de Estudios
+            <div className='text-cool-gray-400 font-normal text-xl'>
+              Estudios solicitados y resultados
+            </div>
+          </div>
+        </div>
+        {/* body */}
+        <div className='flex flex-row w-full justify-center items-center mt-52' style={{ minWidth: '720px' }}>
+          <div className='flex flex-col justify-center items-center w-full gap-1'>
+            <div className='font-bold'>
+              Ha ocurrido un error al traer el historial de estudios.
+            </div>
+            <button
+              className='px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2'
+              onClick={() => getDataStudyHistory({
+                newFirst: true,
+                currentDoctorOnly: false,
+                withOrder: undefined,
+                inputContent: inputContent
+              })}
+            >
+              Intentar de nuevo
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition >
 
   return (
     <Transition
@@ -239,12 +293,11 @@ const StudyHistory: React.FC<Props> = ({
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 380 : 287}px)`,
             }}>
 
-            {!loading && dataStudy.length === 0 &&
+            {!loading && dataStudy.length === 0 && !error &&
               <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
                 No se han encontrado estudios
               </div>
             }
-
             {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} />}
           </div>
         </div>
@@ -462,7 +515,6 @@ export const QueryFilter = ({
   )
 }
 
-
 type PropsCardStudy = {
   study?: StudyType,
   isSelectecStudy?: boolean,
@@ -487,25 +539,25 @@ const getCategorySvg = (category = '', width = 18, height = 18) => {
 
 const getCategoryLabel = (category = '') => {
   if (!category) return
-  switch (category) {
-    case 'Laboratory':
+  switch (category.toLowerCase()) {
+    case 'laboratory':
       return 'Laboratorio';
-    case 'Diagnostic Imaging':
-    case 'IMAGE':
+    case 'diagnostic imaging':
+    case 'image':
       return 'Imágenes';
-    case 'Other':
+    case 'other':
       return 'Otros';
   }
 };
 
-const getOrigin = (sourceType) => {
+const getOrigin = (sourceType = '') => {
   if (!sourceType) return
-  switch (sourceType) {
-    case 'Patient':
+  switch (sourceType.toLowerCase()) {
+    case 'patient':
       return 'Subido por el paciente';
-    case 'Practitioner':
+    case 'practitioner':
       return 'Subido por un Doctor';
-    case 'Organization':
+    case 'organization':
       return 'Subido por la organización';
   }
 };
@@ -521,15 +573,15 @@ const CardStudy: React.FC<PropsCardStudy> = (
 
   const getMessageSource = () => {
     if (study?.type === STUDY_TYPE.WITH_ORDER) {
-      return `Solicitado por el/la Dr/Dra ${study.sourceName}`
+      return `Solicitado por el/la Dr/Dra ${toUpperLowerCase(study.sourceName) ?? ''}`
     } else if (study.type === STUDY_TYPE.WITHOUT_ORDER) {
       if (study?.sourceType === SOURCE_TYPE_STUDY.patient)
-        return `Subido por el paciente ${study?.sourceName ?? ''}`
+        return `Subido por el paciente ${toUpperLowerCase(study.sourceName) ?? ''}`
       if (study?.sourceType === SOURCE_TYPE_STUDY.practitioner)
-        return `Subido por ${study?.sourceName ?? ''}`
+        return `Subido por ${toUpperLowerCase(study.sourceName) ?? ''}`
       if (study?.sourceType === SOURCE_TYPE_STUDY.organization)
-        return `Subido por la organización ${study?.sourceName ?? ''}`
-      return `Subido por ${study?.sourceName ?? ''}`
+        return `Subido por la organización ${toUpperLowerCase(study.sourceName) ?? ''}`
+      return `Subido por ${toUpperLowerCase(study.sourceName) ?? ''}`
     }
   }
 
@@ -639,7 +691,7 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
   const [studyOrder, setStudyOrder] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState()
+  const [error, setError] = useState(null)
 
   //const [studyResult, setStudyResult] = useState()
 
@@ -648,6 +700,7 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   const getServiceRequest = (id) => {
     let url = '/profile/doctor/serviceRequest/' + id
     setLoading(true)
+    setError(null)
     axios.get(url)
       .then(res => {
         setStudyOrder(res.data)
@@ -672,6 +725,7 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   const getDiagnosticReport = (id) => {
     let url = '/profile/doctor/diagnosticReport/' + id
     setLoading(true)
+    setError(null)
     axios.get(url)
       .then(res => {
         setStudyOrder(res.data)
@@ -721,6 +775,10 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     return studies.map(x => (
       <li className='text-cool-gray-700 text-sm'>{x.display}</li>
     ))
+  }
+
+  if(error){
+    return null
   }
 
   if (selectedStudy.type === 'serviceRequest') {
@@ -903,7 +961,7 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
         {studyOrder?.attachmentUrls === 0 && <div className='text-sm text-cool-gray-700 mb-2 mt-3'>Aún no se han añadido resultados.</div>}
 
         <div className='flex flex-col gap-1'>
-          {studyOrder?.attachmentUrls.map((data, idx) =>
+          {studyOrder?.attachmentUrls?.map((data, idx) =>
             <CardAttached
               key={idx}
               fileData={data}
@@ -1046,10 +1104,12 @@ const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }) => {
             <CloseIcon className='focus:outline-none'></CloseIcon>
           </button>
         </div>
-        {preview &&
-          preview.contentType.includes('pdf') ?
-          <object className='w-full' data={preview.url} width="700" height="700" type="application/pdf" aria-labelledby={preview.title}></object> : preview &&
-          <img className='w-full' src={preview.url} alt="img" />}
+        <div className='flex flex-row justify-center items-center w-full'>
+          {preview &&
+            preview.contentType.includes('pdf') ?
+            <object className='w-full' data={preview.url} width="700" height="700" type="application/pdf" aria-labelledby={preview.title}></object> : preview &&
+            <img className='w-2/4' src={preview.url} alt="img" />}
+        </div>
       </div>
     </Modal>
   </div>
