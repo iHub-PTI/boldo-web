@@ -469,6 +469,47 @@ type PropsCardStudy = {
   setSelectedStudy?: (study: StudyType) => void
 }
 
+const getCategorySvg = (category = '', width = 18, height = 18) => {
+  if (!category) return
+  switch (category.toLowerCase()) {
+    case 'laboratory':
+    case 'laboratorio':
+      return <LabIcon width={width} height={height} />;
+    case 'other':
+    case 'otros':
+      return <OtherIcon width={width} height={height} />;
+    case 'image':
+    case 'diagnostic imaging':
+    case 'imágen':
+      return <ImgIcon width={width} height={height} />;
+  }
+};
+
+const getCategoryLabel = (category = '') => {
+  if (!category) return
+  switch (category) {
+    case 'Laboratory':
+      return 'Laboratorio';
+    case 'Diagnostic Imaging':
+    case 'IMAGE':
+      return 'Imágenes';
+    case 'Other':
+      return 'Otros';
+  }
+};
+
+const getOrigin = (sourceType) => {
+  if (!sourceType) return
+  switch (sourceType) {
+    case 'Patient':
+      return 'Subido por el paciente';
+    case 'Practitioner':
+      return 'Subido por un Doctor';
+    case 'Organization':
+      return 'Subido por la organización';
+  }
+};
+
 const CardStudy: React.FC<PropsCardStudy> = (
   {
     study,
@@ -480,7 +521,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
 
   const getMessageSource = () => {
     if (study?.type === STUDY_TYPE.WITH_ORDER) {
-      return `Solicitado por Dr. Dra. ${study.sourceName}`
+      return `Solicitado por el/la Dr/Dra ${study.sourceName}`
     } else if (study.type === STUDY_TYPE.WITHOUT_ORDER) {
       if (study?.sourceType === SOURCE_TYPE_STUDY.patient)
         return `Subido por el paciente ${study?.sourceName ?? ''}`
@@ -505,7 +546,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
     >
       {/* Head */}
       <div className='flex flex-row items-center gap-2'>
-        <LabIcon width={27} height={27} />
+        {getCategorySvg(study?.category, 27, 27)}
         <h2 className='text-cool-gray-700 font-normal'
           style={{ fontSize: '20px' }}
         >{study?.category}</h2>
@@ -586,7 +627,6 @@ const CardStudy: React.FC<PropsCardStudy> = (
   )
 }
 
-
 type PropsDetailStudy = {
   selectedStudy: StudyType
 }
@@ -619,7 +659,31 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
           "endpoint": url,
           "method": "GET"
         }
-        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el detalle de la orden' })
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el detalle de la orden.' })
+        handleSendSentry(
+          error,
+          ERROR_HEADERS.DIAGNOSTIC_REPORT.FAILURE_GET,
+          tags
+        )
+      })
+      .finally(() => setLoading(false));
+  }
+
+  const getDiagnosticReport = (id) => {
+    let url = '/profile/doctor/diagnosticReport/' + id
+    setLoading(true)
+    axios.get(url)
+      .then(res => {
+        setStudyOrder(res.data)
+        console.log(res.data)
+      })
+      .catch((error) => {
+        setError(error)
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el detalle del estudio.' })
         handleSendSentry(
           error,
           ERROR_HEADERS.DIAGNOSTIC_REPORT.FAILURE_GET,
@@ -633,6 +697,8 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     if (!selectedStudy) return
     if (selectedStudy.type === 'serviceRequest')
       getServiceRequest(selectedStudy.id)
+    else if (selectedStudy.type === 'diagnosticReport')
+      getDiagnosticReport(selectedStudy.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStudy])
 
@@ -650,6 +716,12 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
     </div>
   )
+
+  const getStudies = (studies = []) => {
+    return studies.map(x => (
+      <li className='text-cool-gray-700 text-sm'>{x.display}</li>
+    ))
+  }
 
   if (selectedStudy.type === 'serviceRequest') {
 
@@ -675,25 +747,6 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
         </div>
       )
     }
-
-    const getCategorySvg = (category = '') => {
-      return category === 'Laboratory' ? <LabIcon width={18} height={18} /> :
-        category === 'Diagnostic Imaging' ? <ImgIcon width={18} height={18} /> :
-          category === 'Other' ? <OtherIcon width={18} height={18} /> : 'Sin categoria'
-    }
-
-    const getCategoryLabel = (category = '') => {
-      return category === 'Laboratory' ? 'Laboratorio' :
-        category === 'Diagnostic Imaging' ? 'Imágenes' :
-          category === 'Other' ? 'Otros' : 'Sin categoria'
-    }
-
-    const getStudies = (studies = []) => {
-      return studies.map(x => (
-        <li className='text-cool-gray-700 text-sm'>{x.display}</li>
-      ))
-    }
-
 
     return (
       <>
@@ -723,10 +776,10 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
           <div className='flex flex-row items-center'>
             <CalendarIcon />
             <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
-              {moment(studyOrder?.authoredDate).format('DD/MM/YYYY')}
+              {studyOrder?.authoredDate && moment(studyOrder?.authoredDate).format('DD/MM/YYYY')}
             </div>
             <div className='ml-2 text-gray-500'>
-              {countDays(studyOrder?.authoredDate)}
+              {studyOrder?.authoredDate && countDays(studyOrder?.authoredDate)}
             </div>
           </div>
         </div>
@@ -757,20 +810,22 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
                   {getCategoryLabel(studyOrder?.category)}
                 </div>
               </div>
-              <div className='flex flex-row justify-center'
-                style={{
-                  padding: '1px 6px',
-                  width: '54px',
-                  height: '18px',
-                  background: '#E8431F',
-                  borderRadius: '4px'
-                }}>
-                <span className='font-semibold text-white' style={{
-                  fontSize: '10px',
-                  lineHeight: '16px',
-                  letterSpacing: '0.5px'
-                }}>urgente</span>
-              </div>
+              {studyOrder?.urgent &&
+                <div className='flex flex-row justify-center'
+                  style={{
+                    padding: '1px 6px',
+                    width: '54px',
+                    height: '18px',
+                    background: '#E8431F',
+                    borderRadius: '4px'
+                  }}>
+                  <span className='font-semibold text-white' style={{
+                    fontSize: '10px',
+                    lineHeight: '16px',
+                    letterSpacing: '0.5px'
+                  }}>urgente</span>
+                </div>
+              }
             </div>
             {/* Body Study */}
             <div className='flex flex-row pt-1'>
@@ -787,160 +842,81 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
                 </div>
               </div>
             }
-
-            {/* added results*/}
-            {/* <div className='flex flex-col mt-3'>
-              <div className='text-sm text-cool-gray-700 mb-2'>Resultados añadidos</div>
-              <div className='flex flex-col gap-2'>
-                <div className='flex flex-col w-full h-16 bg-bluish-500 rounded-lg  py-3 px-3 gap-2'>
-                  <div className='flex flex-row'>
-                    <div className='flex flex-row gap-1 items-center'>
-                      <PdfIcon width={20} height={20} />
-                      <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
-                        href='#a'
-                        style={{
-                          lineHeight: '17px',
-                          color: '#424649'
-                        }}>
-                        informe_de_estudio_Asd_Asda_Asdasd.pdf
-                      </a>
-                      <ChevronRight width={6} height={9} />
-                    </div>
-                    <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
-                      <button className='focus:outline-none'>
-                        <EyeIcon width={18} height={12} />
-                      </button>
-                      <button className='focus:outline-none'>
-                        <ArrowDownWardIcon width={13} height={13} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className='flex flex-row gap-2'>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        lineHeight: '16px',
-                        letterSpacing: '0.1px'
-                      }}
-                    >Subido por el paciente</span>
-                    <span
-                      className='text-dark-cool'
-                      style={{
-                        fontSize: '11px',
-                        lineHeight: '16px',
-                        letterSpacing: '0.1px'
-                      }}>10/11/2022 14:06:56</span>
-                  </div>
-                </div>
-
-                <div className='flex flex-col w-full h-16 bg-bluish-500 rounded-lg  py-3 px-3 gap-2'>
-                  <div className='flex flex-row'>
-                    <div className='flex flex-row gap-1 items-center'>
-                      <PictureIcon width={18} height={18} />
-                      <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
-                        href='#a'
-                        style={{
-                          lineHeight: '17px',
-                          color: '#424649'
-                        }}>
-                        informe_de_estudio_Asd_Asda_Asdasd.pdf
-                      </a>
-                      <ChevronRight width={6} height={9} />
-                    </div>
-                    <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
-                      <button className='focus:outline-none'>
-                        <EyeIcon width={18} height={12} />
-                      </button>
-                      <button className='focus:outline-none'>
-                        <ArrowDownWardIcon width={13} height={13} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className='flex flex-row gap-2'>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        lineHeight: '16px',
-                        letterSpacing: '0.1px'
-                      }}
-                    >Subido por el paciente</span>
-                    <span
-                      className='text-dark-cool'
-                      style={{
-                        fontSize: '11px',
-                        lineHeight: '16px',
-                        letterSpacing: '0.1px'
-                      }}>10/11/2022 14:06:56</span>
-                  </div>
-                </div>
-              </div>
-            </div> */}
             <AddedResults diagnosticReports={studyOrder?.diagnosticReports ?? []} />
           </div>
-
-
-          {/* no study order */}
-          {/* <div className='flex flex-col'>
-            <div className='text-primary-500'>
-              Origen
-            </div>
-            <span className='font-semibold'>
-              Subido por el paciente
-            </span>
-          </div>
-
-          <div className='flex flex-col gap-5'>
-            <div className='flex flex-row items-center gap-2'>
-              <PaperClipIcon />
-              <h2 className='text-cool-gray-700 font-medium text-xl'>Adjuntos</h2>
-            </div>
-            <div className='flex flex-col w-full h-16 bg-bluish-500 rounded-lg  py-3 px-3 gap-2'>
-              <div className='flex flex-row'>
-                <div className='flex flex-row gap-1 items-center'>
-                  <PictureIcon width={18} height={18} />
-                  <a className='ml-1 w-40 sm:w-40 md:w-40 lg:w-full font-medium text-sm truncate'
-                    href='#a'
-                    style={{
-                      lineHeight: '17px',
-                      color: '#424649'
-                    }}>
-                    informe_de_estudio_Asd_Asda_Asdasd.pdf
-                  </a>
-                  <ChevronRight width={6} height={9} />
-                </div>
-                <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
-                  <button className='focus:outline-none'>
-                    <EyeIcon width={18} height={12} />
-                  </button>
-                  <button className='focus:outline-none'>
-                    <ArrowDownWardIcon width={13} height={13} />
-                  </button>
-                </div>
-              </div>
-              <div className='flex flex-row gap-2'>
-                <span
-                  style={{
-                    fontSize: '11px',
-                    lineHeight: '16px',
-                    letterSpacing: '0.1px'
-                  }}
-                >Subido por el paciente</span>
-                <span
-                  className='text-dark-cool'
-                  style={{
-                    fontSize: '11px',
-                    lineHeight: '16px',
-                    letterSpacing: '0.1px'
-                  }}>10/11/2022 14:06:56</span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </>
     )
   }
-}
 
+  if (selectedStudy.type === 'diagnosticReport') {
+    return (<div className='flex flex-col gap-5'>
+
+      {/* Header Study */}
+      <div className='flex flex-col gap-2'>
+        <div className='flex flex-row justify-between'>
+          <div className='flex flex-row gap-2'>
+            {getCategorySvg(studyOrder?.category, 27, 27)}
+            <div className='text-cool-gray-700 text-xl' style={{ lineHeight: '20px' }}>
+              {getCategoryLabel(studyOrder?.category)}
+            </div>
+          </div>
+        </div>
+        <div className='flex flex-col gap-4'>
+          <div className='font-semibold text-gray-500 text-xs'>Resultados con fecha</div>
+          <div className='flex flex-row items-center'>
+            <CalendarIcon />
+            <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
+              {studyOrder?.effectiveDate && moment(studyOrder?.effectiveDate).format('DD/MM/YYYY')}
+            </div>
+            <div className='ml-2 text-gray-500'>
+              {studyOrder?.effectiveDate && countDays(studyOrder?.effectiveDate)}
+            </div>
+            <div className='flex flex-row w-full justify-end'>
+              <div className='flex flex-row justify-end w-full'>
+                <div className='text-orange-dark focus:outline-none text-sm'>
+                  Sin orden asociada
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {studyOrder?.sourceType &&
+        <div className='flex flex-col'>
+          <div className='text-primary-500'>
+            Origen
+          </div>
+          <span className='font-semibold'>
+            {getOrigin(studyOrder?.sourceType)}
+          </span>
+        </div>
+      }
+
+      <div className='flex flex-col gap-5'>
+        <div className='flex flex-row items-center gap-2'>
+          <PaperClipIcon />
+          <h2 className='text-cool-gray-700 font-medium text-xl'>Adjuntos</h2>
+        </div>
+        {studyOrder?.attachmentUrls === 0 && <div className='text-sm text-cool-gray-700 mb-2 mt-3'>Aún no se han añadido resultados.</div>}
+
+        <div className='flex flex-col gap-1'>
+          {studyOrder?.attachmentUrls.map((data, idx) =>
+            <CardAttached
+              key={idx}
+              fileData={data}
+              effectiveDate={studyOrder?.effectiveDate}
+              sourceType={studyOrder?.sourceType}
+            />
+          )}
+        </div>
+      </div>
+    </div>)
+
+  }
+}
 
 type AttachmentUrlType = {
   contentType: string;
@@ -979,16 +955,6 @@ const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }) => {
     if (!type) return
     if (type.includes('image')) return <PictureIcon width={18} height={18} />
     if (type === 'application/pdf') return <PdfIcon width={20} height={20} />
-  }
-
-  const getOrigin = (sourceType) => {
-    if (!sourceType) return
-    if (sourceType === 'Patient')
-      return 'Subido por el paciente'
-    if (sourceType === 'Practitioner')
-      return 'Subido por un Doctor'
-    if (sourceType === 'Organization')
-      return 'Subido por la organización'
   }
 
   const getDateOrigin = (date) => {
