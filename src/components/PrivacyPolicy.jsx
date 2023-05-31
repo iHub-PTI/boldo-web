@@ -95,7 +95,7 @@ export default function PrivacyPolicy() {
         Podemos contactarlo por vía telefónica o por correo postal para notificarlo de información relacionada con su cuenta, solucionar problemas con su cuenta, resolver una controversia, agrupar sus opiniones a través de encuestas o cuestionarios o de otro modo, según sea necesario para brindar servicio técnico a su cuenta. Además, podemos contactarlo para ofrecerle cupones, descuentos y promociones, y para informarle acerca de Boldo.
         </Typography>
         <Typography variant="body1" className={classes.separator}>
-        Finalmente, podemos según sea necesario para fines de cumplimiento de nuestras políticas, de las leyes vigentes o de cualquier acuerdo que pudiéramos tener con usted. Al contactarnos con usted por vía telefónica de la forma más eficiente podemos utilizar, y usted da su consentimiento para recibir, llamadas de marcación automática o pregrabadas y mensajes de texto.
+        Finalmente, podemos según sea necesario para fines de cumplimiento de nuestras políticas, de las leyes vigentes o de cualquier acuerdo que pudiéramos tener con usted.
         </Typography>
         <Typography variant="h5" component="h2" gutterBottom className={classes.separator}>
           {'DIVULGACIÓN DE CONTENIDO'}
@@ -107,13 +107,13 @@ export default function PrivacyPolicy() {
         En caso que se detecte algún servicio fraudulento, Boldo notificará a los usuarios afectados con todos los datos del responsable.
         </Typography>
         <Typography variant="body1" className={classes.separator}>
-        Boldo generará información médica estadística y podrá compartir, a su solo criterio, con autoridades de salud nacionales, departamentales y municipales. No se compartirá, salvo medidas legales especiales, información personal individualizada.
+        Boldo generará información médica estadística y podrá compartirla, a su solo criterio, con autoridades de salud nacionales, departamentales y municipales. No se compartirá, salvo medidas legales especiales, información personal individualizada.
         </Typography>
         <Typography variant="body1" className={classes.separator}>
-        Boldo generará información médica estadística y podrá compartir, a su solo criterio, con autoridades y organismos de salud internacionales y transnacionales. No se compartirá, salvo medidas legales especiales, información personal individualizada.
+        Boldo generará información médica estadística y podrá compartirla, a su solo criterio, con autoridades y organismos de salud internacionales y transnacionales. No se compartirá, salvo medidas legales especiales, información personal individualizada.
         </Typography>
         <Typography variant="body1" className={classes.separator}>
-        Boldo generará información estadística de medicamentos recetados y/o dispensados y podrá comercializar y/o compartir, a su solo criterio, con empresas farmaceúticas y laboratorios. No se compartirá, salvo medidas legales especiales, información personal individualizada.
+        Boldo generará información estadística de medicamentos recetados y/o dispensados y podrá comercializarla y/o compartirla, a su solo criterio, con empresas farmaceúticas y laboratorios. No se compartirá, salvo medidas legales especiales, información personal individualizada.
         </Typography>
       </Container>
       <footer className={classes.footer}>
