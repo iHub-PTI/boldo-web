@@ -27,7 +27,8 @@ export const ERROR_HEADERS = {
     FAILURE_GET: "Could not get specializations."
   },
   DIAGNOSTIC_REPORT: {
-    FAILURE_GET: "Could not get the diagnostic report."
+    FAILURE_GET: "Could not get the diagnostic report.",
+    FAILURE_POST: "Could not generate a new diagnostic report."
   },
   SERVICE_REQUEST: {
     FAILURE_GET: "Could not get the study orders.",
@@ -64,5 +65,11 @@ export const ERROR_HEADERS = {
   },
   OPEN_HOURS: {
     FAILURE_VALIDATE: "Could not validate open hours."
+  },
+  PRESIGNED: {
+    FAILURE_GET: "Could not get presigned."
+  },
+  FILE: {
+    FAILURE_UPLOAD: "Could not upload the file."
   }
 }

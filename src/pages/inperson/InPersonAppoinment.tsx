@@ -18,6 +18,7 @@ import { getColorCode } from '../../util/helpers';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import StudyHistory from '../../components/StudyHistory';
+import UploadStudies from '../../components/upload-studies/UploadStudies';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -46,6 +47,12 @@ export default function Dashboard() {
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
 
+  const menuSelected = {
+    'P': <PrescriptionMenu appointment={appointment} isFromInperson={true} />,
+    'M': <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />,
+    'L': <LaboratoryMenu appointment={appointment} isFromInperson={true} />,
+    'U': <UploadStudies patientId={`${appointment?.patientId ?? ''}`} />
+  }
 
   useEffect(() => {
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
@@ -182,13 +189,15 @@ export default function Dashboard() {
               />
             </div>
             <div className='aboslute h-full w-11/12' style={{ pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
-              {DynamicMenuSelector === 'P' ? (
+              {/* {DynamicMenuSelector === 'P' ? (
                 <PrescriptionMenu appointment={appointment} isFromInperson={true} />
               ) : DynamicMenuSelector === 'M' ? (
                 <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />
               ) : (
                 <LaboratoryMenu appointment={appointment} isFromInperson={true} />
-              )}
+              )} */}
+              {/* DynamicMenuSelecot can be "M", "P", "L" or "U" for Medications, Prescriptions, Laboratory and Upload Studies */}
+              {menuSelected[DynamicMenuSelector] ?? <></>}
             </div>
           </div>
         </div>
