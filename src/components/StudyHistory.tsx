@@ -32,6 +32,7 @@ import OtherIcon from './icons/studies-category/OtherIcon'
 import { ReactComponent as Spinner } from "../assets/spinner.svg";
 import Modal from './Modal'
 import CloseIcon from '@material-ui/icons/Close';
+import NotesIcon from './icons/NotesIcon'
 
 type StudyType = {
   authoredDate?: string;
@@ -777,7 +778,7 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     ))
   }
 
-  if(error){
+  if (error) {
     return null
   }
 
@@ -922,15 +923,17 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
         </div>
         <div className='flex flex-col gap-4'>
           <div className='font-semibold text-gray-500 text-xs'>Resultados con fecha</div>
-          <div className='flex flex-row items-center'>
-            <CalendarIcon />
-            <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
-              {studyOrder?.effectiveDate && moment(studyOrder?.effectiveDate).format('DD/MM/YYYY')}
+          <div className='flex flex-row items-center justify-between'>
+            <div className='flex flex-row items-center'>
+              <CalendarIcon />
+              <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
+                {studyOrder?.effectiveDate && moment(studyOrder?.effectiveDate).format('DD/MM/YYYY')}
+              </div>
+              <div className='ml-2 text-gray-500'>
+                {studyOrder?.effectiveDate && countDays(studyOrder?.effectiveDate)}
+              </div>
             </div>
-            <div className='ml-2 text-gray-500'>
-              {studyOrder?.effectiveDate && countDays(studyOrder?.effectiveDate)}
-            </div>
-            <div className='flex flex-row w-full justify-end'>
+            <div className='flex flex-row justify-end'>
               <div className='flex flex-row justify-end w-full'>
                 <div className='text-orange-dark focus:outline-none text-sm'>
                   Sin orden asociada
@@ -970,6 +973,17 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
             />
           )}
         </div>
+        {studyOrder?.patientNotes &&
+          <div className='flex flex-row gap-1'>
+            <div className='flex flex-col w-6 justify-start pt-1'>
+              <NotesIcon />
+            </div>
+            <div className='flex flex-col text-xs' style={{ color: '#424649' }}>
+              <span className='font-semibold'>Notas</span>
+              <p>{studyOrder?.patientNotes}</p>
+            </div>
+          </div>
+        }
       </div>
     </div>)
 
