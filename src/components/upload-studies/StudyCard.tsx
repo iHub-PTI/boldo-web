@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import moment from 'moment';
 import { AttachmentFilesContext } from '../../contexts/AttachmentFiles';
 import ChevronRight from '@material-ui/icons/ChevronRight';
@@ -7,21 +7,20 @@ import ImageIcon from '../icons/upload-icons/ImageIcon';
 import PreviewIcon from '../icons/upload-icons/PreviewIcon';
 import TrashIcon from '../icons/upload-icons/TrashIcon';
 import { toUpperLowerCase } from '../../util/helpers';
+import { FilesToShow } from './OrderImported';
 
 
 type Props = {
-  name: string;
-  source: string;
-  date: string;
-  isNew: boolean;
-  type: string;
+  file: FilesToShow | File;
   index: number;
 }
 
 
-const StudyCard = (props: Props) => {
-  const {name='', source='', date='', isNew=true, type='', index} = props
+const StudyCard = ( props: Props ) => {
+  const {file, index} = props
   const {attachmentFiles ,setAttachmentFiles} = useContext(AttachmentFilesContext)
+
+  const [showModal, setShowModal] = useState<boolean>(false)
 
   const handleFileDelete = (index: number) => {
     // define the array of exitsting files
@@ -51,9 +50,13 @@ const StudyCard = (props: Props) => {
           {/* ICON */}
           <div>
             { 
-              type.includes('pdf')
-                ? <PdfIcon />
-                : <ImageIcon />
+              file instanceof File
+                ? file.type.includes('pdf')
+                  ? <PdfIcon />
+                  : <ImageIcon />
+                : file?.contentType?.includes('pdf')
+                  ? <PdfIcon />
+                  : <ImageIcon />
             }
           </div>
           {/* NAME OF THE FILE */}
@@ -63,17 +66,21 @@ const StudyCard = (props: Props) => {
               color: "#424649"
             }}
           >
-            {name !== '' ? name : 'Nombre desconocido'}
+            {
+              file instanceof File
+                ? file.name
+                : file?.title ?? 'Nombre desconocido'
+            }
           </p>
           <ChevronRight height={24}/>
         </div>
         {/* description */}
-        { !isNew &&
+        { !(file instanceof File) &&
           <div className='flex flex-row items-center space-x-1'>
             {/* source */}
-            <p className='not-italic font-medium text-xs leading-4'>{source !== '' ? `Subido por ${toUpperLowerCase(source)}` : 'Nombre desconocido'}</p>
+            <p className='not-italic font-medium text-xs leading-4'>{file?.source !== '' ? `Subido por ${toUpperLowerCase(file.source)}` : 'Nombre desconocido'}</p>
             {/* date */}
-            <p className='not-italic font-medium text-xs leading-4'>{date !== '' ? `${moment(date).format('DD/MM/YYYY')}` : 'Fecha desconocida'}</p>
+            <p className='not-italic font-medium text-xs leading-4'>{file?.date !== '' ? `${moment(file.date).format('DD/MM/YYYY')}` : 'Fecha desconocida'}</p>
           </div>
         }
       </div>
@@ -84,7 +91,7 @@ const StudyCard = (props: Props) => {
         >
           <PreviewIcon />
         </button>
-        { isNew &&
+        { (file instanceof File) &&
           <button
             className='focus:outline-none'
             onClick={() => handleFileDelete(index)}
@@ -96,6 +103,5 @@ const StudyCard = (props: Props) => {
     </div>
   );
 }
-
 
 export default StudyCard;

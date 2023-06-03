@@ -27,7 +27,7 @@ type Presigned = {
   location: string;
 }
 
-type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean}
+export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean}
 
 
 const OrderImported = (props: Props) => {
@@ -176,11 +176,7 @@ const OrderImported = (props: Props) => {
     const renderedFiles = arrayOfFiles.map((file, index) => {
       return  <StudyCard 
                 key={index}
-                isNew={true}
-                date=''
-                source=''
-                name={file.name}
-                type={file.type}
+                file={file}
                 index={index}
               />
     })
@@ -357,11 +353,7 @@ const OrderImported = (props: Props) => {
                     filesState.map((file, idx) => {
                       return <StudyCard 
                                 key={idx}
-                                name={file?.title}
-                                date={file?.date}
-                                source={file?.source} 
-                                type={file?.contentType}
-                                isNew={file?.new}
+                                file={file}
                                 index={idx}
                               />
                     })
