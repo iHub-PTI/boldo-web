@@ -8,6 +8,7 @@ import PreviewIcon from '../icons/upload-icons/PreviewIcon';
 import TrashIcon from '../icons/upload-icons/TrashIcon';
 import { toUpperLowerCase } from '../../util/helpers';
 import { FilesToShow } from './OrderImported';
+import Preview from './Preview';
 
 
 type Props = {
@@ -88,6 +89,7 @@ const StudyCard = ( props: Props ) => {
       <div className='flex flex-row space-x-2 items-center'>
         <button
           className='focus:outline-none'
+          onClick={() => setShowModal(true)}
         >
           <PreviewIcon />
         </button>
@@ -100,6 +102,7 @@ const StudyCard = ( props: Props ) => {
           </button>
         }
       </div>
+      <Preview file={file} showModal={showModal} setShowModal={setShowModal}  />
     </div>
   );
 }
