@@ -75,6 +75,8 @@ type loaderRowData = {
 
 const TableOfStudies = (props: Props) => {
   const { patientId, handleShowOrderImported, searchByOrder } = props
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadError, setLoadError] = useState<boolean>(false)
   const [categorySelected, setCategorySelected] = useState<Categories>('')
   const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
     id: '',
@@ -200,6 +202,7 @@ const TableOfStudies = (props: Props) => {
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
           // console.log(query.orderDirection)
+          setIsLoading(true)
           await axios
             .get(url, {
               params: {
@@ -247,7 +250,14 @@ const TableOfStudies = (props: Props) => {
         disabled: true // this disables all the dumb styles that are added to the icon
       }]}
       icons={tableIcons}
-      localization={CONFIG_LOCALIZATION}
+      localization={
+        {
+          ...CONFIG_LOCALIZATION, 
+          body: {
+            emptyDataSourceMessage: isLoading ? null : loadError ? '' : 'No se encontró ninguna orden de estudios.',
+          }
+        }
+      }
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",
