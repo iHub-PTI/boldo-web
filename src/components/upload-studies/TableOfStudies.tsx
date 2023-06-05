@@ -19,6 +19,7 @@ import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
 import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
+import RetryRowsData from './RetryRowsData';
 
 
 type Props = {
@@ -47,9 +48,6 @@ const tableIcons: Icons = {
 }
 
 const CONFIG_LOCALIZATION = {
-  body: {
-    emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-  },
   header: {
     actions: ''
   },
@@ -152,6 +150,7 @@ const TableOfStudies = (props: Props) => {
             </button>
           )
         },
+        OverlayError: () => loadError ? <RetryRowsData loadRef={tableRef} /> : <></>
       }}
       columns={[
         {
@@ -230,6 +229,7 @@ const TableOfStudies = (props: Props) => {
               })
             })
             .catch((err) => {
+              setLoadError(true)
               const tags = {
                 "endpoint": url,
                 "method": "GET",
@@ -238,6 +238,7 @@ const TableOfStudies = (props: Props) => {
               handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET, tags)
               reject(err)
             })
+            .finally(() => setIsLoading(false))
         })
       }
       detailPanel={[{
