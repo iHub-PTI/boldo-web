@@ -206,7 +206,8 @@ const TableOfStudies = (props: Props) => {
           await axios
             .get(url, {
               params: {
-                patient_id: patientId ?? '',
+                // '0' for default to get an empty array
+                patient_id: patientId ?? '0',
                 orderNumber: searchByOrder,
                 page: (query.page + 1),
                 count: query.pageSize,
