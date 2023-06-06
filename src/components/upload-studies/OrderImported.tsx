@@ -344,7 +344,7 @@ const OrderImported = (props: Props) => {
                   onChange={(e) => handleFilesSelected(e.target.files)}
                 />
                 <button
-                  className='focus:outline-none'
+                  className='focus:outline-none rounded-lg p-2 hover:bg-gray-100'
                   onClick={handleButtonClick}
                 >
                   <div className='flex flex-row items-center space-x-2'>
