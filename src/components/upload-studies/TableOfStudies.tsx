@@ -19,6 +19,7 @@ import UnderlinedIcon from '../icons/upload-icons/UnderlinedIcon';
 import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
 import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
+import RetryRowsData from './RetryRowsData';
 
 
 type Props = {
@@ -47,9 +48,6 @@ const tableIcons: Icons = {
 }
 
 const CONFIG_LOCALIZATION = {
-  body: {
-    emptyDataSourceMessage: 'No se encontró ninguna orden de estudios.',
-  },
   header: {
     actions: ''
   },
@@ -75,6 +73,8 @@ type loaderRowData = {
 
 const TableOfStudies = (props: Props) => {
   const { patientId, handleShowOrderImported, searchByOrder } = props
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadError, setLoadError] = useState<boolean>(false)
   const [categorySelected, setCategorySelected] = useState<Categories>('')
   const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
     id: '',
@@ -150,6 +150,7 @@ const TableOfStudies = (props: Props) => {
             </button>
           )
         },
+        OverlayError: () => loadError ? <RetryRowsData loadRef={tableRef} /> : <></>
       }}
       columns={[
         {
@@ -200,10 +201,12 @@ const TableOfStudies = (props: Props) => {
         new Promise(async (resolve, reject) => {
           let url = '/profile/doctor/serviceRequests'
           // console.log(query.orderDirection)
+          setIsLoading(true)
           await axios
             .get(url, {
               params: {
-                patient_id: patientId ?? '',
+                // '0' for default to get an empty array
+                patient_id: patientId ?? '0',
                 orderNumber: searchByOrder,
                 page: (query.page + 1),
                 count: query.pageSize,
@@ -226,6 +229,7 @@ const TableOfStudies = (props: Props) => {
               })
             })
             .catch((err) => {
+              setLoadError(true)
               const tags = {
                 "endpoint": url,
                 "method": "GET",
@@ -234,6 +238,7 @@ const TableOfStudies = (props: Props) => {
               handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET, tags)
               reject(err)
             })
+            .finally(() => setIsLoading(false))
         })
       }
       detailPanel={[{
@@ -247,7 +252,14 @@ const TableOfStudies = (props: Props) => {
         disabled: true // this disables all the dumb styles that are added to the icon
       }]}
       icons={tableIcons}
-      localization={CONFIG_LOCALIZATION}
+      localization={
+        {
+          ...CONFIG_LOCALIZATION, 
+          body: {
+            emptyDataSourceMessage: isLoading ? null : loadError ? '' : 'No se encontró ninguna orden de estudios.',
+          }
+        }
+      }
       onRowClick={(event, rowData, togglePanel) => togglePanel()}
       options={{
         detailPanelColumnAlignment: "right",

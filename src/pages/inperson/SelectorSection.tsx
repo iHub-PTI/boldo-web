@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip'
 // import Print from '../../components/icons/Print'
 // import { getReports } from '../../util/helpers'
-// import { useToasts } from '../../components/Toast'
+import { useToasts } from '../../components/Toast'
 import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 import SelectPrintOptions from '../../components/SelectPrintOptions'
@@ -23,7 +23,7 @@ export default (props: Props) => {
   const { setDynamicMenuSelector, prescriptions, appointment } = props
   const [activeColor, setActiveColor] = useState('M')
   // const [loading, setLoading] = useState(false)
-  // const { addToast } = useToasts()
+  const { addToast } = useToasts()
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const { orders } = useContext(CategoriesContext)
 
@@ -32,6 +32,10 @@ export default (props: Props) => {
     note: 'Notas médicas',
     prescription: 'Recetas',
     uploadStudies: 'Subir estudios'
+  }
+  const uploadDisabledMessage = {
+    "upcoming": "Esta funcionalidad no está disponible para citas que no han iniciado aún.",
+    "cancelled": "Esta funcionalidad no está disponible para citas canceladas."
   }
   const useTooltipStyles = makeStyles(() => ({
     tooltip: {
@@ -175,8 +179,13 @@ export default (props: Props) => {
               }}
               className='flex items-center justify-center rounded-full focus:outline-none focus:bg-gray-600'
               onClick={() => {
-                setDynamicMenuSelector('U')
-                setActiveColor('U')
+                if (appointment?.status === 'upcoming' || appointment?.status === 'cancelled') {
+                  // returns the corresponding message when status exists
+                  appointment?.status && addToast({type:'info', title:'Atención!', text:uploadDisabledMessage[appointment.status]})
+                } else {
+                  setDynamicMenuSelector('U')
+                  setActiveColor('U')
+                }
               }}
             >
               <UploadStudyIcon fromVirtual={false}/>

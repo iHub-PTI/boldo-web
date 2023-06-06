@@ -13,6 +13,7 @@ import axios from 'axios';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import StudyCard from './StudyCard';
+import DeleteConfirm from './DeleteConfirm';
 
 
 type Props = {
@@ -27,7 +28,7 @@ type Presigned = {
   location: string;
 }
 
-type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean}
+export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean}
 
 
 const OrderImported = (props: Props) => {
@@ -36,6 +37,8 @@ const OrderImported = (props: Props) => {
   const {attachmentFiles, setAttachmentFiles} = useContext(AttachmentFilesContext)
   const { addToast } = useToasts()
   const [filesState, setFilesState] = useState<FilesToShow[]>([])
+  // handle delete modal
+  const [showModal, setShowModal] = useState<boolean>(false)
   let filesToShow: FilesToShow[] = [] as FilesToShow[]
   // this reference we use to simulate the click on the custom button
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -46,6 +49,8 @@ const OrderImported = (props: Props) => {
     "OTHER": "OTHER",
     "": "OTHER"
   }
+
+  const deleteMessage = '¿ Está seguro que quiere eliminar la orden de estudio seleccionada ?'
 
   const handleSearchClick = () => {
     searchRef.current.click()
@@ -176,16 +181,17 @@ const OrderImported = (props: Props) => {
     const renderedFiles = arrayOfFiles.map((file, index) => {
       return  <StudyCard 
                 key={index}
-                isNew={true}
-                date=''
-                source=''
-                name={file.name}
-                type={file.type}
+                file={file}
                 index={index}
               />
     })
 
     return renderedFiles;
+  }
+
+  const confirmDelete = () => {
+    handleShowOrderImported()
+    setOrderImported({} as Boldo.OrderStudy)
   }
 
   useEffect(() => {
@@ -205,6 +211,7 @@ const OrderImported = (props: Props) => {
             source: source,
             new: false
           })
+          filesToShow.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           setFilesState(filesToShow)
         })
       })
@@ -260,11 +267,13 @@ const OrderImported = (props: Props) => {
       }
     }
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveRef, attachmentFiles])
 
 
   return(
     <div className='flex flex-col space-y-8 p-5'>
+      <DeleteConfirm showModal={showModal} setShowModal={setShowModal} confirmDelete={confirmDelete} msg={deleteMessage} />
       {/* the order was imported */}
       <div className='flex flex-row justify-between border-b-2'>
         <p className='not-italic font-medium text-base leading-6'>
@@ -273,8 +282,7 @@ const OrderImported = (props: Props) => {
         <button
           className='focus:outline-none'
           onClick={() => {
-            handleShowOrderImported();
-            setOrderImported({} as Boldo.OrderStudy)
+            setShowModal(true)
           }}
         >
           <DeleteOrderImported />
@@ -283,7 +291,7 @@ const OrderImported = (props: Props) => {
       {/* profile and date */}
       <div className='flex flex-row justify-between'>
         {/* profile */}
-        <DoctorProfile doctor={OrderImported?.doctor as unknown as iHub.Doctor} />
+        <DoctorProfile doctor={OrderImported?.doctor as unknown as Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }} organization={OrderImported?.organization as Boldo.OrganizationInOrderStudy} />
         {/* date section */}
         <DateSection authoredDate={OrderImported?.authoredDate} />
       </div>
@@ -345,6 +353,10 @@ const OrderImported = (props: Props) => {
                   </div>
                 </button>
               </div>
+              {/* list of attchment files */}
+              {
+                renderFileList()
+              }
               {/* list of existing files */}
               { filesState.length > 0 &&
                 <div className='flex flex-col space-y-2 p-2'>
@@ -352,26 +364,17 @@ const OrderImported = (props: Props) => {
                     filesState.map((file, idx) => {
                       return <StudyCard 
                                 key={idx}
-                                name={file?.title}
-                                date={file?.date}
-                                source={file?.source}
-                                type={file?.contentType}
-                                isNew={file?.new}
+                                file={file}
                                 index={idx}
                               />
                     })
                   }
                 </div>
               }
-              {/* list of attchment files */}
-              {
-                renderFileList()
-              }
             </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 }

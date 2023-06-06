@@ -106,7 +106,7 @@ export interface OrderStudy {
   category?: string
   diagnosis?: string
   diagnosticReports?: DiagnosticReport[]
-  doctor: iHub.Doctor
+  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }
   encounterId?: string
   id?: string
   identifier?: string
