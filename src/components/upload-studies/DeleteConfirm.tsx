@@ -48,7 +48,7 @@ const DeleteConfirm = (props: Props) => {
           </button>
           {/* confirm delete */}
           <button
-            className='flex justify-center items-center box-border p-2 gap-2 rounded-lg'
+            className='flex justify-center items-center box-border p-2 gap-2 rounded-lg focus:outline-none'
             style={{
               backgroundColor: '#27BEC2'
             }}
