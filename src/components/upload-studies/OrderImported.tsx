@@ -13,6 +13,7 @@ import axios from 'axios';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 import StudyCard from './StudyCard';
+import DeleteConfirm from './DeleteConfirm';
 
 
 type Props = {
@@ -36,6 +37,8 @@ const OrderImported = (props: Props) => {
   const {attachmentFiles, setAttachmentFiles} = useContext(AttachmentFilesContext)
   const { addToast } = useToasts()
   const [filesState, setFilesState] = useState<FilesToShow[]>([])
+  // handle delete modal
+  const [showModal, setShowModal] = useState<boolean>(false)
   let filesToShow: FilesToShow[] = [] as FilesToShow[]
   // this reference we use to simulate the click on the custom button
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -46,6 +49,8 @@ const OrderImported = (props: Props) => {
     "OTHER": "OTHER",
     "": "OTHER"
   }
+
+  const deleteMessage = '¿ Está seguro que quiere eliminar la orden de estudio seleccionada ?'
 
   const handleSearchClick = () => {
     searchRef.current.click()
@@ -184,6 +189,11 @@ const OrderImported = (props: Props) => {
     return renderedFiles;
   }
 
+  const confirmDelete = () => {
+    handleShowOrderImported()
+    setOrderImported({} as Boldo.OrderStudy)
+  }
+
   useEffect(() => {
     if (OrderImported) {
       setAttachmentFiles(new DataTransfer().files)
@@ -263,6 +273,7 @@ const OrderImported = (props: Props) => {
 
   return(
     <div className='flex flex-col space-y-8 p-5'>
+      <DeleteConfirm showModal={showModal} setShowModal={setShowModal} confirmDelete={confirmDelete} msg={deleteMessage} />
       {/* the order was imported */}
       <div className='flex flex-row justify-between border-b-2'>
         <p className='not-italic font-medium text-base leading-6'>
@@ -271,8 +282,7 @@ const OrderImported = (props: Props) => {
         <button
           className='focus:outline-none'
           onClick={() => {
-            handleShowOrderImported();
-            setOrderImported({} as Boldo.OrderStudy)
+            setShowModal(true)
           }}
         >
           <DeleteOrderImported />
@@ -365,7 +375,6 @@ const OrderImported = (props: Props) => {
           </div>
         </div>
       </div>
-
     </div>
   );
 }
