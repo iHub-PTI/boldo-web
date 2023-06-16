@@ -9,6 +9,7 @@ import OrderImported from './OrderImported';
 import _ from 'lodash';
 import LockIcon from '../icons/upload-icons/LockIcon';
 import LoadingSpinner from '../icons/sumary-print/LoadingSpinner';
+import StudyForm from './StudyForm';
 
 
 type Props = {
@@ -154,7 +155,9 @@ const UploadStudies = (props: Props) => {
             </div>
           }
           { showNewStudyWithoutOrder &&
-            <p>Estudio sin orden</p>
+            <div style={{width: "95%"}}>
+              <StudyForm saveRef={saveButtonRef} />
+            </div>
           }
         </div>
       </div>
