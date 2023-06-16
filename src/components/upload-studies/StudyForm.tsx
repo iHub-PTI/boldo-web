@@ -1,10 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Transition } from '@headlessui/react';
+import { AttachmentFilesFormContext } from '../../contexts/AttachmentFilesForm'; 
 import InputTextField from './InputTextField'
 import DatePicker, { registerLocale } from "react-datepicker"
 import es from "date-fns/locale/es"
 import DateRange from '../icons/upload-icons/DateRange';
 import moment from 'moment';
-import { Transition } from '@headlessui/react';
+import AttachmentIcon from '../icons/upload-icons/AttachmentsIcon';
+import PlusIcon from '../icons/upload-icons/PlusIcon';
+import StudyCard from './StudyCard';
 registerLocale("es", es)
 
 type Props = {
@@ -13,10 +17,14 @@ type Props = {
 
 const StudyForm = (props:Props) => {
   const { saveRef } = props
+  const { attachmentFilesForm, setAttachmentFilesForm } = useContext(AttachmentFilesFormContext)
   const [inputName, setInputName] = useState<string>('')
   const [inputNotes, setInputNotes] = useState<string>('')
   const [inputDate, setInputDate] = useState<Date | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  // this reference we use to simulate the click on the custom button
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
 
   const handleDateChange = (dateSelected) => {
     setIsOpen(!isOpen)
@@ -26,6 +34,47 @@ const StudyForm = (props:Props) => {
   const handleClick = (e) => {
     e.preventDefault();
     setIsOpen(!isOpen);
+  }
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFilesSelected = (files: FileList | null) => {
+    if (files) {
+      // define the array of exitsting files
+      const existingFileList = Array.from(attachmentFilesForm)
+      // define the array of new files
+      const newFileList = Array.from(files)
+      // verify that the file doesn't exist
+      newFileList.forEach((newFile) => {
+        if (!existingFileList.some((file) => file.name === newFile.name)) {
+          existingFileList.push(newFile)
+        }
+      })
+      // create an auxiliar list
+      const updatedList = new DataTransfer()
+      // to add the new files
+      existingFileList.forEach((file) => updatedList.items.add(file))
+      // and then we assign it again
+      setAttachmentFilesForm(updatedList.files)
+    }
+  }
+
+  const renderFileList = () => {
+    let arrayOfFiles = Array.from(attachmentFilesForm)
+
+    const renderedFiles = arrayOfFiles.map((file, index) => {
+      return  <StudyCard 
+                key={index}
+                file={file}
+                index={index}
+              />
+    })
+
+    return renderedFiles;
   }
 
   useEffect(() => {
@@ -44,7 +93,7 @@ const StudyForm = (props:Props) => {
         button.removeEventListener('click', handleButtonClick)
       }
     }
-  }, [saveRef])
+  }, [saveRef, attachmentFilesForm])
 
   return (
     <div className='flex flex-col space-y-8 p-5'>
@@ -104,7 +153,45 @@ const StudyForm = (props:Props) => {
         <InputTextField id='notes' inputText={inputNotes} setInputText={setInputNotes} />
       </div>
       {/* attachments */}
-      <div></div>
+      <div className='p-4 border-2 box-border rounded-lg border-gray-200'>
+        <div className='flex flex-col space-y-4'>
+          {/* title and button to add files */}
+          <div className='flex flex-row justify-between items-center'>
+            {/* logo and title */}
+            <div className='flex flex-row space-x-4 items-center'>
+              <AttachmentIcon />
+              <p className='not-italic font-medium text-xl leading-7 text-gray-700'>Adjuntos</p>
+            </div>
+            {/* button to add files */}
+            {/* DONT DELETE THIS INPUT */}
+            <input
+              type="file"
+              multiple
+              accept=".pdf, .jpeg, .jpg, .png"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={(e) => handleFilesSelected(e.target.files)}
+            />
+            <button
+              className='focus:outline-none rounded-lg p-2 hover:bg-gray-100'
+              onClick={handleButtonClick}
+            >
+              <div className='flex flex-row items-center space-x-2'>
+                <p className='not-italic font-normal text-base leading-6 text-teal-400'>Añadir archivo</p>
+                <PlusIcon />
+              </div>
+            </button>
+          </div>
+          {/* list of existing files */}
+          { attachmentFilesForm.length > 0 &&
+            <div className='flex flex-col space-y-2 p-2'>
+              {
+                renderFileList()
+              }
+            </div>
+          }
+        </div>
+      </div>
     </div>
   )
 }
