@@ -9,11 +9,24 @@ import moment from 'moment';
 import AttachmentIcon from '../icons/upload-icons/AttachmentsIcon';
 import PlusIcon from '../icons/upload-icons/PlusIcon';
 import StudyCard from './StudyCard';
+import ListboxCustom, { Item } from './ListboxCustom';
+import { ReactComponent as OtherIcon } from "../../assets/icon-other.svg";
+import { ReactComponent as ImgIcon } from "../../assets/img-icon.svg";
+import { ReactComponent as LabIcon } from "../../assets/laboratory-icon.svg";
 registerLocale("es", es)
 
 type Props = {
   saveRef: React.MutableRefObject<HTMLButtonElement>;
 }
+
+const defaultValue = {value:'', name:'Categoría'} as Item
+
+const Categories = [
+  {value:'LABORATORY', name: 'Laboratorio', icon: <LabIcon />},
+  {value:'IMAGE', name: 'Imágenes', icon: <ImgIcon />},
+  {value:'OTHER', name: 'Otros', icon: <OtherIcon />},
+  defaultValue
+]
 
 const StudyForm = (props:Props) => {
   const { saveRef } = props
@@ -22,26 +35,30 @@ const StudyForm = (props:Props) => {
   const [inputNotes, setInputNotes] = useState<string>('')
   const [inputDate, setInputDate] = useState<Date | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedValue, setSelectedValue] = useState<Item>(defaultValue)
   // this reference we use to simulate the click on the custom button
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-
+  // this function handle any change in date from calendar
   const handleDateChange = (dateSelected) => {
     setIsOpen(!isOpen)
     setInputDate(dateSelected)
   }
 
+  // this function handle the calendar open/close
   const handleClick = (e) => {
     e.preventDefault();
     setIsOpen(!isOpen);
   }
 
+  // this function handle add attachment files button 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
   }
 
+  // this function handle files selected from computer
   const handleFilesSelected = (files: FileList | null) => {
     if (files) {
       // define the array of exitsting files
@@ -63,6 +80,7 @@ const StudyForm = (props:Props) => {
     }
   }
 
+  // this function render a list of fileList object
   const renderFileList = () => {
     let arrayOfFiles = Array.from(attachmentFilesForm)
 
@@ -77,6 +95,7 @@ const StudyForm = (props:Props) => {
     return renderedFiles;
   }
 
+  // this hook handle the actions when save is clicked
   useEffect(() => {
     const button = saveRef.current
 
@@ -107,7 +126,7 @@ const StudyForm = (props:Props) => {
       {/* date and category */}
       <div className='flex flex-row space-x-32'>
         {/* date */}
-        <div className='flex flex-col space-y-3'>
+        <div className='flex flex-col space-y-3 relative'>
           <p className='not-italic font-medium text-base leading-6 text-gray-700'>Fecha del estudio</p>
           <button
             className='focus:outline-none'
@@ -145,7 +164,9 @@ const StudyForm = (props:Props) => {
           </div>
         </div>
         {/* category */}
-        <div></div>
+        <div className='w-max-content'>
+          <ListboxCustom data={Categories} label='Seleccione una categoria' selectedValue={selectedValue} setSelectedValue={setSelectedValue} />
+        </div>
       </div>
       {/* notes */}
       <div className='flex flex-col space-y-1'>
