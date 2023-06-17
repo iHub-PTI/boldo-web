@@ -173,7 +173,7 @@ const StudyForm = (props:Props) => {
       {/* notes */}
       <div className='flex flex-col space-y-1'>
         <p className='not-italic font-medium text-base leading-6 text-gray-700'>Notas (opcional)</p>
-        <InputTextField id='notes' inputText={inputNotes} setInputText={setInputNotes} />
+        <InputTextField id='notes' inputText={inputNotes} setInputText={setInputNotes} placeholder='Anotaciones sobre el estudio' />
       </div>
       {/* attachments */}
       <div className='p-4 border-2 box-border rounded-lg border-gray-200'>

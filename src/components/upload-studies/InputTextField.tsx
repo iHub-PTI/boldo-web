@@ -13,7 +13,7 @@ const InputTextField = (props: Props) => {
   return (
     <input
       id={id}
-      className='px-3 py-2 focus:outline-none border-2 border-solid border-gray-200 rounded-lg text-gray-600 text-lg'
+      className='px-3 py-2 focus:outline-none border-2 border-solid border-gray-200 hover:border-teal-300 rounded-lg text-gray-600 text-lg'
       type='text'
       placeholder={placeholder}
       value={inputText}
