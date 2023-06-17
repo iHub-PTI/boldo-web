@@ -1,6 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
-import { AttachmentFilesContext } from '../../contexts/AttachmentFiles';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import PdfIcon from '../icons/upload-icons/PdfIcon';
 import ImageIcon from '../icons/upload-icons/ImageIcon';
@@ -14,12 +13,13 @@ import Preview from './Preview';
 type Props = {
   file: FilesToShow | File;
   index: number;
+  attachmentFiles: FileList;
+  setAttachmentFiles: (value: FileList) => void;
 }
 
 
 const StudyCard = ( props: Props ) => {
-  const {file, index} = props
-  const {attachmentFiles ,setAttachmentFiles} = useContext(AttachmentFilesContext)
+  const {file, index, attachmentFiles, setAttachmentFiles} = props
 
   const [showModal, setShowModal] = useState<boolean>(false)
 

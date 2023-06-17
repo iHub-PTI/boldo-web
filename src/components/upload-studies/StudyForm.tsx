@@ -89,6 +89,8 @@ const StudyForm = (props:Props) => {
                 key={index}
                 file={file}
                 index={index}
+                attachmentFiles={attachmentFilesForm}
+                setAttachmentFiles={setAttachmentFilesForm}
               />
     })
 

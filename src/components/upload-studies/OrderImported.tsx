@@ -183,6 +183,8 @@ const OrderImported = (props: Props) => {
                 key={index}
                 file={file}
                 index={index}
+                attachmentFiles={attachmentFiles}
+                setAttachmentFiles={setAttachmentFiles}
               />
     })
 
@@ -366,6 +368,8 @@ const OrderImported = (props: Props) => {
                                 key={idx}
                                 file={file}
                                 index={idx}
+                                attachmentFiles={attachmentFiles}
+                                setAttachmentFiles={setAttachmentFiles}
                               />
                     })
                   }
