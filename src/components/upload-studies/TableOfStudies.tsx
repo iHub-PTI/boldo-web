@@ -76,6 +76,7 @@ const TableOfStudies = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadError, setLoadError] = useState<boolean>(false)
   const [categorySelected, setCategorySelected] = useState<Categories>('')
+  const [pageSize, setPageSize] = useState<number>(5)
   const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
     id: '',
     loading: false,
@@ -202,6 +203,7 @@ const TableOfStudies = (props: Props) => {
           let url = '/profile/doctor/serviceRequests'
           // console.log(query.orderDirection)
           setIsLoading(true)
+          setPageSize(query.pageSize)
           await axios
             .get(url, {
               params: {
@@ -269,7 +271,7 @@ const TableOfStudies = (props: Props) => {
         maxBodyHeight: "340px",
         overflowY: "auto",
         padding: "dense",
-        pageSize: 5,
+        pageSize: pageSize,
         pageSizeOptions: [3, 5, 8, 10],
         toolbar: false,
         search: false,
