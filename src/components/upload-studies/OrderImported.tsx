@@ -280,9 +280,15 @@ const OrderImported = (props: Props) => {
       <DeleteConfirm showModal={showModal} setShowModal={setShowModal} confirmDelete={confirmDelete} msg={deleteMessage} />
       {/* the order was imported */}
       <div className='flex flex-row justify-between border-b-2'>
-        <p className='not-italic font-medium text-base leading-6'>
-          Orden {OrderImported?.orderNumber && `Nro ${OrderImported.orderNumber} `}seleccionada
-        </p>
+        { OrderImported?.orderNumber &&
+          <p className='not-italic font-medium text-base leading-6'>
+            {
+              OrderImported?.orderNumber === 'studyOrderMain'
+                ? 'Número de orden no definido' 
+                : `Orden ${OrderImported?.orderNumber && `Nro ${OrderImported.orderNumber} `}seleccionada`
+            }
+          </p>
+        }
         <button
           className='focus:outline-none'
           onClick={() => {
