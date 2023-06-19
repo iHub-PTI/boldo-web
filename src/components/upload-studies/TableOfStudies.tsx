@@ -194,7 +194,7 @@ const TableOfStudies = (props: Props) => {
           field: "orderNumber",
           sorting: false,
           title: "Nro Orden",
-          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber}</p>,
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber === 'studyOrderMain' ? 'No definido' : rowData.orderNumber}</p>,
           width: "5%"
         }
       ]}
