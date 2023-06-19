@@ -28,7 +28,7 @@ type Presigned = {
   location: string;
 }
 
-export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean}
+export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean} & {sourceType: string} & {gender?: string}
 
 
 const OrderImported = (props: Props) => {
@@ -197,9 +197,11 @@ const OrderImported = (props: Props) => {
   useEffect(() => {
     if (OrderImported) {
       setAttachmentFiles(new DataTransfer().files)
+      let gender = OrderImported?.doctor?.gender ?? 'empty'
       // one diagnostic report per sources
       OrderImported?.diagnosticReports?.forEach((report) => {
         let source = report?.source ?? ''
+        let sourceType = report?.sourceType ?? ''
         let date = report?.effectiveDate ?? ''
         // list of attachment url
         report?.attachmentUrls?.forEach((attachment) => {
@@ -209,6 +211,8 @@ const OrderImported = (props: Props) => {
             url: attachment?.url ?? '',
             date: date,
             source: source,
+            sourceType: sourceType,
+            gender: sourceType === 'Practitioner' ? gender : 'empty',
             new: false
           })
           filesToShow.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
