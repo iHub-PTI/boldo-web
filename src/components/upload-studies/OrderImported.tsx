@@ -50,7 +50,7 @@ const OrderImported = (props: Props) => {
     "": "OTHER"
   }
 
-  const deleteMessage = '¿ Está seguro que quiere eliminar la orden de estudio seleccionada ?'
+  const deleteMessage = '¿ Está seguro que quiere anular la importación de la orden ?'
 
   const handleSearchClick = () => {
     searchRef.current.click()
