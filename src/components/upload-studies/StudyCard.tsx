@@ -20,8 +20,8 @@ type Props = {
 const StudyCard = ( props: Props ) => {
   const {file, index} = props
   const {attachmentFiles ,setAttachmentFiles} = useContext(AttachmentFilesContext)
-
   const [showModal, setShowModal] = useState<boolean>(false)
+
 
   const handleFileDelete = (index: number) => {
     // define the array of exitsting files
@@ -79,7 +79,7 @@ const StudyCard = ( props: Props ) => {
         { !(file instanceof File) &&
           <div className='flex flex-row items-center space-x-1'>
             {/* source */}
-            <p className='not-italic font-medium text-xs leading-4'>{file?.source !== '' ? `Subido por ${toUpperLowerCase(file.source)}` : 'Nombre desconocido'}</p>
+            <p className='not-italic font-medium text-xs leading-4'>{file?.source !== '' ? `Subido por ${file.sourceType === 'Practitioner' ? file.gender === 'female' ? 'Dra.' : 'Dr.' : ''} ${toUpperLowerCase(file.source)}` : 'Nombre desconocido'}</p>
             {/* date */}
             <p className='not-italic font-medium text-xs leading-4'>{file?.date !== '' ? `${moment(file.date).format('DD/MM/YYYY')}` : 'Fecha desconocida'}</p>
           </div>
