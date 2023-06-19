@@ -151,7 +151,7 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
   const patientId = appointment.patient.id
   const { gender } = appointment.patient
   //rectrict medical history
-  const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
+  const isEditable = appointment.status === 'closed' || appointment.status === 'open'
   //console.log(isEditable, appointment.status)
   const organizationId = appointment.organization.id
   const appointmentId = appointment.id
@@ -389,7 +389,12 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
             <div className='flex flex-col w-full gap-7 mb-5 pl-3 pr-3'>
               {/* Section procedures */}
               <CardList
-                TitleElement={() => <div className='font-medium text-base text-primary-500'>Procedimientos</div>}
+                TitleElement={() =>
+                  <div>
+                    <div className='font-medium text-base text-primary-500'>Procedimientos</div>
+                    {isEditable && <span className='text-color-disabled text-xs'>Ej: Cirugía de apendicitis, Colonoscopia, etc.</span>}
+                  </div>
+                }
                 dataList={dataHistory?.personal?.procedures ?? []}
                 inputTypeWith="date"
                 url={urls.procedures}
