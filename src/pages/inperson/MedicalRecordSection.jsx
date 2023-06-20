@@ -24,7 +24,8 @@ const Soep = {
 }
 
 const soepPlaceholder = {
-  Subjetivo: 'Los datos referidos por el paciente, son datos descriptivos: AREA, AEA.',
+  Subjetivo:
+    'Los datos referidos por el paciente son datos descriptivos, como los Antecedentes Remotos de la Enfermedad Actual (AREA) y los Antecedentes de la Enfermedad Actual (AEA).',
   Objetivo:
     'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
   Evaluacion: 'Impresión diagnóstica o presunción diagnóstica.',
@@ -570,7 +571,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             Notas Médicas
           </Typography>
           <Typography variant='body2' color='textSecondary'>
-            SOEP
+            Subjetivo Objetivo Evaluación Plan (SOEP)
           </Typography>
         </Grid>
 
