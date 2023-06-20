@@ -10,8 +10,9 @@ import { TemplateStudies } from './types'
 import { CreateStudyTemplate } from './CreateStudyTemplate'
 import { EditStudyTemplate } from './EditStudyTemplate'
 import axios from 'axios'
-import * as Sentry from '@sentry/react'
 import { useToasts } from '../../Toast'
+import handleSendSentry from '../../../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../../../util/Sentry/errorHeaders'
 
 export const StudiesTemplate = ({ show, setShow, ...props }) => {
   const { orders, setOrders, indexOrder } = useContext(CategoriesContext)
@@ -115,23 +116,11 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
         setEmptyTemp(true)
       }
     } catch (err) {
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'GET')
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": "GET"
       }
-      Sentry.captureMessage("Could not get the study order templates")
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_GET, tags)
       addToast({
         type: 'error',
         title: 'Ha ocurrido un error',

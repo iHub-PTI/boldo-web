@@ -10,7 +10,8 @@ import ConfirmationTemplate from './ConfirmationTemplate'
 import { useToasts } from '../../Toast'
 import axios from 'axios'
 import { CategoriesContext } from '../Provider'
-import * as Sentry from '@sentry/react'
+import handleSendSentry from '../../../util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from '../../../util/Sentry/errorHeaders'
 
 export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }) => {
   const study = studies.find(data => data.id === id)
@@ -155,23 +156,11 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
         addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido editada con exito!' })
       }
     } catch (err) {
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'PUT')
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": "PUT"
       }
-      Sentry.captureMessage("Could not update the study order template")
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_PUT, tags)
       addToast({
         type: 'error',
         title: 'Ha ocurrido un error.',
@@ -201,23 +190,11 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
       addToast({ type: 'success', title: 'Notificación', text: '¡La plantilla ha sido eliminada con exito!' })
     } catch (err) {
       // console.log(err)
-      Sentry.setTag('endpoint', url)
-      Sentry.setTag('method', 'PUT')
-      if (err.response) {
-        // The response was made and the server responded with a 
-        // status code that is outside the 2xx range.
-        Sentry.setTag('data', err.response.data)
-        Sentry.setTag('headers', err.response.headers)
-        Sentry.setTag('status_code', err.response.status)
-      } else if (err.request) {
-        // The request was made but no response was received
-        Sentry.setTag('request', err.request)
-      } else {
-        // Something happened while preparing the request that threw an Error
-        Sentry.setTag('message', err.message)
+      const tags = {
+        "endpoint": url,
+        "method": "PUT"
       }
-      Sentry.captureMessage("Could not delete the study order template")
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_DELETE, tags)
       setLoading(false)
       addToast({
         type: 'error',

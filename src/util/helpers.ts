@@ -1,6 +1,8 @@
 import moment from 'moment'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
+import handleSendSentry from './Sentry/sentryHelper'
+import { ERROR_HEADERS } from './Sentry/errorHeaders'
 
 export const validateDate = (dateInput: string, pastOrFuture?: 'past' | 'future') => {
   try {
@@ -34,8 +36,7 @@ export const validateOpenHours = (openHours: Boldo.OpenHours) => {
       }
     }
   } catch(err) {
-    Sentry.captureMessage('Could not validate open hours')
-    Sentry.captureException(err)
+    handleSendSentry(err, ERROR_HEADERS.OPEN_HOURS.FAILURE_VALIDATE)
     return false
   }
   return true

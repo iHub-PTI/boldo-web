@@ -18,8 +18,13 @@ import * as Sentry from "@sentry/react";
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
 import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
+import OrderStudyImportedProvider from './contexts/OrderImportedContext'
+import AttachmentFilesProvider from './contexts/AttachmentFiles'
 import { changeHours } from './util/helpers'
 import Provider from './components/studiesorder/Provider'
+import handleSendSentry from './util/Sentry/sentryHelper'
+import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
+import TermsOfService from './components/TermsOfService'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
@@ -35,14 +40,18 @@ export const UserContext = createContext<{
 })
 
 const App = () => {
-  const [user, setUser] = useState<Boldo.Doctor | undefined>()
-  const [error, setError] = useState(false)
+
+  const ALLOWED_ROUTES = ["/boldo-app-privacy-policy", "/boldo-app-terms-of-service", "/download"];
+
+  const [user, setUser] = useState<Boldo.Doctor | undefined>();
+  const [error, setError] = useState(false);
+
   // Context API Organization Boldo MultiOrganization
-  const { setOrganization } = useContext(OrganizationContext)
-  const { setOrganizations } = useContext(AllOrganizationContext)
+  const { setOrganization } = useContext(OrganizationContext);
+  const { setOrganizations } = useContext(AllOrganizationContext);
 
   useEffect(() => {
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       axios.interceptors.response.use(
         response => response,
         async error => {
@@ -65,7 +74,7 @@ const App = () => {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', error.message)
           }
-          Sentry.captureException(error)
+          if (error?.response?.status !== 401) Sentry.captureException(error)
           return Promise.reject(error)
         }
       )
@@ -84,30 +93,14 @@ const App = () => {
         Sentry.setUser({ id: res.data.id })
       } catch (err) {
         console.log(err)
-        Sentry.setTag("endpoint", url);
-        Sentry.setTag("method_used", "GET")
-        if (err.response) {
-          // La respuesta fue hecha y el servidor respondió con un código de estado
-          // que esta fuera del rango de 2xx
-          Sentry.setTag('data', err.response.data);
-          Sentry.setTag('headers', err.response.headers);
-          Sentry.setTag('status_code', err.response.status);
-        } else if (err.request) {
-          // La petición fue hecha pero no se recibió respuesta
-          Sentry.setTag('request', err.request);
-          console.log(err.request);
-        } else {
-          // Algo paso al preparar la petición que lanzo un Error
-          Sentry.setTag('message', err.message);
-          console.log('Error', err.message);
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
         }
-        Sentry.captureMessage("could not get the profile of the doctor")
-        Sentry.captureException(err)
-        // here the error is critical, therefore we show the Error component
-        if (err?.response?.status !== 401) setError(true)
+        handleSendSentry(err, ERROR_HEADERS.DOCTOR.FAILURE_GET_PROFILE, tags)
       }
     }
-    if (window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') {
+    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       effect()
     } else {
       setError(false)
@@ -133,24 +126,11 @@ const App = () => {
     })
     .catch(function (err) {
       console.log("when obtain organizations ", err);
-      Sentry.setTag("endpoint", url);
-      if (err.response) {
-        // La respuesta fue hecha y el servidor respondió con un código de estado
-        // que esta fuera del rango de 2xx
-        Sentry.setTag('data', err.response.data);
-        Sentry.setTag('headers', err.response.headers);
-        Sentry.setTag('status_code', err.response.status);
-      } else if (err.request) {
-        // La petición fue hecha pero no se recibió respuesta
-        Sentry.setTag('request', err.request);
-        console.log(err.request);
-      } else {
-        // Algo paso al preparar la petición que lanzo un Error
-        Sentry.setTag('message', err.message);
-        console.log('Error', err.message);
+      const tags = {
+        "endpoint": url,
+        "method": "GET"
       }
-      Sentry.captureMessage('Could not get organizations')
-      Sentry.captureException(err)
+      handleSendSentry(err, ERROR_HEADERS.ORGANIZATION.FAILURE_GET, tags)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -160,7 +140,7 @@ const App = () => {
   }
 
   if (error) return <Error />
-  if (!user && window.location.pathname !== "/boldo-app-privacy-policy" && window.location.pathname !== '/download') return <div className='h-1 fakeload-15 bg-primary-500' />
+  if (!user && !ALLOWED_ROUTES.includes(window.location.pathname)) return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <ToastProvider>
@@ -194,7 +174,11 @@ const App = () => {
                 <Route exact path='/appointments/:id/inperson'>
                   <PrescriptionContextProvider>
                     <Provider>
-                      <InPersonAppoinment />
+                      <OrderStudyImportedProvider>
+                        <AttachmentFilesProvider>
+                          <InPersonAppoinment />
+                        </AttachmentFilesProvider>
+                      </OrderStudyImportedProvider>
                     </Provider>
                   </PrescriptionContextProvider>
                 </Route>
@@ -202,6 +186,10 @@ const App = () => {
                 <Route exact path='/boldo-app-privacy-policy'>
                   <PrivacyPolicy />
                 </Route>
+
+                <Route exact path='/boldo-app-terms-of-service'>
+                  <TermsOfService />
+                </Route>                
 
                 <Route exact path='/download'>
                   <Download />
@@ -335,26 +323,12 @@ export const RoomsProvider: React.FC = ({ children }) => {
         }
       })
       .catch((err) => {
-        Sentry.setTags({
-          'endpoint': url,
-          'method': 'GET',
-          'org_id': Organization.id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
+        const tags = {
+          "endpoint": url,
+          "method": "GET",
+          "org_id": `${Organization.id}`
         }
-        Sentry.captureMessage("Could not get appointments for waiting room")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT, tags)
       })
     }
 

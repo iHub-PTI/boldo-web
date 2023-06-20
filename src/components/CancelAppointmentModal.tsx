@@ -3,7 +3,8 @@ import React from "react"
 import Modal from "./Modal"
 import { useHistory } from 'react-router-dom'
 import { useToasts } from "./Toast"
-import * as Sentry from '@sentry/react'
+import handleSendSentry from "../util/Sentry/sentryHelper"
+import { ERROR_HEADERS } from "../util/Sentry/errorHeaders"
 
 
 const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
@@ -44,23 +45,12 @@ const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
                                 }
 
                             } catch (err) {
-                                Sentry.setTag('endpoint', url)
-                                Sentry.setTag('method', 'POST')
-                                if (err.response) {
-                                // The response was made and the server responded with a 
-                                // status code that is outside the 2xx range.
-                                Sentry.setTag('data', err.response.data)
-                                Sentry.setTag('headers', err.response.headers)
-                                Sentry.setTag('status_code', err.response.status)
-                                } else if (err.request) {
-                                // The request was made but no response was received
-                                Sentry.setTag('request', err.request)
-                                } else {
-                                // Something happened while preparing the request that threw an Error
-                                Sentry.setTag('message', err.message)
+                                const tags = {
+                                    "endpoint": url,
+                                    "method": "POST",
+                                    "appointment-id": `${appointmentId}`
                                 }
-                                Sentry.captureMessage("Could not delete the appointment")
-                                Sentry.captureException(err)
+                                handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_CANCEL, tags)
                                 addToast({ 
                                     type: 'error', 
                                     title: 'Ha ocurrido un error.', 

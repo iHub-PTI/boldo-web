@@ -43,6 +43,15 @@ export interface Organization {
   colorCode: string
 }
 
+// organization for study update
+export interface OrganizationInOrderStudy {
+  active: boolean,
+  id: string,
+  name: string,
+  type: string,
+  typeList: string[]
+}
+
 export interface Encounter {
   appointmentId?:   string;
   diagnosis?:       string;
@@ -90,4 +99,43 @@ export interface Soep {
   objective?:  string;
   plan?:       string;
   subjective?: string;
+}
+
+export interface OrderStudy {
+  authoredDate?: string
+  category?: string
+  diagnosis?: string
+  diagnosticReports?: DiagnosticReport[]
+  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }
+  encounterId?: string
+  id?: string
+  identifier?: string
+  orderNumber?: string
+  organization?: OrganizationInOrderStudy
+  studiesCodes?: StudiesCode[]
+  urgent?: boolean
+  notes?: string
+}
+
+export interface DiagnosticReport {
+  attachmentNumber?: string
+  attachmentUrls?: AttachmentUrl[]
+  category?: string
+  description?: string
+  effectiveDate?: string
+  id?: string
+  patientId?: string
+  source?: string
+  sourceID?: string
+  sourceType?: string
+}
+
+export interface AttachmentUrl {
+  contentType?: string
+  title?: string
+  url?: string
+}
+
+export interface StudiesCode {
+  display: string
 }
