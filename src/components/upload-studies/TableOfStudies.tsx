@@ -20,6 +20,7 @@ import KeyboardArrowUpIcon from '../icons/upload-icons/KeyboardArrowUpIcon';
 import ImportIcon from '../icons/upload-icons/ImportIcon';
 import { ReactComponent as SpinnerLoading } from "../../assets/spinner-loading.svg";
 import RetryRowsData from './RetryRowsData';
+import { Tooltip, makeStyles } from '@material-ui/core';
 
 
 type Props = {
@@ -76,6 +77,7 @@ const TableOfStudies = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadError, setLoadError] = useState<boolean>(false)
   const [categorySelected, setCategorySelected] = useState<Categories>('')
+  const [pageSize, setPageSize] = useState<number>(5)
   const [loadingOrderImported, setLoadingOrderImported] = useState<loaderRowData>({
     id: '',
     loading: false,
@@ -84,6 +86,13 @@ const TableOfStudies = (props: Props) => {
 
   //table ref
   const tableRef = useRef(null)
+
+  // space bewteen button and tooltip
+  const useTooltipStyles = makeStyles(() => ({
+    tooltip: {
+      margin: 5,
+    },
+  }))
 
   const getOrderStudyImported = (rowData) => {
 
@@ -141,13 +150,20 @@ const TableOfStudies = (props: Props) => {
         Action: props => {
           // console.log(props)
           return (
-            <button
-              className='focus:outline-none'
-              onClick={(event) => props.action.onClick(event, props.data)}
-              title='Importar orden de estudios'
+            <Tooltip
+              title={<h1 style={{ fontSize: 14 }}>Importar orden de estudios</h1>}
+              placement="right" 
+              leaveDelay={100}
+              classes={useTooltipStyles()}
             >
-              {loadingOrderImported.loading && props.data.id === loadingOrderImported.id ? <SpinnerLoading /> : <ImportIcon />}
-            </button>
+              <button
+                className='focus:outline-none'
+                onClick={(event) => props.action.onClick(event, props.data)}
+                // title='Importar orden de estudios'
+              >
+                {loadingOrderImported.loading && props.data.id === loadingOrderImported.id ? <SpinnerLoading /> : <ImportIcon />}
+              </button>
+            </Tooltip>
           )
         },
         OverlayError: () => loadError ? <RetryRowsData loadRef={tableRef} /> : <></>
@@ -193,7 +209,7 @@ const TableOfStudies = (props: Props) => {
           field: "orderNumber",
           sorting: false,
           title: "Nro Orden",
-          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber}</p>,
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber === 'studyOrderMain' ? 'No definido' : rowData.orderNumber}</p>,
           width: "5%"
         }
       ]}
@@ -202,6 +218,7 @@ const TableOfStudies = (props: Props) => {
           let url = '/profile/doctor/serviceRequests'
           // console.log(query.orderDirection)
           setIsLoading(true)
+          setPageSize(query.pageSize)
           await axios
             .get(url, {
               params: {
@@ -269,7 +286,7 @@ const TableOfStudies = (props: Props) => {
         maxBodyHeight: "340px",
         overflowY: "auto",
         padding: "dense",
-        pageSize: 5,
+        pageSize: pageSize,
         pageSizeOptions: [3, 5, 8, 10],
         toolbar: false,
         search: false,

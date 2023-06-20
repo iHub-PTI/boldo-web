@@ -27,7 +27,7 @@ const DeleteConfirm = (props: Props) => {
           className='not-italic font-normal text-lg leading-5'
           style={{color: '#364152'}}
         >
-            {msg ?? '¿ Está seguro que desea eliminar ?'}
+            {msg ?? '¿ Está seguro que desea anular ?'}
         </p>
         {/* action buttoms */}
         <div className='flex flex-row justify-between'>
@@ -58,7 +58,7 @@ const DeleteConfirm = (props: Props) => {
               className='not-italic font-medium text-base leading-6 text-white'
               style={{letterSpacing: '0.15px'}}
             >
-              Sí, eliminar
+              sí, anular
             </p>
           </button>
         </div>
