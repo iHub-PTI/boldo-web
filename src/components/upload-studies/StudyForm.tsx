@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Transition } from '@headlessui/react';
-import { AttachmentFilesFormContext } from '../../contexts/AttachmentFilesForm'; 
+import { AttachmentFilesFormContext } from '../../contexts/AttachmentFilesForm';
+import { useToasts } from '../Toast';
 import InputTextField from './InputTextField'
 import DatePicker, { registerLocale } from "react-datepicker"
 import es from "date-fns/locale/es"
@@ -38,6 +39,7 @@ const StudyForm = (props:Props) => {
   const [selectedValue, setSelectedValue] = useState<Item>(defaultValue)
   // this reference we use to simulate the click on the custom button
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const {addToast} = useToasts()
 
   // this function handle any change in date from calendar
   const handleDateChange = (dateSelected) => {
@@ -97,12 +99,23 @@ const StudyForm = (props:Props) => {
     return renderedFiles;
   }
 
+  const handleSubmit = ():boolean => {
+    let formInvalid = false
+
+    if (inputName === '') addToast({type:'warning', title:'Atención!', text:'El nombre del estudio es un campo requerido.'})
+    if (!inputDate) addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la fecha de realización del estudio.'})
+    if (selectedValue.value === '') addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la categoría del estudio.'})
+    if (attachmentFilesForm.length === 0) addToast({type:'warning', title:'Atención', text:'Debe adjuntar al menos un estudio.'})
+
+    return formInvalid
+  }
+
   // this hook handle the actions when save is clicked
   useEffect(() => {
     const button = saveRef.current
 
     const handleButtonClick = () => {
-
+      handleSubmit()
     }
 
     if (button) {
@@ -114,7 +127,7 @@ const StudyForm = (props:Props) => {
         button.removeEventListener('click', handleButtonClick)
       }
     }
-  }, [saveRef, attachmentFilesForm])
+  }, [saveRef, attachmentFilesForm, inputDate, inputName, inputNotes, selectedValue])
 
   return (
     <div className='flex flex-col space-y-8 p-5'>
