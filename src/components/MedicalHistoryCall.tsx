@@ -184,7 +184,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
         {/* Personal */}
         <div className='flex flex-row flew-no-wrap w-full'>
           <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
-            <span className='flex flex-row font-medium text-cool-gray-700 tracking-wide gap-2'>
+            <span className='flex flex-row font-bold text-cool-gray-700 tracking-wide gap-2 text-lg'>
               <PersonOutline fill={"#364152"} />
               Personal
             </span>
@@ -252,7 +252,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
           <CardList
             TitleElement={() => <div>
               <div className='font-medium text-base text-orange-dark'>Procedimientos</div>
-              {isEditable && <span className='text-color-disabled text-xs'>Ej: Cirugía de apendicitis, Colonoscopia, etc.</span>}
+              {isEditable && <span className='text-white text-xs'>Ej: Apendicectomía, Colonoscopia, etc.</span>}
             </div>
             }
             dataList={dataHistory?.personal?.procedures ?? []}
@@ -296,7 +296,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
         <div className='flex flex-col items-center w-full gap-3 pb-5'>
           <div className='flex flex-row flew-no-wrap w-full'>
             <div className='flex flew-row flex-no-wrap w-full border-l-4 h-10 px-6 items-center rounded-r-md' style={{ backgroundColor: '#f7f4f4', borderColor: '#FFFFFF' }}>
-              <span className='flex flex-row gap-2 font-medium text-cool-gray-700 tracking-wide'>
+              <span className='flex flex-row gap-2 font-bold text-cool-gray-700 tracking-wide text-lg'>
                 <FamilyIcon fill={"#364152"} />
                 Familiar
               </span>

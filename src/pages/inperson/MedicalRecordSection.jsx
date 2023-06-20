@@ -25,7 +25,7 @@ const Soep = {
 
 const soepPlaceholder = {
   Subjetivo:
-    'Los datos referidos por el paciente, son datos descriptivos: AREA (Antecedentes Remotos de la Enfermedad Actual), AEA (Antecedentes de la Enfermedad Actual).',
+    'Los datos referidos por el paciente son datos descriptivos, como los Antecedentes Remotos de la Enfermedad Actual (AREA) y los Antecedentes de la Enfermedad Actual (AEA).',
   Objetivo:
     'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
   Evaluacion: 'Impresión diagnóstica o presunción diagnóstica.',
