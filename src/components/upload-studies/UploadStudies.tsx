@@ -156,7 +156,7 @@ const UploadStudies = (props: Props) => {
           }
           { showNewStudyWithoutOrder &&
             <div style={{width: "95%"}}>
-              <StudyForm saveRef={saveButtonRef} />
+              <StudyForm saveRef={saveButtonRef} patientId={patientId} setLoadingSubmit={setLoadingSubmit} />
             </div>
           }
         </div>

@@ -23,7 +23,7 @@ type Props = {
   searchRef: React.MutableRefObject<HTMLInputElement>;
 }
 
-type Presigned = {
+export type Presigned = {
   uploadUrl: string;
   location: string;
 }

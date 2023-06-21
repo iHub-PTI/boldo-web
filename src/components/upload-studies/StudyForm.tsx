@@ -14,10 +14,16 @@ import ListboxCustom, { Item } from './ListboxCustom';
 import { ReactComponent as OtherIcon } from "../../assets/icon-other.svg";
 import { ReactComponent as ImgIcon } from "../../assets/img-icon.svg";
 import { ReactComponent as LabIcon } from "../../assets/laboratory-icon.svg";
+import { Presigned } from './OrderImported';
+import axios from 'axios';
+import handleSendSentry from '../../util/Sentry/sentryHelper';
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
 registerLocale("es", es)
 
 type Props = {
   saveRef: React.MutableRefObject<HTMLButtonElement>;
+  patientId: string;
+  setLoadingSubmit: (loading: boolean) => void;
 }
 
 const defaultValue = {value:'', name:'Categoría'} as Item
@@ -30,7 +36,7 @@ const Categories = [
 ]
 
 const StudyForm = (props:Props) => {
-  const { saveRef } = props
+  const { saveRef, patientId, setLoadingSubmit } = props
   const { attachmentFilesForm, setAttachmentFilesForm } = useContext(AttachmentFilesFormContext)
   const [inputName, setInputName] = useState<string>('')
   const [inputNotes, setInputNotes] = useState<string>('')
@@ -99,13 +105,113 @@ const StudyForm = (props:Props) => {
     return renderedFiles;
   }
 
+  const getUploadUrl = (): Promise<Presigned> => {
+    let url = '/presigned'
+
+    return new Promise(async (resolve, reject) => {
+      await axios
+        .get(url)
+        .then((res) => {
+          resolve(res.data)
+        })
+        .catch((err) => {
+          const tags = {
+            'endpoint': url,
+            'method': 'GET'
+          }
+          handleSendSentry(err, ERROR_HEADERS.PRESIGNED.FAILURE_GET, tags)
+          reject({} as Presigned)
+        })
+    })
+  }
+
+  const uploadFile = (file: File, presigned: Presigned): Promise<Boldo.AttachmentUrl | null> => {
+
+    if (!presigned) return null
+    return new Promise((resolve, reject) => {
+      axios
+      .put(presigned?.uploadUrl ?? '', file, {
+        withCredentials: false,
+        headers: { 'Content-Type': file.type, authentication: null }
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          resolve({
+            contentType: file.type,
+            // title: file.name,
+            url: presigned.location
+          })
+        } else if (res.status === 413) {
+          // the file is bigger than 10MB
+          reject({} as Boldo.AttachmentUrl)
+        }
+      })
+      .catch((err) => {
+        const tags = {
+          'upload-url': presigned.uploadUrl,
+          'method': 'PUT'
+        }
+        handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
+        // console.log("ERROR IN UPLOAD FILE => ", err)
+      })
+    })
+  }
+
+  const uploadStudy = (attachmentUrls: Boldo.AttachmentUrl[]): Promise<boolean> => {
+    if (!attachmentUrls) return
+
+    let url = '/profile/doctor/diagnosticReport'
+    
+    let currentDate = inputDate;
+    let year = currentDate.getFullYear();
+    let month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    let day = String(currentDate.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+
+    return new Promise((resolve, reject) => {
+      axios
+      .post(url, {
+        attachmentUrls: attachmentUrls,
+        category: selectedValue.value ?? 'OTHER',
+        doctorNotes: inputNotes,
+        description: inputName,
+        effectiveDate: formattedDate,
+        patientId: patientId,
+      })
+      .then((res) => {
+        if (res.status === 201) resolve(true)
+      })
+      .catch((err) => {
+        const tags = {
+          'endpoint': url,
+          'method': 'POST'
+        }
+        handleSendSentry(err, ERROR_HEADERS.DIAGNOSTIC_REPORT.FAILURE_POST, tags)
+        reject(false)
+      })
+    })
+  }
+
   const handleSubmit = ():boolean => {
     let formInvalid = false
 
-    if (inputName === '') addToast({type:'warning', title:'Atención!', text:'El nombre del estudio es un campo requerido.'})
-    if (!inputDate) addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la fecha de realización del estudio.'})
-    if (selectedValue.value === '') addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la categoría del estudio.'})
-    if (attachmentFilesForm.length === 0) addToast({type:'warning', title:'Atención', text:'Debe adjuntar al menos un estudio.'})
+    if (inputName === '') {
+      formInvalid = true
+      addToast({type:'warning', title:'Atención!', text:'El nombre del estudio es un campo requerido.'})
+    }
+    if (!inputDate) {
+      formInvalid = true
+      addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la fecha de realización del estudio.'})
+    }
+    if (selectedValue.value === '') {
+      formInvalid = true
+      addToast({type:'warning', title:'Atención!', text:'Debe seleccionar la categoría del estudio.'})
+    }
+    if (attachmentFilesForm.length === 0) {
+      formInvalid = true
+      addToast({type:'warning', title:'Atención', text:'Debe adjuntar al menos un estudio.'})
+    }
 
     return formInvalid
   }
@@ -114,8 +220,34 @@ const StudyForm = (props:Props) => {
   useEffect(() => {
     const button = saveRef.current
 
-    const handleButtonClick = () => {
-      handleSubmit()
+    const handleButtonClick = async () => {
+      if(!handleSubmit()) {
+        // init the submit
+        setLoadingSubmit(true)
+
+        let attachmentUrls: Boldo.AttachmentUrl[] = []
+        
+        for (let i = 0; i < attachmentFilesForm.length; i++) {
+          let presigned: Presigned = await getUploadUrl()
+
+          const file = attachmentFilesForm[i]
+
+          let attachmentUrl = await uploadFile(file, presigned)
+
+          attachmentUrls.push(attachmentUrl)
+        }
+
+        let response = await uploadStudy(attachmentUrls)
+
+        setLoadingSubmit(false)
+        if (response) {
+          handleReset()
+          addToast({type: 'info', title: 'Operación exitosa.', text: 'Resultado adjuntado correctamente.'})
+        } else {
+          addToast({type: 'error', title: 'Ocurrió un error.', text: 'No se han podido adjuntar los estudios. Por favor, vuelva a intentarlo más tarde.'})
+        }
+        
+      }
     }
 
     if (button) {
@@ -127,7 +259,19 @@ const StudyForm = (props:Props) => {
         button.removeEventListener('click', handleButtonClick)
       }
     }
-  }, [saveRef, attachmentFilesForm, inputDate, inputName, inputNotes, selectedValue])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saveRef, fileInputRef, inputDate, inputName, inputNotes, selectedValue, attachmentFilesForm])
+
+  // this function handle the reset of the window when all inputs are completed
+  const handleReset = () => {
+    setInputName('')
+    setInputDate(null)
+    // category option
+    setSelectedValue(defaultValue)
+    setInputNotes('')
+    // reset attachmentUrls
+    setAttachmentFilesForm(new DataTransfer().files)
+  }
 
   return (
     <div className='flex flex-col space-y-8 p-5'>
