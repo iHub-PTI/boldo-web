@@ -1,5 +1,5 @@
 import { Popover, Transition } from '@headlessui/react'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ArrowBackIOS from './icons/ArrowBack-ios'
 import SearchIcon from './icons/SearchIcon'
 import FilterListIcon from './icons/filter-icons/FilterListIcon'
@@ -51,6 +51,12 @@ type Props = {
   appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization },
 }
 
+type scrollParams = {
+  total: number,
+  page: number,
+  count: number,
+}
+
 const StudyHistory: React.FC<Props> = ({
   show,
   setShow,
@@ -76,6 +82,7 @@ const StudyHistory: React.FC<Props> = ({
   const [newFirst, setNewFirst] = useState(true)
   const [withOrder, setWithOrder] = useState(undefined) // true or false or undefined
 
+
   // list of study
   const [dataStudy, setDataStudy] = useState<StudyType[]>([])
   const [loading, setLoading] = useState(false)
@@ -85,14 +92,27 @@ const StudyHistory: React.FC<Props> = ({
 
   const { width: screenWidth } = useWindowDimensions()
 
+  // scroll loading
+  const [loadingScroll, setLoadingScroll] = useState(false)
+
+  // reference to listen to scroll event
+  const scrollEvent = useRef<HTMLDivElement>()
+  const [pageParams, setPageParams] = useState<scrollParams>({
+    total: 0,
+    page: 1,
+    count: 10 //total number of results viewed
+  })
+
   const getDataStudyHistory = ({
     newFirst = true,
     currentDoctorOnly = false,
     withOrder = undefined,
-    inputContent = ''
+    inputContent = '',
+    count = pageParams.count,
+    page = 1,
   }) => {
-    let api = '/profile/doctor/studies'
-    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}
+    let api = '/profile/doctor/studyResults'
+    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoading(true)
     setSelectedStudy(null)
@@ -101,6 +121,7 @@ const StudyHistory: React.FC<Props> = ({
       .then(res => {
         if (res.status === 200) {
           setDataStudy(res.data.items)
+          setPageParams({ total: res.data.total, page, count })
         } else if (res.status === 204) {
           setDataStudy([])
         }
@@ -134,6 +155,69 @@ const StudyHistory: React.FC<Props> = ({
     }, 500),
     [currentDoctor, newFirst, withOrder]
   )
+
+  const getDataStudyHistoryScroll = ({
+    newFirst = true,
+    currentDoctorOnly = false,
+    withOrder = undefined,
+    inputContent = '',
+    count = pageParams.count,
+    page = 1,
+  }) => {
+    let api = '/profile/doctor/studyResults'
+    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
+    `
+    setLoadingScroll(true)
+    setError(null)
+    axios.get(url)
+      .then(res => {
+        if (res.status === 200) {
+          setDataStudy([...dataStudy, ...res.data.items])
+          setPageParams({ total: res.data.total, page, count })
+        } else if (res.status === 204) {
+          setDataStudy([])
+        }
+      })
+      .catch((error) => {
+        setError(error)
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        //addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
+        handleSendSentry(
+          error,
+          ERROR_HEADERS.DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY.FAILURE_GET,
+          tags
+        )
+      })
+      .finally(() => {
+        setLoadingScroll(false)
+      });
+  }
+
+
+  const onScrollEnd = () => {
+    if (loading) return
+    if (pageParams.page + 1 > Math.ceil(pageParams.total / pageParams.count)) return
+    if (scrollEvent.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollEvent.current
+      if (Math.trunc(scrollTop + clientHeight) === scrollHeight) {
+        // TO SOMETHING HERE
+        getDataStudyHistoryScroll({
+          newFirst: newFirst,
+          count: pageParams.count,
+          inputContent: inputContent,
+          currentDoctorOnly: currentDoctor,
+          page: pageParams.page + 1,
+          withOrder: withOrder
+        })
+      }
+      //console.log("🚀 scrollTop + clientHeight", scrollTop + clientHeight)
+      //console.log("🚀 scrollHeight", scrollHeight)
+
+    }
+  }
 
   useEffect(() => {
     if (!show) return
@@ -270,7 +354,10 @@ const StudyHistory: React.FC<Props> = ({
             style={{
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 385 : 287}px)`,
               minWidth: '280px'
-            }}>
+            }}
+            ref={scrollEvent}
+            onScroll={() => onScrollEnd()}
+          >
 
             {loading &&
               <div className='flex flex-row h-52 items-center justify-center'>
@@ -590,7 +677,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
     <div className={`flex flex-col p-2 group ${isSelectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
         width: '250px',
-        height: '171px',
+        maxHeight: '171px',
         gap: '10px',
         transition: 'background-color 0.3s ease-out',
         cursor: 'pointer'
@@ -604,35 +691,6 @@ const CardStudy: React.FC<PropsCardStudy> = (
           style={{ fontSize: '20px' }}
         >{study?.category}</h2>
       </div>
-
-
-      {/* Studies added */}
-      {study?.type === STUDY_TYPE.WITH_ORDER ?
-        <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
-      ${isSelectecStudy ? 'bg-primary-100 text-green-darker' :
-            'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
-              width: '164px',
-              height: '26px',
-              borderRadius: '1000px',
-              lineHeight: '16px',
-              letterSpacing: '0.1px',
-              transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
-
-            }}>
-          {`${study?.diagnosticReportAttachmentCount} resultados añadidos`}
-        </div> :
-        <div className={`flex flex-row px-1 py-2 text-gray-500 text-sm items-center 
-        ${isSelectecStudy ? 'text-green-darker' : 'group-hover:text-green-darker'}`} style={{
-            width: '164px',
-            height: '26px',
-            lineHeight: '16px',
-            letterSpacing: '0.1px',
-            transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
-
-          }}>
-          Sin orden asociada
-        </div>
-      }
 
       {/* study container */}
       <div className='flex flex-col gap-1 w-56'>
@@ -933,13 +991,13 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
                 {studyOrder?.effectiveDate && countDays(studyOrder?.effectiveDate)}
               </div>
             </div>
-            <div className='flex flex-row justify-end'>
+            {/* <div className='flex flex-row justify-end'>
               <div className='flex flex-row justify-end w-full'>
                 <div className='text-orange-dark focus:outline-none text-sm'>
                   Sin orden asociada
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
