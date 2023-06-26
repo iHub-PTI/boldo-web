@@ -71,7 +71,7 @@ export const toUpperLowerCase = (sentence: string) => {
       return firstLetter + restOfWord;
     })
     .join(' ');
-};
+}
 
 //count the days @days: the days is string with format inlcude 'T'
 export const countDays = (days: string | undefined) => {

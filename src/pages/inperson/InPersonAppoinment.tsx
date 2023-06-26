@@ -17,7 +17,7 @@ import { AllOrganizationContext } from '../../contexts/Organizations/organizatio
 import { getColorCode } from '../../util/helpers';
 import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
-import StudyHistory from '../../components/StudyHistory';
+import StudyHistory from '../../components/history-study-order/StudyHistory';
 import UploadStudies from '../../components/upload-studies/UploadStudies';
 
 
