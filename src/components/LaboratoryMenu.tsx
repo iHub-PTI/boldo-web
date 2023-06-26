@@ -49,7 +49,7 @@ import StudyOrder from "./studiesorder/StudyOrder";
 // import Provider from "./studiesorder/Provider";
 import { TIME_TO_OPEN_APPOINTMENT, HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
-import { countDays } from "../util/helpers";
+import { countDays, toUpperLowerCase } from "../util/helpers";
 import handleSendSentry from "../util/Sentry/sentryHelper";
 import { ERROR_HEADERS } from "../util/Sentry/errorHeaders";
 
@@ -503,7 +503,8 @@ export function LaboratoryMenu(props) {
           {
             title: "Fuente",
             field: "source",
-            sorting: false
+            sorting: false,
+            render: rowData => toUpperLowerCase(rowData.source) 
           },
         ]}
         // eslint-disable-next-line eqeqeq
