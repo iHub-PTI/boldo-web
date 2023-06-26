@@ -32,7 +32,7 @@ import StudyOrder from "./studiesorder/StudyOrder";
 // import Provider from "./studiesorder/Provider";
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
-import { countDays } from "../util/helpers";
+import { countDays, toUpperLowerCase } from "../util/helpers";
 import { useRouteMatch } from "react-router-dom";
 import handleSendSentry from "../util/Sentry/sentryHelper";
 import { ERROR_HEADERS } from "../util/Sentry/errorHeaders";
@@ -572,7 +572,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                         </Typography>
 
                                         <Typography variant='body2' color='textSecondary'>
-                                            {item.source}
+                                            {toUpperLowerCase(item.source)}
                                         </Typography>
                                     </Grid>
                                 ))
