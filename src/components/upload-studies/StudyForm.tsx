@@ -292,7 +292,7 @@ const StudyForm = (props:Props) => {
             onClick={handleClick}
           >
             <div className='flex flex-row space-x-2'>
-              {moment(inputDate ?? new Date()).format('DD-MM-YYYY') }
+              {inputDate ? moment(inputDate).format('DD-MM-YYYY') : 'Establecer fecha' }
               <DateRange />
             </div>
           </button>
