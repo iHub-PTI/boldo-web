@@ -33,6 +33,7 @@ import { ReactComponent as Spinner } from "../assets/spinner.svg";
 import Modal from './Modal'
 import CloseIcon from '@material-ui/icons/Close';
 import NotesIcon from './icons/NotesIcon'
+import loadGif from '../assets/loading.gif'
 
 type StudyType = {
   authoredDate?: string;
@@ -112,7 +113,7 @@ const StudyHistory: React.FC<Props> = ({
     page = 1,
   }) => {
     let api = '/profile/doctor/studyResults'
-    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
+    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoading(true)
     setSelectedStudy(null)
@@ -213,9 +214,6 @@ const StudyHistory: React.FC<Props> = ({
           withOrder: withOrder
         })
       }
-      //console.log("🚀 scrollTop + clientHeight", scrollTop + clientHeight)
-      //console.log("🚀 scrollHeight", scrollHeight)
-
     }
   }
 
@@ -349,7 +347,7 @@ const StudyHistory: React.FC<Props> = ({
           />
         </div>
         {/* body */}
-        <div className='flex flex-row overflow-x-visible' style={{ minWidth: '720px' }}>
+        <div className='flex flex-row overflow-x-visible overflow-y-hidden relative' style={{ minWidth: '720px' }}>
           <div className="flex flex-col w-80 px-4 py-2 overflow-y-auto overflow-x-hidden scrollbar"
             style={{
               height: `calc(100vh - ${WIDTH_XL > screenWidth ? 385 : 287}px)`,
@@ -363,8 +361,6 @@ const StudyHistory: React.FC<Props> = ({
               <div className='flex flex-row h-52 items-center justify-center'>
                 <SpinnerLoading />
               </div>}
-
-
             {!loading &&
               dataStudy.map(study =>
                 <CardStudy
@@ -388,6 +384,12 @@ const StudyHistory: React.FC<Props> = ({
             }
             {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} />}
           </div>
+          <img
+            className={`${!loadingScroll && 'hidden'} absolute w-15 h-15 z-50`}
+            src={loadGif}
+            alt='loading gif'
+            style={{ bottom: '-1rem', left: '6rem' }}
+          />
         </div>
       </div>
 
@@ -669,7 +671,7 @@ const CardStudy: React.FC<PropsCardStudy> = (
         return `Subido por ${toUpperLowerCase(study.sourceName) ?? ''}`
       if (study?.sourceType === SOURCE_TYPE_STUDY.organization)
         return `Subido por la organización ${toUpperLowerCase(study.sourceName) ?? ''}`
-      return `Subido por ${toUpperLowerCase(study.sourceName) ?? ''}`
+      return `Subido por ${toUpperLowerCase(study.sourceName) ?? 'Desconocido'}`
     }
   }
 
@@ -752,10 +754,6 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  //const [studyResult, setStudyResult] = useState()
-
-  //const getDiagnosticReport = (id:string) => {}
-
   const getServiceRequest = (id) => {
     let url = '/profile/doctor/serviceRequest/' + id
     setLoading(true)
@@ -826,7 +824,6 @@ const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   if (!selectedStudy) return (
     <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
       Seleccione un estudio para mostrar
-
     </div>
   )
 
