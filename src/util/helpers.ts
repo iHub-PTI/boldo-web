@@ -56,13 +56,21 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
 }
 
 export const toUpperLowerCase = (sentence: string) => {
-  const words = sentence.split(' ')
+  const words = sentence?.split(' ')
+
+  if (!words) return ''
 
   return words
-    .map(word => {
-      return word[0].toUpperCase() + word.substring(1).toLowerCase()
+    .map((word) => {
+      if (!word) {
+        return '';
+      }
+      const firstLetter = word[0]?.toUpperCase() || '';
+      const restOfWord = word?.substring(1)?.toLowerCase() || '';
+
+      return firstLetter + restOfWord;
     })
-    .join(' ')
+    .join(' ');
 }
 
 //count the days @days: the days is string with format inlcude 'T'
