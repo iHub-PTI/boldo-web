@@ -765,21 +765,26 @@ export function LaboratoryMenu(props) {
             </Card>
           </Card>
         </Grid>
-        <Card
-          className="mt-3"
-          style={{
-            backgroundColor: '#F7FAFC',
-            borderRadius: '16px',
-            boxShadow: 'none',
-            marginBottom: '15px',
-            padding: '15px',
-            minHeight: '300px'
-          }}
-        >
-          <Typography variant='h6' noWrap style={{ padding: '20px', textAlign: 'left', color: '#6B7280' }}>
-            Conclusión
-          </Typography>
-        </Card>
+        { studyDetail?.conclusion &&
+          <Card
+            className="mt-3"
+            style={{
+              backgroundColor: '#F7FAFC',
+              borderRadius: '16px',
+              boxShadow: 'none',
+              marginBottom: '15px',
+              padding: '15px',
+              minHeight: '300px'
+            }}
+          >
+            <Typography variant='h6' noWrap style={{ padding: '20px', textAlign: 'left', color: '#6B7280' }}>
+              Conclusión
+            </Typography>
+            <Typography variant='body1' noWrap style={{ padding: '20px', textAlign: 'left', color: '#6B7280' }}>
+              {studyDetail.conclusion}
+            </Typography>
+          </Card>
+        }
         <Grid
           className="mt-15"
         >
