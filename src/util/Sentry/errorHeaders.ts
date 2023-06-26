@@ -34,6 +34,9 @@ export const ERROR_HEADERS = {
     FAILURE_GET: "Could not get the study orders.",
     FAILURE_GET_DESCRIPTION: "Could not get the study description."
   },
+  DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY :{
+    FAILURE_GET: "Could not get the study history",
+  },
   ENCOUNTER: {
     FAILURE_GET: "Could not get the encounter.",
     FAILURE_GET_IN_STUDY_ORDER: "Could not get the encounter in the creation of study order.",

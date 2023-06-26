@@ -16,6 +16,7 @@ import ArrowDown from '../../components/icons/ArrowDown'
 import differenceInYears from 'date-fns/differenceInYears'
 import handleSendSentry from '../../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import StudyHistoryIcon from '../../components/icons/StudyHistoryIcon'
 
 
 type PropsButton = {
@@ -53,9 +54,15 @@ const ButtonSlide: React.FC<PropsButton> = ({ setShow, show, disabled, IconEleme
             letterSpacing: '0.15px',
             borderBottom: '0.5px solid #E0DEDE'
           }}>
-          {title.split(' ')[0]}
-          <br />
-          {title.split(' ')[1]}
+          <span
+            style={{
+              display: 'inline-block',
+              width: '150px',
+              overflowWrap: 'break-word',
+            }}
+          >
+            {title}
+          </span>
         </div>
       </div>
     </button>
@@ -66,17 +73,30 @@ const PatientRecord = (props) => {
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '', job } = props.patient;
   //const { addErrorToast, addToast } = useToasts()
   const [transition, setTransition] = useState<boolean>(false)
-  const { status } = props.appointment
+  //const { status } = props.appointment
 
 
   const handleTransition = () => {
     setTransition(!transition)
   }
-  const handleSwitchButtonRecordOutPatient = () =>
-    props.setShowMedicalHistory(false)
 
-  const handleSwitchButtonMedicalHistory = () =>
+  //Used to disable the other buttons
+  const handleSwitchButtonRecordOutPatient = () => {
+    props.setShowMedicalHistory(false)
+    props.setShowStudiesHistory(false)
+  }
+
+  //Used to disable the other buttons
+  const handleSwitchButtonMedicalHistory = () => {
     props.setOutpatientRecordShow(false)
+    props.setShowStudiesHistory(false)
+  }
+
+  //Used to disable the other buttons
+  const handleSwitchButtonStudiesHistory = () => {
+    props.setOutpatientRecordShow(false)
+    props.setShowMedicalHistory(false)
+  }
 
   return (
     <div className='flex flex-col flex-1' style={{ padding: '15px' }}>
@@ -143,6 +163,19 @@ const PatientRecord = (props) => {
             />}
           title={'Antecedentes Clínicos'}
           callBackSwitch={handleSwitchButtonMedicalHistory}
+        />
+        <ButtonSlide
+          show={props.showStudiesHistory}
+          setShow={props.setShowStudiesHistory}
+          disabled={
+            //(status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
+          IconElement={() =>
+            <StudyHistoryIcon
+              fill={`${props.showStudiesHistory ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={'Historial de Estudios'}
+          callBackSwitch={handleSwitchButtonStudiesHistory}
         />
         <ButtonSlide
           show={props.outpatientRecordShow}
@@ -221,6 +254,8 @@ export default (props) => {
           setOutpatientRecordShow={props.setOutpatientRecordShow}
           showMedicalHistory={props.showMedicalHistory}
           setShowMedicalHistory={props.setShowMedicalHistory}
+          showStudiesHistory={props.showStudiesHistory}
+          setShowStudiesHistory={props.setShowStudiesHistory}
         /> :
         <div className='flex h-full justify-center items-center'>
           <div className='bg-gray-100 rounded-full'>
