@@ -1,16 +1,16 @@
 import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
 import React, { useState } from 'react';
+import { ReactComponent as Spinner } from "../../assets/spinner.svg";
 import handleSendSentry from "../../util/Sentry/sentryHelper";
 import Modal from '../Modal';
-import { getOrigin } from './StudyHistory';
 import { useToasts } from "../Toast";
-import { ReactComponent as Spinner } from "../../assets/spinner.svg";
 import ChevronRight from '../icons/ChevronRight';
 import EyeIcon from '../icons/EyeIcon';
 import ArrowDownWardIcon from '../icons/filter-icons/ArrowDownWardIcon';
 import PdfIcon from '../icons/study_icon/PdfIcon';
 import PictureIcon from '../icons/study_icon/PictureIcon';
+import { getOrigin } from './StudyHistory';
 
 export type AttachmentUrlType = {
   contentType: string;
@@ -80,7 +80,7 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
     <div className='flex flex-row'>
       <div className='flex flex-row gap-1 items-center'>
         {getIconFile(fileData?.contentType)}
-        <div className='ml-1 w-48 sm:w-48 md:w-48 lg:w-full font-medium text-sm truncate'
+        <div className='ml-1 w-48 sm:w-48 md:w-48 lg:w-64 font-medium text-sm truncate'
           title={fileData.title}
           style={{
             lineHeight: '17px',

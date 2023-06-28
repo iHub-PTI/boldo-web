@@ -4,19 +4,19 @@ import axios from 'axios'
 import { useRouteMatch } from 'react-router-dom'
 // import moment from 'moment'
 //import useStyles from './style'
+import { Disclosure, Transition } from '@headlessui/react'
+import differenceInYears from 'date-fns/differenceInYears'
 import { useToasts } from '../../components/Toast'
-import useWindowDimensions from '../../util/useWindowDimensions'
-import UserCircle from "../../components/icons/patient-register/UserCircle";
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../../util/constants"
+import ArrowDown from '../../components/icons/ArrowDown'
 import PastIcon from '../../components/icons/HistoryIcon'
 import NoProfilePicture from '../../components/icons/NoProfilePicture'
-import { Disclosure, Transition } from '@headlessui/react'
-import { toUpperLowerCase } from '../../util/helpers'
-import ArrowDown from '../../components/icons/ArrowDown'
-import differenceInYears from 'date-fns/differenceInYears'
-import handleSendSentry from '../../util/Sentry/sentryHelper'
-import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 import StudyHistoryIcon from '../../components/icons/StudyHistoryIcon'
+import UserCircle from "../../components/icons/patient-register/UserCircle"
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from "../../util/constants"
+import { toUpperLowerCase } from '../../util/helpers'
+import useWindowDimensions from '../../util/useWindowDimensions'
 
 
 type PropsButton = {
@@ -84,18 +84,27 @@ const PatientRecord = (props) => {
   const handleSwitchButtonRecordOutPatient = () => {
     props.setShowMedicalHistory(false)
     props.setShowStudiesHistory(false)
+    props.setShowOrderHistory(false)
   }
 
   //Used to disable the other buttons
   const handleSwitchButtonMedicalHistory = () => {
     props.setOutpatientRecordShow(false)
     props.setShowStudiesHistory(false)
+    props.setShowOrderHistory(false)
   }
 
   //Used to disable the other buttons
   const handleSwitchButtonStudiesHistory = () => {
     props.setOutpatientRecordShow(false)
     props.setShowMedicalHistory(false)
+    props.setShowOrderHistory(false)
+  }
+
+  const handleSwitchButtonOrderHistory = () => {
+    props.setOutpatientRecordShow(false)
+    props.setShowMedicalHistory(false)
+    props.setShowStudiesHistory(false)
   }
 
   return (
@@ -178,6 +187,19 @@ const PatientRecord = (props) => {
           callBackSwitch={handleSwitchButtonStudiesHistory}
         />
         <ButtonSlide
+          show={props.showOrderHistory}
+          setShow={props.setShowOrderHistory}
+          disabled={
+            // (status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
+          IconElement={() =>
+            <StudyHistoryIcon
+              fill={`${props.showOrderHistory ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={"Historial de Órdenes"}
+          callBackSwitch={handleSwitchButtonOrderHistory}
+        />
+        <ButtonSlide
           show={props.outpatientRecordShow}
           setShow={props.setOutpatientRecordShow}
           disabled={
@@ -256,6 +278,8 @@ export default (props) => {
           setShowMedicalHistory={props.setShowMedicalHistory}
           showStudiesHistory={props.showStudiesHistory}
           setShowStudiesHistory={props.setShowStudiesHistory}
+          showOrderHistory={props.showOrderHistory}
+          setShowOrderHistory={props.setShowOrderHistory}
         /> :
         <div className='flex h-full justify-center items-center'>
           <div className='bg-gray-100 rounded-full'>
