@@ -299,6 +299,17 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
         </div>
       }
 
+      {studyOrder?.description &&
+        <div className='flex flex-col'>
+          <div className='text-primary-500'>
+            Descripción
+          </div>
+          <span className='font-normal'>
+            {studyOrder?.description}
+          </span>
+        </div>
+      }
+
       <div className='flex flex-col gap-5'>
         <div className='flex flex-row items-center gap-2'>
           <PaperClipIcon />
