@@ -80,7 +80,7 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
     <div className='flex flex-row'>
       <div className='flex flex-row gap-1 items-center'>
         {getIconFile(fileData?.contentType)}
-        <div className='ml-1 w-48 sm:w-48 md:w-48 lg:w-full font-medium text-sm truncate'
+        <div className='ml-1 w-48 sm:w-48 md:w-48 lg:w-64 font-medium text-sm truncate'
           title={fileData.title}
           style={{
             lineHeight: '17px',
