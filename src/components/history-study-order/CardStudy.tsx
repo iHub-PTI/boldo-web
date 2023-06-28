@@ -52,6 +52,23 @@ export const CardStudy: React.FC<PropsCardStudy> = (
         >{study?.category}</h2>
       </div>
 
+      {/* Studies added */}
+      {study?.type === 'serviceRequest' &&
+        <div className={`flex flex-row px-1 py-2 text-dark-cool text-sm 
+        ${isSelectecStudy ? 'bg-primary-100 text-green-darker' :
+            'bg-ghost-white group-hover:bg-primary-100 group-hover:text-green-darker'} items-center`} style={{
+              width: '164px',
+              height: '26px',
+              borderRadius: '1000px',
+              lineHeight: '16px',
+              letterSpacing: '0.1px',
+              transition: 'background-color 0.3s ease-out, color 0.3s ease-out'
+
+            }}>
+          {`${study?.diagnosticReportAttachmentCount} resultados añadidos`}
+        </div>
+      }
+
       {/* study container */}
       <div className='flex flex-col gap-1 w-56'>
         <div className='w-56 truncate text-dark-cool font-semibold text-sm'
@@ -82,7 +99,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
             letterSpacing: '0.1px'
           }}
         >
-          {moment(study.authoredDate).format('DD/MM/YYYY')}
+          {study?.authoredDate && moment(study.authoredDate).format('DD/MM/YYYY')}
         </div>
         <div className='text-gray-500'
           style={{
@@ -90,7 +107,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
             letterSpacing: '0.1px'
           }}
         >
-          {countDays(study.authoredDate)}
+          {study?.authoredDate && countDays(study.authoredDate)}
         </div>
       </div>
       <span style={{ borderBottom: '2px solid #F7F4F4' }}></span>

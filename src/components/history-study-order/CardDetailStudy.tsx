@@ -1,18 +1,18 @@
 import axios from 'axios'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
+import { ReactComponent as CalendarIcon } from "../../assets/calendar-detail.svg"
+import { ReactComponent as SpinnerLoading } from '../../assets/spinner-loading.svg'
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 import handleSendSentry from '../../util/Sentry/sentryHelper'
 import { countDays, toUpperLowerCase } from '../../util/helpers'
-import { StudyType, getCategorySvg, getOrigin } from './StudyHistory'
 import { useToasts } from '../Toast'
-import { ReactComponent as CalendarIcon } from "../../assets/calendar-detail.svg"
-import { ReactComponent as SpinnerLoading } from '../../assets/spinner-loading.svg'
 import NoProfilePicture from '../icons/NoProfilePicture'
 import NotesIcon from '../icons/NotesIcon'
 import PaperClipIcon from '../icons/PaperClipIcon'
 import { AddedResults } from './AddedResults'
 import { CardAttached } from './CardAttached'
+import { StudyType, getCategorySvg, getOrigin } from './StudyHistory'
 
 
 type PropsDetailStudy = {
@@ -111,7 +111,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
   if (!selectedStudy) return (
     <div className='flex w-full h-80 items-center justify-center text-gray-200 font-bold text-3xl'>
-      Seleccione un estudio para mostrar
+      Seleccione un elemento para mostrar
     </div>
   )
 
@@ -156,12 +156,12 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
         <div className='flex flex-col p-2 gap-1'>
           <h1 className='font-semibold text-gray-500 text-xs'>Orden</h1>
           {/* Doctor picture */}
-          <div className='flex flex-row gap-4 w-64 h-11 items-center'>
+          <div className='flex flex-row gap-4 w-64 h-11 items-center mb-1'>
             {doctor?.photoUrl ? (
               <img
                 src={doctor?.photoUrl}
                 alt='Foto de Perfil'
-                className='flex-none border-1 border-white w-10 h-10 rounded-full object-cover'
+                className='flex-none border-2 border-bluish-500 w-10 h-10 rounded-full object-cover'
               />
             ) : (
               <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-10 h-10' />
