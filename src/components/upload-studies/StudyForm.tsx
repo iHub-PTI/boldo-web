@@ -39,6 +39,7 @@ const StudyForm = (props:Props) => {
   const { saveRef, patientId, setLoadingSubmit } = props
   const { attachmentFilesForm, setAttachmentFilesForm } = useContext(AttachmentFilesFormContext)
   const [inputName, setInputName] = useState<string>('')
+  const [inputReason, setInputReason] = useState<string>('')
   const [inputNotes, setInputNotes] = useState<string>('')
   const [inputDate, setInputDate] = useState<Date | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -174,7 +175,8 @@ const StudyForm = (props:Props) => {
       .post(url, {
         attachmentUrls: attachmentUrls,
         category: selectedValue.value ?? 'OTHER',
-        doctorNotes: inputNotes,
+        reason: inputReason,
+        notes: inputNotes,
         description: inputName,
         effectiveDate: formattedDate,
         patientId: patientId,
@@ -199,6 +201,10 @@ const StudyForm = (props:Props) => {
     if (inputName === '') {
       formInvalid = true
       addToast({type:'warning', title:'Atención!', text:'El nombre del estudio es un campo requerido.'})
+    }
+    if (inputReason === '') {
+      formInvalid = true
+      addToast({type:'warning', title:'Atención!', text:'El motivo del estudio es un campo requerido.'})
     }
     if (!inputDate) {
       formInvalid = true
@@ -260,11 +266,12 @@ const StudyForm = (props:Props) => {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRef, fileInputRef, inputDate, inputName, inputNotes, selectedValue, attachmentFilesForm])
+  }, [saveRef, fileInputRef, inputDate, inputName, inputReason, inputNotes, selectedValue, attachmentFilesForm])
 
   // this function handle the reset of the window when all inputs are completed
   const handleReset = () => {
     setInputName('')
+    setInputReason('')
     setInputDate(null)
     // category option
     setSelectedValue(defaultValue)
@@ -280,8 +287,11 @@ const StudyForm = (props:Props) => {
         <p className='not-italic font-medium text-base leading-6 text-gray-700'>Nombre del estudio</p>
         <InputTextField id='studyName' inputText={inputName} setInputText={setInputName} />
       </div>
-      {/* space for diagnosis */}
-
+      {/* reason of the study */}
+      <div className='flex flex-col space-y-1'>
+        <p className='not-italic font-medium text-base leading-6 text-gray-700'>Motivo del estudio</p>
+        <InputTextField id='studyReason' inputText={inputReason} setInputText={setInputReason} />
+      </div>
       {/* date and category */}
       <div className='flex flex-row space-x-32'>
         {/* date */}
