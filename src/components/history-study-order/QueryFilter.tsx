@@ -148,7 +148,7 @@ export const QueryFilter = ({
                   >
                     <OrderWithIcon className='mr-1' active={ORDER_STATE['order']} />
                     <div className={`font-semibold ${ORDER_STATE['order'] && 'text-primary-500'}`}>
-                      Con orden asociado
+                      Con orden asociada
                     </div>
                   </button>
                   <button
