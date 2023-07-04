@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Disclosure, Transition } from '@headlessui/react'
-import { toUpperLowerCase } from '../util/helpers';
-import ArrowDown from './icons/ArrowDown';
+import { Disclosure, Transition } from '@headlessui/react';
 import differenceInYears from 'date-fns/differenceInYears';
-import UserCircle from './icons/patient-register/UserCircle';
-import NoProfilePicture from './icons/NoProfilePicture';
-import HistoryIcon from './icons/HistoryIcon';
+import React, { useEffect, useRef, useState } from 'react';
+import { toUpperLowerCase } from '../util/helpers';
 import { MedicalHistoryCall } from './MedicalHistoryCall';
 import { RecordOutPatientCall } from './RecordOutPatientCall';
+import ArrowDown from './icons/ArrowDown';
+import HistoryIcon from './icons/HistoryIcon';
+import NoProfilePicture from './icons/NoProfilePicture';
+import StudyHistoryIcon from './icons/StudyHistoryIcon';
+import UserCircle from './icons/patient-register/UserCircle';
+import { StudyHistoryCall } from './history-study-order/StudyHistoryCall';
 
 
 export const stylePanelSidebar = {
@@ -24,12 +26,13 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
 
   const [recordOutPatientButton, setRecordOutPatientButton] = useState(false)
   const [medicalHistoryButton, setMedicalHistoryButton] = useState(false)
+  const [studyHistoryButton, setStudyHistoryButton] = useState(false)
   // this control the dropdown animations
   const [transition, setTransition] = useState<boolean>(false)
   const [hoverSidebar, setHoverSidebar] = useState(false)
   const disclosureRef = useRef<HTMLButtonElement>(null)
 
-  const { status } = appointment
+  // const { status } = appointment
 
 
   // this function control the transition value
@@ -49,6 +52,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   const handleSidebarHoverOff = () => {
     if (recordOutPatientButton) return
     if (medicalHistoryButton) return
+    if (studyHistoryButton) return
     // call this function only transition is active
     if (transition) handleClickDisclosure()
     setHoverSidebar(false)
@@ -56,12 +60,20 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
 
   const onClickOutPatientRecord = () => {
     setMedicalHistoryButton(false)
+    setStudyHistoryButton(false)
     setRecordOutPatientButton(!recordOutPatientButton)
   }
 
   const medicalHistoryToggleButton = () => {
     setRecordOutPatientButton(false)
+    setStudyHistoryButton(false)
     setMedicalHistoryButton(!medicalHistoryButton)
+  }
+
+  const toggleButtonStudyHistory = () => {
+    setMedicalHistoryButton(false)
+    setRecordOutPatientButton(false)
+    setStudyHistoryButton(!studyHistoryButton)
   }
 
   const container = useRef<HTMLDivElement>(null)
@@ -134,24 +146,37 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
             )}
           </Disclosure>
           <div className={`flex flex-col flex-no-wrap justify-center items-center transform ease-linear duration-500 ${transition ? 'translate-y-12' : ''}`}>
-            <button
-              className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none disabled:cursor-not-allowed`}
-              onClick={() => medicalHistoryToggleButton()}
+            <div className='flex flex-col items-start'>
+              <button
+                className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none disabled:cursor-not-allowed`}
+                onClick={() => medicalHistoryToggleButton()}
               //disabled={(status !== 'closed' && status !== 'open')}
               //title={`${(status !== 'closed' && status !== 'open') ? 'No es posible visualizar esta sección en una cita que se encuentra cerrada' : 'Antecedentes Clínicos'}`}
-            >
-              <HistoryIcon fill={`${medicalHistoryButton ? '#13A5A9' : '#6B7280'}`} />
-              <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${medicalHistoryButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Antecedentes Clínicos</div>
-            </button>
-            <button
-              className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
-              onClick={() => onClickOutPatientRecord()}
-            >
-              <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
-              <div
-                className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`}
-                style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
-            </button>
+              >
+                <HistoryIcon fill={`${medicalHistoryButton ? '#13A5A9' : '#6B7280'}`} />
+                <div className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex text-base font-medium text-gray-500 truncate ${medicalHistoryButton && 'text-primary-600 font-semibold'}`} style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Antecedentes Clínicos</div>
+              </button>
+              <button
+                className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
+                onClick={() => onClickOutPatientRecord()}
+              >
+                <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
+                <div
+                  className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`}
+                  style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
+              </button>
+              <button
+                className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
+                onClick={() => toggleButtonStudyHistory()}
+              >
+                <StudyHistoryIcon
+                  fill={`${studyHistoryButton ? '#13A5A9' : '#6B7280'}`}
+                />
+                <div
+                  className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${studyHistoryButton && 'text-primary-600 font-semibold'}`}
+                  style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Historial de Estudios</div>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -171,6 +196,13 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
           handleSidebarHoverOff={handleSidebarHoverOff}
         />
 
+        <StudyHistoryCall
+          containerRef={container}
+          appointment={appointment}
+          studyHistoryButton={studyHistoryButton}
+          setStudyHistoryButton={setStudyHistoryButton}
+          handleSidebarHoverOff={handleSidebarHoverOff}
+        />
       </div>
       {children}
     </div>

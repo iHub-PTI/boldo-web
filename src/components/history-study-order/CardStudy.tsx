@@ -36,7 +36,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
   return (
     <div className={`flex flex-col p-2 group ${isSelectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
-        width: '250px',
+        minWidth: '250px',
         maxHeight: '171px',
         gap: '10px',
         transition: 'background-color 0.3s ease-out',

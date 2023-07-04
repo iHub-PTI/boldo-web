@@ -34,7 +34,7 @@ type Props = {
   appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization },
 }
 
-type scrollParams = {
+export type scrollParams = {
   total: number,
   page: number,
   count: number,
@@ -178,7 +178,6 @@ const StudyHistory: React.FC<Props> = ({
         setLoadingScroll(false)
       });
   }
-
 
   const onScrollEnd = () => {
     if (loading) return
