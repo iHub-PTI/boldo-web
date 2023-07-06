@@ -16,6 +16,7 @@ import { QueryFilter } from './QueryFilter';
 import { StudyType, scrollParams } from './StudyHistory';
 import ArrowBackIOS from '../icons/ArrowBack-ios';
 import { CardDetailStudy } from './CardDetailStudy';
+import { useToasts } from '../Toast';
 
 type StudyHistoryCallType = {
   appointment: AppointmentWithPatient;
@@ -63,11 +64,8 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
 
   // Scroll Trigger loading
   const [loadingScroll, setLoadingScroll] = useState(false)
-  //const [offsetPage, setOffsetPage] = useState<OffsetType>({ offset: 1, total: 0 })
-  const { width: screenWidth } = useWindowDimensions()
 
-  //Detail activated
-  //const [activeID, setActiveID] = useState('')
+  const { width: screenWidth } = useWindowDimensions()
 
   //states filters
   const [inputContent, setInputContent] = useState('')
@@ -75,14 +73,8 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
   const [newFirst, setNewFirst] = useState(true)
   const [withOrder, setWithOrder] = useState(undefined) // true or false or undefined
 
-  //show Detail
-  //const [showDetail, setShowDetail] = useState(false)
 
-  // const [detailRecordPatient, setDetailRecordPatient] = useState<DescripcionRecordPatientProps>()
-  //const [loadingDetail, setLoadingDetail] = useState(false)
-  //const [totalRecordsPatient, setTotalRecordsPatient] = useState(0)
-
-  //const { addErrorToast } = useToasts()
+  const { addToast } = useToasts()
 
   const getDataStudyHistory = ({
     newFirst = true,
@@ -113,7 +105,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
           "endpoint": url,
           "method": "GET"
         }
-        //addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
         handleSendSentry(
           error,
           ERROR_HEADERS.DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY.FAILURE_GET,
@@ -165,7 +157,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
           "endpoint": url,
           "method": "GET"
         }
-        //addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
+        addToast({ type: 'error', title: 'Error', text: 'Ha ocurrido un error al traer el historial de estudios' })
         handleSendSentry(
           error,
           ERROR_HEADERS.DIAGNOSTIC_REPORT_SERVICE_REQUEST_HISTORY.FAILURE_GET,
@@ -196,23 +188,6 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
     }
   }
 
-  /* const onScrollEnd = () => {
-    if (loading) return
-    if (offsetPage.offset === offsetPage.total) return
-    if (scrollEvent.current) {
-      const { scrollTop, scrollHeight, clientHeight } = scrollEvent.current
-      if (Math.trunc(scrollTop + clientHeight) === scrollHeight) {
-        // TO SOMETHING HERE
-        getRecordsPatientOnScroll({
-          offset: offsetPage.offset + 1,
-        })
-      }
-      //console.log("🚀 scrollTop + clientHeight", scrollTop + clientHeight)
-      //console.log("🚀 scrollHeight", scrollHeight)
-
-    }
-  } */
-
   useEffect(() => {
     if (!studyHistoryButton) {
       handleSidebarHoverOff()
@@ -236,10 +211,13 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) {
+      let attachedModal = document.getElementById('attached_modal')
+      if (attachedModal?.contains(event.target as Node)) {
+        setStudyHistoryButton(true)
+      }
+      else if (!containerRef.current?.contains(event.target as Node)) {
         if (!dataStudy) return
         setStudyHistoryButton(false)
-        setSelectedStudy(null)
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
@@ -247,14 +225,10 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studyHistoryButton])
 
-  /* useEffect(() => {
-      setSelectedStudy(null)
-  }, [dataStudy])  */
-
   return (
     <div
       className={`opacity-0 ${studyHistoryButton && 'opacity-100'} flex flex-col z-50 absolute left-60 h-full transition-all duration-300 rounded-r-xl`}
-      style={{ width: studyHistoryButton ? '21.6rem' : '0px' }}
+      style={{ width: studyHistoryButton ? '26rem' : '0px' }}
     >
       <div className='flex flex-row flex-no-wrap bg-primary-500 h-10 rounded-tr-xl pl-3 py-2 pr-2 items-center justify-between'>
         <span className='text-white font-medium text-sm truncate'>Registro de consultas ambulatorias</span>
@@ -294,6 +268,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
               setFilterSequence={setNewFirst}
               getApiCall={getDataStudyHistory}
               inputContent={inputContent}
+              darkMode={true}
             />}
 
         </div>
@@ -315,6 +290,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
                   study={study}
                   isSelectecStudy={selectedStudy?.id === study?.id}
                   setSelectedStudy={setSelectedStudy}
+                  darkMode={true}
                 />
               )}
 
@@ -366,10 +342,12 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
               </button>
             </div>
             <div
-              className={`flex flex-col w-full overflow-y-auto scrollbar items-center justify-center mt-5`}
-              style={{ height: 'calc(100vh - 230px)' }}
+              className={`flex flex-col w-full overflow-y-auto scrollbar mt-5`}
+              style={{
+                height: `calc(100vh - ${WIDTH_XL > screenWidth ? 195 : 125}px)`,
+              }}
             >
-              {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} />}
+              {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} darkMode />}
             </div>
           </div>
         }

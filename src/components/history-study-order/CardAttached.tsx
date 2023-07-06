@@ -120,8 +120,9 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
         }}>{getDateOrigin(props.effectiveDate)}</span>
     </div>
 
-    <Modal show={showModal} size='xl5' setShow={setShowModal} noPadding={true}>
-      <div className='w-full p-1'>
+    <Modal show={showModal} size='xl5' setShow={setShowModal} noPadding={true} handleOutClick={false}
+    >
+      <div id='attached_modal' className='w-full p-1'>
         <div className='flex flew-row h-5 w-full justify-end mb-2'>
           <button className='focus:outline-none' onClick={() => setShowModal(false)}>
             <CloseIcon className='focus:outline-none'></CloseIcon>

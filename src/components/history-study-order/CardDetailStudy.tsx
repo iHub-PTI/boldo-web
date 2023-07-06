@@ -17,6 +17,7 @@ import { StudyType, getCategorySvg, getOrigin } from './StudyHistory'
 
 type PropsDetailStudy = {
   selectedStudy: StudyType
+  darkMode?: boolean
 }
 
 const getCategoryLabel = (category = '') => {
@@ -33,7 +34,8 @@ const getCategoryLabel = (category = '') => {
 };
 
 export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
-  selectedStudy
+  selectedStudy,
+  darkMode = false,
 }) => {
 
   const { addToast } = useToasts()
@@ -91,6 +93,11 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
       })
       .finally(() => setLoading(false));
   }
+
+  //classes
+  const classTextTitle = `${darkMode ? 'text-white' : 'text-primary-500'}`
+  const classDesc = `${darkMode ? 'text-white' : ''}`
+  const classBoxDarkMode = `${darkMode ? 'bg-bluish-500 p-2 rounded-lg' : ''}`
 
   useEffect(() => {
     if (!selectedStudy) return
@@ -255,9 +262,9 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     return (<div className='flex flex-col gap-5'>
 
       {/* Header Study */}
-      <div className='flex flex-col gap-2'>
+      <div className={`flex flex-col gap-2 ${classBoxDarkMode}`}>
         <div className='flex flex-row justify-between'>
-          <div className='flex flex-row gap-2'>
+          <div className={`flex flex-row gap-2 `}>
             {getCategorySvg(studyOrder?.category, 27, 27)}
             <div className='text-cool-gray-700 text-xl' style={{ lineHeight: '20px' }}>
               {getCategoryLabel(studyOrder?.category)}
@@ -290,10 +297,10 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
       {studyOrder?.sourceType &&
         <div className='flex flex-col'>
-          <div className='text-primary-500'>
+          <div className={classTextTitle}>
             Origen
           </div>
-          <span className='font-semibold'>
+          <span className={`font-semibold ${classDesc}`}>
             {getOrigin(studyOrder?.sourceType)}
           </span>
         </div>
@@ -301,16 +308,16 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
       {studyOrder?.description &&
         <div className='flex flex-col'>
-          <div className='text-primary-500'>
+          <div className={classTextTitle}>
             Descripción
           </div>
-          <span className='font-normal'>
+          <span className={`font-normal ${classDesc}`}>
             {studyOrder?.description}
           </span>
         </div>
       }
 
-      <div className='flex flex-col gap-5'>
+      <div className={`flex flex-col gap-5 ${classBoxDarkMode}`}>
         <div className='flex flex-row items-center gap-2'>
           <PaperClipIcon />
           <h2 className='text-cool-gray-700 font-medium text-xl'>Adjuntos</h2>
