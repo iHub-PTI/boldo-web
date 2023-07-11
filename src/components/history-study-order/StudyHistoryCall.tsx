@@ -212,12 +212,11 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       let attachedModal = document.getElementById('attached_modal')
-      if (attachedModal?.contains(event.target as Node)) {
-        setStudyHistoryButton(true)
-      }
-      else if (!containerRef.current?.contains(event.target as Node)) {
+      if (!containerRef.current?.contains(event.target as Node)) {
         if (!dataStudy) return
         setStudyHistoryButton(false)
+      } else if (attachedModal?.contains(event.target as Node)) {
+        setStudyHistoryButton(true)
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
@@ -286,7 +285,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
             {!loading &&
               dataStudy.map(study =>
                 <CardStudy
-                  key={`order_${study.id}}`}
+                  key={`study_history_${study.id}}`}
                   study={study}
                   isSelectecStudy={selectedStudy?.id === study?.id}
                   setSelectedStudy={setSelectedStudy}
@@ -347,7 +346,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
                 height: `calc(100vh - ${WIDTH_XL > screenWidth ? 195 : 125}px)`,
               }}
             >
-              {dataStudy.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} darkMode />}
+              {dataStudy.length > 0 && <CardDetailStudy key={'study_card_detail'} selectedStudy={selectedStudy} darkMode={true} />}
             </div>
           </div>
         }

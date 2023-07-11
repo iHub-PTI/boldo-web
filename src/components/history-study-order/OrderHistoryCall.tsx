@@ -9,13 +9,13 @@ import { WIDTH_XL } from '../../util/constants';
 import useWindowDimensions from '../../util/useWindowDimensions';
 import { AppointmentWithPatient } from '../RecordsOutPatient';
 import { stylePanelSidebar } from '../SidebarMenuCall';
+import ArrowBackIOS from '../icons/ArrowBack-ios';
 import CloseButton from '../icons/CloseButton';
 import SearchIcon from '../icons/SearchIcon';
+import { CardDetailStudy } from './CardDetailStudy';
 import { CardStudy } from './CardStudy';
 import { QueryFilterOrder } from './QueryFilter';
 import { StudyType, scrollParams } from './StudyHistory';
-import ArrowBackIOS from '../icons/ArrowBack-ios';
-import { CardDetailStudy } from './CardDetailStudy';
 // import { useToasts } from '../Toast';
 
 type OrderHistoryCallType = {
@@ -51,7 +51,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<AxiosError>()
 
-  const [selectedStudy, setSelectedStudy] = useState<StudyType>(null)
+  const [selectedOrder, setSelectedOrder] = useState<StudyType>(null)
 
 
   // reference to listen to scroll event
@@ -88,7 +88,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
     let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withResult === undefined ? '' : `&withResult=${withResult}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoading(true)
-    setSelectedStudy(null)
+    setSelectedOrder(null)
     setError(null)
     axios.get(url)
       .then(res => {
@@ -213,12 +213,11 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       let attachedModal = document.getElementById('attached_modal')
-      if (attachedModal?.contains(event.target as Node)) {
-        setOrderHistoryButton(true)
-      }
-      else if (!containerRef.current?.contains(event.target as Node)) {
+      if (!containerRef.current?.contains(event.target as Node)) {
         if (!dataOrders) return
         setOrderHistoryButton(false)
+      } else if (attachedModal?.contains(event.target as Node)) {
+        setOrderHistoryButton(true)
       }
     }
     window.addEventListener('click', handleOutsideClick, true)
@@ -241,7 +240,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
       </div>
       <div className={`flex flex-col flex-1 p-2 items-center relative`} style={stylePanelSidebar}>
         <div className='flex flex-row flew-no-wrap w-full items-center'>
-          {!selectedStudy &&
+          {!selectedOrder &&
             <div className='w-full h-11 relative bg-cool-gray-50 rounded-lg mb-5 mt-5 mr-2'>
               <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                 <SearchIcon className='w-5 h-5' />
@@ -261,7 +260,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
               />
             </div>}
 
-          {!selectedStudy &&
+          {!selectedOrder &&
             <QueryFilterOrder
               currentDoctor={doctor}
               setFilterAuthor={setCurrentDoctor}
@@ -273,7 +272,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
           }
 
         </div>
-        {!selectedStudy && !error &&
+        {!selectedOrder && !error &&
           <div
             className={`flex flex-col overflow-x-hidden mx-1 scrollbar w-full ${loading && 'justify-center items-center'
               }`}
@@ -287,19 +286,19 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
             {!loading &&
               dataOrders.map(study =>
                 <CardStudy
-                  key={`order_${study.id}}`}
+                  key={`order_history_${study.id}}`}
                   study={study}
-                  isSelectecStudy={selectedStudy?.id === study?.id}
-                  setSelectedStudy={setSelectedStudy}
+                  isSelectecStudy={selectedOrder?.id === study?.id}
+                  setSelectedStudy={setSelectedOrder}
                   darkMode={true}
                 />
               )}
 
-            {/* {!loading && dataStudy.length === 0 &&
+            {!loading && dataOrders.length === 0 &&
               <div className='flex flex-row w-full justify-center items-center text-white font-bold'>
                 No se encontraron resultados.
               </div>
-            } */}
+            }
           </div>}
         <div className='flex flex-row justify-center w-full'>
           <img
@@ -332,10 +331,10 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
         </div>}
 
 
-        {selectedStudy && !error &&
+        {selectedOrder && !error &&
           <div className='flex flex-col flex-no-wrap w-full flex-1'>
             <div className="flex flex-row flex-no-wrap items-start">
-              <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setSelectedStudy(null)}>
+              <button className='flex flex-row text-white focus:outline-none justify-center items-center gap-1' onClick={() => setSelectedOrder(null)}>
                 <ArrowBackIOS fill='#FFFFFF' style={{
                   margin: '0 auto',
                   transform: 'scale(.7)',
@@ -348,7 +347,7 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
                 height: `calc(100vh - ${WIDTH_XL > screenWidth ? 195 : 125}px)`,
               }}
             >
-              {dataOrders.length > 0 && <CardDetailStudy selectedStudy={selectedStudy} darkMode />}
+              {dataOrders.length > 0 && <CardDetailStudy key={'card_detail_order'} selectedStudy={selectedOrder} darkMode={true} isCall={true} />}
             </div>
           </div>
         }
