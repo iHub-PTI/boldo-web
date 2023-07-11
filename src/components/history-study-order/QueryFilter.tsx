@@ -16,6 +16,7 @@ export const QueryFilter = ({
   setFilterAuthor,
   setFilterOrderStudy,
   setFilterSequence,
+  darkMode = false,
 }) => {
   //Current Doctor or all Doctors true: current | false: all
   const [author, setAuthor] = useState(false)
@@ -122,7 +123,7 @@ export const QueryFilter = ({
         /* Use the `open` state to conditionally change the direction of the chevron icon. */
         <>
           <Popover.Button className='focus:outline-none' title='Filtros'>
-            <FilterListIcon active={open} />
+            <FilterListIcon active={open} darkMorde={darkMode} />
           </Popover.Button>
           <Popover.Panel className='absolute left-10 z-10 mt-3 -translate-x-1/2 transform px-4 w-72'>
             <div

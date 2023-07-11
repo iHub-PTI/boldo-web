@@ -34,7 +34,7 @@ type Props = {
   appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization },
 }
 
-type scrollParams = {
+export type scrollParams = {
   total: number,
   page: number,
   count: number,
@@ -178,7 +178,6 @@ const StudyHistory: React.FC<Props> = ({
         setLoadingScroll(false)
       });
   }
-
 
   const onScrollEnd = () => {
     if (loading) return
@@ -379,19 +378,21 @@ const StudyHistory: React.FC<Props> = ({
   )
 }
 
-export const getCategorySvg = (category = '', width = 18, height = 18) => {
+export const getCategorySvg = (category = '', width = 36, height = 36, hoverDarkMode = false) => {
+
+  const classDarkMode = hoverDarkMode ? 'group-hover:text-cool-gray-700 text-white' : 'text-cool-gray-700'
   if (!category) return
   switch (category.toLowerCase()) {
     case 'laboratory':
     case 'laboratorio':
-      return <LabIcon width={width} height={height} />;
+      return <LabIcon className={classDarkMode} width={width} height={height} />;
     case 'other':
     case 'otros':
-      return <OtherIcon width={width} height={height} />;
+      return <OtherIcon className={classDarkMode} width={width} height={height} />;
     case 'image':
     case 'diagnostic imaging':
     case 'imágen':
-      return <ImgIcon width={width} height={height} />;
+      return <ImgIcon className={classDarkMode} width={width} height={height} />;
   }
 };
 

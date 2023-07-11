@@ -77,10 +77,10 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
   };
 
   return <div className='flex flex-col w-full h-16 bg-bluish-500 rounded-lg  py-3 px-3 gap-2'>
-    <div className='flex flex-row'>
-      <div className='flex flex-row gap-1 items-center'>
+    <div className='flex flex-row gap-1'>
+      <div className='flex flex-row gap-1 items-center min-w-0'>
         {getIconFile(fileData?.contentType)}
-        <div className='ml-1 w-48 sm:w-48 md:w-48 lg:w-64 font-medium text-sm truncate'
+        <div className='ml-1 font-medium text-sm truncate'
           title={fileData.title}
           style={{
             lineHeight: '17px',
@@ -88,6 +88,8 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
           }}>
           {fileData.title}
         </div>
+      </div>
+      <div className='flex flex-row items-center'>
         <ChevronRight width={6} height={9} />
       </div>
       <div className='flex flex-row flex-1 items-center justify-end pr-4 gap-3'>
@@ -120,8 +122,9 @@ export const CardAttached: React.FC<CardAttachedProps> = ({ fileData, ...props }
         }}>{getDateOrigin(props.effectiveDate)}</span>
     </div>
 
-    <Modal show={showModal} size='xl5' setShow={setShowModal} noPadding={true}>
-      <div className='w-full p-1'>
+    <Modal show={showModal} size='xl5' setShow={setShowModal} noPadding={true} handleOutClick={false}
+    >
+      <div id='attached_modal' className='w-full p-1'>
         <div className='flex flew-row h-5 w-full justify-end mb-2'>
           <button className='focus:outline-none' onClick={() => setShowModal(false)}>
             <CloseIcon className='focus:outline-none'></CloseIcon>

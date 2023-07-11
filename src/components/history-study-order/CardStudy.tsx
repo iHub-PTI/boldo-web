@@ -4,10 +4,13 @@ import { SOURCE_TYPE_STUDY, STUDY_TYPE } from "../../util/constants"
 import { countDays, toUpperLowerCase } from "../../util/helpers"
 import { StudyType, getCategorySvg } from "./StudyHistory"
 
+
+
 type PropsCardStudy = {
   study?: StudyType,
   isSelectecStudy?: boolean,
   setSelectedStudy?: (study: StudyType) => void
+  darkMode?: boolean,
 }
 
 export const CardStudy: React.FC<PropsCardStudy> = (
@@ -15,6 +18,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
     study,
     isSelectecStudy,
     setSelectedStudy,
+    darkMode = false,
     ...props
   }
 ) => {
@@ -33,10 +37,13 @@ export const CardStudy: React.FC<PropsCardStudy> = (
     }
   }
 
+  const classTextDarkMode = `${darkMode ? 'text-white group-hover:text-cool-gray-700' : 'text-cool-gray-700'}`
+  const classTextCountDaysDarkMode = `${darkMode ? 'text-white group-hover:text-gray-400' : 'text-cool-gray-700'}`
+
   return (
     <div className={`flex flex-col p-2 group ${isSelectecStudy ? 'bg-bluish-500' : 'hover:bg-neutral-gray'} rounded-lg`}
       style={{
-        width: '250px',
+        minWidth: '250px',
         maxHeight: '171px',
         gap: '10px',
         transition: 'background-color 0.3s ease-out',
@@ -46,10 +53,13 @@ export const CardStudy: React.FC<PropsCardStudy> = (
     >
       {/* Head */}
       <div className='flex flex-row items-center gap-2'>
-        {getCategorySvg(study?.category, 27, 27)}
-        <h2 className='text-cool-gray-700 font-normal'
+        {getCategorySvg(study?.category, 36, 36, darkMode)}
+        <h2
+          className={`font-normal ${classTextDarkMode}`}
           style={{ fontSize: '20px' }}
-        >{study?.category}</h2>
+        >
+          {study?.category}
+        </h2>
       </div>
 
       {/* Studies added */}
@@ -70,8 +80,8 @@ export const CardStudy: React.FC<PropsCardStudy> = (
       }
 
       {/* study container */}
-      <div className='flex flex-col gap-1 w-56'>
-        <div className='w-56 truncate text-dark-cool font-semibold text-sm'
+      <div className='flex flex-col gap-1' style={{ minWidth: '56px' }}>
+        <div className={`truncate font-semibold text-sm ${classTextDarkMode}`}
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
@@ -80,7 +90,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
         >
           {study?.description}
         </div>
-        <div className='w-56 truncate font-normal text-xs text-dark-cool'
+        <div className={`'w-56 truncate font-normal text-xs ${classTextDarkMode}`}
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
@@ -93,7 +103,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
 
       {/* Footer */}
       <div className='flex flex-row gap-2 h-4'>
-        <div className='text-dark-cool text-sm '
+        <div className={`text-sm ${classTextDarkMode} `}
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
@@ -101,7 +111,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
         >
           {study?.authoredDate && moment(study.authoredDate).format('DD/MM/YYYY')}
         </div>
-        <div className='text-gray-500'
+        <div className={`${classTextCountDaysDarkMode}`}
           style={{
             lineHeight: '16px',
             letterSpacing: '0.1px'
@@ -110,7 +120,9 @@ export const CardStudy: React.FC<PropsCardStudy> = (
           {study?.authoredDate && countDays(study.authoredDate)}
         </div>
       </div>
-      <span style={{ borderBottom: '2px solid #F7F4F4' }}></span>
+      <span style={{
+        borderBottom: darkMode ? '1px solid rgba(246, 244, 244, 0.2)' : '2px solid #F7F4F4',
+      }}></span>
     </div>
   )
 }
