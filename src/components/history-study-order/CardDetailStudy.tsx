@@ -18,6 +18,7 @@ import { StudyType, getCategorySvg, getOrigin } from './StudyHistory'
 type PropsDetailStudy = {
   selectedStudy: StudyType
   darkMode?: boolean
+  isCall?: boolean
 }
 
 const getCategoryLabel = (category = '') => {
@@ -36,6 +37,8 @@ const getCategoryLabel = (category = '') => {
 export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   selectedStudy,
   darkMode = false,
+  isCall = false,
+  ...props
 }) => {
 
   const { addToast } = useToasts()
@@ -123,8 +126,8 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   )
 
   const getStudies = (studies = []) => {
-    return studies.map(x => (
-      <li className='text-cool-gray-700 text-sm'>{x.display}</li>
+    return studies.map((x, idx) => (
+      <li key={idx} className='text-cool-gray-700 text-sm'>{x.display}</li>
     ))
   }
 
@@ -141,13 +144,13 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
       let doctorName = `${gender === 'male' ? 'Dr.' : 'Dra.'} ${toUpperLowerCase(givenName.split(' ')[0] + ' ' + familyName.split(' ')[0])}`
 
       return (
-        <div className='flex flex-col'>
+        <div className={'flex flex-col'}>
           <div className='text-cool-gray-700' style={{ lineHeight: '16px' }}>
             {doctorName}
           </div>
           {/* Specialty and organization */}
           <div className='flex flex-row gap-1'>
-            <div className='text-xs w-96 truncate' style={{ color: '#718096', lineHeight: '16px' }}
+            <div className={`text-xs ${isCall ? 'w-72' : 'w-96'} truncate`} style={{ color: '#718096', lineHeight: '16px' }}
               title={specializations.map(spe => spe.description).join(' ⦁ ')}
             >
               {specializations.map(spe => spe.description).join(' ⦁ ')}
@@ -158,9 +161,9 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     }
 
     return (
-      <>
+      <div className={isCall ? 'mx-3' : ''} {...props}>
         {/* Order Header */}
-        <div className='flex flex-col p-2 gap-1'>
+        <div className={`flex flex-col p-2 gap-1 ${classBoxDarkMode}`}>
           <h1 className='font-semibold text-gray-500 text-xs'>Orden</h1>
           {/* Doctor picture */}
           <div className='flex flex-row gap-4 w-64 h-11 items-center mb-1'>
@@ -195,11 +198,11 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
         {/* Diagnosis */}
         {studyOrder?.diagnosis &&
-          <div className='flex flex-col gap-1'>
-            <div className='text-primary-500'>
+          <div className={`flex flex-col gap-1 ${isCall ? 'mt-2' : ''}`}>
+            <div className={classTextTitle}>
               Impresión diagnóstica
             </div>
-            <div className='font-semibold' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
+            <div className={`font-semibold ${classDesc}`} style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
               {studyOrder?.diagnosis}
             </div>
           </div>
@@ -207,14 +210,14 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
         {/* Requested studies */}
         <div className='flex flex-col gap-2 mt-3'>
-          <div className='text-primary-500'>
+          <div className={classTextTitle}>
             Estudios solicitados
           </div>
-          <div className='flex flex-col p-3' style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}>
+          <div className={`flex flex-col p-3 ${classBoxDarkMode}`} style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}>
             {/* Header Study */}
             <div className='flex flex-row justify-between'>
-              <div className='flex flex-row gap-2'>
-                {getCategorySvg(studyOrder?.category)}
+              <div className='flex flex-row gap-2 items-center'>
+                {getCategorySvg(studyOrder?.category, 24, 24)}
                 <div className='text-cool-gray-700 text-sm' style={{ lineHeight: '20px' }}>
                   {getCategoryLabel(studyOrder?.category)}
                 </div>
@@ -254,7 +257,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
             <AddedResults diagnosticReports={studyOrder?.diagnosticReports ?? []} />
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
@@ -264,8 +267,8 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
       {/* Header Study */}
       <div className={`flex flex-col gap-2 ${classBoxDarkMode}`}>
         <div className='flex flex-row justify-between'>
-          <div className={`flex flex-row gap-2 `}>
-            {getCategorySvg(studyOrder?.category, 27, 27)}
+          <div className={`flex flex-row gap-2 items-center`}>
+            {getCategorySvg(studyOrder?.category, 36, 36, false)}
             <div className='text-cool-gray-700 text-xl' style={{ lineHeight: '20px' }}>
               {getCategoryLabel(studyOrder?.category)}
             </div>

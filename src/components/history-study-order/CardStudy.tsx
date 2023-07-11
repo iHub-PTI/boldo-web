@@ -53,7 +53,7 @@ export const CardStudy: React.FC<PropsCardStudy> = (
     >
       {/* Head */}
       <div className='flex flex-row items-center gap-2'>
-        {getCategorySvg(study?.category, 27, 27, darkMode)}
+        {getCategorySvg(study?.category, 36, 36, darkMode)}
         <h2
           className={`font-normal ${classTextDarkMode}`}
           style={{ fontSize: '20px' }}

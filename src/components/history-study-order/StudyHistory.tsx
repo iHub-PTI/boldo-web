@@ -378,19 +378,21 @@ const StudyHistory: React.FC<Props> = ({
   )
 }
 
-export const getCategorySvg = (category = '', width = 18, height = 18, hoverDarkMode = false) => {
+export const getCategorySvg = (category = '', width = 36, height = 36, hoverDarkMode = false) => {
+
+  const classDarkMode = hoverDarkMode ? 'group-hover:text-cool-gray-700 text-white' : 'text-cool-gray-700'
   if (!category) return
   switch (category.toLowerCase()) {
     case 'laboratory':
     case 'laboratorio':
-      return <LabIcon hoverDarkMode={hoverDarkMode} width={width} height={height} />;
+      return <LabIcon className={classDarkMode} width={width} height={height} />;
     case 'other':
     case 'otros':
-      return <OtherIcon hoverDarkMode={hoverDarkMode} width={width} height={height} />;
+      return <OtherIcon className={classDarkMode} width={width} height={height} />;
     case 'image':
     case 'diagnostic imaging':
     case 'imágen':
-      return <ImgIcon hoverDarkMode={hoverDarkMode} width={width} height={height} />;
+      return <ImgIcon className={classDarkMode} width={width} height={height} />;
   }
 };
 

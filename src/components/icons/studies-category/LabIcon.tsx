@@ -5,8 +5,6 @@ import * as React from "react";
  * 
  * This component displays a lab icon in an SVG format. It allows customization of the color, hover behavior, width, height, and other props.
  *
- * @param {string} color - The color of the icon in hexadecimal format. Default: '#364152'
- * @param {boolean} hoverDarkMode - Determines whether the icon should change color on hover when in dark mode. Default: false
  * @param {number} width - The width of the SVG icon. Default: 36
  * @param {number} height - The height of the SVG icon. Default: 36
  * @param {object} props - Additional props to be passed to the SVG element
@@ -14,41 +12,18 @@ import * as React from "react";
  * @returns {JSX.Element} LabIcon component
  */
 
-const LabIcon = ({ fill = '#364152', hoverDarkMode = false, width = 36, height = 36, ...props }) => {
-
-  const styleDarkMode = `
-    .group:hover .fill-color {
-      fill: ${fill}
-    }
-    .fill-color {
-      fill: #ffffff;
-    }
-  `
-
-  const styleColor = `.fill-color {
-    fill: ${fill}
-    }
-  `
-
-  const style = hoverDarkMode ? styleDarkMode : styleColor
-
+const LabIcon = ({ width = 48, height = 48, ...props }) => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 36 36"
       width={width}
       height={height}
+      viewBox="0 0 48 48"
+      className="text-cool-gray-700"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <style>
-        {style}
-      </style>
-      <path
-        className="fill-color"
-        fillRule="evenodd"
-        d="M3 0a3 3 0 0 0-3 3v30a3 3 0 0 0 3 3h30a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3H3Zm11.8 10h7.4v1c0 .286.223.721.65 1.204a6.096 6.096 0 0 0 .744.706l.008.006.398.3V15h-2v-.82a8.019 8.019 0 0 1-.65-.652c-.317-.359-.727-.892-.962-1.528h-3.843c-.052.11-.106.21-.157.3-.205.36-.465.716-.706 1.02-.244.306-.485.579-.664.774l-.018.02V25.5a3.5 3.5 0 0 0 6.663 1.5h2.13A5.5 5.5 0 0 1 13 25.5V13.302l.29-.293.003-.002.012-.013.051-.052a12.713 12.713 0 0 0 .761-.868c.21-.263.4-.529.532-.762.103-.182.136-.282.146-.313.003-.008.004-.012.005-.011v.005V10ZM26 22.09c0 1.608-1.343 2.91-3 2.91s-3-1.302-3-2.91c0-2.544 3-5.09 3-5.09s3 2.546 3 5.09ZM23 4h-9v4h9V4Z"
-        clipRule="evenodd"
-      />
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M9 6C7.34315 6 6 7.34315 6 9V39C6 40.6569 7.34315 42 9 42H39C40.6569 42 42 40.6569 42 39V9C42 7.34315 40.6569 6 39 6H9ZM20.8 16L28.2 16.0002V17.0001C28.2 17.2855 28.4226 17.7213 28.8491 18.2037C29.0393 18.4187 29.2325 18.6011 29.3792 18.7302C29.4519 18.7941 29.5114 18.8434 29.5511 18.8755C29.5708 18.8915 29.5856 18.9031 29.5944 18.9099L29.6024 18.9161L30 19.2159V21H28V20.1802C27.8169 20.016 27.5851 19.7935 27.3509 19.5285C27.033 19.1691 26.6234 18.6359 26.3884 18L22.5447 18.0001C22.493 18.1099 22.4389 18.2107 22.3881 18.3C22.1834 18.6601 21.9233 19.0165 21.6825 19.3192C21.4385 19.6258 21.197 19.8987 21.0178 20.0938L21 20.1132V31.5C21 33.433 22.567 35 24.5 35C25.8962 35 27.1015 34.1825 27.6632 33H29.793C29.14 35.3085 27.0176 37 24.5 37C21.4624 37 19 34.5376 19 31.5V19.3017L19.2907 19.0095L19.2934 19.0067L19.3054 18.9944C19.3166 18.983 19.3338 18.9654 19.3561 18.9421C19.4009 18.8955 19.466 18.8268 19.5447 18.7411C19.703 18.5687 19.9115 18.3327 20.1175 18.0738C20.3266 17.811 20.5166 17.5453 20.6494 17.3117C20.7524 17.1304 20.785 17.0302 20.7953 16.9986C20.7977 16.991 20.7989 16.9874 20.7995 16.9875C20.7996 16.9875 20.7994 16.9872 20.7995 16.9875C20.7995 16.9877 20.7999 16.9886 20.7999 16.989L20.8 16.9932V16ZM32 28.0909C32 29.6976 30.6569 31 29 31C27.3431 31 26 29.6976 26 28.0909C26 25.5455 29 23 29 23C29 23 32 25.5455 32 28.0909ZM29 10H20V14H29V10Z"/>
     </svg>
   );
 }
