@@ -23,23 +23,10 @@ type Props = {
   searchRef: React.MutableRefObject<HTMLInputElement>;
 }
 
-export interface Presigned {
-  uploadUrl: UploadUrl
-  location: Location
+export type Presigned = {
+  uploadUrl: string;
+  location: string;
 }
-
-export interface UploadUrl {
-  string: string
-  valueType: string
-  chars: string
-}
-
-export interface Location {
-  string: string
-  valueType: string
-  chars: string
-}
-
 
 export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean} & {sourceType: string} & {gender?: string}
 
@@ -94,7 +81,7 @@ const OrderImported = (props: Props) => {
     if (!presigned) return null
     return new Promise((resolve, reject) => {
       axios
-      .put(presigned?.uploadUrl.string ?? '', file, {
+      .put(presigned?.uploadUrl ?? '', file, {
         withCredentials: false,
         headers: { 'Content-Type': file.type, authentication: null }
       })
@@ -103,7 +90,7 @@ const OrderImported = (props: Props) => {
           resolve({
             contentType: file.type,
             // title: file.name,
-            url: presigned.location.string
+            url: presigned.location
           })
         } else if (res.status === 413) {
           // the file is bigger than 10MB
@@ -112,7 +99,7 @@ const OrderImported = (props: Props) => {
       })
       .catch((err) => {
         const tags = {
-          'upload-url': presigned.uploadUrl.string,
+          'upload-url': presigned.uploadUrl,
           'method': 'PUT'
         }
         handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
