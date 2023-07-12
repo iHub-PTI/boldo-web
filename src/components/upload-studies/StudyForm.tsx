@@ -131,7 +131,7 @@ const StudyForm = (props:Props) => {
     if (!presigned) return null
     return new Promise((resolve, reject) => {
       axios
-      .put(presigned?.uploadUrl ?? '', file, {
+      .put(presigned?.uploadUrl.string ?? '', file, {
         withCredentials: false,
         headers: { 'Content-Type': file.type, authentication: null }
       })
@@ -140,7 +140,7 @@ const StudyForm = (props:Props) => {
           resolve({
             contentType: file.type,
             // title: file.name,
-            url: presigned.location
+            url: presigned.location.string
           })
         } else if (res.status === 413) {
           // the file is bigger than 10MB
@@ -149,7 +149,7 @@ const StudyForm = (props:Props) => {
       })
       .catch((err) => {
         const tags = {
-          'upload-url': presigned.uploadUrl,
+          'upload-url': presigned.uploadUrl.string,
           'method': 'PUT'
         }
         handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)

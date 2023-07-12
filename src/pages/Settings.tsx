@@ -44,12 +44,12 @@ export const upload = async (file: File | string) => {
     const res = await axios.get('/presigned')
     const ress = await axios({
       method: 'put',
-      url: `${res.data.uploadUrl}&x-amz-acl=public-read`,
+      url: `${res.data.uploadUrl.string}&x-amz-acl=public-read`,
       data: compressedFile,
       withCredentials: false,
       headers: { 'Content-Type': compressedFile.type, authentication: null },
     })
-    if (ress.status === 201) return res.data.location
+    if (ress.status === 201) return res.data.location.string
   } catch (err) {
     handleSendSentry(err, ERROR_HEADERS.SETTINGS.FAILURE_PUT_PHOTO)
     // console.log(err)
