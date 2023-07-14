@@ -14,16 +14,13 @@ const Preview = (props: Props) => {
   const [fileUrl, setFileUrl] = useState<string>()
 
   useEffect(() => {
-    if(file instanceof File) {
-      let fileReader = new FileReader()
-
-      fileReader.onload = event => {
-        const url = event.target?.result as string
-
-        setFileUrl(url)
-      }
-
-      fileReader.readAsDataURL(file) 
+    if (file instanceof File) {
+      const fileUrl = URL.createObjectURL(file);
+      setFileUrl(fileUrl);
+      return () => {
+        // Free the URL created by unmounting the component
+        URL.revokeObjectURL(fileUrl); 
+      };
     }
   }, [file])
 

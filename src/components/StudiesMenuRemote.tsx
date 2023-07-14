@@ -32,7 +32,7 @@ import StudyOrder from "./studiesorder/StudyOrder";
 // import Provider from "./studiesorder/Provider";
 import { HEIGHT_NAVBAR, TIME_TO_OPEN_APPOINTMENT } from "../util/constants";
 import useWindowDimensions from "../util/useWindowDimensions";
-import { countDays } from "../util/helpers";
+import { countDays, toUpperLowerCase } from "../util/helpers";
 import { useRouteMatch } from "react-router-dom";
 import handleSendSentry from "../util/Sentry/sentryHelper";
 import { ERROR_HEADERS } from "../util/Sentry/errorHeaders";
@@ -572,7 +572,7 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                                         </Typography>
 
                                         <Typography variant='body2' color='textSecondary'>
-                                            {item.source}
+                                            {toUpperLowerCase(item.source)}
                                         </Typography>
                                     </Grid>
                                 ))
@@ -709,23 +709,26 @@ export function StudiesMenuRemote({ setPreviewActivate, appointment }) {
                             getSourceSVG(studyDetail.source)}
                     </Card>
                 </Grid>
-                <Card
-                    className="mt-3"
-                    style={{
-                        backgroundColor: '#F7FAFC',
-                        borderRadius: '16px',
-                        boxShadow: 'none',
-                        marginBottom: '15px',
-                        padding: '15px',
-                        minHeight: '100px'
-                    }}
-                >
-                    <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
-                        Conclusión
-                    </Typography>
-
-
-                </Card>
+                { studyDetail?.conclusion &&
+                    <Card
+                        className="mt-3"
+                        style={{
+                            backgroundColor: '#F7FAFC',
+                            borderRadius: '16px',
+                            boxShadow: 'none',
+                            marginBottom: '15px',
+                            padding: '15px',
+                            minHeight: '100px'
+                        }}
+                    >
+                        <Typography variant='h6' noWrap style={{ textAlign: 'left', color: 'textPrimary' }}>
+                            Conclusión
+                        </Typography>
+                        <Typography variant='body1' noWrap style={{ padding: '20px', textAlign: 'left', color: '#6B7280' }}>
+                            {studyDetail.conclusion}
+                        </Typography>
+                    </Card>
+                }
                 <Grid
                     style={{
                         padding: '15px',

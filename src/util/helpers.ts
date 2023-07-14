@@ -29,13 +29,13 @@ export const validateOpenHours = (openHours: Boldo.OpenHours) => {
         for (let j = 0; j < interval.length; j++) {
           //console.log("start => ", interval[j].start)
           //console.log("end => ", interval[j].end)
-          if( interval[j].start === interval[j].end ) {
+          if (interval[j].start === interval[j].end) {
             return false
           }
         }
       }
     }
-  } catch(err) {
+  } catch (err) {
     handleSendSentry(err, ERROR_HEADERS.OPEN_HOURS.FAILURE_VALIDATE)
     return false
   }
@@ -74,8 +74,8 @@ export const toUpperLowerCase = (sentence: string) => {
 }
 
 //count the days @days: the days is string with format inlcude 'T'
-export const countDays = (days: string | undefined ) => {
-  if(days === undefined) return 
+export const countDays = (days: string | undefined) => {
+  if (days === undefined) return
   const currentDate = moment(new Date(), 'DD/MM/YYYY')
   const days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
   switch (days_diff) {
@@ -144,14 +144,14 @@ export async function getReports(appointment, setLoading) {
 
 export function organizationsFromMessage(msg: String, organizations: Array<Boldo.Organization>): Array<String> {
   let organizationsMatches = [] as Array<String>
-  
+
   try {
     let organizationsIds = msg.match(/\d+/g)
 
-    organizationsIds && organizationsIds.forEach((id)=>{
+    organizationsIds && organizationsIds.forEach((id) => {
       organizationsMatches.push(organizations.find((organization) => organization.id === id).name)
     })
-  } catch(err) {
+  } catch (err) {
     Sentry.captureMessage('Could not get match from backend message')
     Sentry.captureException(err)
   }
@@ -206,7 +206,7 @@ export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: strin
   let orgFound = orgs.find(organization => organization.id === orgIDSearch)
 
   if (orgFound && orgFound.colorCode) colorCode = orgFound.colorCode
-  
+
   return colorCode
 }
 
@@ -224,7 +224,7 @@ export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: strin
 // }
 
 export function changeHours(date: Date, hours: number, operation: 'subtract' | 'add'): String {
-  if(operation === 'subtract') {
+  if (operation === 'subtract') {
     date.setHours(date.getHours() - hours)
   } else {
     date.setHours(date.getHours() + hours)

@@ -14,6 +14,9 @@ module.exports = {
         'orange-dark':'#DB7D68',
         'pressed-gray': '#E0DEDE',
         'dark-cool': '#364152',
+        'neutral-gray': '#F6F4F4',
+        'ghost-white': '#F8FFFF',
+        'green-darker': '#24AAAD',
         primary: {
           100: '#D4F2F3',
           200: '#A9E5E7',
@@ -63,7 +66,7 @@ module.exports = {
     textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
     opacity: ['disabled', 'hover', 'group-hover'],
     cursor: ['disabled', 'hover'],
-    backgroundColor: ['checked', 'disabled', 'hover'],
+    backgroundColor: ['checked', 'disabled', 'hover', 'group-hover'],
     width: ['hover', 'responsive', 'focus'],
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],

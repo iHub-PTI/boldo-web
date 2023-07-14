@@ -779,9 +779,11 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             </div>
           : <div></div>
         }
-        <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
-          Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
-        </Typography>
+        { (appointment?.status === 'upcoming' || appointment?.status === 'open') &&
+          <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
+            Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
+          </Typography>
+        }
       </Grid>
     </div>
   )

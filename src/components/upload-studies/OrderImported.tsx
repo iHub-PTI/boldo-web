@@ -23,7 +23,7 @@ type Props = {
   searchRef: React.MutableRefObject<HTMLInputElement>;
 }
 
-type Presigned = {
+export type Presigned = {
   uploadUrl: string;
   location: string;
 }
@@ -183,6 +183,8 @@ const OrderImported = (props: Props) => {
                 key={index}
                 file={file}
                 index={index}
+                attachmentFiles={attachmentFiles}
+                setAttachmentFiles={setAttachmentFiles}
               />
     })
 
@@ -376,6 +378,8 @@ const OrderImported = (props: Props) => {
                                 key={idx}
                                 file={file}
                                 index={idx}
+                                attachmentFiles={attachmentFiles}
+                                setAttachmentFiles={setAttachmentFiles}
                               />
                     })
                   }

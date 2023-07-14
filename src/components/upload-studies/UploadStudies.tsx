@@ -9,6 +9,7 @@ import OrderImported from './OrderImported';
 import _ from 'lodash';
 import LockIcon from '../icons/upload-icons/LockIcon';
 import LoadingSpinner from '../icons/sumary-print/LoadingSpinner';
+import StudyForm from './StudyForm';
 
 
 type Props = {
@@ -21,7 +22,8 @@ const UploadStudies = (props: Props) => {
   const [searchValue, setSearchValue] = useState<string>('')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchError, setSearchError] = useState<boolean>(false)
-  const [showNewStudyWithOutOrder, setShowNewStudyWithOutOrder] = useState<boolean>(true)
+  const [showNewStudyWithOrder, setShowNewStudyWithOrder] = useState<boolean>(true)
+  const [showNewStudyWithoutOrder, setShowNewStudyWithoutOrder] = useState<boolean>(false)
   const [showTable, setShowTable] = useState<boolean>(false)
   const [showOrderImported, setShowOrderImported] = useState<boolean>(false)
   const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
@@ -31,7 +33,9 @@ const UploadStudies = (props: Props) => {
 
   // This function handles the visibility of the back button
   const handleShowNewStudyWithOutOrder = () => {
-    setShowNewStudyWithOutOrder(!showNewStudyWithOutOrder)
+    setShowNewStudyWithOrder(!showNewStudyWithOrder)
+    if (showOrderImported) setShowOrderImported(false)
+    if (showNewStudyWithoutOrder) setShowNewStudyWithoutOrder(false)
   }
 
   // this function handles the visibilitu of the table
@@ -39,6 +43,10 @@ const UploadStudies = (props: Props) => {
     if (show) setShowOrderImported(false)
     setShowTable(show)
   }
+
+  useEffect(() => {
+    if (showOrderImported) setShowNewStudyWithOrder(false)
+  }, [showOrderImported])
 
   //debounce input 
   const handleChangeInputNumberOrder = useCallback(
@@ -69,7 +77,7 @@ const UploadStudies = (props: Props) => {
       <div className={`flex flex-col overflow-auto scrollbar ${width >= WIDTH_XL ? 'h-11/12' : 'h-10/12' }`}>
         {/* this only show when new study is clicked */}
         <button
-          className={`flex flex-row ml-6 mt-1 w-auto focus:outline-none ${showNewStudyWithOutOrder ? 'invisible' : 'visible'}`}
+          className={`flex flex-row ml-6 mt-1 w-auto focus:outline-none ${showNewStudyWithOrder ? 'invisible' : 'visible'}`}
           onClick={() => {
             handleShowNewStudyWithOutOrder()
             setShowTable(true)
@@ -94,8 +102,12 @@ const UploadStudies = (props: Props) => {
           <p className='not-italic font-sans font-normal text-xl leading-6 m-2'>Busque una orden o adjunte un nuevo estudio</p>
           {/* bar for search studies for order number */}
           <div
-            className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg mb-2 hover:bg-gray-200 transition duration-300'
-            onClick={() => handleShowTable(true)}
+            className='flex flex-row pt-1 pb-1 w-2/3 rounded-lg hover:bg-gray-200 transition duration-300'
+            onClick={() => {
+              handleShowTable(true)
+              setShowNewStudyWithoutOrder(false)
+              setShowNewStudyWithOrder(true)
+            }}
           >
             <SearchIcon />
             <input
@@ -109,11 +121,12 @@ const UploadStudies = (props: Props) => {
             />
           </div>
           {/* It is only shown when we want to associate it with an order */}
-          {/* {showNewStudyWithOutOrder &&
+          {showNewStudyWithOrder &&
             <button
               className='flex flex-row mt-2 mb-2 pt-1 pb-1 w-2/3 focus:outline-none rounded-lg hover:bg-gray-100 transition duration-300'
               onClick={() => {
                 handleShowNewStudyWithOutOrder()
+                setShowNewStudyWithoutOrder(true)
                 setShowTable(false)
               }}
             >
@@ -125,7 +138,7 @@ const UploadStudies = (props: Props) => {
                 Adjuntar nuevo estudio sin orden
               </p>
             </button>
-          } */}
+          }
           {showTable &&
             <div style={{ width: "95%" }}>
               <TableOfStudies patientId={patientId} searchByOrder={searchValue} handleShowOrderImported={() => setShowOrderImported(!showOrderImported)} />
@@ -139,6 +152,11 @@ const UploadStudies = (props: Props) => {
                 handleShowOrderImported={() => setShowOrderImported(!showOrderImported)}
                 saveRef={saveButtonRef}
               />
+            </div>
+          }
+          { showNewStudyWithoutOrder &&
+            <div style={{width: "95%"}}>
+              <StudyForm saveRef={saveButtonRef} patientId={patientId} setLoadingSubmit={setLoadingSubmit} />
             </div>
           }
         </div>
