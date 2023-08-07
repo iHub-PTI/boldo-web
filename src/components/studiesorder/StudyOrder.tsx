@@ -16,9 +16,11 @@ import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import { useToasts } from '../Toast';
 import Tooltip from '@material-ui/core/Tooltip';
-import * as Sentry from '@sentry/react'
 import InfoIcon from '../icons/info-icons/InfoIcon';
 import HoverInfo from '../hovers/TooltipInfo'
+import handleSendSentry from '../../util/Sentry/sentryHelper';
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
+import { OrganizationContext } from '../../contexts/Organizations/organizationSelectedContext';
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -112,6 +114,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
     const [errorType, setErrorType] = useState('')
     // boolean handling the hover event
     const [showTooltipInfo, setShowTooltipInfo] = useState(false);
+    const { Organization } = useContext(OrganizationContext)
 
     let matchInperson = useRouteMatch<{ id: string }>(`/appointments/:id/inperson`)
     let matchCall = useRouteMatch<{ id: string }>(`/appointments/:id/call`)
@@ -141,26 +144,12 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
 
             } catch (err) {
                 //console.log(err)
-                Sentry.setTags({
+                const tags = {
                     'endpoint': url,
                     'method': 'GET',
                     'appointment_id': id
-                })
-                if (err.response) {
-                    // The response was made and the server responded with a 
-                    // status code that is outside the 2xx range.
-                    Sentry.setTag('data', err.response.data)
-                    Sentry.setTag('headers', err.response.headers)
-                    Sentry.setTag('status_code', err.response.status)
-                } else if (err.request) {
-                    // The request was made but no response was received
-                    Sentry.setTag('request', err.request)
-                } else {
-                    // Something happened while preparing the request that threw an Error
-                    Sentry.setTag('message', err.message)
                 }
-                Sentry.captureMessage("Could not get the encounter in the creation of study order")
-                Sentry.captureException(err)
+                handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET_IN_STUDY_ORDER, tags)
                 addToast({
                     type: 'error',
                     title: 'Ha ocurrido un error.',
@@ -242,7 +231,7 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                 ordersCopy.push({
                     "category": object.category, "diagnosis": object.diagnosis,
                     "encounterId": object.encounterId, "notes": object.notes, "urgent": object.urgent,
-                    "studiesCodes": studiesCodes
+                    "studiesCodes": studiesCodes, "organizationId": Organization?.id ?? ''
                 })
             });
             // console.log(ordersCopy)
@@ -268,23 +257,11 @@ const StudyOrder = ({ setShowMakeOrder, remoteMode = false, encounter={} as Bold
                 setShowMakeOrder(false)
                 addToast({ type: 'success', title: 'Notificación', text: total > 1 ? 'Las órdenes han sido enviadas.': 'La orden ha sido enviada.' })
             } catch (err) {
-                Sentry.setTag('endpoint', url)
-                Sentry.setTag('method', 'POST')
-                if (err.response) {
-                    // The response was made and the server responded with a 
-                    // status code that is outside the 2xx range.
-                    Sentry.setTag('data', err.response.data)
-                    Sentry.setTag('headers', err.response.headers)
-                    Sentry.setTag('status_code', err.response.status)
-                } else if (err.request) {
-                    // The request was made but no response was received
-                    Sentry.setTag('request', err.request)
-                } else {
-                    // Something happened while preparing the request that threw an Error
-                    Sentry.setTag('message', err.message)
+                const tags = {
+                    "endpoint": url,
+                    "method": "POST"
                 }
-                Sentry.captureMessage("Could not generate a new study order")
-                Sentry.captureException(err)
+                handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER.FAILURE_POST, tags)
                 addToast({
                     type: 'error',
                     title: 'Ha ocurrido un error.',

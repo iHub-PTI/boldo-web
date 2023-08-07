@@ -4,17 +4,19 @@ import axios from 'axios'
 import { useRouteMatch } from 'react-router-dom'
 // import moment from 'moment'
 //import useStyles from './style'
-import * as Sentry from '@sentry/react'
+import { Disclosure, Transition } from '@headlessui/react'
+import differenceInYears from 'date-fns/differenceInYears'
 import { useToasts } from '../../components/Toast'
-import useWindowDimensions from '../../util/useWindowDimensions'
-import UserCircle from "../../components/icons/patient-register/UserCircle";
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from "../../util/constants"
+import ArrowDown from '../../components/icons/ArrowDown'
 import PastIcon from '../../components/icons/HistoryIcon'
 import NoProfilePicture from '../../components/icons/NoProfilePicture'
-import { Disclosure, Transition } from '@headlessui/react'
+import StudyHistoryIcon from '../../components/icons/StudyHistoryIcon'
+import UserCircle from "../../components/icons/patient-register/UserCircle"
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from "../../util/constants"
 import { toUpperLowerCase } from '../../util/helpers'
-import ArrowDown from '../../components/icons/ArrowDown'
-import differenceInYears from 'date-fns/differenceInYears'
+import useWindowDimensions from '../../util/useWindowDimensions'
 
 
 type PropsButton = {
@@ -52,9 +54,15 @@ const ButtonSlide: React.FC<PropsButton> = ({ setShow, show, disabled, IconEleme
             letterSpacing: '0.15px',
             borderBottom: '0.5px solid #E0DEDE'
           }}>
-          {title.split(' ')[0]}
-          <br />
-          {title.split(' ')[1]}
+          <span
+            style={{
+              display: 'inline-block',
+              width: '150px',
+              overflowWrap: 'break-word',
+            }}
+          >
+            {title}
+          </span>
         </div>
       </div>
     </button>
@@ -65,17 +73,39 @@ const PatientRecord = (props) => {
   const { givenName, familyName, birthDate, identifier, city = '', phone = '', photoUrl = '', job } = props.patient;
   //const { addErrorToast, addToast } = useToasts()
   const [transition, setTransition] = useState<boolean>(false)
-  const { status } = props.appointment
+  //const { status } = props.appointment
 
 
   const handleTransition = () => {
     setTransition(!transition)
   }
-  const handleSwitchButtonRecordOutPatient = () =>
-    props.setShowMedicalHistory(false)
 
-  const handleSwitchButtonMedicalHistory = () =>
+  //Used to disable the other buttons
+  const handleSwitchButtonRecordOutPatient = () => {
+    props.setShowMedicalHistory(false)
+    props.setShowStudiesHistory(false)
+    props.setShowOrderHistory(false)
+  }
+
+  //Used to disable the other buttons
+  const handleSwitchButtonMedicalHistory = () => {
     props.setOutpatientRecordShow(false)
+    props.setShowStudiesHistory(false)
+    props.setShowOrderHistory(false)
+  }
+
+  //Used to disable the other buttons
+  const handleSwitchButtonStudiesHistory = () => {
+    props.setOutpatientRecordShow(false)
+    props.setShowMedicalHistory(false)
+    props.setShowOrderHistory(false)
+  }
+
+  const handleSwitchButtonOrderHistory = () => {
+    props.setOutpatientRecordShow(false)
+    props.setShowMedicalHistory(false)
+    props.setShowStudiesHistory(false)
+  }
 
   return (
     <div className='flex flex-col flex-1' style={{ padding: '15px' }}>
@@ -144,6 +174,32 @@ const PatientRecord = (props) => {
           callBackSwitch={handleSwitchButtonMedicalHistory}
         />
         <ButtonSlide
+          show={props.showStudiesHistory}
+          setShow={props.setShowStudiesHistory}
+          disabled={
+            //(status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
+          IconElement={() =>
+            <StudyHistoryIcon
+              fill={`${props.showStudiesHistory ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={'Historial de Estudios'}
+          callBackSwitch={handleSwitchButtonStudiesHistory}
+        />
+        <ButtonSlide
+          show={props.showOrderHistory}
+          setShow={props.setShowOrderHistory}
+          disabled={
+            // (status !== 'closed' && status !== 'open') ||
+            props.disabledRedcordButton}
+          IconElement={() =>
+            <StudyHistoryIcon
+              fill={`${props.showOrderHistory ? '#13A5A9' : '#6B7280'}`}
+            />}
+          title={"Historial de Órdenes"}
+          callBackSwitch={handleSwitchButtonOrderHistory}
+        />
+        <ButtonSlide
           show={props.outpatientRecordShow}
           setShow={props.setOutpatientRecordShow}
           disabled={
@@ -181,26 +237,12 @@ export default (props) => {
         setEncounter(res.data.encounter)
         // setInitialLoad(false)
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the encounter")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET_IN_PATIENT_SECTION, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
@@ -234,6 +276,10 @@ export default (props) => {
           setOutpatientRecordShow={props.setOutpatientRecordShow}
           showMedicalHistory={props.showMedicalHistory}
           setShowMedicalHistory={props.setShowMedicalHistory}
+          showStudiesHistory={props.showStudiesHistory}
+          setShowStudiesHistory={props.setShowStudiesHistory}
+          showOrderHistory={props.showOrderHistory}
+          setShowOrderHistory={props.setShowOrderHistory}
         /> :
         <div className='flex h-full justify-center items-center'>
           <div className='bg-gray-100 rounded-full'>

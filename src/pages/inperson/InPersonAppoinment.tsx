@@ -1,21 +1,25 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { usePrescriptionContext } from '../../contexts/Prescriptions/PrescriptionContext';
-import Layout from '../../components/Layout'
-import PatientSection from './PatientSection'
-import MedicalRecordSection from './MedicalRecordSection'
-import { PrescriptionMenu } from '../../components/PrescriptionMenu'
-import SelectorSection from './SelectorSection'
-import { LaboratoryMenu } from '../../components/LaboratoryMenu'
-import { useRouteMatch } from 'react-router-dom'
-import axios from 'axios'
-import { RecordsOutPatient } from '../../components/RecordsOutPatient'
-import * as Sentry from '@sentry/react'
-import { useToasts } from '../../components/Toast';
+import axios from 'axios';
+import React, { useContext, useEffect, useState } from 'react';
+import { useRouteMatch } from 'react-router-dom';
+import { LaboratoryMenu } from '../../components/LaboratoryMenu';
+import Layout from '../../components/Layout';
 import MedicalHistory from '../../components/MedicalHistory';
 import OrganizationBar from '../../components/OrganizationBar';
+import { PrescriptionMenu } from '../../components/PrescriptionMenu';
+import { RecordsOutPatient } from '../../components/RecordsOutPatient';
+import { useToasts } from '../../components/Toast';
+import OrderHistory from '../../components/history-study-order/OrderHistory';
+import StudyHistory from '../../components/history-study-order/StudyHistory';
+import UploadStudies from '../../components/upload-studies/UploadStudies';
+import { AllOrganizationContext } from '../../contexts/Organizations/organizationsContext';
+import { usePrescriptionContext } from '../../contexts/Prescriptions/PrescriptionContext';
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders';
+import handleSendSentry from '../../util/Sentry/sentryHelper';
 import { HEIGHT_BAR_STATE_APPOINTMENT, ORGANIZATION_BAR } from '../../util/constants';
-import { AllOrganizationContext } from '../../contexts/Organizations/organizationsContext'
 import { getColorCode } from '../../util/helpers';
+import MedicalRecordSection from './MedicalRecordSection';
+import PatientSection from './PatientSection';
+import SelectorSection from './SelectorSection';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -35,11 +39,24 @@ export default function Dashboard() {
   //to manage the view of the medical history
   const [showMedicalHistory, setShowMedicalHistory] = useState(false)
 
+  //to manage the view of the studies history
+  const [showStudiesHistory, setShowStudiesHistory] = useState(false)
+
+  //to manage the view of the order history
+  const [showOrderHistory, setShowOrderHistory] = useState(false)
+
   const { Organizations } = useContext(AllOrganizationContext)
+
   /*FIXME: Medical Records Section
    When loading the soep, if the ambulatory registry is opened, a visual bug is presented. To fix what I do is block the button while the encounter is loading */
   const [disabledRedcordButton, setDisabledRedcordButton] = useState(true)
 
+  const menuSelected = {
+    'P': <PrescriptionMenu appointment={appointment} isFromInperson={true} />,
+    'M': <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />,
+    'L': <LaboratoryMenu appointment={appointment} isFromInperson={true} />,
+    'U': <UploadStudies patientId={`${appointment?.patientId ?? ''}`} />
+  }
 
   useEffect(() => {
     if (DynamicMenuSelector !== 'M') setDisabledRedcordButton(false)
@@ -56,26 +73,12 @@ export default function Dashboard() {
           setAppointment(res.data)
         }
       } catch (err) {
-        Sentry.setTags({
+        const tags = {
           'endpoint': url,
           'method': 'GET',
           'appointment_id': id
-        })
-        if (err.response) {
-          // The response was made and the server responded with a 
-          // status code that is outside the 2xx range.
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // The request was made but no response was received
-          Sentry.setTag('request', err.request)
-        } else {
-          // Something happened while preparing the request that threw an Error
-          Sentry.setTag('message', err.message)
         }
-        Sentry.captureMessage("Could not get the appointment")
-        Sentry.captureException(err)
+        handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_GET, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
@@ -124,14 +127,18 @@ export default function Dashboard() {
                 setOutpatientRecordShow={setOutpatientRecordShow}
                 showMedicalHistory={showMedicalHistory}
                 setShowMedicalHistory={setShowMedicalHistory}
+                showStudiesHistory={showStudiesHistory}
+                setShowStudiesHistory={setShowStudiesHistory}
+                showOrderHistory={showOrderHistory}
+                setShowOrderHistory={setShowOrderHistory}
               />
             )}
           </div>
           <div
             className=
             {`flex-col w-0 opacity-0
-              ${outpatientRecordShow ?
-                'flex w-7/12 opacity-100' :
+              ${outpatientRecordShow || showStudiesHistory || showOrderHistory ?
+                'flex w-7/12 opacity-100 overflow-x-auto' :
                 showMedicalHistory ?
                   'flex w-3/12 opacity-100' :
                   ''
@@ -141,24 +148,34 @@ export default function Dashboard() {
               transition: 'width 0.5s linear, opacity 0.5s linear',
             }}
           >
-            {appointment !== undefined && (
-              <RecordsOutPatient
-                appointment={appointment}
-                show={outpatientRecordShow}
-                setShow={setOutpatientRecordShow}
-              />
-            )}
-            {appointment !== undefined && (
-              <MedicalHistory
-                show={showMedicalHistory}
-                setShow={setShowMedicalHistory}
-                appointment={appointment}
-              />
+            {appointment && (
+              <>
+                <RecordsOutPatient
+                  appointment={appointment}
+                  show={outpatientRecordShow}
+                  setShow={setOutpatientRecordShow}
+                />
+                <MedicalHistory
+                  show={showMedicalHistory}
+                  setShow={setShowMedicalHistory}
+                  appointment={appointment}
+                />
+                <StudyHistory
+                  show={showStudiesHistory}
+                  setShow={setShowStudiesHistory}
+                  appointment={appointment}
+                />
+                <OrderHistory
+                  show={showOrderHistory}
+                  setShow={setShowOrderHistory}
+                  appointment={appointment}
+                />
+              </>
             )}
           </div>
           <div
             className={`flex flex-row h-full w-full left-3/12 bg-white z-10 
-            ${outpatientRecordShow ?
+            ${outpatientRecordShow || showStudiesHistory || showOrderHistory?
                 'absolute inset-0 lg:left-10/12 md:left-full left-full opacity-25 cursor-default' :
                 showMedicalHistory ?
                   'absolute inset-0 xl:left-7/12 lg:left-8/12 md:left-9/12 left-full opacity-25 cursor-default' :
@@ -168,9 +185,11 @@ export default function Dashboard() {
             onClick={() => {
               if (outpatientRecordShow) setOutpatientRecordShow(false)
               if (showMedicalHistory) setShowMedicalHistory(false)
+              if (showStudiesHistory) setShowStudiesHistory(false)
+              if (showOrderHistory) setShowOrderHistory(false)
             }}
           >
-            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
+            <div className='flex flex-col flex-1 h-full w-1/12' style={{ width: '5rem', pointerEvents: outpatientRecordShow || showMedicalHistory || showStudiesHistory || showOrderHistory ? 'none' : 'auto' }}>
               <SelectorSection
                 setDynamicMenuSelector={(elem: any) => {
                   setDynamicMenuSelector(elem)
@@ -180,13 +199,15 @@ export default function Dashboard() {
               />
             </div>
             <div className='aboslute h-full w-11/12' style={{ pointerEvents: outpatientRecordShow || showMedicalHistory ? 'none' : 'auto' }}>
-              {DynamicMenuSelector === 'P' ? (
+              {/* {DynamicMenuSelector === 'P' ? (
                 <PrescriptionMenu appointment={appointment} isFromInperson={true} />
               ) : DynamicMenuSelector === 'M' ? (
                 <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />
               ) : (
                 <LaboratoryMenu appointment={appointment} isFromInperson={true} />
-              )}
+              )} */}
+              {/* DynamicMenuSelecot can be "M", "P", "L" or "U" for Medications, Prescriptions, Laboratory and Upload Studies */}
+              {menuSelected[DynamicMenuSelector] ?? <></>}
             </div>
           </div>
         </div>

@@ -17,10 +17,11 @@ import MedicineItem from "./MedicineItem"
 import MedicationsModal from "./MedicationsModal";
 import useStyles from '../pages/inperson/style'
 import { usePrescriptionContext } from "../contexts/Prescriptions/PrescriptionContext";
-import * as Sentry from '@sentry/react'
 import { useToasts } from "./Toast";
 import InfoIcon from "./icons/info-icons/InfoIcon";
 import TooltipInfo from "./hovers/TooltipInfo";
+import handleSendSentry from "../util/Sentry/sentryHelper";
+import { ERROR_HEADERS } from "../util/Sentry/errorHeaders";
 
 
 export function PrescriptionMenu({ appointment, isFromInperson = false }: { appointment: any; isFromInperson: boolean }) {
@@ -96,26 +97,12 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     }
                 })
                 .catch((err) => {
-                    Sentry.setTags({
+                    const tags = {
                         'endpoint': url,
                         'method': 'GET',
                         'appointment_id': id
-                    })
-                    if (err.response) {
-                        // The response was made and the server responded with a 
-                        // status code that is outside the 2xx range.
-                        Sentry.setTag('data', err.response.data)
-                        Sentry.setTag('headers', err.response.headers)
-                        Sentry.setTag('status_code', err.response.status)
-                    } else if (err.request) {
-                        // The request was made but no response was received
-                        Sentry.setTag('request', err.request)
-                    } else {
-                        // Something happened while preparing the request that threw an Error
-                        Sentry.setTag('message', err.message)
                     }
-                    Sentry.captureMessage("Could not get the encounter")
-                    Sentry.captureException(err)
+                    handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
                     addToast({
                         type: 'error',
                         title: 'Ha ocurrido un error.',
@@ -148,26 +135,12 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
             } catch (err) {
                 setSuccess(false)
                 setLoading(false)
-                Sentry.setTags({
+                const tags = {
                     'endpoint': url,
                     'method': 'PUT',
                     'appointment_id': id
-                })
-                if (err.response) {
-                    // The response was made and the server responded with a 
-                    // status code that is outside the 2xx range.
-                    Sentry.setTag('data', err.response.data)
-                    Sentry.setTag('headers', err.response.headers)
-                    Sentry.setTag('status_code', err.response.status)
-                } else if (err.request) {
-                    // The request was made but no response was received
-                    Sentry.setTag('request', err.request)
-                } else {
-                    // Something happened while preparing the request that threw an Error
-                    Sentry.setTag('message', err.message)
                 }
-                Sentry.captureMessage("Could not update the encounter")
-                Sentry.captureException(err)
+                handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_PUT, tags)
                 addToast({
                     type: 'error',
                     title: 'Ha ocurrido un error.',
@@ -232,7 +205,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     if (initialLoad)
         return (
-            <div style={{ width: '300px' }} className='flex items-center justify-center w-full h-full py-64'>
+            <div className='flex items-center justify-center w-full h-full py-64'>
                 <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
                     <svg
                         className='w-6 h-6 text-secondary-500 animate-spin'
