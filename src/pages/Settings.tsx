@@ -8,7 +8,7 @@ import MultiListbox from '../components/MultiListbox'
 import Languages from '../util/ISO639-1-es.json'
 import { daysFromMessage, organizationsFromMessage, validateDate, validateOpenHours } from '../util/helpers'
 import { UserContext } from '../App'
-import { Box, FormControl, InputLabel, MenuItem, Select, } from '@material-ui/core'
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@material-ui/core'
 import MultiSelect from '../components/MultiSelect'
 import * as Sentry from '@sentry/react'
 // Uncomment if necessary
@@ -36,9 +36,9 @@ export const upload = async (file: File | string) => {
   const options = {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,
-    useWebWorker: true
+    useWebWorker: true,
   }
-  
+
   try {
     const compressedFile = await imageCompression(file, options)
     const res = await axios.get('/presigned')
@@ -59,7 +59,7 @@ export const upload = async (file: File | string) => {
 interface Interval {
   start: number
   end: number
-  appointmentType:string
+  appointmentType: string
 }
 
 type weekDay = keyof typeof weekDays
@@ -91,9 +91,7 @@ const initialState: DoctorForm = {
   addressDescription: '',
   specializations: [],
   license: '',
-  blocks: [
-    
-  ] as Array<Boldo.Block>
+  blocks: [] as Array<Boldo.Block>,
 }
 
 const initialBlock = {
@@ -106,7 +104,7 @@ const initialBlock = {
     sat: [],
     sun: [],
   },
-  idOrganization: ''
+  idOrganization: '',
 } as Boldo.Block
 
 const errorTitle = 'Error al enviar el formulario.'
@@ -121,7 +119,7 @@ const errorText = {
   openHours: '¡Ingrese un horario con finalización mayor al inicio',
   photo: 'Ha ocurrido un error con las imágenes! Intente de nuevo.',
   organizations: 'Debe tener asociado al menos un centro asistencial. Contáctese con soporte para ello.',
-  unknown: 'No pudimos obtener centros asistenciales asociados a su cuenta. Por favor, inténtelo nuevamente más tarde.'
+  unknown: 'No pudimos obtener centros asistenciales asociados a su cuenta. Por favor, inténtelo nuevamente más tarde.',
 }
 
 type Action =
@@ -132,28 +130,26 @@ type Action =
   | { type: 'ChangeOpenHour'; value: { day: weekDay; index: number; interval: Interval }; org: string }
 
 function reducer(state: DoctorForm, action: Action): DoctorForm {
-  
   switch (action.type) {
     case 'initial': {
       const auxDoctor = action.value
-      if ( action.organizations?.length > 0 ) {
-        if ( action.value.blocks.length === 0 ) {
-          for ( let index = 0; index < action.organizations.length; index++ ) {
+      if (action.organizations?.length > 0) {
+        if (action.value.blocks.length === 0) {
+          for (let index = 0; index < action.organizations.length; index++) {
             // here we add the id of the organization
-            initialBlock.idOrganization = action.organizations[index].id
             // and now we add the block to the doctor form
-            auxDoctor.blocks.push(initialBlock)
+            auxDoctor.blocks.push({ ...initialBlock, idOrganization: action.organizations[index].id })
           }
         } else {
-          for ( let indexOrg = 0; indexOrg < action.organizations.length; indexOrg++ ) {
+          for (let indexOrg = 0; indexOrg < action.organizations.length; indexOrg++) {
             let exist = false
-            for ( let index = 0; index < action.value.blocks.length; index ++ ) {
-              if ( action.organizations[indexOrg].id === action.value.blocks[index].idOrganization ) {
+            for (let index = 0; index < action.value.blocks.length; index++) {
+              if (action.organizations[indexOrg].id === action.value.blocks[index].idOrganization) {
                 exist = true
                 break
               }
             }
-            if ( !exist ) {
+            if (!exist) {
               const auxBlock = {
                 openHours: {
                   mon: [],
@@ -164,7 +160,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
                   sat: [],
                   sun: [],
                 },
-                idOrganization: ''
+                idOrganization: '',
               } as Boldo.Block
               // here we add the id of the organization
               auxBlock.idOrganization = action.organizations[indexOrg].id
@@ -184,71 +180,68 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
-      const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
-      
+      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
+
       //const day = [...state.openHours[action.value.day], { start: 0, end: 0 }]
       const day = [...block.openHours[action.value.day], { start: 0, end: 0 }]
 
       //const openHours = { ...state.openHours, [action.value.day]: day }
-      const openHours = {...block.openHours, [action.value.day]: day}
+      const openHours = { ...block.openHours, [action.value.day]: day }
       // will always be an array of length one
-      const newBlock = [{  openHours, idOrganization }] as Array<Boldo.Block>
+      const newBlock = [{ openHours, idOrganization }] as Array<Boldo.Block>
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
         if (state.blocks[index].idOrganization === idOrganization) {
           state.blocks[index] = newBlock[0]
         }
-        
       }
 
       //return { ...state, openHours }
-      return {...state}
+      return { ...state }
     }
 
     case 'RemoveOpenHour': {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
-      const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
+      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
       const day = block.openHours[action.value.day].filter((_, i) => i !== action.value.index)
       //const openHours = { ...state.openHours, [action.value.day]: day }
-      const openHours = {...block.openHours, [action.value.day]: day}
+      const openHours = { ...block.openHours, [action.value.day]: day }
       // will always be an array of length one
-      const newBlock = [{  openHours, idOrganization }] as Array<Boldo.Block>
+      const newBlock = [{ openHours, idOrganization }] as Array<Boldo.Block>
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
         if (state.blocks[index].idOrganization === idOrganization) {
           state.blocks[index] = newBlock[0]
         }
-        
       }
       //return { ...state, openHours }
-      return {...state}
+      return { ...state }
     }
 
     case 'ChangeOpenHour': {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
-      const block = state.blocks.find((bloc)=> bloc.idOrganization === idOrganization)
-      
+      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
+
       const day = block.openHours[action.value.day].map((interval, i) =>
         i === action.value.index ? action.value.interval : interval
       )
 
-      const openHours = {...block.openHours, [action.value.day]: day}
+      const openHours = { ...block.openHours, [action.value.day]: day }
       // console.log("openHours => ", openHours)
       // will always be an array of length one
-      const newBlock = [{  openHours, idOrganization }] as Array<Boldo.Block>
+      const newBlock = [{ openHours, idOrganization }] as Array<Boldo.Block>
       // console.log("newBlock => ", newBlock)
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
         if (state.blocks[index].idOrganization === idOrganization) {
           state.blocks[index] = newBlock[0]
         }
-        
       }
       //return { ...state, openHours }
-      return {...state}
+      return { ...state }
     }
 
     default:
@@ -277,11 +270,11 @@ const Settings = (props: Props) => {
   // const { Organization } = useContext(OrganizationContext)
   const { Organizations } = useContext(AllOrganizationContext)
 
-  const { addToast } = useToasts();
+  const { addToast } = useToasts()
 
   const errorMsg = {
     overlay: 'openHours settings overlay',
-    overlayTypes: 'openHours setting overlay between appointment types'
+    overlayTypes: 'openHours setting overlay between appointment types',
   }
 
   useEffect(() => {
@@ -299,7 +292,7 @@ const Settings = (props: Props) => {
               languages: res.data.languages.map((l: any) => l.id),
               specializations: res.data.specializations.map((l: any) => l.id),
             }
-            dispatch({ type: 'initial', value: doctor , organizations: Organizations})
+            dispatch({ type: 'initial', value: doctor, organizations: Organizations })
           }
           const specializations = res2.data.map(spec => {
             return { value: spec.id.toString(), name: spec.description }
@@ -309,7 +302,7 @@ const Settings = (props: Props) => {
         }
       } catch (err) {
         // console.log(err)
-        handleSendSentry(err, "Could not get the doctor profile with the specializations")
+        handleSendSentry(err, 'Could not get the doctor profile with the specializations')
         if (mounted) {
           addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'Falló la carga inicial de los datos.' })
           setShow(true)
@@ -322,7 +315,7 @@ const Settings = (props: Props) => {
     return () => {
       mounted = false
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -340,46 +333,51 @@ const Settings = (props: Props) => {
     } else if (Organizations.length > 0) {
       if (!validateDate(doctor.birthDate, 'past')) {
         validationError = true
-        addToast({ type: 'warning', title: errorTitle, text: errorText.birthday})
-      }
-  
-      if (doctor.languages.length === 0) {
-        validationError = true
-        addToast({ type: 'warning', title: errorTitle, text: errorText.language})
-      }
-  
-      if (doctor.specializations.length === 0) {
-        validationError = true
-        addToast({ type: 'warning', title: errorTitle, text: errorText.specialization})
-      }
-  
-      if (doctor.gender === 'unknown') {
-        validationError = true
-        addToast({ type: 'warning', title: errorTitle, text: errorText.gender})
+        addToast({ type: 'warning', title: errorTitle, text: errorText.birthday })
       }
 
-      doctor.blocks.forEach((block)=>{
-        if ( !validateOpenHours(block.openHours) ) {
+      if (doctor.languages.length === 0) {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.language })
+      }
+
+      if (doctor.specializations.length === 0) {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.specialization })
+      }
+
+      if (doctor.gender === 'unknown') {
+        validationError = true
+        addToast({ type: 'warning', title: errorTitle, text: errorText.gender })
+      }
+
+      doctor.blocks.forEach(block => {
+        if (!validateOpenHours(block.openHours)) {
           validationError = true
-          const customOpenHoursError = errorText.openHours + ` en ${Organizations.find(element => element.id === block.idOrganization).name}!`
-          addToast({ type: 'warning', title: errorTitle, text: customOpenHoursError})
+          const customOpenHoursError =
+            errorText.openHours + ` en ${Organizations.find(element => element.id === block.idOrganization).name}!`
+          addToast({ type: 'warning', title: errorTitle, text: customOpenHoursError })
         }
       })
-  
+
       if (!validationError) {
         const url = '/profile/doctor'
         try {
           let photoUrl = doctor.photoUrl
           if (doctor.photoUrl) {
             photoUrl = await upload(doctor.photoUrl)
-  
+
             if (!photoUrl) return addToast({ type: 'warning', title: errorTitle, text: errorText.photo })
             dispatch({ type: 'default', value: { photoUrl } })
           }
-          
+
           await axios.put(url, { ...doctor, photoUrl })
           // setSuccess('Actualización exitosa!')
-          addToast({ type: 'success', title: '¡Actualización exitosa!', text: 'La información de su perfil ha sido actualizada.' })
+          addToast({
+            type: 'success',
+            title: '¡Actualización exitosa!',
+            text: 'La información de su perfil ha sido actualizada.',
+          })
           updateUser({
             ...(typeof photoUrl === 'string' && { photoUrl }),
             givenName: doctor.givenName,
@@ -392,16 +390,16 @@ const Settings = (props: Props) => {
           // setError(err.response?.data.message || 'Ha ocurrido un error! Intente de nuevo.')
           // console.log(err)
           Sentry.setTags({
-            'endpoint': url,
-            'method': 'PUT'
+            endpoint: url,
+            method: 'PUT',
           })
           if (err.response) {
-            // The response was made and the server responded with a 
+            // The response was made and the server responded with a
             // status code that is outside the 2xx range.
             Sentry.setTags({
-              'data': err.response.data,
-              'headers': err.response.headers,
-              'status_code': err.response.status
+              data: err.response.data,
+              headers: err.response.headers,
+              status_code: err.response.status,
             })
             if (err.response.status === 400) {
               if (err.response.data.message.includes(errorMsg.overlay)) {
@@ -409,28 +407,30 @@ const Settings = (props: Props) => {
                 addToast({
                   type: 'warning',
                   title: 'Hubo un error en el formulario.',
-                  text: overlay.length > 0
-                    ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
-                    : 'Existen horarios solapados que impiden la actualización.'
+                  text:
+                    overlay.length > 0
+                      ? `Existen horarios solapados entre ${overlay[0]} y ${overlay[1]}.`
+                      : 'Existen horarios solapados que impiden la actualización.',
                 })
               } else if (err.response.data.message.includes(errorMsg.overlayTypes)) {
-                let days = ["mon","tue","wed","thu","fri","sat","sun"]
+                let days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
                 let orgOverlay = organizationsFromMessage(err.response.data.message, Organizations)
                 let dayOverlay = daysFromMessage(err.response.data.message, days)
 
                 addToast({
                   type: 'warning',
                   title: 'Hubo un error en el formulario.',
-                  text: orgOverlay.length > 0 && dayOverlay.length > 0
-                    ? `Existen horarios solapados el día ${dayOverlay[0]} en la organización ${orgOverlay[0]}`
-                    : 'Existen horarios solapados que impiden la actualización.'
+                  text:
+                    orgOverlay.length > 0 && dayOverlay.length > 0
+                      ? `Existen horarios solapados el día ${dayOverlay[0]} en la organización ${orgOverlay[0]}`
+                      : 'Existen horarios solapados que impiden la actualización.',
                 })
               }
             } else {
               addToast({
                 type: 'warning',
                 title: 'Hubo un error en el formulario.',
-                text: 'No se pudo actualizar el perfil.'
+                text: 'No se pudo actualizar el perfil.',
               })
             }
           } else if (err.request) {
@@ -439,7 +439,7 @@ const Settings = (props: Props) => {
             addToast({
               type: 'error',
               title: 'Hubo un error en el servidor.',
-              text: 'No se recibió ninguna respuesta. ¡Inténtelo nuevamente más tarde!'
+              text: 'No se recibió ninguna respuesta. ¡Inténtelo nuevamente más tarde!',
             })
           } else {
             // Something happened while preparing the request that threw an Error
@@ -447,10 +447,10 @@ const Settings = (props: Props) => {
             addToast({
               type: 'error',
               title: 'Ocurrió un error inesperado.',
-              text: '¡Inténtelo nuevamente más tarde!'
+              text: '¡Inténtelo nuevamente más tarde!',
             })
           }
-          Sentry.captureMessage("Could not update doctor profile")
+          Sentry.captureMessage('Could not update doctor profile')
           Sentry.captureException(err)
         }
       }
@@ -459,11 +459,10 @@ const Settings = (props: Props) => {
       addToast({ type: 'warning', title: errorSend, text: errorText.organizations })
     }
     setLoading(false)
-    
   }
 
   const getOrganizationNameById = (idOrganization: String) => {
-    return Organizations.find((organization)=>organization.id === idOrganization).name
+    return Organizations.find(organization => organization.id === idOrganization).name
   }
 
   return (
@@ -738,7 +737,7 @@ const Settings = (props: Props) => {
                           <input
                             id='city'
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
-                            onChange={e => dispatch({ type: 'default', value: { city: e.target.value }})}
+                            onChange={e => dispatch({ type: 'default', value: { city: e.target.value } })}
                             value={doctor.city}
                             type='text'
                           />
@@ -757,7 +756,7 @@ const Settings = (props: Props) => {
                           <input
                             id='addressDescription'
                             className='block w-full px-3 py-2 mt-1 transition duration-150 ease-in-out border border-gray-300 rounded-md shadow-sm form-input focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5'
-                            onChange={e => dispatch({ type: 'default', value: { addressDescription: e.target.value }})}
+                            onChange={e => dispatch({ type: 'default', value: { addressDescription: e.target.value } })}
                             value={doctor.addressDescription}
                             type='text'
                           />
@@ -794,7 +793,7 @@ const Settings = (props: Props) => {
                             data={specializations}
                             label='Especialidad Médica'
                             value={doctor.specializations}
-                            onChange={value => dispatch({ type: 'default', value: { specializations: value }})}
+                            onChange={value => dispatch({ type: 'default', value: { specializations: value } })}
                           />
                         </div>
                       </div>
@@ -823,106 +822,118 @@ const Settings = (props: Props) => {
                     </p>
                   </div>
                 </div>
-                {
-                  Organizations === undefined || Organizations === null
-                   ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
-                      <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
-                        No pudimos obtener centros asistenciales asociados a su cuenta, por favor, vuelva a intentarlo más tarde. Si el problema persiste, contáctese con soporte.
-                      </p>
-                    </div>
-                   : Organizations?.length === 0
-                    ? <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
-                        <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
-                          No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
-                        </p>
-                      </div>
-                    : <div className='bg-white mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
-                        <div className='overflow-hidden shadow sm:rounded-md'>
-                          {
-                            doctor.blocks.map((block, indexOrg) => {
-                              
-                              return <div className="w-full px-2 pt-4" key={indexOrg}>
-                                <div className="mx-auto w-full rounded-2xl p-2">
-                                  <Disclosure>
-                                    {({ open }) => (
-                                      <>
-                                        <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                                          <div className='flex flex-row align-middle'>
-                                            <div
-                                              className='h-6 w-2'
-                                              style={{ backgroundColor: Organizations[indexOrg].colorCode ?? '#27BEC2' }}
-                                            ></div>
-                                            <span className='pl-2'>{getOrganizationNameById(block.idOrganization)}</span>
-                                          </div>
-                                          <div className='pt-2 align-bottom'>
-                                            {open ? <ArrowUp /> : <ArrowDown />}
-                                          </div>
-                                        </Disclosure.Button>
-                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
-                                          <div className=' bg-white sm:p-6'>
-                                            {
-                                              (Object.keys(weekDays) as Array<keyof typeof weekDays>).map(day => (
-                                                <fieldset key={day}>
-                                                  <div className='flex items-center mb-3'>
-                                                    <legend className='font-medium leading-5 text-gray-700 '>{weekDays[day]}</legend>
-                                                    <button
-                                                      className='flex items-center justify-center w-8 h-8 ml-1 rounded-full focus:outline-none focus:bg-cool-gray-100'
-                                                      onClick={() => dispatch({ type: 'AddOpenHour', value: { day }, org: Organizations[indexOrg].id })}
-                                                      type='button'
-                                                    >
-                                                      <svg
-                                                        className='w-6 h-6 text-cool-gray-500'
-                                                        fill='none'
-                                                        viewBox='0 0 24 24'
-                                                        stroke='currentColor'
-                                                      >
-                                                        <path
-                                                          strokeLinecap='round'
-                                                          strokeLinejoin='round'
-                                                          strokeWidth={2}
-                                                          d='M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
-                                                        />
-                                                      </svg>
-                                                    </button>
-                                                  </div>
-                                                  {block?.openHours[day].length === 0
-                                                    ? 'Cerrado'
-                                                    : block?.openHours[day].map((interval: Interval, index: number) => (
-                                                      <TimeInterval
-                                                        key={`${index}-${interval.start}-${interval.end}`}
-                                                        id={`${index}-${day}`}
-                                                        start={interval.start}
-                                                        end={interval.end}
-                                                        onDelete={() => dispatch({ type: 'RemoveOpenHour', value: { day, index } , org: Organizations[indexOrg].id})}
-                                                        onChange={interval =>
-                                                          dispatch({ type: 'ChangeOpenHour', value: { day, index, interval }, org: Organizations[indexOrg].id })
-                                                        }
-                                                        setModality={elem => {
-                                                          interval.appointmentType = elem
-                                                        }}
-                                                        modality={interval.appointmentType}
-                                                      />
-                                                    ))
-                                                  }
-                                                </fieldset>
-                                              ))
-                                            }
-                                          </div>
-                                        </Disclosure.Panel>
-                                      </>
-                                    )}
-                                  </Disclosure>
-                                </div>
-                              </div>
-  
-                            })
-                          }
-                          <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
-                            <SaveButton error={error} loading={loading} />
+                {Organizations === undefined || Organizations === null ? (
+                  <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
+                    <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
+                      No pudimos obtener centros asistenciales asociados a su cuenta, por favor, vuelva a intentarlo más
+                      tarde. Si el problema persiste, contáctese con soporte.
+                    </p>
+                  </div>
+                ) : Organizations?.length === 0 ? (
+                  <div className='mt-5 md:mt-0 md:col-span-2 bg-white shadow sm:rounded-md sm:overflow-hidden'>
+                    <p className='p-5 text-sm font-medium leading-5 text-gray-700'>
+                      No posee ningún centro asistencial asociado. Por favor, contáctese con soporte para dicha gestión.
+                    </p>
+                  </div>
+                ) : (
+                  <div className='bg-white mt-5 md:mt-0 md:col-span-2 shadow sm:rounded-md sm:overflow-hidden'>
+                    <div className='overflow-hidden shadow sm:rounded-md'>
+                      {doctor.blocks.map((block, indexOrg) => {
+                        return (
+                          <div className='w-full px-2 pt-4' key={indexOrg}>
+                            <div className='mx-auto w-full rounded-2xl p-2'>
+                              <Disclosure>
+                                {({ open }) => (
+                                  <>
+                                    <Disclosure.Button className='flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-teal-100 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75'>
+                                      <div className='flex flex-row align-middle'>
+                                        <div
+                                          className='h-6 w-2'
+                                          style={{ backgroundColor: Organizations[indexOrg].colorCode ?? '#27BEC2' }}
+                                        ></div>
+                                        <span className='pl-2'>{getOrganizationNameById(block.idOrganization)}</span>
+                                      </div>
+                                      <div className='pt-2 align-bottom'>{open ? <ArrowUp /> : <ArrowDown />}</div>
+                                    </Disclosure.Button>
+                                    <Disclosure.Panel className='px-4 pt-4 pb-2 text-sm text-gray-500'>
+                                      <div className=' bg-white sm:p-6'>
+                                        {(Object.keys(weekDays) as Array<keyof typeof weekDays>).map(day => (
+                                          <fieldset key={day}>
+                                            <div className='flex items-center mb-3'>
+                                              <legend className='font-medium leading-5 text-gray-700 '>
+                                                {weekDays[day]}
+                                              </legend>
+                                              <button
+                                                className='flex items-center justify-center w-8 h-8 ml-1 rounded-full focus:outline-none focus:bg-cool-gray-100'
+                                                onClick={() =>
+                                                  dispatch({
+                                                    type: 'AddOpenHour',
+                                                    value: { day },
+                                                    org: Organizations[indexOrg].id,
+                                                  })
+                                                }
+                                                type='button'
+                                              >
+                                                <svg
+                                                  className='w-6 h-6 text-cool-gray-500'
+                                                  fill='none'
+                                                  viewBox='0 0 24 24'
+                                                  stroke='currentColor'
+                                                >
+                                                  <path
+                                                    strokeLinecap='round'
+                                                    strokeLinejoin='round'
+                                                    strokeWidth={2}
+                                                    d='M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z'
+                                                  />
+                                                </svg>
+                                              </button>
+                                            </div>
+                                            {block?.openHours[day].length === 0
+                                              ? 'Cerrado'
+                                              : block?.openHours[day].map((interval: Interval, index: number) => (
+                                                  <TimeInterval
+                                                    key={`${index}-${interval.start}-${interval.end}`}
+                                                    id={`${index}-${day}`}
+                                                    start={interval.start}
+                                                    end={interval.end}
+                                                    onDelete={() =>
+                                                      dispatch({
+                                                        type: 'RemoveOpenHour',
+                                                        value: { day, index },
+                                                        org: Organizations[indexOrg].id,
+                                                      })
+                                                    }
+                                                    onChange={interval =>
+                                                      dispatch({
+                                                        type: 'ChangeOpenHour',
+                                                        value: { day, index, interval },
+                                                        org: Organizations[indexOrg].id,
+                                                      })
+                                                    }
+                                                    setModality={elem => {
+                                                      interval.appointmentType = elem
+                                                    }}
+                                                    modality={interval.appointmentType}
+                                                  />
+                                                ))}
+                                          </fieldset>
+                                        ))}
+                                      </div>
+                                    </Disclosure.Panel>
+                                  </>
+                                )}
+                              </Disclosure>
+                            </div>
                           </div>
-                        </div>
+                        )
+                      })}
+                      <div className='px-4 py-3 text-right bg-gray-50 sm:px-6'>
+                        <SaveButton error={error} loading={loading} />
                       </div>
-                }
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </form>
@@ -932,7 +943,7 @@ const Settings = (props: Props) => {
   )
 }
 
-export default Settings 
+export default Settings
 
 interface SaveButtonProps {
   error?: string
@@ -976,20 +987,20 @@ interface TimeIntervalProps {
   onChange: (arg0: Interval) => void
   id: number | string
   setModality: any
-  modality:string
+  modality: string
 }
 
 const TimeInterval = (props: TimeIntervalProps) => {
-  const [localModality, setLocalModality] = useState(props.modality);
+  const [localModality, setLocalModality] = useState(props.modality)
   const start = !props.start ? '00:00' : new Date(props.start * 1000 * 60).toISOString().substr(11, 5)
   const end = !props.end ? '00:00' : new Date(props.end * 1000 * 60).toISOString().substr(11, 5)
   const { setModality, modality } = props
 
   useEffect(() => {
-    if(modality === undefined){
+    if (modality === undefined) {
       setModality('V')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const toMin = (val: string) => {
@@ -1088,30 +1099,33 @@ const TimeInterval = (props: TimeIntervalProps) => {
           />
         </svg>
       </button>
-      <AppoinmentModality modality={modality} setDataCallback={elem => {
-        setModality(elem)
-        setLocalModality(elem)
-      }} />
+      <AppoinmentModality
+        modality={modality}
+        setDataCallback={elem => {
+          setModality(elem)
+          setLocalModality(elem)
+        }}
+      />
     </div>
   )
 }
 export function AppoinmentModality(props) {
-  const { setDataCallback,modality='V' } = props
-  const [selection, setSelection] = useState(modality);
-  const handleChange = (event) => {
-    setSelection(event.target.value as string);
-    setDataCallback(event.target.value);
-  };
+  const { setDataCallback, modality = 'V' } = props
+  const [selection, setSelection] = useState(modality)
+  const handleChange = event => {
+    setSelection(event.target.value as string)
+    setDataCallback(event.target.value)
+  }
 
   return (
     <Box style={{ marginTop: '-15px' }} sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
-        <InputLabel id="simple-select-label">Modalidad</InputLabel>
+        <InputLabel id='simple-select-label'>Modalidad</InputLabel>
         <Select
-          labelId="simple-select-label"
-          id="simple-select"
+          labelId='simple-select-label'
+          id='simple-select'
           value={selection}
-          label="modalidad"
+          label='modalidad'
           onChange={handleChange}
         >
           <MenuItem value={'V'}>Virtual</MenuItem>
@@ -1120,6 +1134,5 @@ export function AppoinmentModality(props) {
         </Select>
       </FormControl>
     </Box>
-  );
+  )
 }
-
