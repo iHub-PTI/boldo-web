@@ -464,6 +464,10 @@ const Settings = (props: Props) => {
   const getOrganizationNameById = (idOrganization: String) => {
     return Organizations.find(organization => organization.id === idOrganization).name
   }
+  const getOrganizationById = (idOrganization: String) => {
+    if(!idOrganization) throw new Error('No ha ingresado un id')
+    return Organizations.find(organization => organization.id === idOrganization)
+  }
 
   return (
     <Layout isLoading={!show}>
@@ -849,7 +853,7 @@ const Settings = (props: Props) => {
                                       <div className='flex flex-row align-middle'>
                                         <div
                                           className='h-6 w-2'
-                                          style={{ backgroundColor: Organizations[indexOrg].colorCode ?? '#27BEC2' }}
+                                          style={{ backgroundColor: getOrganizationById(block.idOrganization)?.colorCode ?? '#27BEC2' }}
                                         ></div>
                                         <span className='pl-2'>{getOrganizationNameById(block.idOrganization)}</span>
                                       </div>
@@ -869,7 +873,7 @@ const Settings = (props: Props) => {
                                                   dispatch({
                                                     type: 'AddOpenHour',
                                                     value: { day },
-                                                    org: Organizations[indexOrg].id,
+                                                    org: getOrganizationById(block.idOrganization)?.id,
                                                   })
                                                 }
                                                 type='button'
@@ -901,14 +905,14 @@ const Settings = (props: Props) => {
                                                       dispatch({
                                                         type: 'RemoveOpenHour',
                                                         value: { day, index },
-                                                        org: Organizations[indexOrg].id,
+                                                        org: getOrganizationById(block.idOrganization)?.id,
                                                       })
                                                     }
                                                     onChange={interval =>
                                                       dispatch({
                                                         type: 'ChangeOpenHour',
                                                         value: { day, index, interval },
-                                                        org: Organizations[indexOrg].id,
+                                                        org: getOrganizationById(block.idOrganization)?.id,
                                                       })
                                                     }
                                                     setModality={elem => {
