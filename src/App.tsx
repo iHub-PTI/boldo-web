@@ -82,6 +82,7 @@ const App = () => {
     } else {
       setError(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -106,6 +107,7 @@ const App = () => {
     } else {
       setError(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // load the organization
@@ -329,7 +331,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
         const tags = {
           "endpoint": url,
           "method": "GET",
-          "org_id": `${Organization.id}`
+          "org_id": `${Organization?.id ?? 'Without organization'}`
         }
         handleSendSentry(err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT, tags)
       })
