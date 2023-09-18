@@ -20,6 +20,7 @@ import { getColorCode } from '../../util/helpers';
 import MedicalRecordSection from './MedicalRecordSection';
 import PatientSection from './PatientSection';
 import SelectorSection from './SelectorSection';
+import { MenuStudyOrder } from '../../components/MenuStudyOrder';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
@@ -54,7 +55,7 @@ export default function Dashboard() {
   const menuSelected = {
     'P': <PrescriptionMenu appointment={appointment} isFromInperson={true} />,
     'M': <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />,
-    'L': <LaboratoryMenu appointment={appointment} isFromInperson={true} />,
+    'L': <MenuStudyOrder appointment={appointment} isFromInperson={true} />,
     'U': <UploadStudies patientId={`${appointment?.patientId ?? ''}`} />
   }
 
@@ -71,7 +72,7 @@ export default function Dashboard() {
         const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) {
           setAppointment(res.data)
-        }
+                  }
       } catch (err) {
         const tags = {
           'endpoint': url,

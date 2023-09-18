@@ -59,6 +59,7 @@ const SelectCategory = ({ error = false, value = "", ...props }) => {
         className={props.classes.select}
         displayEmpty
         input={props.variant === 'outlined' ? <SelectStyled></SelectStyled> : undefined}
+        disabled={props.disabled ?? false}
       >
         <MenuItem value="">
           Categoría

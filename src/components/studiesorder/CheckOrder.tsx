@@ -16,7 +16,7 @@ const CheckOrder = props => {
         //console.table(orders)
     }
 
-    return <Checkbox onChange={handleCheck} name="orden" {...props}/>
+    return <Checkbox onChange={handleCheck} name="orden" disabled={props.disabled ?? false} {...props}/>
 }
 
 export default CheckOrder;
