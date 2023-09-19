@@ -164,6 +164,7 @@ const StudyOrder = ({ remoteMode = false, appointment }: {remoteMode?: boolean, 
 
     useEffect(() => {
         if (orders.length === 1) {
+            if(disabledStatus) return
             if (orders[0].diagnosis === "") {
                 orders[0].diagnosis = encounter?.soep?.evaluation ?? ''
             }
