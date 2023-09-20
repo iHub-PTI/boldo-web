@@ -73,6 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
             width: '100%',
             '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 borderColor: "#808080",
+            },
+            '& .Mui-disabled':{
+                backgroundColor: "#f4f5f7"
             }
         },
         textfieldError: {
@@ -182,11 +185,11 @@ const StudyOrder = ({ remoteMode = false, appointment }: {remoteMode?: boolean, 
                 break
             case 'locked':
                 setDisabledStatus(true)
-                setMessageStatus('¡No disponible en citas finalizadas!')
+                setMessageStatus('* ¡No disponible en citas finalizadas!')
                 break
             case 'upcoming':
                 setDisabledStatus(true)
-                setMessageStatus('¡No disponible la cita aún no ha comenzado!')
+                setMessageStatus('* ¡La cita aún no ha empezado!')
                 break
             default:
                 setDisabledStatus(true)
@@ -310,7 +313,7 @@ const StudyOrder = ({ remoteMode = false, appointment }: {remoteMode?: boolean, 
                 orders.map((item, index) => {
                     return <div key={item.id} id={item.id.toString()} className="pt-3 px-5 pb-7 ml-1 mr-5 mb-5 bg-gray-50 rounded-xl">
                         <FormControl className={classes.form}>
-                            <Typography className='flex flex-row pl-2 w-full font-semibold text-gray-500'>
+                            <Typography className='flex flex-row pl-2 w-full font-semibold text-red-600 text-xs'>
                                 {messageStatus}
                             </Typography>
                             <Grid container>
@@ -397,7 +400,8 @@ const StudyOrder = ({ remoteMode = false, appointment }: {remoteMode?: boolean, 
                                         style={{
                                             border: errorType === 'studies' + item.id ?
                                             '1px solid red' : '',
-                                            minHeight: '3rem'
+                                            minHeight: '3rem',
+                                            backgroundColor: loading || disabledStatus ? '#f4f5f7': ''
                                         }}
                                         disabled={loading || disabledStatus}
                                     />
@@ -426,9 +430,9 @@ const StudyOrder = ({ remoteMode = false, appointment }: {remoteMode?: boolean, 
                         disabled={loading || disabledStatus}
                     >
                         Agregar
-                        <span className="pt-2 mx-2"><IconAdd></IconAdd></span>
+                        <span className="pt-2 mx-2"><IconAdd /></span>
                     </button>
-                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-15 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    <button className="absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-15 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                         onClick={() => {
                             sendOrderToServer()
 

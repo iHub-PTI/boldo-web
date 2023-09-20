@@ -29,7 +29,10 @@ const SelectCategory = ({ error = false, value = "", ...props }) => {
           borderRadius: 4,
           borderColor: 'black',
           boxShadow: '0 0 0 0.2rem rgba(19,165,169,.25)',
-        },
+        }
+      },
+      disabled: {
+        backgroundColor: '#f4f5f7'
       },
     }),
   )(InputBase);
