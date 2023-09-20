@@ -278,9 +278,7 @@ const Gate = () => {
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
-
-        }} />
+        return <StudiesMenuRemote appointment={appointment} />
 
       default:
         return <SOEP appointment={appointment} />
@@ -1096,9 +1094,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
-          activatePicInPic();
-        }} />
+        return <StudiesMenuRemote appointment={appointment} />
 
       default:
         return <SOEP appointment={appointment} />
