@@ -76,10 +76,8 @@ const createPeerConection = (props: createPeerConnectionProps) => {
         credential: 'VHJ1cGVyMjB4MjB4Lgo',
       },
       {
-        urls: 'stun:coturn.pti.org.py:3478',
-        username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo',
-      }, 
+        urls: 'stun:stun.l.google.com:19302'
+      }
     ],
   }
 
