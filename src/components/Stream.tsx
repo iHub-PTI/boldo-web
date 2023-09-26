@@ -73,11 +73,18 @@ const createPeerConection = (props: createPeerConnectionProps) => {
       {
         urls: 'turn:143.244.166.40:3478',
         username: 'coturn',
-        credential: 'abcd.123',
+        credential: 'abcd.123'
       },
+      {
+        urls: 'stun:143.244.166.40:3478',
+        username: 'coturn',
+        credential: 'abcd.123'
+      }
+      /*
       {
         urls: 'stun:stun.l.google.com:19302'
       }
+      */
     ],
   }
 
