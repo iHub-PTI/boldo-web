@@ -1,15 +1,18 @@
 import axios from "axios"
-import React from "react"
+import React, { useState } from "react"
 import Modal from "./Modal"
 import { useHistory } from 'react-router-dom'
 import { useToasts } from "./Toast"
 import handleSendSentry from "../util/Sentry/sentryHelper"
 import { ERROR_HEADERS } from "../util/Sentry/errorHeaders"
+import { ReactComponent as SpinnerLoading } from "../assets/spinner.svg"
 
 
 const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
     const history = useHistory();
     const { addToast } = useToasts();
+    const [loadingCancelButton, setLoadingCancelButton] = useState(false)
+    
     return (<Modal show={isOpen} setShow={setIsOpen} size='sm' >
         <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
             <h3 className='text-lg font-medium leading-6 text-gray-900' id='modal-headline'>
@@ -33,17 +36,18 @@ const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
                 <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto sm:ml-3'>
                     <button
                         type='button'
-                        className=' inline-flex justify-center  w-full  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700'
+                        disabled={loadingCancelButton}
+                        className={` inline-flex justify-center  w-24  px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out border border-transparent rounded-md bg-primary-600 hover:bg-primary-500 focus:outline-none focus:shadow-outline-primary focus:border-primary-700 active:bg-primary-700 ${loadingCancelButton && 'disabled:cursor-not-allowed'}`}
                         onClick={async () => {
                             const url = `/profile/doctor/appointments/cancel/${appointmentId}`
                             try {
+                                setLoadingCancelButton(true)
                                 const res = await axios.post(url)
                                 console.log('respuesta ', res)
                                 if (res.data != null) {
                                     addToast({ type: 'success', title: 'Cita cancelada con éxito', })
                                     history.replace(`/`)
                                 }
-
                             } catch (err) {
                                 const tags = {
                                     "endpoint": url,
@@ -56,11 +60,13 @@ const CancelAppointmentModal = ({isOpen, setIsOpen,appointmentId}) => {
                                     title: 'Ha ocurrido un error.', 
                                     text: 'No fue posible cancelar la cita. ¡Inténtelo nuevamente más tarde!' 
                                 })
+                            } finally {
+                                setLoadingCancelButton(false)
                             }
 
                         }}
                     >
-                        Confirmar
+                        {loadingCancelButton ? <SpinnerLoading /> : 'Confirmar'}
                     </button>
                 </span>
             </div>
