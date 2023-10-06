@@ -21,7 +21,7 @@ type PropsDetailStudy = {
   isCall?: boolean
 }
 
-const getCategoryLabel = (category = '') => {
+export const getCategoryLabel = (category = '') => {
   if (!category) return
   switch (category.toLowerCase()) {
     case 'laboratory':

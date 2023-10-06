@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .Mui-disabled': {
         backgroundColor: '#f4f5f7',
       },
-      border:'1px #EDF2F7',
+      border: '1px #EDF2F7',
     },
     textFieldDiag: {
       backgroundColor: '#FFFFFF',
@@ -100,13 +100,13 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
         borderColor: '#EDF2F7',
       },
-      '& .MuiOutlinedInput-input':{
+      '& .MuiOutlinedInput-input': {
         padding: '12px 14px 12px 14px',
       },
       '& .Mui-disabled': {
         backgroundColor: '#f4f5f7',
       },
-      border:'1px #EDF2F7',
+      border: '1px #EDF2F7',
     },
     textfieldError: {
       backgroundColor: '#FFFFFF',
@@ -330,7 +330,10 @@ const StudyOrder = ({
         addToast({
           type: 'success',
           title: 'Notificación',
-          text: total > 1 ? 'Las órdenes de estudios han sido enviadas.' : 'La orden de estudio ha sido enviada.',
+          text:
+            total > 1
+              ? 'Las órdenes de estudio han sido guardadas correctamente'
+              : 'La orden de estudio ha sido guardada correctamente',
         })
       } catch (err) {
         const tags = {
@@ -350,7 +353,7 @@ const StudyOrder = ({
 
   return (
     <div className='w-full'>
-      {!remoteMode && <h1 className='font-sans text-2xl p-6'>Orden de estudios</h1>}
+      {!remoteMode && <h1 className='font-sans text-2xl px-6 pb-6'>Orden de estudios</h1>}
       {orders.map((item, index) => {
         return (
           <div
@@ -488,28 +491,26 @@ const StudyOrder = ({
           </div>
         )
       })}
-      <div className='m-1 p-1 flex justify-end justify-items-end'>
-        <div className='flex flex-col relative'>
-          <button
-            className='btn focus:outline-none border-primary-600 border-2 mx-3 px-3 my-1 py-1 rounded-lg text-primary-600 font-semibold flex flex-row disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
-            onClick={() => addCategory()}
-            disabled={loading || disabledStatus}
-          >
-            Agregar
-            <span className='pt-2 mx-2'>
-              <IconAdd />
-            </span>
-          </button>
-          <button
-            className='absolute top-16 right-3 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-20 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
-            onClick={() => {
-              sendOrderToServer()
-            }}
-            disabled={sendStudyLoading || loading || disabledStatus}
-          >
-            {sendStudyLoading ? <Spinner /> : 'Guardar'}
-          </button>
-        </div>
+      <div className='flex flex-col items-end gap-2 px-4 mb-3'>
+        <button
+          className='btn focus:outline-none border-primary-600 border-2 w-24 px-3 py-1 rounded-lg text-primary-600 font-semibold flex flex-row disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
+          onClick={() => addCategory()}
+          disabled={loading || disabledStatus}
+        >
+          Agregar
+          <span className='pt-2 mx-2'>
+            <IconAdd />
+          </span>
+        </button>
+        <button
+          className='focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-20 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
+          onClick={() => {
+            sendOrderToServer()
+          }}
+          disabled={sendStudyLoading || loading || disabledStatus}
+        >
+          {sendStudyLoading ? <Spinner /> : 'Guardar'}
+        </button>
       </div>
       <StudiesTemplate show={show} setShow={setShow} size='xl5' remoteMode={remoteMode}></StudiesTemplate>
     </div>
