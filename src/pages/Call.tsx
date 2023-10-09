@@ -1,86 +1,49 @@
+import axios from 'axios'
+import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
-import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-import axios from 'axios'
-import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
+import Stream, { CallState } from '../components/Stream'
 
-import { SocketContext } from '../App'
-import { useToasts } from '../components/Toast'
-import MdAdd from '@material-ui/icons/MoreVert'
-import MdClose from '@material-ui/icons/Clear'
-// import PersonIcon from '@material-ui/icons/Person'
-import { ReactComponent as PillIcon } from '../assets/pill.svg'
-// TODO: Clear comments
-// import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
-// import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
-// import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
-// import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
-// import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
-// import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
-import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
-import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
-import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
-import { ReactComponent as RecordIcon } from '../assets/record-table.svg'
-import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
-import PropTypes from 'prop-types'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Tooltip from '@material-ui/core/Tooltip'
-import _ from 'lodash'
-import { MainButton, ChildButton, FloatingMenu, Directions } from 'react-floating-button-menu'
 import {
   Card,
   CardContent,
-  Grid,
-  Typography,
   CardHeader,
-  //Tab,
-  //Tabs,
+  Grid,
   TextField,
+  Typography,
   makeStyles,
   withStyles,
 } from '@material-ui/core'
-// TODO: Clear comments
-// import Modal from '../components/Modal'
-// import { Icons } from 'material-table';
-// import { forwardRef } from 'react';
-// import ArrowUpward from '@material-ui/icons/ArrowUpward';
-// import AddBox from '@material-ui/icons/AddBox';
-// import Check from '@material-ui/icons/Check';
-// import ChevronLeft from '@material-ui/icons/ChevronLeft';
-// import ChevronRight from '@material-ui/icons/ChevronRight';
-// import Clear from '@material-ui/icons/Clear';
-// import DeleteOutline from '@material-ui/icons/DeleteOutline';
-// import Edit from '@material-ui/icons/Edit';
-// import FilterList from '@material-ui/icons/FilterList';
-// import FirstPage from '@material-ui/icons/FirstPage';
-// import LastPage from '@material-ui/icons/LastPage';
-// import Remove from '@material-ui/icons/Remove';
-// import SaveAlt from '@material-ui/icons/SaveAlt';
-// import Search from '@material-ui/icons/Search';
-// import ViewColumn from '@material-ui/icons/ViewColumn';
-// import MaterialTable from 'material-table'
-import PrivateComments from '../components/PrivateComments'
+import Accordion from '@material-ui/core/Accordion'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import Tooltip from '@material-ui/core/Tooltip'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import { SocketContext } from '../App'
+import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
+import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
+import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
+import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
+import { useToasts } from '../components/Toast'
+
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
-import { PrescriptionMenu } from '../components/PrescriptionMenu'
-import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
-import useWindowDimensions from '../util/useWindowDimensions'
-// import Print from '../components/icons/Print'
-import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
-// import { getReports } from '../util/helpers'
-import SidebarMenuCall from '../components/SidebarMenuCall'
-import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
-import SelectPrintOptions from '../components/SelectPrintOptions'
 import OrganizationBar from '../components/OrganizationBar'
-import CircleCounter from '../components/CircleCounter'
-import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
-import { getColorCode } from '../util/helpers'
+import { PrescriptionMenu } from '../components/PrescriptionMenu'
+import PrivateComments from '../components/PrivateComments'
+import SidebarMenuCall from '../components/SidebarMenuCall'
+import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import { CategoriesContext } from '../components/studiesorder/Provider'
-import handleSendSentry from '../util/Sentry/sentryHelper'
+import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
+import { getColorCode } from '../util/helpers'
+import useWindowDimensions from '../util/useWindowDimensions'
+
+import { ToggleMenu } from '../components/call/toggle-menu'
 
 
 type Status = Boldo.Appointment['status']
@@ -92,6 +55,7 @@ const Gate = () => {
   const history = useHistory()
   const socket = useContext(SocketContext)
   const { addToast } = useToasts()
+  console.log('')
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -251,13 +215,6 @@ const Gate = () => {
     [addToast, token, id, socket]
   )
 
-  const useTooltipStyles = makeStyles(() => ({
-    tooltip: {
-      margin: 20,
-
-    },
-  }));
-
   if (!id) return null
 
   if (!appointment)
@@ -283,145 +240,6 @@ const Gate = () => {
       default:
         return <SOEP appointment={appointment} />
     }
-  }
-
-
-  const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
-
-
-    useEffect(() => {
-      updatePrescriptions(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    return (
-      <div>
-        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
-          <MainButton
-            isOpen={isOpen}
-            iconResting={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdAdd style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            iconActive={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdClose style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background='#323030'
-            onClick={() => {
-              setIsOpen(prev => !prev)
-            }}
-            size={50}
-          />
-          {/* <ChildButton
-            icon={
-              <Print
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
-                bgColor='transparent'
-                iconColor='white'
-                fromVirtual={true}
-              />
-            }
-            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
-            size={50}
-            onClick={() => {
-              if (prescriptions?.length > 0) {
-                if (!loading && appointment !== undefined) {
-                  addToast({ type: 'success', text: 'Descargando receta...' });
-                  getReports(appointment, setLoading);
-                }
-              } else {
-                console.log("there is not prescriptions");
-                if (appointment?.status === 'open' || appointment?.status === 'closed') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
-                } else if (appointment?.status === 'locked') {
-                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
-                } else if (appointment?.status === 'upcoming') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
-                }
-              }
-            }}
-          /> */}
-          <ChildButton
-            icon={<SelectPrintOptions virtual={true} {...appointment} />}
-            size={50}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                  </svg>
-                  { orders &&
-                    orders.filter((order) => order.studies_codes.length > 0).length > 0
-                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
-                    : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 3 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(3);
-              setSelectedButton(3);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
-                  {
-                    prescriptions.length > 0
-                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
-                      : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 2 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(2);
-              setSelectedButton(2);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <RecordIcon />
-              </Tooltip>
-            }
-            background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(1);
-              setSelectedButton(1);
-            }}
-          />
-          {/* <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background={selectedButton === 0 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(0);
-              setSelectedButton(0);
-            }}
-          /> */}
-        </FloatingMenu>
-      </div>
-    )
   }
   return (
     <Layout>
@@ -454,7 +272,14 @@ const Gate = () => {
                     zIndex: 1
                   }}
                 >
-                  <TogleMenu />
+                  <ToggleMenu 
+                    id={id}
+                    appointment={appointment}
+                    orders={orders}
+                    selectedButton={selectedButton}
+                    setSelectedButton={setSelectedButton}
+                    setSideBarAction={setSideBarAction}
+                  />
                 </div>
               </div>
               <Grid container item xs={4} style={{ display: 'grid' }}>
@@ -529,153 +354,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       mediaStream.getVideoTracks()[0].enabled = newState
       return newState
     })
-  }
-
-  const useTooltipStyles = makeStyles(() => ({
-    tooltip: {
-      margin: 20,
-
-    },
-  }));
-
-  const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
-
-    useEffect(() => {
-      updatePrescriptions(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    return (
-      <>
-        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
-          <MainButton
-            isOpen={isOpen}
-            iconResting={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdAdd style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            iconActive={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdClose style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background='#323030'
-            onClick={() => {
-              setIsOpen(prev => !prev)
-            }}
-            size={50}
-          />
-          {/* <ChildButton
-            icon={
-              <Print
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
-                bgColor='transparent'
-                iconColor='white'
-                fromVirtual={true}
-              />
-            }
-            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
-            size={50}
-            onClick={() => {
-              if (prescriptions?.length > 0) {
-                if (!loading && appointment !== undefined) {
-                  addToast({ type: 'success', text: 'Descargando receta...' });
-                  getReports(appointment, setLoading);
-                }
-              } else {
-                console.log("there is not prescriptions");
-                if (appointment?.status === 'open' || appointment?.status === 'closed') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
-                } else if (appointment?.status === 'locked') {
-                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
-                } else if (appointment?.status === 'upcoming') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
-                }
-              }
-            }}
-          /> */}
-          <ChildButton
-            icon={
-              <SelectPrintOptions virtual={true} {...appointment} />
-            }
-            size={50}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                  </svg>
-                  { orders &&
-                    orders.filter((order) => order.studies_codes.length > 0).length > 0
-                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
-                    : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 3 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(3);
-              setSelectedButton(3);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
-                  {
-                    prescriptions.length > 0
-                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
-                      : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 2 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(2);
-              setSelectedButton(2);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <RecordIcon />
-              </Tooltip>
-            }
-            background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(1);
-              setSelectedButton(1);
-            }}
-          />
-          {/* <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background={selectedButton === 0 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(0);
-              setSelectedButton(0);
-            }}
-          /> */}
-        </FloatingMenu>
-      </>
-    )
   }
   // NOTE: Mutes audio for development comfort
   // useEffect(() => {
@@ -914,7 +592,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
+            <ToggleMenu 
+              id={id}
+              appointment={appointment}
+              orders={orders}
+              selectedButton={selectedButton}
+              setSelectedButton={setSelectedButton}
+              setSideBarAction={setSideBarAction}
+            />
             </Grid>
           </Grid>
 
