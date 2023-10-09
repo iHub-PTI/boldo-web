@@ -31,6 +31,7 @@ import handleSendSentry from '../../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 import { OrganizationContext } from '../../contexts/Organizations/organizationSelectedContext'
 import { AppointmentWithPatient } from '../MenuStudyOrder'
+import DisoclureOrder from './DisoclureOrder'
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -352,168 +353,188 @@ const StudyOrder = ({
   }
 
   return (
-    <div className='w-full'>
-      {!remoteMode && <h1 className='font-sans text-2xl px-6 pb-6'>Orden de estudios</h1>}
-      {orders.map((item, index) => {
-        return (
-          <div
-            key={item.id}
-            id={item.id.toString()}
-            className='p-4 mb-5 rounded-xl mx-6 relative'
-            style={{ backgroundColor: '#F7FAFC' }}
-          >
-            <FormControl className={classes.form}>
-              <Typography className='flex flex-row pl-2 w-full font-semibold text-red-600 text-xs'>
-                {messageStatus}
-              </Typography>
-              <Grid container>
-                <IconButton
-                  aria-label='Eliminar'
-                  style={{
-                    padding: '3px',
-                    margin: '0',
-                    outline: 'none',
-                    position: 'absolute',
-                    right: '1px',
-                  }}
-                  onClick={() => deleteCategory(index)}
-                >
-                  <TrashIcon title='Eliminar Orden'></TrashIcon>
-                </IconButton>
-                <Grid item container direction='row' spacing={5}>
-                  {remoteMode ? (
-                    <div className='flex md:flex-row sm:flex-col p-4'>
-                      <SelectCategory
+    <>
+      {/* Container */}
+      <div className='flex flex-col h-full w-full'>
+        {/* content */}
+        <div className={`flex flex-col flex-1 overflow-auto ${remoteMode ? 'scrollbar' : ''}`}>
+          {!remoteMode && <h1 className='font-sans text-2xl px-6 pb-6'>Orden de estudios</h1>}
+          {orders.map((item, index) => {
+            return (
+              <div
+                key={item.id}
+                id={item.id.toString()}
+                className={`p-4 mb-5 rounded-xl relative ${remoteMode ? 'mx-2' : 'mx-6'}`}
+                style={{ backgroundColor: '#F7FAFC' }}
+              >
+                <FormControl className={classes.form}>
+                  <Typography className='flex flex-row pl-2 w-full font-semibold text-red-600 text-xs'>
+                    {messageStatus}
+                  </Typography>
+                  <Grid container>
+                    <IconButton
+                      aria-label='Eliminar'
+                      style={{
+                        padding: '3px',
+                        margin: '0',
+                        outline: 'none',
+                        position: 'absolute',
+                        right: '1px',
+                      }}
+                      onClick={() => deleteCategory(index)}
+                    >
+                      <TrashIcon title='Eliminar Orden'></TrashIcon>
+                    </IconButton>
+                    <Grid item container direction='row' spacing={5}>
+                      {remoteMode ? (
+                        <div className='flex md:flex-row sm:flex-col p-4'>
+                          <SelectCategory
+                            variant='outlined'
+                            classes={classes}
+                            index={index}
+                            error={errorType === 'category' + item.id}
+                            disabled={loading || disabledStatus}
+                          />
+                          <FormGroup
+                            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: '1rem' }}
+                          >
+                            <div className='flex flex-col'>
+                              <CheckOrder checked={item.urgent} index={index} disabled={loading || disabledStatus} />
+                              <span className='flex flex-row items-center'>
+                                Urgente{' '}
+                                <TooltipInfo title='marque la opción si estos estudios requieren ser realizados cuanto antes'>
+                                  <IconInfo style={{ transform: 'scale(.7)' }} />
+                                </TooltipInfo>
+                              </span>
+                            </div>
+                          </FormGroup>
+                        </div>
+                      ) : (
+                        <>
+                          <Grid item xs={5}>
+                            <SelectCategory
+                              variant='outlined'
+                              classes={classes}
+                              index={index}
+                              error={errorType === 'category' + item.id}
+                              value={item.category}
+                              disabled={loading || disabledStatus}
+                            />
+                          </Grid>
+                          <Grid item xs={7}>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <CheckOrder
+                                    checked={item.urgent}
+                                    index={index}
+                                    disabled={loading || disabledStatus}
+                                  ></CheckOrder>
+                                }
+                                label='Orden Urgente'
+                              />
+                            </FormGroup>
+                            <FormHelperText>
+                              marque la opción si estos estudios requieren ser realizadas cuanto antes
+                            </FormHelperText>
+                          </Grid>
+                        </>
+                      )}
+                    </Grid>
+                  </Grid>
+
+                  <Grid container direction='column'>
+                    <Grid style={{ marginBottom: '1rem' }}>
+                      <Typography variant='subtitle1'>Diagnóstico</Typography>
+                      <InputText
+                        name='diagnosis'
                         variant='outlined'
-                        classes={classes}
+                        className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textFieldDiag}
                         index={index}
-                        error={errorType === 'category' + item.id}
+                        value={item.diagnosis}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position='end'>
+                              <div className='flex flex-row flex-no-wrap'>
+                                {showTooltipInfo && <HoverInfo />}
+                                <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+                              </div>
+                            </InputAdornment>
+                          ),
+                        }}
                         disabled={loading || disabledStatus}
                       />
-                      <FormGroup
-                        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: '1rem' }}
-                      >
-                        <div className='flex flex-col'>
-                          <CheckOrder checked={item.urgent} index={index} disabled={loading || disabledStatus} />
-                          <span className='flex flex-row items-center'>
-                            Urgente{' '}
-                            <TooltipInfo title='marque la opción si estos estudios requieren ser realizados cuanto antes'>
-                              <IconInfo style={{ transform: 'scale(.7)' }} />
-                            </TooltipInfo>
-                          </span>
-                        </div>
-                      </FormGroup>
-                    </div>
-                  ) : (
-                    <>
-                      <Grid item xs={5}>
-                        <SelectCategory
-                          variant='outlined'
-                          classes={classes}
-                          index={index}
-                          error={errorType === 'category' + item.id}
-                          value={item.category}
-                          disabled={loading || disabledStatus}
-                        />
-                      </Grid>
-                      <Grid item xs={7}>
-                        <FormGroup>
-                          <FormControlLabel
-                            control={
-                              <CheckOrder
-                                checked={item.urgent}
-                                index={index}
-                                disabled={loading || disabledStatus}
-                              ></CheckOrder>
-                            }
-                            label='Orden Urgente'
-                          />
-                        </FormGroup>
-                        <FormHelperText>
-                          marque la opción si estos estudios requieren ser realizadas cuanto antes
-                        </FormHelperText>
-                      </Grid>
-                    </>
-                  )}
-                </Grid>
-              </Grid>
-
-              <Grid container direction='column'>
-                <Grid style={{ marginBottom: '1rem' }}>
-                  <Typography variant='subtitle1'>Diagnóstico</Typography>
-                  <InputText
-                    name='diagnosis'
-                    variant='outlined'
-                    className={errorType === 'diagnosis' + item.id ? classes.textfieldError : classes.textFieldDiag}
-                    index={index}
-                    value={item.diagnosis}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <div className='flex flex-row flex-no-wrap'>
-                            {showTooltipInfo && <HoverInfo />}
-                            <InfoIcon onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
-                          </div>
-                        </InputAdornment>
-                      ),
-                    }}
-                    disabled={loading || disabledStatus}
-                  />
-                </Grid>
-                <Grid style={{ marginBottom: '1rem' }}>
-                  <Typography variant='subtitle1'>Estudios a realizar</Typography>
-                  <BoxSelect
-                    index={index}
-                    show={show}
-                    setShow={setShow}
-                    style={{
-                      border: errorType === 'studies' + item.id ? '1px solid red' : '1px solid #EDF2F7',
-                      minHeight: '3rem',
-                      backgroundColor: loading || disabledStatus ? '#f4f5f7' : '',
-                    }}
-                    disabled={loading || disabledStatus}
-                  />
-                </Grid>
-                <Grid>
-                  <Typography variant='subtitle1'>Observaciones</Typography>
-                  <InputText
-                    name='observation'
-                    variant='outlined'
-                    className={classes.textfield}
-                    multiline
-                    index={index}
-                    value={item.notes}
-                    disabled={loading || disabledStatus}
-                  />
-                </Grid>
-              </Grid>
-            </FormControl>
+                    </Grid>
+                    <Grid style={{ marginBottom: '1rem' }}>
+                      <Typography variant='subtitle1'>Estudios a realizar</Typography>
+                      <BoxSelect
+                        index={index}
+                        show={show}
+                        setShow={setShow}
+                        style={{
+                          border: errorType === 'studies' + item.id ? '1px solid red' : '1px solid #EDF2F7',
+                          minHeight: '3rem',
+                          backgroundColor: loading || disabledStatus ? '#f4f5f7' : '',
+                        }}
+                        disabled={loading || disabledStatus}
+                      />
+                    </Grid>
+                    <Grid>
+                      <Typography variant='subtitle1'>Observaciones</Typography>
+                      <InputText
+                        name='observation'
+                        variant='outlined'
+                        className={classes.textfield}
+                        multiline
+                        index={index}
+                        value={item.notes}
+                        disabled={loading || disabledStatus}
+                      />
+                    </Grid>
+                  </Grid>
+                </FormControl>
+              </div>
+            )
+          })}
+          <div className='flex flex-col items-end gap-2 px-4 mb-3'>
+            <button
+              className='btn focus:outline-none border-primary-600 border-2 w-24 px-3 py-1 rounded-lg text-primary-600 font-semibold flex flex-row disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
+              onClick={() => addCategory()}
+              disabled={loading || disabledStatus}
+            >
+              Agregar
+              <span className='pt-2 mx-2'>
+                <IconAdd />
+              </span>
+            </button>
           </div>
-        )
-      })}
-      <div className='flex flex-col items-end gap-2 px-4 mb-3'>
-        <button
-          className='btn focus:outline-none border-primary-600 border-2 w-24 px-3 py-1 rounded-lg text-primary-600 font-semibold flex flex-row disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
-          onClick={() => addCategory()}
-          disabled={loading || disabledStatus}
-        >
-          Agregar
-          <span className='pt-2 mx-2'>
-            <IconAdd />
-          </span>
-        </button>
-        <button
-          className='focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-20 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
-          onClick={() => {
-            sendOrderToServer()
-          }}
-          disabled={sendStudyLoading || loading || disabledStatus}
-        >
-          {sendStudyLoading ? <Spinner /> : 'Guardar'}
-        </button>
+          <div className='flex flex-col w-full items-center'>
+            {!remoteMode && (
+              <>
+                <DisoclureOrder />
+                <DisoclureOrder />
+                <DisoclureOrder />
+                <DisoclureOrder />
+                <DisoclureOrder />
+              </>
+            )}
+          </div>
+        </div>
+        {/* Footer */}
+        <div className='flex flex-row w-full justify-end py-4 '>
+          <button
+            className='mr-4 focus:outline-none rounded-md bg-primary-600 text-white font-medium h-10 w-20 p-1 flex flex-row justify-center items-center disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
+            onClick={() => {
+              sendOrderToServer()
+            }}
+            disabled={sendStudyLoading || loading || disabledStatus}
+          >
+            {sendStudyLoading ? <Spinner /> : 'Guardar'}
+          </button>
+        </div>
       </div>
       <StudiesTemplate show={show} setShow={setShow} size='xl5' remoteMode={remoteMode}></StudiesTemplate>
-    </div>
+    </>
   )
 }
 

@@ -4,22 +4,12 @@ import StudyOrder from './studiesorder/StudyOrder'
 
 export function StudiesMenuRemote({ appointment }) {
   return (
-    <div className='flex flex-col bg-white shadow-xl relative overflow-hidden' style={{ height: '100%' }}>
-      <Grid>
-        <Grid
-          container
-          style={{
-            backgroundColor: '#27BEC2',
-            color: 'white',
-            alignItems: 'center',
-            minHeight: '70px',
-            paddingLeft: '2rem',
-          }}
-        >
-          <Typography variant='h6'>Orden de estudios</Typography>
-        </Grid>
-        <Grid className='w-full h-full mt-4'>
-          {/* <div
+    <div className='flex flex-col bg-white shadow-xl relative overflow-hidden h-full w-full scrollbar'>
+      <div className='flex flex-row items-center pl-8 bg-primary-500 text-white' style={{ minHeight: '70px' }}>
+        <Typography variant='h6'>Orden de estudios</Typography>
+      </div>
+
+      {/* <div
             className='flex flex-row flex-no-wrap w-full truncate'
             title={`${appointment?.patient?.givenName.split(' ')[0]} ${
               appointment.patient.familyName.split(' ')[0]
@@ -48,12 +38,10 @@ export function StudiesMenuRemote({ appointment }) {
               </Typography>
             </div>
           </div> */}
-          <div id='study_orders' className='overflow-y-auto scrollbar' style={{ height: 'calc( 100vh - 220px)' }}>
-            {/* {console.log("encounter => ", encounter)} */}
-            <StudyOrder appointment={appointment} remoteMode={true} />
-          </div>
-        </Grid>
-      </Grid>
+      <div id='study_orders' className='flex flex-col flex-1 overflow-y-auto '>
+        {/* {console.log("encounter => ", encounter)} */}
+        <StudyOrder appointment={appointment} remoteMode={true} />
+      </div>
     </div>
   )
 }
