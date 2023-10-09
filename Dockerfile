@@ -8,6 +8,14 @@ ARG app_server=http://localhost:8008
 ENV REACT_APP_SERVER_ADDRESS=$app_server
 ARG app_sentry="https://ef0e91d5dac44ca68696e90914f939b4@o489142.ingest.sentry.io/5550906"
 ENV REACT_APP_SENTRY=$app_sentry
+ARG kc_url=http://localhost:8080
+ENV REACT_APP_KEYCLOAK_URL=$kc_url
+ARG kc_url=http://localhost:8080
+ENV REACT_APP_KEYCLOAK_URL=$kc_url
+ARG kc_realm=iHub
+ENV REACT_APP_KEYCLOAK_REALM=$kc_realm
+ARG kc_client=boldo-doctor
+ENV REACT_APP_KEYCLOAK_CLIENT_ID=$kc_client
 
 COPY . /usr/src/app/
 RUN npm i && NODE_ENV=production npm run build
