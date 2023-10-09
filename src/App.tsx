@@ -26,12 +26,11 @@ import Provider from './components/studiesorder/Provider'
 import handleSendSentry from './util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
-import AuthService from './auth/AuthService'
-
+import { useKeycloak } from "@react-keycloak/web";
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
-//axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS;
 axios.defaults.maxRedirects = 0;
 
@@ -53,9 +52,10 @@ const App = () => {
   // Context API Organization Boldo MultiOrganization
   const { setOrganization } = useContext(OrganizationContext);
   const { setOrganizations } = useContext(AllOrganizationContext);
+  const { keycloak } = useKeycloak();
 
   axios.defaults.headers = { 
-    "Authorization": `Bearer ${AuthService.getToken()}`,
+    "Authorization": `Bearer ${keycloak.token}`,
     "Access-Control-Allow-Origin": "*"
   }
 
