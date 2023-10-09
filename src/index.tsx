@@ -16,6 +16,7 @@ import soepReducer from './redux/reducers/soepReducer.js';
 
 import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
 import OrganizationProvider from "../src/contexts/Organizations/organizationSelectedContext"
+import KeycloakProv from './components/KeycloakProv';
 
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
@@ -37,15 +38,17 @@ if (process.env.NODE_ENV === 'production')
 const configureStore = createStore(soepReducer);
 
 ReactDOM.render(
-  <Provider store={configureStore}>
-    <BrowserRouter>
-      <AllOrganizationProvider>
-        <OrganizationProvider>
-          <App />
-        </OrganizationProvider>
-      </AllOrganizationProvider>
-    </BrowserRouter>
-  </Provider>
+    <KeycloakProv>
+      <Provider store={configureStore}>
+          <BrowserRouter>
+            <AllOrganizationProvider>
+              <OrganizationProvider>
+                <App />
+              </OrganizationProvider>
+            </AllOrganizationProvider>
+          </BrowserRouter>
+      </Provider>
+    </KeycloakProv>
   ,
   document.getElementById('root')
 )
