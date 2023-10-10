@@ -291,12 +291,14 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                         </div>
                         { diagnose && selectedSoep &&
                             diagnose.toLowerCase().trim() !== selectedSoep.evaluation?.toLowerCase().trim()
-                                ? <button 
+                                ? !isAppointmentDisabled && (
+                                    <button 
                                     onClick={() => setDiagnose(selectedSoep.evaluation ?? '')} 
                                     className="pt-2 font-normal text-sm leading-3 focus:outline-none"
                                 >
                                     <p style={{color: "#757575"}}>Click para restaurar</p>
                                 </button>
+                                )
                                 : <></>
                         }
                     </div>
