@@ -70,7 +70,7 @@ const OrderDetailStudy: React.FC<Props> = ({ orderID }) => {
             {/* Diagnosis */}
             {studyOrder?.diagnosis && (
               <div className={`flex flex-col gap-1`}>
-                <div className='text-primary-500'>Impresión diagnóstica</div>
+                <div className='text-primary-500'>Diagnóstico</div>
                 <div className='font-semibold' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
                   {studyOrder?.diagnosis}
                 </div>
