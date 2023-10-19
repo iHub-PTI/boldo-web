@@ -16,6 +16,7 @@ import { StudyType, getCategorySvg, getOrigin } from './StudyHistory'
 import { Dialog, Transition } from '@headlessui/react'
 import { ReactComponent as CloseIcon } from '../../assets/close.svg'
 import OrderDetailStudy from '../studiesorder/OrderDetailStudy'
+import { InquiryDetail } from './InquiryDetail'
 
 type PropsDetailStudy = {
   selectedStudy: StudyType
@@ -49,6 +50,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   const [error, setError] = useState(null)
 
   const [isOpenOrderDetail, setIsOpenOrderDetail] = useState(false)
+  const [isOpenOriginInQuiry, setIsOpenOriginInQuiry] = useState(false)
 
   function closeModalOrder() {
     setIsOpenOrderDetail(false)
@@ -56,6 +58,14 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
 
   function openModalOrder() {
     setIsOpenOrderDetail(true)
+  }
+
+  function closeModalOrigin() {
+    setIsOpenOriginInQuiry(false)
+  }
+
+  function openModalOrigin() {
+    setIsOpenOriginInQuiry(true)
   }
 
   const getServiceRequest = id => {
@@ -170,103 +180,149 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
     }
 
     return (
-      <div className={isCall ? 'mx-3' : ''} {...props}>
-        {/* Order Header */}
-        <div className={`flex flex-col p-2 gap-1 ${classBoxDarkMode}`}>
-          <h1 className='font-semibold text-gray-500 text-xs'>Orden</h1>
-          {/* Doctor picture */}
-          <div className='flex flex-row gap-4 w-64 h-11 items-center mb-1'>
-            {doctor?.photoUrl ? (
-              <img
-                src={doctor?.photoUrl}
-                alt='Foto de Perfil'
-                className='flex-none border-2 border-bluish-500 w-10 h-10 rounded-full object-cover'
-              />
-            ) : (
-              <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-10 h-10' />
-            )}
-            {/* Doctor info */}
-            {doctor && getDoctor(doctor.givenName, doctor.familyName, doctor.gender, doctor.specializations)}
-          </div>
-          {/* <div className='flex flex-row justify-end w-full'>
-            <a href='#a' className='text-orange-dark border-b border-orange-dark focus:outline-none text-sm'>
-              Ver consulta origen
-            </a>
-          </div> */}
-          <div className='font-semibold text-gray-500 text-xs'>Solicitado en fecha</div>
-          <div className='flex flex-row items-center'>
-            <CalendarIcon />
-            <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
-              {studyOrder?.authoredDate && moment(studyOrder?.authoredDate).format('DD/MM/YYYY')}
+      <>
+        <div className={isCall ? 'mx-3' : ''} {...props}>
+          {/* Order Header */}
+          <div className={`flex flex-col p-2 gap-1 ${classBoxDarkMode}`}>
+            <h1 className='font-semibold text-gray-500 text-xs'>Orden</h1>
+            {/* Doctor picture */}
+            <div className='flex flex-row gap-4 w-64 h-11 items-center mb-1'>
+              {doctor?.photoUrl ? (
+                <img
+                  src={doctor?.photoUrl}
+                  alt='Foto de Perfil'
+                  className='flex-none border-2 border-bluish-500 w-10 h-10 rounded-full object-cover'
+                />
+              ) : (
+                <NoProfilePicture className='bg-gray-200 rounded-full border-gray-200 border-1 w-10 h-10' />
+              )}
+              {/* Doctor info */}
+              {doctor && getDoctor(doctor.givenName, doctor.familyName, doctor.gender, doctor.specializations)}
             </div>
-            <div className='ml-2 text-gray-500'>{studyOrder?.authoredDate && countDays(studyOrder?.authoredDate)}</div>
-          </div>
-        </div>
-
-        {/* Diagnosis */}
-        {studyOrder?.diagnosis && (
-          <div className={`flex flex-col gap-1 ${isCall ? 'mt-2' : ''}`}>
-            <div className={classTextTitle}>Impresión diagnóstica</div>
-            <div className={`font-semibold ${classDesc}`} style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
-              {studyOrder?.diagnosis}
+            <div className='flex flex-row justify-end w-full'>
+              <button
+                className='text-orange-dark focus:outline-none text-sm underline'
+                onClick={() => openModalOrigin()}
+              >
+                Ver consulta origen
+              </button>
             </div>
-          </div>
-        )}
-
-        {/* Requested studies */}
-        <div className='flex flex-col gap-2 mt-3'>
-          <div className={classTextTitle}>Estudios solicitados</div>
-          <div
-            className={`flex flex-col p-3 ${classBoxDarkMode}`}
-            style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}
-          >
-            {/* Header Study */}
-            <div className='flex flex-row justify-between'>
-              <div className='flex flex-row gap-2 items-center'>
-                {getCategorySvg(studyOrder?.category, 24, 24)}
-                <div className='text-cool-gray-700 text-sm' style={{ lineHeight: '20px' }}>
-                  {getCategoryLabel(studyOrder?.category)}
-                </div>
+            <div className='font-semibold text-gray-500 text-xs'>Solicitado en fecha</div>
+            <div className='flex flex-row items-center'>
+              <CalendarIcon />
+              <div className='text-cool-gray-700' style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
+                {studyOrder?.authoredDate && moment(studyOrder?.authoredDate).format('DD/MM/YYYY')}
               </div>
-              {studyOrder?.urgent && (
-                <div
-                  className='flex flex-row justify-center'
-                  style={{
-                    padding: '1px 6px',
-                    width: '54px',
-                    height: '18px',
-                    background: '#E8431F',
-                    borderRadius: '4px',
-                  }}
-                >
-                  <span
-                    className='font-semibold text-white'
+              <div className='ml-2 text-gray-500'>
+                {studyOrder?.authoredDate && countDays(studyOrder?.authoredDate)}
+              </div>
+            </div>
+          </div>
+
+          {/* Diagnosis */}
+          {studyOrder?.diagnosis && (
+            <div className={`flex flex-col gap-1 ${isCall ? 'mt-2' : ''}`}>
+              <div className={classTextTitle}>Impresión diagnóstica</div>
+              <div className={`font-semibold ${classDesc}`} style={{ lineHeight: '16px', letterSpacing: '0.1px' }}>
+                {studyOrder?.diagnosis}
+              </div>
+            </div>
+          )}
+
+          {/* Requested studies */}
+          <div className='flex flex-col gap-2 mt-3'>
+            <div className={classTextTitle}>Estudios solicitados</div>
+            <div
+              className={`flex flex-col p-3 ${classBoxDarkMode}`}
+              style={{ border: '3px solid #F6F4F4', borderRadius: '16px' }}
+            >
+              {/* Header Study */}
+              <div className='flex flex-row justify-between'>
+                <div className='flex flex-row gap-2 items-center'>
+                  {getCategorySvg(studyOrder?.category, 24, 24)}
+                  <div className='text-cool-gray-700 text-sm' style={{ lineHeight: '20px' }}>
+                    {getCategoryLabel(studyOrder?.category)}
+                  </div>
+                </div>
+                {studyOrder?.urgent && (
+                  <div
+                    className='flex flex-row justify-center'
                     style={{
-                      fontSize: '10px',
-                      lineHeight: '16px',
-                      letterSpacing: '0.5px',
+                      padding: '1px 6px',
+                      width: '54px',
+                      height: '18px',
+                      background: '#E8431F',
+                      borderRadius: '4px',
                     }}
                   >
-                    urgente
-                  </span>
+                    <span
+                      className='font-semibold text-white'
+                      style={{
+                        fontSize: '10px',
+                        lineHeight: '16px',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      urgente
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* Body Study */}
+              <div className='flex flex-row pt-1'>
+                <ul className='list-disc list-inside ml-2 pt-2'>{getStudies(studyOrder?.studiesCodes)}</ul>
+              </div>
+              {/* Observation */}
+              {studyOrder?.notes && (
+                <div className='flex flex-col mt-2'>
+                  <div className='text-sm text-cool-gray-700'>Observaciones:</div>
+                  <div className='text-sm text-cool-gray-700'>{studyOrder?.notes}</div>
                 </div>
               )}
+              <AddedResults diagnosticReports={studyOrder?.diagnosticReports ?? []} />
             </div>
-            {/* Body Study */}
-            <div className='flex flex-row pt-1'>
-              <ul className='list-disc list-inside ml-2 pt-2'>{getStudies(studyOrder?.studiesCodes)}</ul>
-            </div>
-            {/* Observation */}
-            {studyOrder?.notes && (
-              <div className='flex flex-col mt-2'>
-                <div className='text-sm text-cool-gray-700'>Observaciones:</div>
-                <div className='text-sm text-cool-gray-700'>{studyOrder?.notes}</div>
-              </div>
-            )}
-            <AddedResults diagnosticReports={studyOrder?.diagnosticReports ?? []} />
           </div>
         </div>
-      </div>
+        <Transition appear show={isOpenOriginInQuiry} as={Fragment}>
+          <Dialog as='div' className='relative z-10' onClose={closeModalOrigin}>
+            <Transition.Child
+              as={Fragment}
+              enter='ease-out duration-300'
+              enterFrom='opacity-0'
+              enterTo='opacity-100'
+              leave='ease-in duration-200'
+              leaveFrom='opacity-100'
+              leaveTo='opacity-0'
+            >
+              <div className='fixed inset-0 bg-black bg-opacity-25' />
+            </Transition.Child>
+
+            <div className='fixed inset-0 overflow-y-auto'>
+              <div className='flex min-h-full items-center justify-center p-4 text-center'>
+                <Transition.Child
+                  as={Fragment}
+                  enter='ease-out duration-300'
+                  enterFrom='opacity-0 scale-95'
+                  enterTo='opacity-100 scale-100'
+                  leave='ease-in duration-200'
+                  leaveFrom='opacity-100 scale-100'
+                  leaveTo='opacity-0 scale-95'
+                >
+                  <Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white px-6 pb-6 pt-3 text-left align-middle shadow-xl transition-all'>
+                    <Dialog.Title as='h3' className='text-2xl font-normal leading-normal text-gray-900 pt-0'>
+                      Detalle de la consulta
+                    </Dialog.Title>
+                    <button className='focus:outline-none absolute right-2 top-2' onClick={closeModalOrigin}>
+                      <CloseIcon />
+                    </button>
+                    <InquiryDetail />
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+      </>
     )
   }
 

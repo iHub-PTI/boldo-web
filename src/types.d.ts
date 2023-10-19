@@ -10,10 +10,10 @@ export interface Doctor extends iHub.Doctor {
   new: boolean
 }
 
-type Interval = { start: number; end: number,appointmentType:string }
+type Interval = { start: number; end: number; appointmentType: string }
 
 interface Block {
-  openHours: OpenHours,
+  openHours: OpenHours
   idOrganization: string
 }
 
@@ -31,74 +31,74 @@ export interface Appointment extends iHub.Appointment {
   name: string
   type: 'PrivateEvent' | 'CustomAppointment' | 'Appointment'
   status: 'upcoming' | 'open' | 'closed' | 'locked' | 'cancelled'
-  appointmentType:string
+  appointmentType: string
 }
 
 //Boldo Multi-Organizations
 export interface Organization {
-  active: boolean,
-  id: string,
-  name: string,
-  type: string,
+  active: boolean
+  id: string
+  name: string
+  type: string
   colorCode: string
 }
 
 // organization for study update
 export interface OrganizationInOrderStudy {
-  active: boolean,
-  id: string,
-  name: string,
-  type: string,
+  active: boolean
+  id: string
+  name: string
+  type: string
   typeList: string[]
 }
 
 export interface Encounter {
-  appointmentId?:   string;
-  diagnosis?:       string;
-  doctorId?:        string;
-  encounterClass?:  string;
-  id?:              string;
-  instructions?:    string;
-  mainReason?:      string;
-  patientId?:       string;
-  prescriptions?:   Prescription[];
-  serviceRequests?: ServiceRequest[];
-  soep?:            Soep;
-  startTimeDate?:   string;
-  status?:          string;
-  updatedDiagnosis: boolean;
+  appointmentId?: string
+  diagnosis?: string
+  doctorId?: string
+  encounterClass?: string
+  id?: string
+  instructions?: string
+  mainReason?: string
+  patientId?: string
+  prescriptions?: Prescription[]
+  serviceRequests?: ServiceRequest[]
+  soep?: Soep
+  startTimeDate?: string
+  status?: string
+  updatedDiagnosis: boolean
 }
 
 export interface Prescription {
-  authoredOn?:     string;
-  doctorId?:       string;
-  encounterId?:    string;
-  id?:             string;
-  instructions?:   string;
-  medicationId?:   string;
-  medicationName?: string;
-  patientId?:      string;
-  status?:         string;
+  authoredOn?: string
+  doctorId?: string
+  encounterId?: string
+  id?: string
+  instructions?: string
+  medicationId?: string
+  medicationName?: string
+  patientId?: string
+  status?: string
 }
 
 export interface ServiceRequest {
-  authoredDate?:          string;
-  category?:              string;
-  description?:           string;
-  diagnosis?:             string;
-  diagnosticReportCount?: number;
-  encounterId?:           string;
-  id?:                    string;
-  identifier?:            string;
-  notes?:                 string;
-  urgent?:                boolean;
+  authoredDate?: string
+  category?: string
+  description?: string
+  diagnosis?: string
+  diagnosticReportCount?: number
+  encounterId?: string
+  id?: string
+  identifier?: string
+  notes?: string
+  urgent?: boolean
 }
 
 export interface Soep {
-  evaluation?: string;
-  objective?:  string;
-  plan?:       string;
-  subjective?: string;
+  evaluation?: string
+  objective?: string
+  plan?: string
+  subjective?: string
 }
 
 export interface OrderStudy {
@@ -106,7 +106,7 @@ export interface OrderStudy {
   category?: string
   diagnosis?: string
   diagnosticReports?: DiagnosticReport[]
-  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }
+  doctor: Omit<iHub.Doctor, 'specializations'> & { specializations: iHub.Specialization[] }
   encounterId?: string
   id?: string
   identifier?: string
@@ -138,4 +138,8 @@ export interface AttachmentUrl {
 
 export interface StudiesCode {
   display: string
+}
+
+export type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {
+  organization: Boldo.Organization
 }
