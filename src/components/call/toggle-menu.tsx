@@ -117,7 +117,7 @@ export const ToggleMenu = ({
             icon={
               <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
                 <div className='flex'>
-                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
+                  <PillIcon style={{ fontSize: 20, color: 'white', fill:'currentcolor' }} />
                   {
                     prescriptions.length > 0
                       ? <CircleCounter items={prescriptions.length} fromVirtual={true} />

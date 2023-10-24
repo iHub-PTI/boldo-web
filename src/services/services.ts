@@ -16,6 +16,6 @@ export function getAppointment(id: string) {
  * @returns Encounter
  */
 export function getEncounter(id: string) {
-  const url = `/profile/doctor/appointments/${id}/encounter`
-  return axios.get<Boldo.Encounter>(url)
+  const url = `/profile/doctor/appointments/${37204}/encounter`
+  return axios.get<{ encounter: Boldo.Encounter }>(url)
 }

@@ -61,24 +61,34 @@ export const toUpperLowerCase = (sentence: string) => {
   if (!words) return ''
 
   return words
-    .map((word) => {
+    .map(word => {
       if (!word) {
-        return '';
+        return ''
       }
-      const firstLetter = word[0]?.toUpperCase() || '';
-      const restOfWord = word?.substring(1)?.toLowerCase() || '';
+      const firstLetter = word[0]?.toUpperCase() || ''
+      const restOfWord = word?.substring(1)?.toLowerCase() || ''
 
-      return firstLetter + restOfWord;
+      return firstLetter + restOfWord
     })
-    .join(' ');
+    .join(' ')
 }
 
 //count the days @days: the days is string with format inlcude 'T'
 export const countDays = (days: string | undefined) => {
   if (days === undefined) return
+  if (days === '') return
+  if (days === null) return
+
   const currentDate = moment(new Date(), 'DD/MM/YYYY')
-  const days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
+
+  let days_diff = null
+
+  if (days.includes('T')) days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
+  else days_diff = currentDate.diff(moment(days, 'DD/MM/YYYY'), 'days')
+
   switch (days_diff) {
+    case null:
+      return
     case 0:
       return 'Hoy'
     case 1:
@@ -148,9 +158,10 @@ export function organizationsFromMessage(msg: String, organizations: Array<Boldo
   try {
     let organizationsIds = msg.match(/\d+/g)
 
-    organizationsIds && organizationsIds.forEach((id) => {
-      organizationsMatches.push(organizations.find((organization) => organization.id === id).name)
-    })
+    organizationsIds &&
+      organizationsIds.forEach(id => {
+        organizationsMatches.push(organizations.find(organization => organization.id === id).name)
+      })
   } catch (err) {
     Sentry.captureMessage('Could not get match from backend message')
     Sentry.captureException(err)
@@ -165,13 +176,13 @@ export function organizationsFromMessage(msg: String, organizations: Array<Boldo
  */
 export function flipDays(day: string): string {
   const map = {
-    "mon": "Lunes",
-    "tue": "Martes",
-    "wed": "Miercoles",
-    "thu": "Jueves",
-    "fri": "Viernes",
-    "sat": "Sábado",
-    "sun": "Domingo"
+    mon: 'Lunes',
+    tue: 'Martes',
+    wed: 'Miercoles',
+    thu: 'Jueves',
+    fri: 'Viernes',
+    sat: 'Sábado',
+    sun: 'Domingo',
   }
   // lowerCase to prevent conflicts
   return map[day.toLowerCase()]
@@ -185,7 +196,7 @@ export function flipDays(day: string): string {
 export function daysFromMessage(msg: string, days: Array<string>): Array<string> {
   let dayMatch = [] as Array<string>
 
-  days.forEach((day) => {
+  days.forEach(day => {
     if (msg.includes(day)) {
       dayMatch.push(flipDays(day))
     }
@@ -194,15 +205,14 @@ export function daysFromMessage(msg: string, days: Array<string>): Array<string>
   return dayMatch
 }
 
-
 /**
- * 
+ *
  * @param {Array<Boldo.Organization>} orgs - array of organizations in which we'll look for a specific id
  * @param {string} orgIDSearch - this is the id we'll search
  * @returns organization color hexadecimal code
  */
 export function getColorCode(orgs: Array<Boldo.Organization>, orgIDSearch: string): string {
-  let colorCode = "#27BEC2"
+  let colorCode = '#27BEC2'
   let orgFound = orgs.find(organization => organization.id === orgIDSearch)
 
   if (orgFound && orgFound.colorCode) colorCode = orgFound.colorCode
@@ -234,26 +244,26 @@ export function changeHours(date: Date, hours: number, operation: 'subtract' | '
 
 /**
  * Function to merge objects deeply
- * @param source1 
- * @param source2 
+ * @param source1
+ * @param source2
  * @returns returns the new merged object
  */
 
 export function mergeJSON(source1, source2) {
-  let result = {};
+  let result = {}
   for (let key in source1) {
     if (source1.hasOwnProperty(key)) {
-      result[key] = source1[key];
+      result[key] = source1[key]
     }
   }
   for (let key in source2) {
     if (source2.hasOwnProperty(key)) {
-      if (typeof source2[key] === "object" && !Array.isArray(source2[key])) {
-        result[key] = mergeJSON(result[key], source2[key]);
+      if (typeof source2[key] === 'object' && !Array.isArray(source2[key])) {
+        result[key] = mergeJSON(result[key], source2[key])
       } else {
-        result[key] = source2[key];
+        result[key] = source2[key]
       }
     }
   }
-  return result;
+  return result
 }
