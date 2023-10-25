@@ -12,10 +12,16 @@ export function getAppointment(id: string) {
 
 /**
  *
- * @param id APPOINTMENT ID
+ * @param patientId
+ * @param encounterId
  * @returns Encounter
  */
-export function getEncounter(id: string) {
-  const url = `/profile/doctor/appointments/${37204}/encounter`
-  return axios.get<{ encounter: Boldo.Encounter }>(url)
+export function getEncounterById(encounterId: string, patientId: string) {
+  const url = `/profile/doctor/patient/${patientId}/encounters/${encounterId}`
+  return axios.get<Boldo.Encounter & { startTimeDate: string }>(url)
+}
+
+export function getStudyOrdersByEncounter(encounterId: string, patientId: string) {
+  const url = `/profile/doctor/patient/${patientId}/encounter/${encounterId}/studyOrders`
+  return axios.get<Boldo.OrderStudy[]>(url)
 }

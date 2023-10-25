@@ -140,6 +140,8 @@ export interface StudiesCode {
   display: string
 }
 
-export type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {
+export type AppointmentWithPatient = Boldo.Appointment & {
+  doctor: Omit<iHub.Doctor, 'specializations'> & { specializations: iHub.Specialization[] }
+} & { patient: iHub.Patient } & {
   organization: Boldo.Organization
 }

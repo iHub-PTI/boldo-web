@@ -56,6 +56,8 @@ export const avatarPlaceholder = (profession: string, gender?: string) => {
 }
 
 export const toUpperLowerCase = (sentence: string) => {
+  if (!sentence) return
+  if (sentence === '' || sentence === ' ') return
   const words = sentence?.split(' ')
 
   if (!words) return ''

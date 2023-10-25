@@ -318,7 +318,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
                     <button className='focus:outline-none absolute right-2 top-2' onClick={closeModalOrigin}>
                       <CloseIcon />
                     </button>
-                    <InquiryDetail />
+                    <InquiryDetail patientId={studyOrder?.patientId} encounterId={studyOrder?.encounterId} />
                   </Dialog.Panel>
                 </Transition.Child>
               </div>

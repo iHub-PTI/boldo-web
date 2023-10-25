@@ -138,7 +138,7 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
     page = 1,
   }) => {
     let api = '/profile/doctor/studyResults'
-    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
+    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoadingScroll(true)
     setError(null)
