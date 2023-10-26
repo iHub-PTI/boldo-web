@@ -6,6 +6,7 @@ import { UserContext, RoomsContext } from '../App'
 import { avatarPlaceholder } from '../util/helpers'
 import { differenceInYears } from 'date-fns'
 import { lookupGender } from '../pages/Call'
+import { useKeycloak } from '@react-keycloak/web'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 
@@ -16,6 +17,8 @@ interface Props {
 }
 
 const Layout: React.FC<Props> = ({ children, isLoading }) => {
+
+  const { keycloak } = useKeycloak();
   const { pathname } = useLocation()
   const main = useRef<HTMLElement>(null)
 
@@ -275,7 +278,8 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                           <a
                             className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
-                            href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
+                            style={{ cursor: "pointer" }}
+                            onClick={(e) => { e.preventDefault(); keycloak.logout(); }}
                           >
                             Cerrar Sesión
                           </a>

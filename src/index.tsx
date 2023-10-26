@@ -11,11 +11,13 @@ import { ReportingObserver as ReportingObserverIntegration } from "@sentry/integ
 
 import {Provider} from 'react-redux'
 import {createStore} from 'redux'
-import App from './App'
 import soepReducer from './redux/reducers/soepReducer.js';
 
 import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
 import OrganizationProvider from "../src/contexts/Organizations/organizationSelectedContext"
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak from './keycloak';
+import Private from './components/Private';
 
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
@@ -37,15 +39,17 @@ if (process.env.NODE_ENV === 'production')
 const configureStore = createStore(soepReducer);
 
 ReactDOM.render(
-  <Provider store={configureStore}>
-    <BrowserRouter>
-      <AllOrganizationProvider>
-        <OrganizationProvider>
-          <App />
-        </OrganizationProvider>
-      </AllOrganizationProvider>
-    </BrowserRouter>
-  </Provider>
+    <ReactKeycloakProvider authClient={keycloak} initOptions={{ onLoad: "login-required", flow: "hybrid", checkLoginIframe: false, pkceMethod: "S256" }}>
+      <Provider store={configureStore}>
+          <BrowserRouter>
+            <AllOrganizationProvider>
+              <OrganizationProvider>
+                <Private />
+              </OrganizationProvider>
+            </AllOrganizationProvider>
+          </BrowserRouter>
+      </Provider>
+    </ReactKeycloakProvider>
   ,
   document.getElementById('root')
-)
+);
