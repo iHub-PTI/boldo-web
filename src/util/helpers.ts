@@ -77,16 +77,18 @@ export const toUpperLowerCase = (sentence: string) => {
 
 //count the days @days: the days is string with format inlcude 'T'
 export const countDays = (days: string | undefined) => {
-  if (days === undefined) return
-  if (days === '') return
-  if (days === null) return
+  const patron = /[T\\/-]/
+  if (!patron.test(days)) return ''
 
-  const currentDate = moment(new Date(), 'DD/MM/YYYY')
+  if (!days) return ''
+
+  console.log(days)
+
+  const currentDate = moment(new Date())
 
   let days_diff = null
 
-  if (days.includes('T')) days_diff = currentDate.diff(moment(days.split('T')[0]), 'days')
-  else days_diff = currentDate.diff(moment(days, 'DD/MM/YYYY'), 'days')
+  days_diff = currentDate.diff(moment(days).toDate(), 'days')
 
   switch (days_diff) {
     case null:

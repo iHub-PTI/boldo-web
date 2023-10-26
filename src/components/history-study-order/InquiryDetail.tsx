@@ -34,12 +34,15 @@ export const InquiryDetail: React.FC<{ encounterId: string; patientId: string }>
       setEncounter(encounterRes.data ?? null)
       if (!encounterRes.data.appointmentId) throw new Error('No se encontro una cita o ocurrió un error inesperado.')
       const appointmentRes = await getAppointment(encounterRes.data.appointmentId)
-      const { appointmentType = '', organization = null, doctor = null, patient = null } = appointmentRes.data
+      const {
+        appointmentType = '',
+        organization = null,
+        doctor = null,
+        patient = null,
+        start = '',
+      } = appointmentRes.data
       setAppointmentDetail({
-        dateAppointment:
-          encounterRes?.data?.startTimeDate !== '' || encounterRes?.data?.startTimeDate !== undefined
-            ? moment(encounterRes?.data?.startTimeDate).format('DD/MM/YYYY')
-            : 'Fecha desconocida.',
+        dateAppointment: start === '' ? 'Fecha Desconocida.' : start,
         appointmentType: appointmentType === 'V' ? 'Virtual' : 'Presencial',
         organization: organization?.name ? organization?.name : 'Desconocido',
         doctor: doctor,
@@ -75,9 +78,11 @@ export const InquiryDetail: React.FC<{ encounterId: string; patientId: string }>
                 <span className='p-1'>
                   <Calendar className='m-0' />
                 </span>
-                <span className='text-sm leading-4 text-dark-cool'>{appointmentDetail?.dateAppointment}</span>
+                <span className='text-sm leading-4 text-dark-cool'>
+                  {moment(appointmentDetail?.dateAppointment).format('DD/MM/YYYY')}
+                </span>
                 <span className='text-gray-500 text-sm leading-4'>
-                  {countDays(appointmentDetail?.dateAppointment.toString())}
+                  {countDays(appointmentDetail?.dateAppointment as string)}
                 </span>
               </li>
               <li className='flex flex-row gap-2 items-center'>
