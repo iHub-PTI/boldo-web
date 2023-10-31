@@ -1,37 +1,37 @@
-import React, { useContext, useEffect, useState } from 'react'
 import {
   FormControl,
-  FormGroup,
   FormControlLabel,
+  FormGroup,
   FormHelperText,
   Grid,
-  Typography,
   IconButton,
   InputAdornment,
+  Typography,
 } from '@material-ui/core'
-import { ReactComponent as TrashIcon } from '../../assets/trash.svg'
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
+import axios from 'axios'
+import React, { useContext, useEffect, useState } from 'react'
+import { useRouteMatch } from 'react-router-dom'
+import { ReactComponent as IconAdd } from '../../assets/add-cross.svg'
+import { ReactComponent as SpinnerL } from '../../assets/spinner-loading.svg'
 import { ReactComponent as Spinner } from '../../assets/spinner.svg'
-import SelectCategory from './SelectCategory'
-import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles'
+import { ReactComponent as TrashIcon } from '../../assets/trash.svg'
+import { OrganizationContext } from '../../contexts/Organizations/organizationSelectedContext'
+import { getStudyOrdersByEncounter } from '../../services/services'
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { AppointmentWithPatient } from '../MenuStudyOrder'
+import { useToasts } from '../Toast'
+import HoverInfo from '../hovers/TooltipInfo'
+import InfoIcon from '../icons/info-icons/InfoIcon'
 import BoxSelect from './BoxSelect'
 import CheckOrder from './CheckOrder'
+import DisoclureOrder from './DisoclureOrder'
 import InputText from './InputText'
-import { ReactComponent as IconAdd } from '../../assets/add-cross.svg'
-import { ReactComponent as IconInfo } from '../../assets/info-icon.svg'
-import { CategoriesContext, Orders } from './Provider'
 import { StudiesTemplate } from './ModalTemplate/StudiesTemplate'
 import { StudiesWithIndication } from './ModalTemplate/types'
-import axios from 'axios'
-import { useRouteMatch } from 'react-router-dom'
-import { useToasts } from '../Toast'
-import Tooltip from '@material-ui/core/Tooltip'
-import InfoIcon from '../icons/info-icons/InfoIcon'
-import HoverInfo from '../hovers/TooltipInfo'
-import handleSendSentry from '../../util/Sentry/sentryHelper'
-import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
-import { OrganizationContext } from '../../contexts/Organizations/organizationSelectedContext'
-import { AppointmentWithPatient } from '../MenuStudyOrder'
-import DisoclureOrder from './DisoclureOrder'
+import { CategoriesContext, Orders } from './Provider'
+import SelectCategory from './SelectCategory'
 
 //HoverSelect theme and Study Order styles
 const useStyles = makeStyles((theme: Theme) =>
@@ -77,6 +77,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     form: {
       width: '100%',
+      minWidth: '300px',
     },
     textfield: {
       backgroundColor: '#FFFFFF',
@@ -127,17 +128,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-//Tooltip Theme
-const TooltipInfo = withStyles(theme => ({
-  tooltip: {
-    backgroundColor: '#FFFF',
-    color: 'black',
-    maxWidth: 220,
-    padding: '1rem',
-    fontSize: theme.typography.pxToRem(12),
-  },
-}))(Tooltip)
-
 const StudyOrder = ({
   remoteMode = false,
   appointment,
@@ -151,6 +141,9 @@ const StudyOrder = ({
   const [show, setShow] = useState(false)
   const [encounter, setEncounter] = useState<Boldo.Encounter>(null)
   const [loading, setLoading] = useState(false)
+  //orders list
+  const [orderList, setOrderList] = useState<Boldo.OrderStudy[]>([])
+  const [loadingOrdersList, setLoadingOrdersList] = useState(false)
 
   // error types when sending -> category + orderId | diagnosis + orderId | studies + orderId
   const [errorType, setErrorType] = useState('')
@@ -169,6 +162,27 @@ const StudyOrder = ({
   //disabled form
   const [disabledStatus, setDisabledStatus] = useState(true)
   const [messageStatus, setMessageStatus] = useState('')
+
+  const loadOrderList = async () => {
+    setLoadingOrdersList(true)
+    getStudyOrdersByEncounter(encounter.id, encounter.patientId)
+      .then(res => setOrderList(res.data))
+      .catch(err => {
+        if (err?.response?.status === 404) {
+          console.log('error')
+          setOrderList([])
+        } else {
+          addToast({
+            type: 'error',
+            title: '¡Ocurrió un error!',
+            text: 'Error inesperado al obtener la lista órdenes generadas en la cita.',
+          })
+        }
+      })
+      .finally(() => {
+        setLoadingOrdersList(false)
+      })
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -206,6 +220,12 @@ const StudyOrder = ({
       }
       setOrders([...orders])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [encounter])
+
+  useEffect(() => {
+    if (!encounter) return
+    loadOrderList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounter])
 
@@ -336,6 +356,7 @@ const StudyOrder = ({
               ? 'Las órdenes de estudio han sido guardadas correctamente'
               : 'La orden de estudio ha sido guardada correctamente',
         })
+        loadOrderList()
       } catch (err) {
         const tags = {
           endpoint: url,
@@ -365,7 +386,7 @@ const StudyOrder = ({
                 key={item.id}
                 id={item.id.toString()}
                 className={`p-4 mb-5 rounded-xl relative ${remoteMode ? 'mx-2' : 'mx-6'}`}
-                style={{ backgroundColor: '#F7FAFC' }}
+                style={{ backgroundColor: '#F7FAFC', minWidth: '320px' }}
               >
                 <FormControl className={classes.form}>
                   <Typography className='flex flex-row pl-2 w-full font-semibold text-red-600 text-xs'>
@@ -386,60 +407,33 @@ const StudyOrder = ({
                       <TrashIcon title='Eliminar Orden'></TrashIcon>
                     </IconButton>
                     <Grid item container direction='row' spacing={5}>
-                      {remoteMode ? (
-                        <div className='flex md:flex-row sm:flex-col p-4'>
-                          <SelectCategory
-                            variant='outlined'
-                            classes={classes}
-                            index={index}
-                            error={errorType === 'category' + item.id}
-                            disabled={loading || disabledStatus}
+                      <Grid item xs={5}>
+                        <SelectCategory
+                          variant='outlined'
+                          classes={classes}
+                          index={index}
+                          error={errorType === 'category' + item.id}
+                          value={item.category}
+                          disabled={loading || disabledStatus}
+                        />
+                      </Grid>
+                      <Grid item xs={7}>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <CheckOrder
+                                checked={item.urgent}
+                                index={index}
+                                disabled={loading || disabledStatus}
+                              ></CheckOrder>
+                            }
+                            label='Urgente'
                           />
-                          <FormGroup
-                            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: '1rem' }}
-                          >
-                            <div className='flex flex-col'>
-                              <CheckOrder checked={item.urgent} index={index} disabled={loading || disabledStatus} />
-                              <span className='flex flex-row items-center'>
-                                Urgente{' '}
-                                <TooltipInfo title='marque la opción si estos estudios requieren ser realizados cuanto antes'>
-                                  <IconInfo style={{ transform: 'scale(.7)' }} />
-                                </TooltipInfo>
-                              </span>
-                            </div>
-                          </FormGroup>
-                        </div>
-                      ) : (
-                        <>
-                          <Grid item xs={5}>
-                            <SelectCategory
-                              variant='outlined'
-                              classes={classes}
-                              index={index}
-                              error={errorType === 'category' + item.id}
-                              value={item.category}
-                              disabled={loading || disabledStatus}
-                            />
-                          </Grid>
-                          <Grid item xs={7}>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <CheckOrder
-                                    checked={item.urgent}
-                                    index={index}
-                                    disabled={loading || disabledStatus}
-                                  ></CheckOrder>
-                                }
-                                label='Orden Urgente'
-                              />
-                            </FormGroup>
-                            <FormHelperText>
-                              marque la opción si estos estudios requieren ser realizadas cuanto antes
-                            </FormHelperText>
-                          </Grid>
-                        </>
-                      )}
+                        </FormGroup>
+                        <FormHelperText>
+                          marque la opción si estos estudios requieren ser realizadas cuanto antes
+                        </FormHelperText>
+                      </Grid>
                     </Grid>
                   </Grid>
 
@@ -508,14 +502,21 @@ const StudyOrder = ({
               </span>
             </button>
           </div>
-          <div className='flex flex-col w-full items-center'>
-            {!remoteMode && (
+          <div className='flex flex-col items-center p-2' style={{ minWidth: '320px' }}>
+            {true && (
               <>
-                <DisoclureOrder />
-                <DisoclureOrder />
-                <DisoclureOrder />
-                <DisoclureOrder />
-                <DisoclureOrder />
+                {loading || loadingOrdersList ? (
+                  <SpinnerL />
+                ) : (
+                  orderList.length === 0 &&
+                  orders.length === 1 && (
+                    <span className='text-dark-cool'>Aún no se han generado órdenes de estudio en esta cita.</span>
+                  )
+                )}
+                {orderList.length > 0 &&
+                  orderList.map((order, index) => (
+                    <DisoclureOrder key={'order-list-' + index} order={order} small={remoteMode} />
+                  ))}
               </>
             )}
           </div>
