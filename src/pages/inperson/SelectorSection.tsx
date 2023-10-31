@@ -28,7 +28,7 @@ export default (props: Props) => {
   const { orders } = useContext(CategoriesContext)
 
   const soep = {
-    studies: 'Estudios',
+    order: 'Orden de estudios',
     note: 'Notas médicas',
     prescription: 'Recetas',
     uploadStudies: 'Subir estudios'
@@ -131,7 +131,7 @@ export default (props: Props) => {
           </Tooltip>
 
           <Tooltip
-            title={<h1 style={{ fontSize: 14 }}>{soep.studies}</h1>}
+            title={<h1 style={{ fontSize: 14 }}>{soep.order}</h1>}
             placement='left'
             leaveDelay={100}
             classes={useTooltipStyles()}
