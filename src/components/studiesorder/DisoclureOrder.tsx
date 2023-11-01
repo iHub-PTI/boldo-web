@@ -5,6 +5,7 @@ import { getCategoryLabel } from '../history-study-order/CardDetailStudy'
 import { getCategorySvg } from '../history-study-order/StudyHistory'
 import DetailPanel from '../upload-studies/DetailPanel'
 import Urgency from '../upload-studies/Urgency'
+import { ReactComponent as EyesIcon } from '../../assets/eyes-icon.svg'
 
 type Props = {
   order: Boldo.OrderStudy
@@ -33,7 +34,7 @@ const DisoclureOrder: React.FC<Props> = ({ order = null, small = false }) => {
             </div>
           )}
           <Disclosure.Button className='focus:outline-none underline whitespace-no-wrap' style={{ color: '#24AAAD' }}>
-            Ver más
+            <EyesIcon />
           </Disclosure.Button>
         </div>
         <Disclosure.Panel>
