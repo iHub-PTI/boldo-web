@@ -148,7 +148,7 @@ export default function Dashboard() {
 
   // FIXME: Can this be improved?
   const setAppointmentsAndReload: typeof setAppointments = arg0 => {
-    console.log("arg0: " + arg0);
+    // console.log("arg0: " + arg0);
     setAppointments(arg0)
     setDateRange(range => ({ ...range, refetch: true }))
   }
@@ -365,7 +365,7 @@ export default function Dashboard() {
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
-          console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
+          // console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
           setAppointments([...events])

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
-import { LaboratoryMenu } from '../../components/LaboratoryMenu';
 import Layout from '../../components/Layout';
 import MedicalHistory from '../../components/MedicalHistory';
+import { MenuStudyOrder } from '../../components/MenuStudyOrder';
 import OrganizationBar from '../../components/OrganizationBar';
 import { PrescriptionMenu } from '../../components/PrescriptionMenu';
 import { RecordsOutPatient } from '../../components/RecordsOutPatient';
@@ -20,7 +20,6 @@ import { getColorCode } from '../../util/helpers';
 import MedicalRecordSection from './MedicalRecordSection';
 import PatientSection from './PatientSection';
 import SelectorSection from './SelectorSection';
-import { MenuStudyOrder } from '../../components/MenuStudyOrder';
 
 
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }

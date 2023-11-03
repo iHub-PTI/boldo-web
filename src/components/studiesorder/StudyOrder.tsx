@@ -333,8 +333,8 @@ const StudyOrder = ({
       try {
         setSendStudyLoading(true)
         let total = ordersCopy.length
-        const res = await axios.post(url, ordersCopy)
-        console.log('server response', res)
+        await axios.post(url, ordersCopy)
+        //console.log('server response', res)
         setSendStudyLoading(false)
         //reset Orders
         setOrders([

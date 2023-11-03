@@ -52,7 +52,7 @@ const UploadStudies = (props: Props) => {
   const handleChangeInputNumberOrder = useCallback(
     _.debounce(value => {
       setSearchValue(value)
-      console.log('llamado')
+      // console.log('llamado')
     }, 1000),
     []
   )

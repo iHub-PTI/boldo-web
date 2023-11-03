@@ -42,22 +42,22 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToast, addErrorToast } = useToasts()
 
-  console.log('studyarrayy', studyArray)
+  //console.log('studyarrayy', studyArray)
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
-    console.log(state)
+    //console.log(state)
   }
 
   const handleChangeNewStudy = e => {
     setNewStudy({ name: e.target.value, select: false, indication: '', status: true })
-    console.log(newStudy)
+    //console.log(newStudy)
   }
 
   const deleteStudyIndex = index => {
     studyArray.splice(index, 1)
     setStudyArray([...studyArray])
-    console.log('eliminar')
+    //console.log('eliminar')
     setMaxStudies(false)
   }
 
@@ -66,13 +66,13 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
     studyArray[ind].status = false
     setStudyArray([...studyArray])
     setMaxStudies(false)
-    console.log('elimnado con id', studyArray)
+    //console.log('elimnado con id', studyArray)
   }
 
   const addStudy = () => {
     if (studyArray.filter(obj => obj.status === true).length < 15 && newStudy.name.trim() !== '') {
       studyArray.unshift(newStudy)
-      console.log(studyArray)
+      // console.log(studyArray)
       setStudyArray([...studyArray])
       setNewStudy({
         name: '',
@@ -140,7 +140,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
 
       if (validateEditTemplate(dataTemplate)) {
         setLoading(true)
-        console.log("id template", id)
+        // console.log("id template", id)
         const res = await axios.put(url, dataTemplate)
         let index = studies.findIndex(el => el.id === res.data.id)
         studies[index] = {
@@ -210,7 +210,7 @@ export const EditStudyTemplate = ({ id, studies, setStudies, setShow, ...props }
     copyOrders.forEach((or)=>{
       or.studies_codes = []
     })
-    console.log(copyOrders)
+    // console.log(copyOrders)
     setOrders(copyOrders)
   }
 
