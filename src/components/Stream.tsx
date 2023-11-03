@@ -1,6 +1,5 @@
 import React, { useImperativeHandle, useRef, useEffect } from 'react'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import adapter from 'webrtc-adapter'
+import * as Sentry from "@sentry/react";
 
 import { SetDebugValueFn, useWebRTCDebugger, WebRTCStats } from './WebRTCStats'
 
@@ -102,6 +101,8 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     }
   } catch (err) {
     console.error(err)
+    Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+    Sentry.captureException(err)
   }
   // Handling incoming tracks
   const ontrack = ({ track, streams }: RTCTrackEvent) => {
@@ -122,12 +123,19 @@ const createPeerConection = (props: createPeerConnectionProps) => {
       socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
     } catch (err) {
       console.error(err)
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
     }
   }
   // Handle incoming offers
   type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
   socket.on('sdp offer', async (message: OfferMessage) => {
-    await pc.setRemoteDescription(message.sdp)
+    try {
+      await pc.setRemoteDescription(message.sdp)
+    } catch (err) {
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
+    }
   })
 
   //
@@ -145,6 +153,8 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     try {
       await pc.addIceCandidate(message.ice)
     } catch (err) {
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
       if (err instanceof TypeError) return console.log(err.message)
       throw err
     }

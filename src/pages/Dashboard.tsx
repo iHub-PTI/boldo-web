@@ -516,6 +516,7 @@ export default function Dashboard() {
                       label='Espacio de Trabajo'
                       onChange={value => {
                         setOrganization(Organizations.find((d) => d.id === value))
+                        Sentry.setTag('organization_current', Organizations.find((d) => d.id === value).name ?? '')
                         //reset appointmets
                         setAppointments([])
                         loadEventsSourcesCalendar(value)

@@ -43,7 +43,9 @@ import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
 import { getColorCode } from '../util/helpers'
 import useWindowDimensions from '../util/useWindowDimensions'
 
+import * as Sentry from "@sentry/react"
 import { ToggleMenu } from '../components/call/toggle-menu'
+
 
 
 type Status = Boldo.Appointment['status']
@@ -55,7 +57,6 @@ const Gate = () => {
   const history = useHistory()
   const socket = useContext(SocketContext)
   const { addToast } = useToasts()
-  console.log('')
 
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -304,7 +305,7 @@ const Gate = () => {
   )
 }
 
-export default Gate
+export default Sentry.withProfiler(Gate)
 
 interface CallProps {
   id: string
@@ -1076,42 +1077,50 @@ function SOEP({ appointment }: { appointment: any }) {
   }, [appointment])
 
   useEffect(() => {
+    let mounted = true
     const load = async () => {
       const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url)
-        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
-        setDiagnose(diagnosis)
-        setInstructions(instructions)
-        setSelectedMedication(prescriptions)
-        setEncounterId(res.data.encounter.id)
-        setPartOfEncounterId(res.data.encounter.partOfEncounterId)
-        mainReason !== undefined && setMainReason(mainReason)
-        if (res.data.encounter.soep !== undefined) {
-          const { subjective, objective, evaluation, plan } = res.data.encounter.soep
-          objective !== undefined && setObjective(objective)
-          subjective !== undefined && setSubjective(subjective)
-          evaluation !== undefined && setEvaluation(evaluation)
-          plan !== undefined && setPlan(plan)
-        }
-        setInitialLoad(false)
+        if(mounted) {const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+          setDiagnose(diagnosis)
+          setInstructions(instructions)
+          setSelectedMedication(prescriptions)
+          setEncounterId(res.data.encounter.id)
+          setPartOfEncounterId(res.data.encounter.partOfEncounterId)
+          mainReason !== undefined && setMainReason(mainReason)
+          if (res.data.encounter.soep !== undefined) {
+            const { subjective, objective, evaluation, plan } = res.data.encounter.soep
+            objective !== undefined && setObjective(objective)
+            subjective !== undefined && setSubjective(subjective)
+            evaluation !== undefined && setEvaluation(evaluation)
+            plan !== undefined && setPlan(plan)
+          }
+          setInitialLoad(false)
+        } 
       } catch (err) {
-        const tags = {
-          'endpoint': url,
-          'method': 'GET',
-          'appointment_id': id
-        }
-        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error.',
-          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
-        })
-        setInitialLoad(false)
+       if(mounted){
+          const tags = {
+            'endpoint': url,
+            'method': 'GET',
+            'appointment_id': id
+          }
+          handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+          })
+          setInitialLoad(false)
+       }
       }
     }
 
     load()
+
+    return () =>{
+      mounted = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
