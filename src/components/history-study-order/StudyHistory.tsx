@@ -57,7 +57,7 @@ const StudyHistory: React.FC<Props> = ({
   //const { addToast } = useToasts()
 
   const patientId = appointment?.patientId
-  console.log(patientId)
+  //console.log(patientId)
 
   //states filters
   const [inputContent, setInputContent] = useState('')

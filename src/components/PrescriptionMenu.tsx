@@ -76,7 +76,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                     setInstructions(data.instructions);
                     setSelectedMedication(data.prescriptions);
                     setMainReason(data.mainReason);
-                    console.log(data.mainReason)
+                    //console.log(data.mainReason)
                     setEncounterId(res.data.encounter.partOfEncounterId)
                     setSelectedSoep(res.data.encounter.soep as Boldo.Soep)
 
@@ -126,10 +126,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
             const url = `/profile/doctor/appointments/${id}/encounter`
             try {
                 setLoading(true)
-                const res = await axios.put(url, _encounter)
+                await axios.put(url, _encounter)
                 setLoading(false)
                 setSuccess(true)
-                console.log('response', res.data)
+                //console.log('response', res.data)
                 console.log('se ha actualizado con exito!')
                 setError(false)
             } catch (err) {

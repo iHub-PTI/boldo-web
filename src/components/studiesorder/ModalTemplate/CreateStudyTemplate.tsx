@@ -28,7 +28,7 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
 
   const handleChange = e => {
     setState(state => ({ ...state, [e.target.name]: e.target.value }))
-    console.log(state)
+    //console.log(state)
   }
 
   const handleChangeNewStudy = e => {
@@ -92,9 +92,9 @@ export const CreateStudyTemplate = ({ studies, setStudies, setShow, setActionPag
         setLoading(true)
         const res = await axios.post(url, data)
         let copyStudies = JSON.parse(JSON.stringify(studies))
-        console.log("copystudies", copyStudies)
+        //console.log("copystudies", copyStudies)
         tempArray = [...res.data.StudyOrderTemplateDetails]
-        console.log('array', tempArray)
+        //console.log('array', tempArray)
         tempArray.forEach(e => {
           e.select = false
           e.indication = ''

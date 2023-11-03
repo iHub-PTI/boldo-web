@@ -66,7 +66,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
       .get(url)
       .then(res => {
         setStudyOrder(res.data)
-        console.log(res.data)
+        //console.log(res.data)
       })
       .catch(error => {
         setError(error)
@@ -88,7 +88,7 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
       .get(url)
       .then(res => {
         setStudyOrder(res.data)
-        console.log(res.data)
+        //console.log(res.data)
       })
       .catch(error => {
         setError(error)

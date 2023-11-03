@@ -2,10 +2,9 @@ import { Transition } from '@headlessui/react'
 import _ from 'lodash'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useAxiosPost } from '../../hooks/useAxios'
-import CheckIcon from '../icons/CheckIcon'
 import CloseCrossIcon from '../icons/CloseCrossIcon'
 import PencilEditIcon from '../icons/PencilEditIcon'
-import { GynecologyType } from "./Types";
+import { GynecologyType } from "./Types"
 
 const titlesTypesGynecology = [
   { title: 'Gestas', beforeTitle: 'Cantidad de', type: 'number', typeCode: 'CBG' },
@@ -160,9 +159,9 @@ const TableGynecology: React.FC<Props> = ({ gynecologies, url, patientId, organi
 
   const [gynecologyState, setGynecology] = useState<GynecologyType[]>(gynecologies)
 
-  useEffect(() => {
-    console.log(gynecologyState)
-  }, [gynecologyState])
+  // useEffect(() => {
+  //   console.log(gynecologyState)
+  // }, [gynecologyState])
 
   const handleClickEdit = () => {
     setShowEdit(!showEdit)

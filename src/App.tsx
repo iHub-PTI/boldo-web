@@ -103,7 +103,7 @@ const App = () => {
         const res = await axios.get(url)
         setUser(res.data)
         //console.log(res.data)
-        Sentry.setUser({ id: res.data.id })
+        Sentry.setUser({ id: res.data.id, email: res.data.email, username: res.data.identifier })
       } 
       catch (err) {
         console.log(err)
@@ -135,6 +135,7 @@ const App = () => {
         setOrganizations([...res.data]);
         // for default we use the first organization as the selectetd
         setOrganization(res.data[0]);
+        Sentry.setTag('organization_current', res.data[0] ?? '')
       } 
       else if (res.status === 204) {
         // when the response is 204 it means that there is no organization

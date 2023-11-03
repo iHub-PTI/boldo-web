@@ -10,7 +10,7 @@ export const SelectStudies = ({ template, setTemplate }) => {
   const [selectAll, setSelectAll] = useState(false)
 
   const handleSelectAll = () => {
-    console.log(selectAll)
+    // console.log(selectAll)
     setSelectAll(!selectAll)
     const dataCopy = { ...template }
     dataCopy.studiesIndication.forEach(element => {
