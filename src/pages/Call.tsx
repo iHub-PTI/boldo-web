@@ -66,7 +66,7 @@ const Gate = () => {
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(1)
-  const token = appointment?.token || ''
+  //const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)
   // const [loading, setLoading] = useState(false);
@@ -163,6 +163,7 @@ const Gate = () => {
   }, [appointment, id])
 
   useEffect(() => {
+    let token = appointment?.token || ''
     if (!socket) return
     if (appointment?.status !== 'open' || !token) return
 
@@ -176,7 +177,7 @@ const Gate = () => {
     return () => {
       socket.off('ready!')
     }
-  }, [appointment, id, socket, token])
+  }, [appointment, id, socket])
 
   useEffect(() => {
     if (!socket) return
@@ -208,12 +209,13 @@ const Gate = () => {
           setCallStatus({ connecting: false })
           setInstance(0)
           addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
+          let token = appointment?.token || ''
           socket?.emit('ready?', { room: id, token })
           break
         }
       }
     },
-    [addToast, token, id, socket]
+    [addToast, appointment, id, socket]
   )
 
   if (!id) return null
@@ -292,7 +294,7 @@ const Gate = () => {
             <Call
               appointment={appointment}
               id={id}
-              token={token}
+              token={appointment?.token || ''}
               instance={instance}
               updateStatus={updateStatus}
               onCallStateChange={onCallStateChange}
