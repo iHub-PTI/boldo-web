@@ -88,6 +88,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   }
 
   const pc = new RTCPeerConnection(config)
+  let offerSent = false
 
   //
   // 1.
@@ -119,8 +120,11 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   // Handle outgoing offers
   const onnegotiationneeded = async () => {
     try {
-      await pc.setLocalDescription(await pc.createOffer())
-      socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
+      if(!offerSent){
+        await pc.setLocalDescription(await pc.createOffer())
+        socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
+        offerSent = true;
+      } 
     } catch (err) {
       console.error(err)
       Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
@@ -131,7 +135,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
   socket.on('sdp offer', async (message: OfferMessage) => {
     try {
-      await pc.setRemoteDescription(message.sdp)
+      if(offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
     } catch (err) {
       Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
       Sentry.captureException(err)
@@ -239,7 +243,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     // FIXME: Probably should remove track in cleanup.
 
     pc.close()
-
+    offerSent = false;
     console.log('🧹 cleaned 🧹')
   }
 
