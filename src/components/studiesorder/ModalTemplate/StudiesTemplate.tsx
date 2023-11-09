@@ -81,60 +81,62 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
     else setEmptyTemp(false)
   }
 
-  const loadTemplates = async () => {
-    const url = `profile/doctor/studyOrderTemplate`
-    try {
-      setLoading(true)
-      const res = await axios.get(url)
-      // console.log(res)
-      if (res.status === 200) {
-        let templates = []
-        res.data
-          .filter(obj => obj.status === true)
-          .forEach(item => {
-            let temp = {} as TemplateStudies
-            temp.id = item.id
-            temp.name = item.name
-            temp.description = item.description
-            temp.status = item.status
-            temp.studiesIndication = item.StudyOrderTemplateDetails
-            // select and indicaciont are added
-            temp.studiesIndication.forEach(e => {
-              e.select = false
-              e.indication = ''
+  useEffect(() => {
+    let mounted = true
+    const loadTemplates = async () => {
+      const url = `profile/doctor/studyOrderTemplate`
+      try {
+        setLoading(true)
+        const res = await axios.get(url)
+        // console.log(res)
+        if(!mounted) return
+        if (res.status === 200) {
+          let templates = []
+          res.data
+            .filter(obj => obj.status === true)
+            .forEach(item => {
+              let temp = {} as TemplateStudies
+              temp.id = item.id
+              temp.name = item.name
+              temp.description = item.description
+              temp.status = item.status
+              temp.studiesIndication = item.StudyOrderTemplateDetails
+              // select and indicaciont are added
+              temp.studiesIndication.forEach(e => {
+                e.select = false
+                e.indication = ''
+              })
+              templates.push(temp)
             })
-            templates.push(temp)
-          })
-        // console.log('response templates', templates)
-        validateStudiesTemplates(studies)
-        setStudies(templates)
-        setTemplate(templates[0])
-        setMaxPagination(Math.ceil(templates.length / perPage))
-      } else if (res.status === 204) {
+          // console.log('response templates', templates)
+          validateStudiesTemplates(studies)
+          setStudies(templates)
+          setTemplate(templates[0])
+          setMaxPagination(Math.ceil(templates.length / perPage))
+        } else if (res.status === 204) {
+          toggleNewTemplate()
+          setLoading(false)
+          setEmptyTemp(true)
+        }
+      } catch (err) {
+        const tags = {
+          "endpoint": url,
+          "method": "GET"
+        }
+        handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_GET, tags)
+        addToast({
+          type: 'error',
+          title: 'Ha ocurrido un error',
+          text: 'No se pudieron obtener las plantillas de orden estudio predeterminadas.'
+        })
         toggleNewTemplate()
         setLoading(false)
         setEmptyTemp(true)
       }
-    } catch (err) {
-      const tags = {
-        "endpoint": url,
-        "method": "GET"
-      }
-      handleSendSentry(err, ERROR_HEADERS.STUDY_ORDER_TEMPLATE.FAILURE_GET, tags)
-      addToast({
-        type: 'error',
-        title: 'Ha ocurrido un error',
-        text: 'No se pudieron obtener las plantillas de orden estudio predeterminadas.'
-      })
-      toggleNewTemplate()
-      setLoading(false)
-      setEmptyTemp(true)
     }
-  }
-
-  useEffect(() => {
     loadTemplates()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { mounted = false }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

@@ -185,13 +185,14 @@ const StudyOrder = ({
   }
 
   useEffect(() => {
+    let mounted = true
     const load = async () => {
       const id = remoteMode ? matchCall?.params.id : matchInperson?.params.id
       const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         setLoading(true)
         const res = await axios.get(url)
-        setEncounter(res.data.encounter)
+        if(mounted) setEncounter(res.data.encounter)
       } catch (err) {
         const tags = {
           endpoint: url,
@@ -205,10 +206,13 @@ const StudyOrder = ({
           text: 'No se pudieron cargar algunos detalles. ¡Inténtelo nuevamente más tarde!',
         })
       } finally {
-        setLoading(false)
+        if(mounted) setLoading(false)
       }
     }
     load()
+    return () =>{
+      mounted = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
