@@ -8,7 +8,6 @@ import { differenceInYears } from 'date-fns'
 import { lookupGender } from '../pages/Call'
 import { useKeycloak } from '@react-keycloak/web'
 
-const SERVER_URL = process.env.REACT_APP_SERVER_ADDRESS
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
@@ -279,7 +278,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                             style={{ cursor: "pointer" }}
-                            onClick={(e) => { e.preventDefault(); keycloak.logout(); }}
+                            onClick={() => keycloak.logout()}
                           >
                             Cerrar Sesión
                           </button>
@@ -516,13 +515,13 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                         </div>
                         <div className='border-t border-gray-100' />
                         <div className='py-1'>
-                          <a
+                          <button
                             className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
-                            href={`${SERVER_URL}/logout?redirect_url=${window.location.origin}`}
+                            onClick={() => keycloak.logout()}
                           >
                             Cerrar Sesión
-                          </a>
+                          </button>
                           </div>
                           <div className='border-t border-gray-100' />
                         </div>
