@@ -61,6 +61,8 @@ const Gate = () => {
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
   const { Organizations } = useContext(AllOrganizationContext)
+  // 0 Waiting room
+  // 1 Video chat screen
   const [instance, setInstance] = useState(0)
   const [appointment, setAppointment] = useState<AppointmentWithPatient & { token: string }>()
   const [statusText, setStatusText] = useState('')
@@ -226,6 +228,7 @@ const Gate = () => {
         <div className='h-1 fakeload-15 bg-primary-500' />
       </Layout>
     )
+
   const controlSideBarState = () => {
     switch (sideBarAction) {
       // case 0:
@@ -296,7 +299,7 @@ const Gate = () => {
               id={id}
               token={appointment?.token || ''}
               instance={instance}
-              updateStatus={updateStatus}
+                            updateStatus={updateStatus}
               onCallStateChange={onCallStateChange}
               callStatus={callStatus}
             />
@@ -642,8 +645,9 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 }
 
 const useUserMedia = () => {
-  const { addErrorToast } = useToasts()
+  const { addErrorToast, addToast } = useToasts()
   const [mediaStream, setMediaStream] = useState<MediaStream>()
+  const stream = useRef(null)
 
   useEffect(() => {
     let mounted = true
@@ -654,16 +658,24 @@ const useUserMedia = () => {
     // or that they declined to share their equipment when prompted.
 
     const handleGetUserMediaError = (e: Error) => {
-      console.log(e)
+      console.log({e})
       switch (e.name) {
         case 'NotFoundError':
           addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
+          addToast({type: 'warning', text: 'Reintentado conectar sin cámara'})
+          retryEnableStream()
           break
         case 'SecurityError':
           addErrorToast('Error de seguridad. Detalles: ' + e.message)
           break
-        case 'PermissionDeniedError':
+        case 'PermissionDeniedError' || 'NotAllowedError':
           addErrorToast('No se puede acceder al micrófono y a la cámara. Detalles: ' + e.message)
+          break
+        case 'NotReadableError':
+          if(e.message.includes('Could not start video source'))
+            addErrorToast('No se puede iniciar la cámara. Detalles: ' + e.message)
+          else
+            addErrorToast('No se puede iniciar la cámara y/o el microfono. Detalles: ' + e.message)
           break
         default:
           addErrorToast('Ha ocurrido un error al abrir la cámara y/o el micrófono: ' + e.message)
@@ -673,21 +685,27 @@ const useUserMedia = () => {
       //FIXME: Make sure we shut down our end of the RTCPeerConnection so we're ready to try again.
     }
 
-    async function enableStream() {
+    async function enableStream({audio, video}: { audio: boolean, video:boolean }) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        if (mounted) setMediaStream(stream)
+        stream.current = await navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
+        if (mounted) setMediaStream(stream.current)
       } catch (err) {
+        console.log(err.name)
+        stream.current = null
         handleGetUserMediaError(err)
       }
     }
 
-    if (!mediaStream) enableStream()
+    const retryEnableStream = () => {
+      if (!mediaStream) enableStream({audio:true, video:false})
+    }
+
+    if (!mediaStream) enableStream({audio:true, video:true})
     return () => {
       mounted = false
       mediaStream?.getTracks().forEach(track => track.stop())
     }
-  }, [addErrorToast, mediaStream])
+  }, [addErrorToast, mediaStream, addToast])
 
   return mediaStream
 }
