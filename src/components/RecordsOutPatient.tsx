@@ -238,10 +238,10 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
-  useEffect(() => {
-    console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterOrder', filterOrder)
-    console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterDoctor', filterDoctor)
-  }, [filterDoctor, filterOrder])
+  // useEffect(() => {
+  //   console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterOrder', filterOrder)
+  //   console.log('🚀 ~ file: RecordsOutPatient.tsx:230 ~ filterDoctor', filterDoctor)
+  // }, [filterDoctor, filterOrder])
 
   useEffect(() => {
     setActiveID('')
@@ -575,7 +575,7 @@ export const QueryFilter = ({
 
   const onClickSequenceAsc = () => {
     setSequence('ASC')
-    console.log(author)
+    //console.log(author)
     getApiCall({
       doctorId: author,
       content: inputContent,
@@ -587,7 +587,7 @@ export const QueryFilter = ({
 
   const onClickSequenceDesc = () => {
     setSequence('DESC')
-    console.log(author)
+    //console.log(author)
     getApiCall({
       doctorId: author,
       content: inputContent,

@@ -96,8 +96,8 @@ export default function PrivateComments({
             } else {
                 // update comment
                 //@ts-ignore
-                const res = await axios.put(`/profile/doctor/encounters/${selectedCommnent.idEncounter}/privateComments/${selectedCommnent.id}`, payload)
-                console.log('respuesta', res.data)
+                await axios.put(`/profile/doctor/encounters/${selectedCommnent.idEncounter}/privateComments/${selectedCommnent.id}`, payload)
+                //console.log('respuesta', res.data)
                 setIsLoading(false);
                 setCommentText('')
                 setSelectedCommnent(undefined)

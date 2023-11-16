@@ -47,7 +47,7 @@ stages:
         repository: $(imageRepository)
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: '--build-arg sockets_address=https://boldo-dev.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://b37813a7e56e452f8a93d69f01439f72@o1301148.ingest.sentry.io/4504095428771840'
+        arguments: '--build-arg sockets_address=https://boldo-dev.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://b37813a7e56e452f8a93d69f01439f72@o1301148.ingest.sentry.io/4504095428771840 --build-arg kc_url=https://sso-dev-2.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
     
     - task: Docker@2
       displayName: Docker build test
@@ -57,7 +57,7 @@ stages:
         repository: $(imageRepository)
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-test.pti.org.py/api --build-arg app_sentry=https://90f954c9f2094c2eacfc92338aedb716@o1301148.ingest.sentry.io/4504095684624384'
+        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-test.pti.org.py/api --build-arg app_sentry=https://90f954c9f2094c2eacfc92338aedb716@o1301148.ingest.sentry.io/4504095684624384  --build-arg kc_url=https://sso-test-2.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
 
     - task: Docker@2
       displayName: Docker build prod
@@ -67,7 +67,7 @@ stages:
         repository: $(imageRepository)
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: '--build-arg sockets_address=https://bol.do --build-arg app_server=https://bol.do/api --build-arg app_sentry=https://e96cd615e8ef4b1aacf5f62da9fd0122@o1301148.ingest.sentry.io/4504095689605120'
+        arguments: '--build-arg sockets_address=https://bol.do --build-arg app_server=https://bol.do/api --build-arg app_sentry=https://e96cd615e8ef4b1aacf5f62da9fd0122@o1301148.ingest.sentry.io/4504095689605120  --build-arg kc_url=https://sso-2.bol.do --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
 
     - task: Docker@2
       displayName: Docker push

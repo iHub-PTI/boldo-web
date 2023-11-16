@@ -1,86 +1,51 @@
+import axios from 'axios'
+import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router-dom'
-import { differenceInMinutes, differenceInSeconds, differenceInYears, parseISO } from 'date-fns'
-import axios from 'axios'
-import Stream, { CallState } from '../components/Stream'
 import Layout from '../components/Layout'
+import Stream, { CallState } from '../components/Stream'
 
-import { SocketContext } from '../App'
-import { useToasts } from '../components/Toast'
-import MdAdd from '@material-ui/icons/MoreVert'
-import MdClose from '@material-ui/icons/Clear'
-// import PersonIcon from '@material-ui/icons/Person'
-import { ReactComponent as PillIcon } from '../assets/pill.svg'
-// TODO: Clear comments
-// import { ReactComponent as FirstSoepLabel } from '../assets/first-soep-label.svg'
-// import { ReactComponent as SecondSoepLabel } from '../assets/second-soep-label.svg'
-// import { ReactComponent as ThirdSoepLabel } from '../assets/third-soep-label.svg'
-// import { ReactComponent as FirstSoepIcon } from '../assets/first-soep-icon.svg'
-// import { ReactComponent as SecondSoepIcon } from '../assets/second-soep-icon.svg'
-// import { ReactComponent as ThirdSoepIcon } from '../assets/third-soep-icon.svg'
-import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
-import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
-import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
-import { ReactComponent as RecordIcon } from '../assets/record-table.svg'
-import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
-import PropTypes from 'prop-types'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Tooltip from '@material-ui/core/Tooltip'
-import _ from 'lodash'
-import { MainButton, ChildButton, FloatingMenu, Directions } from 'react-floating-button-menu'
 import {
   Card,
   CardContent,
-  Grid,
-  Typography,
   CardHeader,
-  //Tab,
-  //Tabs,
+  Grid,
   TextField,
+  Typography,
   makeStyles,
   withStyles,
 } from '@material-ui/core'
-// TODO: Clear comments
-// import Modal from '../components/Modal'
-// import { Icons } from 'material-table';
-// import { forwardRef } from 'react';
-// import ArrowUpward from '@material-ui/icons/ArrowUpward';
-// import AddBox from '@material-ui/icons/AddBox';
-// import Check from '@material-ui/icons/Check';
-// import ChevronLeft from '@material-ui/icons/ChevronLeft';
-// import ChevronRight from '@material-ui/icons/ChevronRight';
-// import Clear from '@material-ui/icons/Clear';
-// import DeleteOutline from '@material-ui/icons/DeleteOutline';
-// import Edit from '@material-ui/icons/Edit';
-// import FilterList from '@material-ui/icons/FilterList';
-// import FirstPage from '@material-ui/icons/FirstPage';
-// import LastPage from '@material-ui/icons/LastPage';
-// import Remove from '@material-ui/icons/Remove';
-// import SaveAlt from '@material-ui/icons/SaveAlt';
-// import Search from '@material-ui/icons/Search';
-// import ViewColumn from '@material-ui/icons/ViewColumn';
-// import MaterialTable from 'material-table'
-import PrivateComments from '../components/PrivateComments'
+import Accordion from '@material-ui/core/Accordion'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import Tooltip from '@material-ui/core/Tooltip'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import { SocketContext } from '../App'
+import { ReactComponent as HelpIcon } from '../assets/help-icon.svg'
+import { ReactComponent as PrivateCommentIconBadgesExtra } from '../assets/private-comments-badget-extra.svg'
+import { ReactComponent as PrivateCommentIconBadge } from '../assets/private-comments-badget.svg'
+import { ReactComponent as PrivateCommentIcon } from '../assets/private-comments.svg'
+import { useToasts } from '../components/Toast'
+
 import CancelAppointmentModal from '../components/CancelAppointmentModal'
-import { PrescriptionMenu } from '../components/PrescriptionMenu'
-import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
-import useWindowDimensions from '../util/useWindowDimensions'
-// import Print from '../components/icons/Print'
-import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext'
-// import { getReports } from '../util/helpers'
-import SidebarMenuCall from '../components/SidebarMenuCall'
-import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
-import SelectPrintOptions from '../components/SelectPrintOptions'
 import OrganizationBar from '../components/OrganizationBar'
-import CircleCounter from '../components/CircleCounter'
-import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
-import { getColorCode } from '../util/helpers'
+import { PrescriptionMenu } from '../components/PrescriptionMenu'
+import PrivateComments from '../components/PrivateComments'
+import SidebarMenuCall from '../components/SidebarMenuCall'
+import { StudiesMenuRemote } from '../components/StudiesMenuRemote'
 import { CategoriesContext } from '../components/studiesorder/Provider'
-import handleSendSentry from '../util/Sentry/sentryHelper'
+import { AllOrganizationContext } from '../contexts/Organizations/organizationsContext'
 import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
+import handleSendSentry from '../util/Sentry/sentryHelper'
+import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
+import { getColorCode } from '../util/helpers'
+import useWindowDimensions from '../util/useWindowDimensions'
+
+import * as Sentry from "@sentry/react"
+import { ToggleMenu } from '../components/call/toggle-menu'
+
 
 
 type Status = Boldo.Appointment['status']
@@ -101,7 +66,7 @@ const Gate = () => {
   const [statusText, setStatusText] = useState('')
   const [callStatus, setCallStatus] = useState<CallStatus>({ connecting: false })
   const [sideBarAction, setSideBarAction] = useState(1)
-  const token = appointment?.token || ''
+  //const token = appointment?.token || ''
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)
   // const [loading, setLoading] = useState(false);
@@ -198,6 +163,7 @@ const Gate = () => {
   }, [appointment, id])
 
   useEffect(() => {
+    let token = appointment?.token || ''
     if (!socket) return
     if (appointment?.status !== 'open' || !token) return
 
@@ -211,7 +177,7 @@ const Gate = () => {
     return () => {
       socket.off('ready!')
     }
-  }, [appointment, id, socket, token])
+  }, [appointment, id, socket])
 
   useEffect(() => {
     if (!socket) return
@@ -243,20 +209,14 @@ const Gate = () => {
           setCallStatus({ connecting: false })
           setInstance(0)
           addToast({ type: 'warning', title: 'Conexión perdida', text: '¡Perdimos la conexión con el paciente!' })
+          let token = appointment?.token || ''
           socket?.emit('ready?', { room: id, token })
           break
         }
       }
     },
-    [addToast, token, id, socket]
+    [addToast, appointment, id, socket]
   )
-
-  const useTooltipStyles = makeStyles(() => ({
-    tooltip: {
-      margin: 20,
-
-    },
-  }));
 
   if (!id) return null
 
@@ -278,152 +238,11 @@ const Gate = () => {
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
-
-        }} />
+        return <StudiesMenuRemote appointment={appointment} />
 
       default:
         return <SOEP appointment={appointment} />
     }
-  }
-
-
-  const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
-
-
-    useEffect(() => {
-      updatePrescriptions(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    return (
-      <div>
-        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
-          <MainButton
-            isOpen={isOpen}
-            iconResting={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdAdd style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            iconActive={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdClose style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background='#323030'
-            onClick={() => {
-              setIsOpen(prev => !prev)
-            }}
-            size={50}
-          />
-          {/* <ChildButton
-            icon={
-              <Print
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
-                bgColor='transparent'
-                iconColor='white'
-                fromVirtual={true}
-              />
-            }
-            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
-            size={50}
-            onClick={() => {
-              if (prescriptions?.length > 0) {
-                if (!loading && appointment !== undefined) {
-                  addToast({ type: 'success', text: 'Descargando receta...' });
-                  getReports(appointment, setLoading);
-                }
-              } else {
-                console.log("there is not prescriptions");
-                if (appointment?.status === 'open' || appointment?.status === 'closed') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
-                } else if (appointment?.status === 'locked') {
-                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
-                } else if (appointment?.status === 'upcoming') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
-                }
-              }
-            }}
-          /> */}
-          <ChildButton
-            icon={<SelectPrintOptions virtual={true} {...appointment} />}
-            size={50}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                  </svg>
-                  { orders &&
-                    orders.filter((order) => order.studies_codes.length > 0).length > 0
-                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
-                    : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 3 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(3);
-              setSelectedButton(3);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
-                  {
-                    prescriptions.length > 0
-                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
-                      : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 2 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(2);
-              setSelectedButton(2);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <RecordIcon />
-              </Tooltip>
-            }
-            background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(1);
-              setSelectedButton(1);
-            }}
-          />
-          {/* <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background={selectedButton === 0 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(0);
-              setSelectedButton(0);
-            }}
-          /> */}
-        </FloatingMenu>
-      </div>
-    )
   }
   return (
     <Layout>
@@ -456,7 +275,14 @@ const Gate = () => {
                     zIndex: 1
                   }}
                 >
-                  <TogleMenu />
+                  <ToggleMenu 
+                    id={id}
+                    appointment={appointment}
+                    orders={orders}
+                    selectedButton={selectedButton}
+                    setSelectedButton={setSelectedButton}
+                    setSideBarAction={setSideBarAction}
+                  />
                 </div>
               </div>
               <Grid container item xs={4} style={{ display: 'grid' }}>
@@ -468,7 +294,7 @@ const Gate = () => {
             <Call
               appointment={appointment}
               id={id}
-              token={token}
+              token={appointment?.token || ''}
               instance={instance}
               updateStatus={updateStatus}
               onCallStateChange={onCallStateChange}
@@ -481,7 +307,7 @@ const Gate = () => {
   )
 }
 
-export default Gate
+export default Sentry.withProfiler(Gate)
 
 interface CallProps {
   id: string
@@ -521,7 +347,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       return newState
     })
 
-    console.log(mediaStream?.getAudioTracks()[0].enabled)
+    // console.log(mediaStream?.getAudioTracks()[0].enabled)
   }
 
   const muteVideo = () => {
@@ -531,153 +357,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       mediaStream.getVideoTracks()[0].enabled = newState
       return newState
     })
-  }
-
-  const useTooltipStyles = makeStyles(() => ({
-    tooltip: {
-      margin: 20,
-
-    },
-  }));
-
-  const TogleMenu = () => {
-    const [isOpen, setIsOpen] = useState(true);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { prescriptions, updatePrescriptions } = usePrescriptionContext();
-
-    useEffect(() => {
-      updatePrescriptions(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    return (
-      <>
-        <FloatingMenu slideSpeed={500} isOpen={isOpen} spacing={8} direction={Directions.Up}>
-          <MainButton
-            isOpen={isOpen}
-            iconResting={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Ver opciones</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdAdd style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            iconActive={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Cerrar</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <MdClose style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background='#323030'
-            onClick={() => {
-              setIsOpen(prev => !prev)
-            }}
-            size={50}
-          />
-          {/* <ChildButton
-            icon={
-              <Print
-                className={`focus:outline-none ${loading ? 'cursor-not-allowed' : ''}`}
-                bgColor='transparent'
-                iconColor='white'
-                fromVirtual={true}
-              />
-            }
-            background={prescriptions.length > 0 ? '#27BEC2' : '#323030'}
-            size={50}
-            onClick={() => {
-              if (prescriptions?.length > 0) {
-                if (!loading && appointment !== undefined) {
-                  addToast({ type: 'success', text: 'Descargando receta...' });
-                  getReports(appointment, setLoading);
-                }
-              } else {
-                console.log("there is not prescriptions");
-                if (appointment?.status === 'open' || appointment?.status === 'closed') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Debe agregar alguna receta para imprimirla.' });
-                } else if (appointment?.status === 'locked') {
-                  addToast({ type:'info', title: 'Atención!', text: 'No posee recetas para imprimir.' })
-                } else if (appointment?.status === 'upcoming') {
-                  addToast({ type: 'info', title: 'Atención!', text: 'Esta funcionalidad estará disponible durante la cita.' })
-                }
-              }
-            }}
-          /> */}
-          <ChildButton
-            icon={
-              <SelectPrintOptions virtual={true} {...appointment} />
-            }
-            size={50}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Estudios</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 2V4H8V18C8 19.0609 8.42143 20.0783 9.17157 20.8284C9.92172 21.5786 10.9391 22 12 22C13.0609 22 14.0783 21.5786 14.8284 20.8284C15.5786 20.0783 16 19.0609 16 18V4H17V2H7ZM11 16C10.4 16 10 15.6 10 15C10 14.4 10.4 14 11 14C11.6 14 12 14.4 12 15C12 15.6 11.6 16 11 16ZM13 12C12.4 12 12 11.6 12 11C12 10.4 12.4 10 13 10C13.6 10 14 10.4 14 11C14 11.6 13.6 12 13 12ZM14 7H10V4H14V7Z" fill="white" />
-                  </svg>
-                  { orders &&
-                    orders.filter((order) => order.studies_codes.length > 0).length > 0
-                    ? <CircleCounter items={orders.filter((order) => order.studies_codes.length > 0).length} fromVirtual={true} />
-                    : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 3 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(3);
-              setSelectedButton(3);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Recetas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <div className='flex'>
-                  <PillIcon style={{ fontSize: 20, color: 'white' }} />
-                  {
-                    prescriptions.length > 0
-                      ? <CircleCounter items={prescriptions.length} fromVirtual={true} />
-                      : <></>
-                  }
-                </div>
-              </Tooltip>
-            }
-            background={selectedButton === 2 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(2);
-              setSelectedButton(2);
-            }}
-          />
-          <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Notas médicas</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <RecordIcon />
-              </Tooltip>
-            }
-            background={selectedButton === 1 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(1);
-              setSelectedButton(1);
-            }}
-          />
-          {/* <ChildButton
-            icon={
-              <Tooltip title={<h1 style={{ fontSize: 14 }}>Perfil del paciente</h1>} placement="left" leaveDelay={100} classes={useTooltipStyles()}>
-                <PersonIcon style={{ fontSize: 20, color: 'white' }} />
-              </Tooltip>
-            }
-            background={selectedButton === 0 ? '#667EEA' : '#323030'}
-            size={50}
-            onClick={() => {
-              setSideBarAction(0);
-              setSelectedButton(0);
-            }}
-          /> */}
-        </FloatingMenu>
-      </>
-    )
   }
   // NOTE: Mutes audio for development comfort
   // useEffect(() => {
@@ -916,7 +595,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
-              <TogleMenu />
+            <ToggleMenu 
+              id={id}
+              appointment={appointment}
+              orders={orders}
+              selectedButton={selectedButton}
+              setSelectedButton={setSelectedButton}
+              setSideBarAction={setSideBarAction}
+            />
             </Grid>
           </Grid>
 
@@ -1069,21 +755,22 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
     document.addEventListener('keyup', handleEscape)
     return () => document.removeEventListener('keyup', handleEscape)
   }, [show, hideSidebar])
-  const activatePicInPic = () => {
-    console.log('activatePicInPic');
-    if (!stream.current) return
-    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
-      try {
-        if ((document as any).pictureInPictureElement) {
-          ; (document as any).exitPictureInPicture()
-        }
-        ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    //   }}
-  }
+
+  // const activatePicInPic = () => {
+  //   console.log('activatePicInPic');
+  //   if (!stream.current) return
+  //   if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+  //     try {
+  //       if ((document as any).pictureInPictureElement) {
+  //         ; (document as any).exitPictureInPicture()
+  //       }
+  //       ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+  //     } catch (err) {
+  //       console.error(err)
+  //     }
+  //   }
+  // }
+
   const controlSideBarState = () => {
     switch (sideBarAction) {
       // case 0:
@@ -1096,9 +783,7 @@ const SidebarContainer = ({ show, hideSidebar, appointment, sideBarAction, strea
         return <PrescriptionMenu appointment={appointment} isFromInperson={false} />
 
       case 3:
-        return <StudiesMenuRemote appointment={appointment} setPreviewActivate={(elem: any) => {
-          activatePicInPic();
-        }} />
+        return <StudiesMenuRemote appointment={appointment} />
 
       default:
         return <SOEP appointment={appointment} />
@@ -1276,16 +961,6 @@ TabPanel.propTypes = {
   value: PropTypes.any.isRequired,
 }
 
-/* 
-  // It was decided to hide the implementation of the first and follow-up query. 
-  // Because it's not very clear to the doctors 
-  // TODO: Clear comments
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  }
-} */
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -1395,76 +1070,52 @@ function SOEP({ appointment }: { appointment: any }) {
   }, [appointment])
 
   useEffect(() => {
+    let mounted = true
     const load = async () => {
       const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url)
-        const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
-        setDiagnose(diagnosis)
-        setInstructions(instructions)
-        setSelectedMedication(prescriptions)
-        setEncounterId(res.data.encounter.id)
-        setPartOfEncounterId(res.data.encounter.partOfEncounterId)
-        mainReason !== undefined && setMainReason(mainReason)
-        if (res.data.encounter.soep !== undefined) {
-          const { subjective, objective, evaluation, plan } = res.data.encounter.soep
-          objective !== undefined && setObjective(objective)
-          subjective !== undefined && setSubjective(subjective)
-          evaluation !== undefined && setEvaluation(evaluation)
-          plan !== undefined && setPlan(plan)
-        }
-        setInitialLoad(false)
+        if(mounted) {const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+          setDiagnose(diagnosis)
+          setInstructions(instructions)
+          setSelectedMedication(prescriptions)
+          setEncounterId(res.data.encounter.id)
+          setPartOfEncounterId(res.data.encounter.partOfEncounterId)
+          mainReason !== undefined && setMainReason(mainReason)
+          if (res.data.encounter.soep !== undefined) {
+            const { subjective, objective, evaluation, plan } = res.data.encounter.soep
+            objective !== undefined && setObjective(objective)
+            subjective !== undefined && setSubjective(subjective)
+            evaluation !== undefined && setEvaluation(evaluation)
+            plan !== undefined && setPlan(plan)
+          }
+          setInitialLoad(false)
+        } 
       } catch (err) {
-        const tags = {
-          'endpoint': url,
-          'method': 'GET',
-          'appointment_id': id
-        }
-        handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error.',
-          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
-        })
-        setInitialLoad(false)
+       if(mounted){
+          const tags = {
+            'endpoint': url,
+            'method': 'GET',
+            'appointment_id': id
+          }
+          handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
+          addToast({
+            type: 'error',
+            title: 'Ha ocurrido un error.',
+            text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+          })
+          setInitialLoad(false)
+       }
       }
     }
 
     load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors 
-    // TODO: Clear comments
-    useEffect(() => {
-    if (encounterId !== '' && showEditModal === false) {
-      const load = async () => {
-        try {
-          //get related encounters records
-          const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}`)
-          if (res.data.encounter !== undefined) {
-            var count = Object.keys(res.data.encounter.items).length
-            const tempArray = []
-            for (var i = 0; i < count; i++) {
-              const data = res.data.encounter.items[i]
-              data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
-              if (data.appointmentId !== appointment.id) tempArray.push(data)
-            }
-            setEncounterHistory(tempArray)
-          }
-        } catch (err) {
-          console.log(err)
-          setInitialLoad(false)
-          //@ts-ignore
-          addErrorToast(err)
-        }
-      }
-      load()
+    return () =>{
+      mounted = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [encounterId, showEditModal, appointment]) */
+  }, [])
 
   useEffect(() => {
     if (initialLoad === false) {
@@ -1522,109 +1173,6 @@ function SOEP({ appointment }: { appointment: any }) {
     }
   }, [mainReason])
 
-  /*
-   // It was decided to hide the implementation of the first and follow-up query. 
-  // It was decided to hide the implementation of the first and follow-up query. 
-   // It was decided to hide the implementation of the first and follow-up query. 
-   // Because it's not very clear to the doctors   
-  // Because it's not very clear to the doctors   
-   // Because it's not very clear to the doctors   
-   // TODO: Clear comments
-   useEffect(() => {
-     if (showEditModal === true) {
-       // get encounters list
-       const load = async () => {
-         try {
-           const res = await axios.get(
-             `/profile/doctor/relatedEncounters/Patient/${appointment.patient.identifier}/filterEncounterId/${encounterId}`
-           )
-           if (res.data.encounter !== undefined) {
-             var count = Object.keys(res.data.encounter).length
-             const tempArray = []
-             for (var i = 0; i < count; i++) {
-               const data = res.data.encounter[i][0]
-               data.startTimeDate = moment(data.startTimeDate).format('DD/MM/YYYY')
-               tempArray.push(data)
-             }
-             //console.log("a ver ", tempArray)
-             setSoepHistory(tempArray)
-           }
-         } catch (error) {
-           console.log(error)
-           //@ts-ignore
-           addErrorToast(error)
-         }
-       }
-       load()
-     }
- 
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [showEditModal, appointment, encounterId]) */
-
-  /* useEffect(() => {
-    //send encounter selected to server
-    if (selectedRow) {
-      setIsLoading(true)
-      //@ts-ignore
-      setPartOfEncounterId(selectedRow.id)
-      const send = async () => {
-        const encounter = {
-          encounterData: {
-            diagnosis: diagnose,
-            instructions: instructions,
-            prescriptions: selectedMedication,
-            mainReason: mainReason,
-            //@ts-ignore
-            partOfEncounterId: selectedRow.id,
-            encounterClass: 'V',
-            soep: {
-              subjective: subjective,
-              objective: objective,
-              evaluation: evaluation,
-              plan: plan,
-            },
-          },
-        }
-        try {
-          const res = await axios.put(`/profile/doctor/appointments/${id}/encounter`, encounter)
-          console.log('response', res.data)
-          addToast({ type: 'success', title: 'Ficha médica asociada con exito', text: '' })
-          setIsLoading(false)
-        } catch (error) {
-          console.log(error)
-          //@ts-ignore
-          addErrorToast(error)
-          setIsLoading(false)
-        }
-      }
-      send()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRow])
- */
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors 
-    // TODO: Clear comments
-    useEffect(() => {
-    if (showEditModal === false) {
-      //go to first tab
-      setValue(0)
-    }
-  }, [showEditModal]) */
-
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors
-    // TODO: Clear comments
-    useEffect(() => {
-    if (encounterHistory.length > 0) {
-      //disable mainReason and show first mainReason record
-      setDisableMainReason(true)
-      setMainReason(encounterHistory[0].mainReason)
-    }
-  }, [encounterHistory]) */
-
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
       const url = `/profile/doctor/appointments/${id}/encounter`
@@ -1673,19 +1221,6 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [encounterId])
 
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors
-    // TODO: Clear comments
-  const CustomToolTip = withStyles(theme => ({
-    tooltip: {
-      backgroundColor: '#EDF2F7',
-      color: 'black',
-      maxWidth: 220,
-      fontSize: theme.typography.pxToRem(12),
-    },
-  }))(Tooltip) */
-
   const ToolTipSoepHelper = withStyles(theme => ({
     tooltip: {
       backgroundColor: '#FFFF',
@@ -1699,45 +1234,7 @@ function SOEP({ appointment }: { appointment: any }) {
     },
   }))(Tooltip)
 
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors
-    // TODO: Clear comments
-  const toolTipData = ({
-    iconItem,
-    date,
-    title,
-    body,
-  }: {
-    iconItem: number
-    date: any
-    title: String
-    body: String
-  }) => {
-    return (
-      <React.Fragment key={iconItem}>
-        <Grid container>
-          {iconItem === 1 ? (
-            <FirstSoepIcon style={{ marginTop: '3px' }} />
-          ) : iconItem === 2 ? (
-            <SecondSoepIcon />
-          ) : (
-            <ThirdSoepIcon />
-          )}
-
-          <Typography style={{ paddingLeft: '10px' }} variant='subtitle1' color='textSecondary'>
-            {date}
-          </Typography>
-        </Grid>
-        <Grid>
-          <Typography style={{ color: '#27BEC2', fontSize: '18px' }}>{title}</Typography>
-          <Typography variant='subtitle1' color='textPrimary'>
-            {body}{' '}
-          </Typography>
-        </Grid>
-      </React.Fragment>
-    )
-  } */
+  
   const showSoepHelper = ({ title }: { title: String }) => {
     var description = ''
     switch (title) {
@@ -1766,78 +1263,7 @@ function SOEP({ appointment }: { appointment: any }) {
       </ToolTipSoepHelper>
     )
   }
-  /* 
-    // It was decided to hide the implementation of the first and follow-up query. 
-    // Because it's not very clear to the doctors
-    // TODO: Clear comments
-  const showSoepRecords = ({ title }: { title: String }) => {
-    const tempArray = []
-    if (encounterHistory.length > 0) {
-      //only show the last three record
-      const encounterCounter = encounterHistory.length > 3 ? 3 : encounterHistory.length
-
-      for (var i = 0; i < encounterCounter; i++) {
-        const { objective, subjective, evaluation, plan } = encounterHistory[i].soep
-        const { startTimeDate, appointmentId } = encounterHistory[i]
-        switch (title) {
-          case 'Objetivo':
-            tempArray.push(
-              <CustomToolTip
-                key={appointmentId}
-                title={toolTipData({ iconItem: i + 1, title: title, body: objective, date: startTimeDate })}
-              >
-                <Grid style={{ paddingLeft: '10px' }}>
-                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
-                </Grid>
-              </CustomToolTip>
-            )
-            break
-
-          case 'Subjetivo':
-            tempArray.push(
-              <CustomToolTip
-                key={appointmentId}
-                title={toolTipData({ iconItem: i + 1, title: title, body: subjective, date: startTimeDate })}
-              >
-                <Grid style={{ paddingLeft: '10px' }}>
-                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
-                </Grid>
-              </CustomToolTip>
-            )
-            break
-
-          case 'Evaluacion':
-            tempArray.push(
-              <CustomToolTip
-                key={appointmentId}
-                title={toolTipData({ iconItem: i + 1, title: 'Evaluación', body: evaluation, date: startTimeDate })}
-              >
-                <Grid style={{ paddingLeft: '10px' }}>
-                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
-                </Grid>
-              </CustomToolTip>
-            )
-            break
-          case 'Plan':
-            tempArray.push(
-              <CustomToolTip
-                key={appointmentId}
-                title={toolTipData({ iconItem: i + 1, title: title, body: plan, date: startTimeDate })}
-              >
-                <Grid style={{ paddingLeft: '10px' }}>
-                  {i === 0 ? <FirstSoepLabel /> : i === 1 ? <SecondSoepLabel /> : <ThirdSoepLabel />}
-                </Grid>
-              </CustomToolTip>
-            )
-            break
-
-          default:
-            break
-        }
-      }
-    }
-    return tempArray
-  } */
+  
   const classes = useStyles()
   if (initialLoad)
     return (
@@ -1900,55 +1326,6 @@ function SOEP({ appointment }: { appointment: any }) {
                   Ci: {appointment.patient.identifier}
                 </Typography>
               </Grid>
-
-              {/* 
-                  // It was decided to hide the implementation of the first and follow-up query. 
-                  // Because it's not very clear to the doctors
-                  // TODO: Clear comments
-                <Grid style={{ marginTop: '25px' }}>
-                  <Tabs
-                    classes={{
-                      root: classes.tabHeight,
-                    }}
-                    TabIndicatorProps={{
-                      style: { backgroundColor: 'white', marginTop: '20px', marginBottom: '20px', display: 'none' },
-                    }}
-                    value={value}
-                    onChange={handleChange}
-                  >
-                    <Tab
-                      style={{
-                        backgroundColor: '#27BEC2',
-                        borderStartStartRadius: '10px',
-                        borderBottomLeftRadius: '10px',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '15px',
-                      }}
-                      label='1ra consulta'
-                      {...a11yProps(0)}
-                    />
-                    <Tab
-                      disabled={isAppointmentDisabled}
-                      onClick={() => {
-                        setShowEditModal(true)
-                      }}
-                      label='Seguimiento'
-                      style={{
-                        borderTopRightRadius: '10px',
-                        borderBottomRightRadius: '10px',
-                        borderWidth: '1px',
-                        borderColor: '#27BEC2',
-                        borderStyle: 'solid',
-                        fontWeight: 'bold',
-                        fontSize: '15px',
-                      }}
-                      {...a11yProps(1)}
-                    />
-                  </Tabs>
-                </Grid> 
-              */}
-
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
                   Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '' : '(obligatorio)'}</span>
@@ -2220,97 +1597,6 @@ function SOEP({ appointment }: { appointment: any }) {
                   </AccordionDetails>
                 </Accordion>
               </TabPanel>
-              {/* 
-                // It was decided to hide the implementation of the first and follow-up query. 
-                // Because it's not very clear to the doctors 
-                // TODO: Clear comments
-              <TabPanel value={value} index={1}>
-                <Modal show={showEditModal} setShow={setShowEditModal} size='xl3'>
-                  <Typography variant='body1' color='textSecondary'>
-                    Paciente
-                  </Typography>
-                  <Typography variant='body1' color='textPrimary'>
-                    {appointment.patient.givenName} {appointment.patient.familyName}
-                  </Typography>
-
-                  <Typography style={{ marginBottom: '15px' }} variant='subtitle2' color='textSecondary'>
-                    CI: {appointment.patient.identifier}
-                  </Typography>
-
-                  <MaterialTable
-                    title='Seleccionar consulta'
-                    icons={tableIcons}
-                    localization={{
-                      body: {
-                        emptyDataSourceMessage: 'No hay datos por mostrar',
-                      },
-                      pagination: {
-                        firstAriaLabel: 'Primera página',
-                        firstTooltip: 'Primera página',
-                        labelDisplayedRows: '{from}-{to} de {count}',
-                        labelRowsPerPage: 'Filas por página:',
-                        labelRowsSelect: 'filas',
-                        lastAriaLabel: 'Ultima página',
-                        lastTooltip: 'Ultima página',
-                        nextAriaLabel: 'Pagina siguiente',
-                        nextTooltip: 'Pagina siguiente',
-                        previousAriaLabel: 'Pagina anterior',
-                        previousTooltip: 'Pagina anterior',
-                     },
-                     toolbar: {
-                      searchPlaceholder: 'Buscar',
-                      searchTooltip: 'Buscar',
-                    },
-                    }}
-                    columns={[
-                      {
-                        title: 'Fecha',
-                        field: 'startTimeDate',
-                      },
-                      {
-                        title: 'Motivo de visita',
-                        field: 'mainReason',
-                      },
-                      // {
-                      //   title: "Diagnóstico",
-                      //   field: "diagnosis"
-                      // },
-                      {
-                        title: 'Diagnóstico',
-                        field: 'diagnosis',
-                        render: rowData => {
-                          //@ts-ignore
-                          return isLoading === true && selectedRow !== undefined && selectedRow.id === rowData.id ? (
-                            <Grid style={{ width: '130px' }} container>
-                              <img src={loading} width='30px' alt='loading...' />{' '}
-                              <p style={{ marginTop: '3px' }}>habilitando...</p>{' '}
-                            </Grid>
-                          ) : (
-                            <p>{rowData.diagnosis}</p>
-                          )
-                        },
-                      },
-                    ]}
-                    data={soepHistory}
-                    onRowClick={(evt, selectedRow) =>
-                      //@ts-ignore
-                      setSelectedRow(selectedRow)
-                    }
-                    options={{
-                      search: true,
-                      toolbar: true,
-                      paging: true,
-                      draggable: false,
-                      pageSize: 5,
-                      rowStyle: rowData => ({
-                        backgroundColor:
-                          // @ts-ignore
-                          selectedRow !== undefined && selectedRow.id === rowData.id ? '#D4F2F3' : '#FFF',
-                      }),
-                    }}
-                  />
-                </Modal>
-              </TabPanel> */}
             </Grid>
           )}
         </CardContent>

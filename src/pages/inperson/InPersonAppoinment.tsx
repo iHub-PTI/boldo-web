@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
-import { LaboratoryMenu } from '../../components/LaboratoryMenu';
 import Layout from '../../components/Layout';
 import MedicalHistory from '../../components/MedicalHistory';
+import { MenuStudyOrder } from '../../components/MenuStudyOrder';
 import OrganizationBar from '../../components/OrganizationBar';
 import { PrescriptionMenu } from '../../components/PrescriptionMenu';
 import { RecordsOutPatient } from '../../components/RecordsOutPatient';
@@ -54,7 +54,7 @@ export default function Dashboard() {
   const menuSelected = {
     'P': <PrescriptionMenu appointment={appointment} isFromInperson={true} />,
     'M': <MedicalRecordSection appointment={appointment} setDisabledRedcordButton={setDisabledRedcordButton} />,
-    'L': <LaboratoryMenu appointment={appointment} isFromInperson={true} />,
+    'L': <MenuStudyOrder appointment={appointment} isFromInperson={true} />,
     'U': <UploadStudies patientId={`${appointment?.patientId ?? ''}`} />
   }
 
@@ -71,7 +71,7 @@ export default function Dashboard() {
         const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) {
           setAppointment(res.data)
-        }
+                  }
       } catch (err) {
         const tags = {
           'endpoint': url,

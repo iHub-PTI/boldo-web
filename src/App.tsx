@@ -26,11 +26,13 @@ import Provider from './components/studiesorder/Provider'
 import handleSendSentry from './util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
+import { useKeycloak } from "@react-keycloak/web";
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
 
-axios.defaults.withCredentials = true
-axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS;
+axios.defaults.maxRedirects = 0;
 
 export const UserContext = createContext<{
   user: Boldo.Doctor | undefined
@@ -50,6 +52,12 @@ const App = () => {
   // Context API Organization Boldo MultiOrganization
   const { setOrganization } = useContext(OrganizationContext);
   const { setOrganizations } = useContext(AllOrganizationContext);
+  const { keycloak } = useKeycloak();
+
+  axios.defaults.headers = { 
+    "Authorization": `Bearer ${keycloak.token}`,
+    "Access-Control-Allow-Origin": "*"
+  }
 
   useEffect(() => {
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
@@ -68,10 +76,12 @@ const App = () => {
               'headers': error.response.headers,
               'status_code': error.response.status
             })
-          } else if (error.request) {
+          } 
+          else if (error.request) {
             // The request was made but no response was received
             Sentry.setTag('request', error.request)
-          } else {
+          } 
+          else {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', error.message)
           }
@@ -79,7 +89,8 @@ const App = () => {
           return Promise.reject(error)
         }
       )
-    } else {
+    } 
+    else {
       setError(false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,8 +103,9 @@ const App = () => {
         const res = await axios.get(url)
         setUser(res.data)
         //console.log(res.data)
-        Sentry.setUser({ id: res.data.id })
-      } catch (err) {
+        Sentry.setUser({ id: res.data.id, email: res.data.email, username: res.data.identifier })
+      } 
+      catch (err) {
         console.log(err)
         const tags = {
           "endpoint": url,
@@ -104,7 +116,8 @@ const App = () => {
     }
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       effect()
-    } else {
+    } 
+    else {
       setError(false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,7 +135,9 @@ const App = () => {
         setOrganizations([...res.data]);
         // for default we use the first organization as the selectetd
         setOrganization(res.data[0]);
-      } else if (res.status === 204) {
+        Sentry.setTag('organization_current', res.data[0] ?? '')
+      } 
+      else if (res.status === 204) {
         // when the response is 204 it means that there is no organization
         setOrganizations([])
       }

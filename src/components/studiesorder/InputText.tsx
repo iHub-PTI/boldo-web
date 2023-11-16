@@ -21,7 +21,7 @@ const InputText = ({value="", ...props}) => {
     // console.table(orders)
   }
 
-  return <TextField {...props} onChange={changeText} value={text}></TextField>
+  return <TextField {...props} onChange={changeText} value={text} disabled={props.disabled ?? false}/>
 }
 
 export default InputText

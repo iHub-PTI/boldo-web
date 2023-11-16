@@ -23,9 +23,11 @@ const BoxSelect = props => {
     }
 
     return (
-        <div className="flex flex-row flex-wrap bg-white border border-gray-300 rounded items-center"
+        <div className="flex flex-row flex-wrap bg-white rounded items-center"
         style={style}>
-            <button className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full focus:outline-none" onClick={()=>{onClickToogle()}}>
+            <button className="m-1 p-2 w-auto hover:bg-primary-200 cursor-pointer rounded-full focus:outline-none" onClick={()=>{onClickToogle()}}
+            disabled={props.disabled ?? false}
+            >
                 <TemplateStudy title="Seleccionar estudios"></TemplateStudy>
             </button>
             {data && data.map( (item, i) => {

@@ -1,4 +1,4 @@
-
+//TODO: remove everything after update
 import axios from "axios"
 import React, { useState, useEffect, ChangeEvent, forwardRef } from 'react'
 import {
@@ -321,7 +321,7 @@ export function LaboratoryMenu(props) {
               }`,
             overflowY: "auto"
           }}>
-            <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder>
+           {/* <StudyOrder setShowMakeOrder={setShowMakeOrder} encounter={encounter}></StudyOrder> */}
           </div>
         </div>
 

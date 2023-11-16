@@ -63,11 +63,12 @@ module.exports = {
     },
   },
   variants: {
-    textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus'],
+    textColor: ['responsive', 'hover', 'focus', 'group-hover', 'group-focus', 'disabled'],
     opacity: ['disabled', 'hover', 'group-hover'],
     cursor: ['disabled', 'hover'],
     backgroundColor: ['checked', 'disabled', 'hover', 'group-hover'],
     width: ['hover', 'responsive', 'focus'],
+    borderColor: ['disabled']
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }

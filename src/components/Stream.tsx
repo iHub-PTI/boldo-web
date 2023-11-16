@@ -1,6 +1,5 @@
 import React, { useImperativeHandle, useRef, useEffect } from 'react'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import adapter from 'webrtc-adapter'
+import * as Sentry from "@sentry/react";
 
 import { SetDebugValueFn, useWebRTCDebugger, WebRTCStats } from './WebRTCStats'
 
@@ -71,19 +70,20 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const config = {
     iceServers: [
       {
-        urls: 'turn:143.244.166.40:3478',
+        urls: 'turn:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'abcd.123',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo'
       },
       {
-        urls: 'stun:143.244.166.40:3478',
+        urls: 'stun:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'abcd.123',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo'
       }
     ],
   }
 
   const pc = new RTCPeerConnection(config)
+  let offerSent = false
 
   //
   // 1.
@@ -97,6 +97,8 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     }
   } catch (err) {
     console.error(err)
+    Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+    Sentry.captureException(err)
   }
   // Handling incoming tracks
   const ontrack = ({ track, streams }: RTCTrackEvent) => {
@@ -113,16 +115,26 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   // Handle outgoing offers
   const onnegotiationneeded = async () => {
     try {
-      await pc.setLocalDescription(await pc.createOffer())
-      socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
+      if(!offerSent){
+        await pc.setLocalDescription(await pc.createOffer())
+        socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
+        offerSent = true;
+      } 
     } catch (err) {
       console.error(err)
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
     }
   }
   // Handle incoming offers
   type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
   socket.on('sdp offer', async (message: OfferMessage) => {
-    await pc.setRemoteDescription(message.sdp)
+    try {
+      if(offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
+    } catch (err) {
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
+    }
   })
 
   //
@@ -140,6 +152,8 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     try {
       await pc.addIceCandidate(message.ice)
     } catch (err) {
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
       if (err instanceof TypeError) return console.log(err.message)
       throw err
     }
@@ -224,7 +238,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     // FIXME: Probably should remove track in cleanup.
 
     pc.close()
-
+    offerSent = false;
     console.log('🧹 cleaned 🧹')
   }
 
