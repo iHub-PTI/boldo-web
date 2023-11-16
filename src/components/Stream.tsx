@@ -70,14 +70,14 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const config = {
     iceServers: [
       {
-        urls: 'turn:143.244.166.40:3478',
+        urls: 'turn:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'abcd.123',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo'
       },
       {
-        urls: 'stun:143.244.166.40:3478',
+        urls: 'stun:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'abcd.123',
+        credential: 'VHJ1cGVyMjB4MjB4Lgo'
       }
     ],
   }
