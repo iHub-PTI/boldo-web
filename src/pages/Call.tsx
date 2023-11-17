@@ -299,7 +299,7 @@ const Gate = () => {
               id={id}
               token={appointment?.token || ''}
               instance={instance}
-                            updateStatus={updateStatus}
+              updateStatus={updateStatus}
               onCallStateChange={onCallStateChange}
               callStatus={callStatus}
             />
@@ -355,12 +355,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const muteVideo = () => {
     if (!mediaStream) return
-    setVideoEnabled(() => {
-      const newState = !mediaStream.getVideoTracks()[0].enabled
-      mediaStream.getVideoTracks()[0].enabled = newState
-      return newState
-    })
-  }
+      setVideoEnabled(() => {
+        const newState = !mediaStream.getVideoTracks()[0].enabled
+        mediaStream.getVideoTracks()[0].enabled = newState
+        return newState
+      })
+      }
   // NOTE: Mutes audio for development comfort
   // useEffect(() => {
   //   if (mediaStream) {
@@ -401,7 +401,14 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           socket={socket}
           onCallStateChange={onCallStateChange}
         />
-
+        
+        {(mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0]) && <div
+          className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
+          style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
+        >
+          <h3 className='text-lg font-medium leading-6 text-cool-gray-900'>
+            {appointment.patient.givenName} {appointment.patient.familyName}
+          </h3>
         <div
           className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
           style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
@@ -411,7 +418,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           </h3>
           <div className='flex items-center space-x-4'>
             <p className='mt-1 text-sm font-semibold leading-5 text-cool-gray-700'>
-              <Timer />
+               <Timer />
             </p>
             <button
               className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
@@ -484,6 +491,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
             </button> */}
           </div>
         </div>
+        </div>}
         <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
           <div className='absolute'>
             <div className='aspect-h-9 aspect-w-16' style={{ maxWidth: '14rem', minWidth: '8rem', width: '12rem', height:'8rem'}}>
@@ -500,7 +508,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           <div />
 
           <Grid justifyContent='center' container>
-            <button
+            {mediaStream?.getAudioTracks()[0] && <button
               className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
               onClick={muteAudio}
             >
@@ -531,60 +539,63 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                   />
                 </svg>
               )}
-            </button>
+            </button>}
+            {(mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0]) && 
             <button
-              onClick={hangUp}
-              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
+            onClick={hangUp}
+            className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
+          >
+            <svg
+              style={{ transform: 'rotate(134deg)' }}
+              height='30px'
+              width='30px'
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
             >
-              <svg
-                style={{ transform: 'rotate(134deg)' }}
-                height='30px'
-                width='30px'
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
+              />
+            </svg>
+          </button>}
+            {mediaStream?.getVideoTracks()[0] && 
+              (<button
+                className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+                onClick={muteVideo}
               >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
-                />
-              </svg>
-            </button>
-            <button
-              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-              onClick={muteVideo}
-            >
-              {videoEnabled ? (
-                <svg
-                  className='w-6 h-6'
-                  viewBox='0 0 24 24'
-                  fill='currentColor'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    clipRule='evenodd'
-                    d='M3 5H15C16.1046 5 17 5.89543 17 7V8.38197L23 5.38197V18.618L17 15.618V17C17 18.1046 16.1046 19 15 19H3C1.89543 19 1 18.1046 1 17V7C1 5.89543 1.89543 5 3 5ZM17 13.382L21 15.382V8.61803L17 10.618V13.382ZM3 7V17H15V7H3Z'
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className='w-6 h-6'
-                  viewBox='0 0 24 24'
-                  fill='currentColor'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    clipRule='evenodd'
-                    d='M1.70718 0.292892L0.292969 1.70711L3.58586 5H3.00008C1.89551 5 1.00008 5.89543 1.00008 7V17C1.00008 18.1046 1.89551 19 3.00008 19H15.0001C15.7022 19 16.3198 18.6382 16.6767 18.0908L22.293 23.7071L23.7072 22.2929L1.70718 0.292892ZM15.0001 16.4142L5.58586 7H3.00008V17H15.0001V16.4142ZM17.0001 8.38197L23.0001 5.38197V18.3701L21.0001 16.3701V8.61803L17.0001 10.618V13.0008L15.0001 11.0008V7H10.9993L8.99929 5H15.0001C16.1046 5 17.0001 5.89543 17.0001 7V8.38197Z'
-                  />
-                </svg>
-              )}
-            </button>
+                {videoEnabled ? (
+                  <svg
+                    className='w-6 h-6'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M3 5H15C16.1046 5 17 5.89543 17 7V8.38197L23 5.38197V18.618L17 15.618V17C17 18.1046 16.1046 19 15 19H3C1.89543 19 1 18.1046 1 17V7C1 5.89543 1.89543 5 3 5ZM17 13.382L21 15.382V8.61803L17 10.618V13.382ZM3 7V17H15V7H3Z'
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className='w-6 h-6'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M1.70718 0.292892L0.292969 1.70711L3.58586 5H3.00008C1.89551 5 1.00008 5.89543 1.00008 7V17C1.00008 18.1046 1.89551 19 3.00008 19H15.0001C15.7022 19 16.3198 18.6382 16.6767 18.0908L22.293 23.7071L23.7072 22.2929L1.70718 0.292892ZM15.0001 16.4142L5.58586 7H3.00008V17H15.0001V16.4142ZM17.0001 8.38197L23.0001 5.38197V18.3701L21.0001 16.3701V8.61803L17.0001 10.618V13.0008L15.0001 11.0008V7H10.9993L8.99929 5H15.0001C16.1046 5 17.0001 5.89543 17.0001 7V8.38197Z'
+                    />
+                  </svg>
+                )}
+              </button>)
+            }
 
           </Grid>
 
@@ -648,6 +659,7 @@ const useUserMedia = () => {
   const { addErrorToast, addToast } = useToasts()
   const [mediaStream, setMediaStream] = useState<MediaStream>()
   const stream = useRef(null)
+  const attemptsCounter = useRef(0)
 
   useEffect(() => {
     let mounted = true
@@ -658,12 +670,13 @@ const useUserMedia = () => {
     // or that they declined to share their equipment when prompted.
 
     const handleGetUserMediaError = (e: Error) => {
-      console.log({e})
       switch (e.name) {
         case 'NotFoundError':
-          addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
-          addToast({type: 'warning', text: 'Reintentado conectar sin cámara'})
-          retryEnableStream()
+          addToast({type: 'info', title:'Información de la llamada',  text: '¡Oops! Parece que no posee cámara. \n ¡Intentaremos reconectarlo solo con micrófono!'})
+          if(attemptsCounter.current < 1){
+            retryEnableStreamWithoutAudio()
+            attemptsCounter.current += 1
+          }else if(attemptsCounter.current >= 1) addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
           break
         case 'SecurityError':
           addErrorToast('Error de seguridad. Detalles: ' + e.message)
@@ -696,7 +709,7 @@ const useUserMedia = () => {
       }
     }
 
-    const retryEnableStream = () => {
+    const retryEnableStreamWithoutAudio = () => {
       if (!mediaStream) enableStream({audio:true, video:false})
     }
 
@@ -1793,7 +1806,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
           </div>
         </div>
       )}
-    </div>
+          </div>
   )
 }
 
