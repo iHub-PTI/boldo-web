@@ -28,6 +28,8 @@ type Props = {
 
 const defaultValue = {value:'', name:'Categoría'} as Item
 
+const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+
 const Categories = [
   {value:'LABORATORY', name: 'Laboratorio', icon: <LabIcon />},
   {value:'IMAGE', name: 'Imágenes', icon: <ImgIcon />},
@@ -72,12 +74,18 @@ const StudyForm = (props:Props) => {
     if (files) {
       // define the array of exitsting files
       const existingFileList = Array.from(attachmentFilesForm)
-      // define the array of new files
+            // define the array of new files
       const newFileList = Array.from(files)
-      // verify that the file doesn't exist
+            // verify that the file doesn't exist
       newFileList.forEach((newFile) => {
         if (!existingFileList.some((file) => file.name === newFile.name)) {
-          existingFileList.push(newFile)
+          
+          if(allowedTypes.includes(newFile?.type)){
+            existingFileList.push(newFile)
+          }else {
+            addToast({type:'warning', title:'¡Atención!', text: '¡El tipo de archivo no es válido! Solo se permiten archivos de los tipos: jpg, jpeg, png y pdf.'})
+            return
+          }
         }
       })
       // create an auxiliar list

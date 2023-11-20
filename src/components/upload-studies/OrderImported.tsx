@@ -30,6 +30,8 @@ export type Presigned = {
 
 export type FilesToShow = Boldo.AttachmentUrl & {date: string} & {source: string} & {new: boolean} & {sourceType: string} & {gender?: string}
 
+const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+
 
 const OrderImported = (props: Props) => {
   const {handleShowOrderImported, saveRef, setLoadingSubmit, searchRef} = props
@@ -152,15 +154,22 @@ const OrderImported = (props: Props) => {
   }
 
   const handleFilesSelected = (files: FileList | null) => {
-    if (files) {
+        if (files) {
       // define the array of exitsting files
       const existingFileList = Array.from(attachmentFiles)
       // define the array of new files
       const newFileList = Array.from(files)
       // verify that the file doesn't exist
       newFileList.forEach((newFile) => {
-        if (!existingFileList.some((file) => file.name === newFile.name)) {
-          existingFileList.push(newFile)
+                if (!existingFileList.some((file) => file.name === newFile.name)) {
+          
+          if(allowedTypes.includes(newFile?.type)){
+            existingFileList.push(newFile)
+          }else {
+            addToast({type:'warning', title:'¡Atención!', text: '¡El tipo de archivo no es válido! Solo se permiten archivos de los tipos: jpg, jpeg, png y pdf.'})
+            return
+          }
+          
         }
       })
       // create an auxiliar list
@@ -275,7 +284,7 @@ const OrderImported = (props: Props) => {
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveRef, attachmentFiles])
-
+  
 
   return(
     <div className='flex flex-col space-y-8 p-5'>
