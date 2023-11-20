@@ -154,14 +154,14 @@ const OrderImported = (props: Props) => {
   }
 
   const handleFilesSelected = (files: FileList | null) => {
-        if (files) {
+      if (files) {
       // define the array of exitsting files
       const existingFileList = Array.from(attachmentFiles)
       // define the array of new files
       const newFileList = Array.from(files)
       // verify that the file doesn't exist
       newFileList.forEach((newFile) => {
-                if (!existingFileList.some((file) => file.name === newFile.name)) {
+        if (!existingFileList.some((file) => file.name === newFile.name)) {
           
           if(allowedTypes.includes(newFile?.type)){
             existingFileList.push(newFile)

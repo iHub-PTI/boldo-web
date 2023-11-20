@@ -74,12 +74,11 @@ const StudyForm = (props:Props) => {
     if (files) {
       // define the array of exitsting files
       const existingFileList = Array.from(attachmentFilesForm)
-            // define the array of new files
+      // define the array of new files
       const newFileList = Array.from(files)
-            // verify that the file doesn't exist
+      // verify that the file doesn't exist
       newFileList.forEach((newFile) => {
         if (!existingFileList.some((file) => file.name === newFile.name)) {
-          
           if(allowedTypes.includes(newFile?.type)){
             existingFileList.push(newFile)
           }else {
