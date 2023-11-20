@@ -116,7 +116,10 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   const onnegotiationneeded = async () => {
     try {
       if(!offerSent){
-        await pc.setLocalDescription(await pc.createOffer())
+        await pc.setLocalDescription(await pc.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        }))
         socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
         offerSent = true;
       } 
