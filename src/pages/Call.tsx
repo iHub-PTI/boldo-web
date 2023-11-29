@@ -45,6 +45,7 @@ import useWindowDimensions from '../util/useWindowDimensions'
 
 import * as Sentry from "@sentry/react"
 import { ToggleMenu } from '../components/call/toggle-menu'
+import { useCallStore } from '../store/callStore'
 
 
 
@@ -333,8 +334,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(1)
-  const [audioEnabled, setAudioEnabled] = useState(true)
-  const [videoEnabled, setVideoEnabled] = useState(true)
+  const {audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled} = useCallStore()
   const { width } = useWindowDimensions()
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)
@@ -344,30 +344,25 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const muteAudio = () => {
     if (!mediaStream) return
-    setAudioEnabled(() => {
-      const newState = !mediaStream.getAudioTracks()[0].enabled
-      mediaStream.getAudioTracks()[0].enabled = newState
-      return newState
-    })
-
-    // console.log(mediaStream?.getAudioTracks()[0].enabled)
+    const newState = !mediaStream.getAudioTracks()[0].enabled
+    mediaStream.getAudioTracks()[0].enabled = newState
+    setAudioEnabled(newState)
   }
 
   const muteVideo = () => {
     if (!mediaStream) return
-      setVideoEnabled(() => {
-        const newState = !mediaStream.getVideoTracks()[0].enabled
-        mediaStream.getVideoTracks()[0].enabled = newState
-        return newState
-      })
-      }
-  // NOTE: Mutes audio for development comfort
-  // useEffect(() => {
-  //   if (mediaStream) {
-  //     mediaStream.getAudioTracks()[0].enabled = false
-  //     setAudioEnabled(false)
-  //   }
-  // }, [mediaStream])
+    const newState = !mediaStream.getVideoTracks()[0].enabled
+    mediaStream.getVideoTracks()[0].enabled = newState
+    setVideoEnabled(newState)
+  }
+
+  useEffect(() => {
+    if (mediaStream) {
+      mediaStream.getAudioTracks()[0].enabled = audioEnabled
+      mediaStream.getVideoTracks()[0].enabled = videoEnabled
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaStream])
 
   const hangUp = async () => {
     socket?.emit('end call', { room: id, token })
@@ -403,13 +398,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         />
         
         {(mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0]) && <div
-          className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
-          style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
-        >
-          <h3 className='text-lg font-medium leading-6 text-cool-gray-900'>
-            {appointment.patient.givenName} {appointment.patient.familyName}
-          </h3>
-        <div
           className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
           style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
         >
@@ -490,7 +478,6 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               </svg>
             </button> */}
           </div>
-        </div>
         </div>}
         <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
           <div className='absolute'>

@@ -50,7 +50,8 @@
     "styled-components": "^5.3.1",
     "tailwindcss": "^1.9.6",
     "typescript": "^4.0.5",
-    "webrtc-adapter": "^7.7.0"
+    "webrtc-adapter": "^7.7.0",
+    "zustand": "^4.4.7"
   },
   "scripts": {
     "build:tailwind": "postcss src/tailwind.css -o src/styles.output.css",
