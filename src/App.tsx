@@ -166,6 +166,7 @@ const App = () => {
         <SocketsProvider>
           <RoomsProvider>
             <div className='antialiased App'>
+              {/* <VideoPicture /> */}
               <Switch>
                 <Route exact path='/'>
                   <PrescriptionContextProvider>
@@ -218,14 +219,6 @@ const App = () => {
                 <Route>
                   <Redirect to='/' />
                 </Route>
-
-                {/* <Route exact path='/settingsnew'>
-                <SettingsNew />
-              </Route>
-
-              <Route exact path='/home'>
-                <Home />
-              </Route> */}
 
               </Switch>
             </div>
@@ -283,7 +276,6 @@ export const RoomsProvider: React.FC = ({ children }) => {
   // Context API Organization Boldo MultiOrganization
   const { Organization } = useContext(OrganizationContext)
   const { Organizations } = useContext(AllOrganizationContext)
-
 
   useEffect(() => {
     if (!socket) return
