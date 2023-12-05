@@ -45,7 +45,7 @@ import useWindowDimensions from '../util/useWindowDimensions'
 
 import * as Sentry from "@sentry/react"
 import { ToggleMenu } from '../components/call/toggle-menu'
-import { useCallStore } from '../store/callStore'
+import { useCallConfigStore } from '../store/callStore' 
 
 
 
@@ -334,7 +334,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(1)
-  const {audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled} = useCallStore()
+  const { audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled } = useCallConfigStore()
   const { width } = useWindowDimensions()
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)

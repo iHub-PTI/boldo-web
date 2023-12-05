@@ -14,9 +14,9 @@ import { ToastProvider } from './components/Toast'
 import './styles.output.css'
 import InPersonAppoinment from './pages/inperson/InPersonAppoinment'
 import { Download } from './pages/Download'
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react'
 import { PrescriptionContextProvider } from './contexts/Prescriptions/PrescriptionContext'
-import { OrganizationContext } from "../src/contexts/Organizations/organizationSelectedContext"
+import { OrganizationContext } from '../src/contexts/Organizations/organizationSelectedContext'
 import { AllOrganizationContext } from './contexts/Organizations/organizationsContext'
 import OrderStudyImportedProvider from './contexts/OrderImportedContext'
 import AttachmentFilesProvider from './contexts/AttachmentFiles'
@@ -26,13 +26,15 @@ import Provider from './components/studiesorder/Provider'
 import handleSendSentry from './util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
-import { useKeycloak } from "@react-keycloak/web";
+import { useKeycloak } from '@react-keycloak/web'
+import { useCallStore } from './store/callStore'
+import VideoPicture from './components/call/call-video-picture'
 
-type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & {organization: Boldo.Organization}
+type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS;
-axios.defaults.maxRedirects = 0;
+axios.defaults.withCredentials = true
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
+axios.defaults.maxRedirects = 0
 
 export const UserContext = createContext<{
   user: Boldo.Doctor | undefined
@@ -43,21 +45,31 @@ export const UserContext = createContext<{
 })
 
 const App = () => {
+  const ALLOWED_ROUTES = ['/boldo-app-privacy-policy', '/boldo-app-terms-of-service', '/download']
 
-  const ALLOWED_ROUTES = ["/boldo-app-privacy-policy", "/boldo-app-terms-of-service", "/download"];
-
-  const [user, setUser] = useState<Boldo.Doctor | undefined>();
-  const [error, setError] = useState(false);
+  const [user, setUser] = useState<Boldo.Doctor | undefined>()
+  const [error, setError] = useState(false)
+  const { setStreamRemote, cleanStream } = useCallStore()
 
   // Context API Organization Boldo MultiOrganization
-  const { setOrganization } = useContext(OrganizationContext);
-  const { setOrganizations } = useContext(AllOrganizationContext);
-  const { keycloak } = useKeycloak();
+  const { setOrganization } = useContext(OrganizationContext)
+  const { setOrganizations } = useContext(AllOrganizationContext)
+  const { keycloak } = useKeycloak()
 
-  axios.defaults.headers = { 
-    "Authorization": `Bearer ${keycloak.token}`,
-    "Access-Control-Allow-Origin": "*"
+  axios.defaults.headers = {
+    Authorization: `Bearer ${keycloak.token}`,
+    'Access-Control-Allow-Origin': '*',
   }
+
+  useEffect(() => {
+    return () => {
+      if (cleanStream) {
+        setStreamRemote(undefined)
+        cleanStream()
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
@@ -69,19 +81,17 @@ const App = () => {
               window.location.href = error.response.data.message
               delete error.response.data.message
             }
-            // The response was made and the server responded with a 
+            // The response was made and the server responded with a
             // status code that is outside the 2xx range.
             Sentry.setTags({
-              'data': error.response.data,
-              'headers': error.response.headers,
-              'status_code': error.response.status
+              data: error.response.data,
+              headers: error.response.headers,
+              status_code: error.response.status,
             })
-          } 
-          else if (error.request) {
+          } else if (error.request) {
             // The request was made but no response was received
             Sentry.setTag('request', error.request)
-          } 
-          else {
+          } else {
             // Something happened while preparing the request that threw an Error
             Sentry.setTag('message', error.message)
           }
@@ -89,11 +99,10 @@ const App = () => {
           return Promise.reject(error)
         }
       )
-    } 
-    else {
+    } else {
       setError(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -104,61 +113,58 @@ const App = () => {
         setUser(res.data)
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id, email: res.data.email, username: res.data.identifier })
-      } 
-      catch (err) {
+      } catch (err) {
         console.log(err)
         const tags = {
-          "endpoint": url,
-          "method": "GET"
+          endpoint: url,
+          method: 'GET',
         }
         handleSendSentry(err, ERROR_HEADERS.DOCTOR.FAILURE_GET_PROFILE, tags)
       }
     }
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
       effect()
-    } 
-    else {
+    } else {
       setError(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // load the organization
   useEffect(() => {
-    const url = '/profile/doctor/organizations';
-    axios.get(
-      url
-    )
-    .then(function (res) {
-      if (res.status === 200) {
-        // set all the organizations in the context
-        setOrganizations([...res.data]);
-        // for default we use the first organization as the selectetd
-        setOrganization(res.data[0]);
-        Sentry.setTag('organization_current', res.data[0] ?? '')
-      } 
-      else if (res.status === 204) {
-        // when the response is 204 it means that there is no organization
-        setOrganizations([])
-      }
-    })
-    .catch(function (err) {
-      console.log("when obtain organizations ", err);
-      const tags = {
-        "endpoint": url,
-        "method": "GET"
-      }
-      handleSendSentry(err, ERROR_HEADERS.ORGANIZATION.FAILURE_GET, tags)
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const url = '/profile/doctor/organizations'
+    axios
+      .get(url)
+      .then(function (res) {
+        if (res.status === 200) {
+          // set all the organizations in the context
+          setOrganizations([...res.data])
+          // for default we use the first organization as the selectetd
+          setOrganization(res.data[0])
+          Sentry.setTag('organization_current', res.data[0] ?? '')
+        } else if (res.status === 204) {
+          // when the response is 204 it means that there is no organization
+          setOrganizations([])
+        }
+      })
+      .catch(function (err) {
+        console.log('when obtain organizations ', err)
+        const tags = {
+          endpoint: url,
+          method: 'GET',
+        }
+        handleSendSentry(err, ERROR_HEADERS.ORGANIZATION.FAILURE_GET, tags)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const updateUser = (arg: Partial<Boldo.Doctor>) => {
     setUser(user => (user ? { ...user, ...arg } : undefined))
   }
 
   if (error) return <Error />
-  if (!user && !ALLOWED_ROUTES.includes(window.location.pathname)) return <div className='h-1 fakeload-15 bg-primary-500' />
+  if (!user && !ALLOWED_ROUTES.includes(window.location.pathname))
+    return <div className='h-1 fakeload-15 bg-primary-500' />
 
   return (
     <ToastProvider>
@@ -210,7 +216,7 @@ const App = () => {
 
                 <Route exact path='/boldo-app-terms-of-service'>
                   <TermsOfService />
-                </Route>                
+                </Route>
 
                 <Route exact path='/download'>
                   <Download />
@@ -219,7 +225,6 @@ const App = () => {
                 <Route>
                   <Redirect to='/' />
                 </Route>
-
               </Switch>
             </div>
           </RoomsProvider>
@@ -319,29 +324,28 @@ export const RoomsProvider: React.FC = ({ children }) => {
 
     const load = async () => {
       const url = '/profile/doctor/appointments?status=open'
-      await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        url, {
+      await axios
+        .get<{ appointments: AppointmentWithPatient[]; token: string }>(url, {
           params: {
             start: changeHours(new Date(today), hours, 'subtract'),
-            end: changeHours(new Date(today), hours, 'add')
+            end: changeHours(new Date(today), hours, 'add'),
+          },
+        })
+        .then(res => {
+          token.current = res.data.token
+          appointments.current = res.data.appointments
+          if (appointments.current?.length) {
+            socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
           }
-        }
-      )
-      .then((res) => {
-        token.current = res.data.token
-        appointments.current = res.data.appointments
-        if (appointments.current?.length) {
-          socket?.emit('find patients', { rooms: appointments.current.map(e => e.id), token: token.current })
-        }
-      })
-      .catch((err) => {
-        const tags = {
-          "endpoint": url,
-          "method": "GET",
-          "org_id": `${Organization?.id ?? 'Without organization'}`
-        }
-        handleSendSentry(err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT, tags)
-      })
+        })
+        .catch(err => {
+          const tags = {
+            endpoint: url,
+            method: 'GET',
+            org_id: `${Organization?.id ?? 'Without organization'}`,
+          }
+          handleSendSentry(err, ERROR_HEADERS.WAITING_ROOM.FAILURE_GET_APPOINTMENT, tags)
+        })
     }
 
     Organization && load()

@@ -1,7 +1,8 @@
 import React, { useImperativeHandle, useRef, useEffect } from 'react'
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react'
 
 import { SetDebugValueFn, useWebRTCDebugger, WebRTCStats } from './WebRTCStats'
+import { useCallStore } from '../store/callStore'
 
 export type CallState = 'connecting' | 'connected' | 'disconnected' | 'closed'
 
@@ -20,13 +21,18 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
   const remoteVideo = useRef<HTMLVideoElement>(null)
   useImperativeHandle(ref, () => remoteVideo.current || undefined)
 
+  const { setStreamRemote, setCleanStream } = useCallStore()
+
   const { sdpStats, iceStats, setDebugValue, active } = useWebRTCDebugger(false)
 
   useEffect(() => {
     if (!mediaStream || !room || !socket || !token) return
 
     const setMediaStream = (stream: MediaStream) => {
-      if (remoteVideo.current) remoteVideo.current.srcObject = stream
+      if (remoteVideo.current) {
+        remoteVideo.current.srcObject = stream
+        setStreamRemote(stream)
+      }
     }
 
     const { cleanup } = createPeerConection({
@@ -39,10 +45,8 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
       onCallStateChange,
     })
 
-    return () => {
-      cleanup()
-    }
-  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance, token])
+    setCleanStream(cleanup)
+  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance, token, setCleanStream, setStreamRemote])
 
   return (
     <>
@@ -72,13 +76,13 @@ const createPeerConection = (props: createPeerConnectionProps) => {
       {
         urls: 'turn:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo'
+        credential: 'VHJ1cGVyMjB4MjB4Lgo',
       },
       {
         urls: 'stun:coturn.pti.org.py:3478',
         username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo'
-      }
+        credential: 'VHJ1cGVyMjB4MjB4Lgo',
+      },
     ],
   }
 
@@ -115,14 +119,16 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   // Handle outgoing offers
   const onnegotiationneeded = async () => {
     try {
-      if(!offerSent){
-        await pc.setLocalDescription(await pc.createOffer({
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: true,
-        }))
+      if (!offerSent) {
+        await pc.setLocalDescription(
+          await pc.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true,
+          })
+        )
         socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
-        offerSent = true;
-      } 
+        offerSent = true
+      }
     } catch (err) {
       console.error(err)
       Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
@@ -133,7 +139,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
   type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
   socket.on('sdp offer', async (message: OfferMessage) => {
     try {
-      if(offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
+      if (offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
     } catch (err) {
       Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
       Sentry.captureException(err)
@@ -241,7 +247,7 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     // FIXME: Probably should remove track in cleanup.
 
     pc.close()
-    offerSent = false;
+    offerSent = false
     console.log('🧹 cleaned 🧹')
   }
 
