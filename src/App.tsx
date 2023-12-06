@@ -28,7 +28,7 @@ import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
 import { useKeycloak } from '@react-keycloak/web'
 import { useCallStore } from './store/callStore'
-import VideoPicture from './components/call/call-video-picture'
+// import VideoPicture from './components/call/call-video-picture'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & { organization: Boldo.Organization }
 

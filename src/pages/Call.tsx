@@ -171,6 +171,7 @@ const Gate = () => {
     if (appointment?.status !== 'open' || !token) return
 
     socket.emit('ready?', { room: id, token })
+    console.log('READY?❓')
     socket.on('ready!', (roomId: string) => {
       console.log('READY!')
       if (roomId !== id) return
@@ -341,6 +342,18 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   //console.log(screenWidth)
   // const [loading, setLoading] = useState(false);
   const { orders } = useContext(CategoriesContext)
+
+  useEffect(()=>{
+    if ((document as any).pictureInPictureEnabled && !(stream.current as any)?.disablePictureInPicture) {
+      try {
+        if ((document as any).pictureInPictureElement) {
+          ; (document as any).exitPictureInPicture()
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  },[])
 
   const muteAudio = () => {
     if (!mediaStream) return
