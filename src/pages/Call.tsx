@@ -334,7 +334,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(1)
-  const {audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled} = useCallStore()
+  const {audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled} = useCallStore(state => state)
   const { width } = useWindowDimensions()
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)
