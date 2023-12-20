@@ -45,7 +45,8 @@ import useWindowDimensions from '../util/useWindowDimensions'
 
 import * as Sentry from "@sentry/react"
 import { ToggleMenu } from '../components/call/toggle-menu'
-import { useCallConfigStore } from '../store/callStore' 
+import { useCallConfigStore, useCallStore } from '../store/callStore'
+import { cleanUp } from '../util/helpers' 
 
 
 
@@ -75,6 +76,11 @@ const Gate = () => {
   // const [loading, setLoading] = useState(false);
   const { width } = useWindowDimensions()
   const { orders } = useContext(CategoriesContext)
+
+  //Stream
+  const { peerConnectionStore } = useCallStore()
+
+
 
   const updateStatus = useCallback(
     async (status?: Status) => {
@@ -187,12 +193,14 @@ const Gate = () => {
     if (!socket) return
     if (appointment?.status !== 'open') return
     socket.on('end call', () => {
+      cleanUp(socket, peerConnectionStore)
       addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡El paciente ha terminado la llamada!' })
       updateStatus()
     })
     return () => {
       socket.off('end call')
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addToast, appointment, socket, updateStatus])
 
   const onCallStateChange = useCallback(
@@ -343,7 +351,43 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
   // const [loading, setLoading] = useState(false);
   const { orders } = useContext(CategoriesContext)
 
+  const history = useHistory();
+
+  const { currentCallPath, peerConnectionStore } = useCallStore()
+
+  const [activeButtonPicInPic, setActiveButtonPicInPic] = useState(false)
+
   useEffect(()=>{
+    //reset del botón del pic in pic cuando se sale de la llamada
+    setActiveButtonPicInPic(false)
+  },[])
+
+  useEffect(() => {
+    // Lógica para activar pic in pic cuando se sale de la navegación de la llamada
+    // Si ya se activo el pic in pic ya no se vuelve a solicitar iniciar
+    if (activeButtonPicInPic) return
+
+    const activePicInPic = () => {
+      if (!stream.current) return
+      if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+        try {
+          if ((document as any).pictureInPictureElement) {
+            ;(document as any).exitPictureInPicture()
+          }
+          ;(stream?.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+        } catch (err) {
+          console.error(err)
+        }
+      }
+    }
+
+    const unlock = history.block(activePicInPic)
+
+    return () => unlock()
+  }, [history, activeButtonPicInPic])
+
+  useEffect(() => {
+    // logica para quitar el pic in pic cuando la llamada esta iniciada
     if ((document as any).pictureInPictureEnabled && !(stream.current as any)?.disablePictureInPicture) {
       try {
         if ((document as any).pictureInPictureElement) {
@@ -353,7 +397,18 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
         console.error(err)
       }
     }
-  },[])
+  }, [])
+
+  useEffect(() => {
+    if (!stream.current) return
+    //logica para cuando se haga click en "volver a pestaña pic in pic"
+    stream.current.addEventListener('leavepictureinpicture', () => {
+      if (!currentCallPath) return
+      history.push(currentCallPath)
+      // console.log(currentCallPath)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, currentCallPath])
 
   const muteAudio = () => {
     if (!mediaStream) return
@@ -381,6 +436,8 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
     socket?.emit('end call', { room: id, token })
     updateStatus('closed')
     addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡Has terminado la llamada!' })
+    // reseteo del RTCPeerConnection al cortar la llamada
+    cleanUp(socket, peerConnectionStore)
   }
 
   if (mediaStream && video.current && !video.current?.srcObject) {
@@ -455,7 +512,10 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                       if ((document as any).pictureInPictureElement) {
                         ; (document as any).exitPictureInPicture()
                       }
-                      ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+                      ; (stream.current as any).requestPictureInPicture()?.then(() => setActiveButtonPicInPic(true)).catch((err: Error) => {
+                        console.log(err)
+                        setActiveButtonPicInPic(false)
+                      })
                     } catch (err) {
                       console.error(err)
                     }
@@ -716,7 +776,8 @@ const useUserMedia = () => {
     if (!mediaStream) enableStream({audio:true, video:true})
     return () => {
       mounted = false
-      mediaStream?.getTracks().forEach(track => track.stop())
+      //NOTE: Se comenta esta sección para la implementación en segundo plano queremos que mantenga la conexión
+      //mediaStream?.getTracks().forEach(track => track.stop())
     }
   }, [addErrorToast, mediaStream, addToast])
 

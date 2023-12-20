@@ -27,8 +27,6 @@ import handleSendSentry from './util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
 import { useKeycloak } from '@react-keycloak/web'
-import { useCallStore } from './store/callStore'
-// import VideoPicture from './components/call/call-video-picture'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
@@ -49,7 +47,6 @@ const App = () => {
 
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
-  const { setStreamRemote, cleanStream } = useCallStore()
 
   // Context API Organization Boldo MultiOrganization
   const { setOrganization } = useContext(OrganizationContext)
@@ -60,16 +57,6 @@ const App = () => {
     Authorization: `Bearer ${keycloak.token}`,
     'Access-Control-Allow-Origin': '*',
   }
-
-  useEffect(() => {
-    return () => {
-      if (cleanStream) {
-        setStreamRemote(undefined)
-        cleanStream()
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
@@ -172,7 +159,6 @@ const App = () => {
         <SocketsProvider>
           <RoomsProvider>
             <div className='antialiased App'>
-              {/* <VideoPicture /> */}
               <Switch>
                 <Route exact path='/'>
                   <PrescriptionContextProvider>

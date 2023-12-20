@@ -257,3 +257,24 @@ export function mergeJSON(source1, source2) {
   }
   return result;
 }
+
+/**
+ * Funcion para limpiar el stream RTCPeerConnection
+ * para las llamadas virtuales
+ */
+
+export const cleanUp = (socket: SocketIOClient.Socket, pc: RTCPeerConnection) => {
+  socket.off('sdp offer')
+  socket.off('ice candidate')
+
+  pc.ontrack = null
+  pc.onnegotiationneeded = null
+  pc.onicecandidate = null
+  pc.oniceconnectionstatechange = null
+  pc.onsignalingstatechange = null
+
+  // FIXME: Probably should remove track in cleanup.
+
+  pc.close()
+  console.log('🧹 cleaned 🧹')
+}

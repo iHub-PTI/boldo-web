@@ -3,6 +3,8 @@ import * as Sentry from '@sentry/react'
 
 import { SetDebugValueFn, useWebRTCDebugger, WebRTCStats } from './WebRTCStats'
 import { useCallStore } from '../store/callStore'
+import { useLocation } from 'react-router-dom'
+import { ICallStore } from '../store/types/types.store'
 
 export type CallState = 'connecting' | 'connected' | 'disconnected' | 'closed'
 
@@ -21,32 +23,41 @@ const Stream = React.forwardRef<HTMLVideoElement | undefined, Props>((props, ref
   const remoteVideo = useRef<HTMLVideoElement>(null)
   useImperativeHandle(ref, () => remoteVideo.current || undefined)
 
-  const { setStreamRemote, setCleanStream } = useCallStore()
+  const {
+    setCurrentCallPath,
+    peerConnectionStore,
+    setPeerConnectionStore,
+    setStreamRemote,
+    streamRemote,
+  } = useCallStore()
 
   const { sdpStats, iceStats, setDebugValue, active } = useWebRTCDebugger(false)
+
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (!mediaStream || !room || !socket || !token) return
 
-    const setMediaStream = (stream: MediaStream) => {
-      if (remoteVideo.current) {
-        remoteVideo.current.srcObject = stream
-        setStreamRemote(stream)
-      }
-    }
-
-    const { cleanup } = createPeerConection({
+    createPeerConection({
       mediaStream,
-      setMediaStream,
+      setStreamRemote,
       socket,
       room,
       token,
       setDebugValue,
       onCallStateChange,
+      pathname,
+      setCurrentCallPath,
+      peerConnectionStore,
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance, token, pathname])
 
-    setCleanStream(cleanup)
-  }, [mediaStream, room, setDebugValue, socket, onCallStateChange, instance, token, setCleanStream, setStreamRemote])
+  useEffect(() => {
+    if (remoteVideo.current) {
+      remoteVideo.current.srcObject = streamRemote
+    }
+  }, [streamRemote])
 
   return (
     <>
@@ -60,101 +71,94 @@ export default Stream
 
 interface createPeerConnectionProps {
   mediaStream: MediaStream
-  setMediaStream: (arg: MediaStream) => void
+  setStreamRemote: (arg: MediaStream) => void
   socket: SocketIOClient.Socket
   room: string
   token: string
   onCallStateChange: (arg: CallState) => void
   setDebugValue: SetDebugValueFn
+  pathname: string
+  setCurrentCallPath: ICallStore['setCurrentCallPath']
+  peerConnectionStore: ICallStore['peerConnectionStore']
 }
 
 const createPeerConection = (props: createPeerConnectionProps) => {
-  const { mediaStream, setMediaStream, socket, room, token, onCallStateChange, setDebugValue } = props
+  const {
+    mediaStream,
+    setStreamRemote,
+    socket,
+    room,
+    token,
+    onCallStateChange,
+    setDebugValue,
+    pathname,
+    setCurrentCallPath,
+    peerConnectionStore: pc,
+  } = props
 
-  const config = {
-    iceServers: [
-      {
-        urls: 'turn:coturn.pti.org.py:3478',
-        username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo',
-      },
-      {
-        urls: 'stun:coturn.pti.org.py:3478',
-        username: 'coturn',
-        credential: 'VHJ1cGVyMjB4MjB4Lgo',
-      },
-    ],
-  }
+  let offerSent
 
-  const pc = new RTCPeerConnection(config)
-  let offerSent = false
+  if (!['completed', 'connected'].includes(pc?.iceConnectionState)) {
+    offerSent = false
 
-  //
-  // 1.
-  // Handle Audio/Video Tracks
-  //
+    //
+    // 1.
+    // Handle Audio/Video Tracks
+    //
 
-  // Handle outgoing tracks
-  try {
-    for (const track of mediaStream.getTracks()) {
-      pc.addTrack(track, mediaStream)
-    }
-  } catch (err) {
-    console.error(err)
-    Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
-    Sentry.captureException(err)
-  }
-  // Handling incoming tracks
-  const ontrack = ({ track, streams }: RTCTrackEvent) => {
-    setMediaStream(streams[0])
-  }
-
-  //
-  // Begin: The perfect negotiation
-  //
-  // 2.
-  // Handle SDP Offers
-  //
-
-  // Handle outgoing offers
-  const onnegotiationneeded = async () => {
+    // Handle outgoing tracks
     try {
-      if (!offerSent) {
-        await pc.setLocalDescription(
-          await pc.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: true,
-          })
-        )
-        socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
-        offerSent = true
+      for (const track of mediaStream.getTracks()) {
+        pc.addTrack(track, mediaStream)
       }
     } catch (err) {
       console.error(err)
       Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
       Sentry.captureException(err)
     }
-  }
-  // Handle incoming offers
-  type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
-  socket.on('sdp offer', async (message: OfferMessage) => {
-    try {
-      if (offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
-    } catch (err) {
-      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
-      Sentry.captureException(err)
+
+    // Handling incoming tracks
+    pc.ontrack = ({ track, streams }: RTCTrackEvent) => {
+      setStreamRemote(streams[0])
     }
-  })
 
-  //
-  // 3.
-  // Handle ICE Candidates
-  //
+    //
+    // Begin: The perfect negotiation
+    //
+    // 2.
+    // Handle SDP Offers
+    //
 
-  // Handle outgoing candidates
-  const onicecandidate = ({ candidate }: RTCPeerConnectionIceEvent) => {
-    socket.emit('ice candidate', { room: room, ice: candidate, token })
+    // Handle outgoing offers
+    pc.onnegotiationneeded = async () => {
+      try {
+        if (!offerSent) {
+          await pc.setLocalDescription(
+            await pc.createOffer({
+              offerToReceiveAudio: true,
+              offerToReceiveVideo: true,
+            })
+          )
+          socket.emit('sdp offer', { room: room, sdp: pc.localDescription, token })
+          offerSent = true
+        }
+      } catch (err) {
+        console.error(err)
+        Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+        Sentry.captureException(err)
+      }
+    }
+
+    //
+    // 3.
+    // Handle ICE Candidates
+    //
+    // Handle outgoing candidates
+    pc.onicecandidate = ({ candidate }: RTCPeerConnectionIceEvent) => {
+      socket.emit('ice candidate', { room: room, ice: candidate, token })
+    }
   }
+
   // Handle incoming candidates
   type CandidateMessage = { ice: RTCIceCandidate; room: string; fingerprint: string }
   socket.on('ice candidate', async (message: CandidateMessage) => {
@@ -168,11 +172,21 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     }
   })
 
+  // Handle incoming offers
+  type OfferMessage = { sdp: RTCSessionDescription; room: string; fingerprint: string }
+  socket.on('sdp offer', async (message: OfferMessage) => {
+    try {
+      if (offerSent && pc.signalingState !== 'stable') await pc.setRemoteDescription(message.sdp)
+    } catch (err) {
+      Sentry.setTag('iceConnectionState', pc.connectionState ?? '')
+      Sentry.captureException(err)
+    }
+  })
+
   //
   // 4.
   // Handle State Changes
   //
-
   // Handle |iceconnectionstatechange| events. This will detect
   // when the ICE connection is closed, failed, or disconnected.
   //
@@ -192,17 +206,19 @@ const createPeerConection = (props: createPeerConnectionProps) => {
       case 'completed':
       case 'connected': {
         onCallStateChange('connected')
+        setCurrentCallPath(pathname)
         break
       }
       case 'disconnected': {
         onCallStateChange('disconnected')
         // close if disconnected for 11 seconds
-        timeout = setTimeout(() => onCallStateChange('closed'), 11 * 1000)
+        timeout = setTimeout(() => onCallStateChange('closed'), 3 * 1000)
         break
       }
       case 'closed':
       case 'failed':
         onCallStateChange('closed')
+        setCurrentCallPath('')
         break
     }
   }
@@ -226,30 +242,9 @@ const createPeerConection = (props: createPeerConnectionProps) => {
     setDebugValue({ sdpState: pc.signalingState })
   }
 
-  pc.ontrack = ontrack // 1
-  pc.onnegotiationneeded = onnegotiationneeded // 2
-  pc.onicecandidate = onicecandidate // 3
+  // pc.ontrack = ontrack // 1
+  // pc.onnegotiationneeded = onnegotiationneeded // 2
+  // pc.onicecandidate = onicecandidate // 3
   pc.oniceconnectionstatechange = handleICEConnectionStateChangeEvent // 4
   pc.onsignalingstatechange = handleSignalingStateChangeEvent // 4
-
-  // FIXME: Probably should handle if track gets removed.
-
-  const cleanup = () => {
-    socket.off('sdp offer')
-    socket.off('ice candidate')
-
-    pc.ontrack = null
-    pc.onnegotiationneeded = null
-    pc.onicecandidate = null
-    pc.oniceconnectionstatechange = null
-    pc.onsignalingstatechange = null
-
-    // FIXME: Probably should remove track in cleanup.
-
-    pc.close()
-    offerSent = false
-    console.log('🧹 cleaned 🧹')
-  }
-
-  return { pc, cleanup }
 }
