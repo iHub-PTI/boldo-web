@@ -162,13 +162,18 @@ const StudyForm = (props: Props) => {
             'upload-url': presigned.uploadUrl,
             method: 'PUT',
           }
-          handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
+          let messageError = err?.message ?? ''
+          if (err?.response?.status === 413) {
+            messageError = `No se ha podido subir el archivo: ${file.name} porque supera el limite permitido`
+          } else {
+            handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
+          }
+
           addToast({
             type: 'error',
             title: '¡Ha ocurrido un error!',
-            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intetarlo más tarde. Detalles: ${
-              err?.message ?? ''
-            } `,
+            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intetarlo más tarde. Detalles: ${messageError
+              } `,
           })
         })
         .finally(() => {
@@ -247,9 +252,17 @@ const StudyForm = (props: Props) => {
 
     const handleButtonClick = async () => {
       if (!handleSubmit()) {
+
+        let filesError = []
+
         let isSmallSize = Array.from([...attachmentFilesForm]).every(file => {
           let fileSizeInMB = file.size / (1024 * 1024)
-          return fileSizeInMB < 10
+          if(fileSizeInMB > 10){
+            filesError.push(file.name)
+            return false
+          }else {
+            return true
+          }
         })
 
         if (isSmallSize) {
@@ -281,13 +294,17 @@ const StudyForm = (props: Props) => {
           }
         } else {
           //validar mayor a 10mb en bytes
-
+          let message = ''
+          if(filesError.length){
+            message = `No se subieron los siguientes archivos: ${filesError.join(', ')} porque superan el limite permitido de 10 mb`
+          }
           addToast({
             type: 'warning',
-            title: '¡Advertencia!',
-            text: `No se pueden subir archivos que pesen más de 10 mb.`,
+            title: '¡No se han subido los archivos!',
+            text: `Detalles: ${message}`,
           })
         }
+        filesError = []
       }
     }
 

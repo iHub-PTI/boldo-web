@@ -101,13 +101,17 @@ const OrderImported = (props: Props) => {
             'upload-url': presigned.uploadUrl,
             method: 'PUT',
           }
-          handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
+          let messageError = err?.message ?? ''
+          if (err?.response?.status === 413) {
+            messageError = `No se ha podido subir el archivo: ${file.name} porque supera el limite permitido`
+          } else {
+            handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
+          }
           addToast({
             type: 'error',
             title: '¡Ha ocurrido un error!',
-            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intetarlo más tarde. Detalles: ${
-              err?.message ?? ''
-            } `,
+            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intetarlo más tarde. Detalles: ${messageError
+              } `,
           })
         })
         .finally(() => {
@@ -247,10 +251,18 @@ const OrderImported = (props: Props) => {
     const button = saveRef.current
 
     const handleButtonClick = async () => {
+
+      let filesError = []
+
       if (attachmentFiles.length > 0) {
         let isSmallSize = Array.from([...attachmentFiles]).every(file => {
-          let fileSizeInMB = file.size / (1024 * 1024)
-          return fileSizeInMB < 10
+         let fileSizeInMB = file.size / (1024 * 1024)
+          if(fileSizeInMB > 10){
+            filesError.push(file.name)
+            return false
+          }else {
+            return true
+          }
         })
 
         if (isSmallSize) {
@@ -285,12 +297,18 @@ const OrderImported = (props: Props) => {
           }
         } else {
           //validar mayor a 10mb en bytes
-          addToast({
-            type: 'warning',
-            title: '¡Advertencia!',
-            text: `No se pueden subir archivos que pesen más de 10 mb.`,
-          })
+         //validar mayor a 10mb en bytes
+         let message = ''
+         if(filesError.length){
+           message = `No se subieron los siguientes archivos: ${filesError.join(', ')} porque superan el limite permitido de 10 mb`
+         }
+         addToast({
+           type: 'warning',
+           title: '¡No se han subido los archivos!',
+           text: `Detalles: ${message}`,
+         })
         }
+        filesError = []
       } else if (attachmentFiles.length === 0) {
         addToast({ type: 'info', title: 'Atención', text: 'Debe agregar al menos un estudio para subirlo.' })
       }
