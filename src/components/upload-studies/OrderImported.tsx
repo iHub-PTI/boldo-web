@@ -103,14 +103,14 @@ const OrderImported = (props: Props) => {
           }
           let messageError = err?.message ?? ''
           if (err?.response?.status === 413) {
-            messageError = `No se ha podido subir el archivo: ${file.name} porque supera el limite permitido`
+            messageError = `No se ha podido subir el archivo: ${file.name} porque supera el límite permitido`
           } else {
             handleSendSentry(err, ERROR_HEADERS.FILE.FAILURE_UPLOAD, tags)
           }
           addToast({
             type: 'error',
             title: '¡Ha ocurrido un error!',
-            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intetarlo más tarde. Detalles: ${messageError
+            text: `Error en la subida de estudios, por favor inténtelo de nuevo. O vuelva a intentarlo más tarde. Detalles: ${messageError
               } `,
           })
         })
@@ -300,7 +300,7 @@ const OrderImported = (props: Props) => {
          //validar mayor a 10mb en bytes
          let message = ''
          if(filesError.length){
-           message = `No se subieron los siguientes archivos: ${filesError.join(', ')} porque superan el limite permitido de 10 mb`
+           message = `No se subieron los siguientes archivos: ${filesError.join(', ')} porque superan el límite permitido de 10MB`
          }
          addToast({
            type: 'warning',
