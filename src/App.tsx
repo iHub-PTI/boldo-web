@@ -54,10 +54,13 @@ const App = () => {
   const { setOrganizations } = useContext(AllOrganizationContext);
   const { keycloak } = useKeycloak();
 
-  axios.defaults.headers = { 
-    "Authorization": `Bearer ${keycloak.token}`,
-    "Access-Control-Allow-Origin": "*"
-  }
+  axios.interceptors.request.use(async (config) => {
+    if (keycloak.token) {
+      config.headers.Authorization = `Bearer ${keycloak.token}`
+      config.headers["Access-Control-Allow-Origin"] = "*"
+    }
+    return config
+  })
 
   useEffect(() => {
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
