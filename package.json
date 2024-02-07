@@ -1,6 +1,6 @@
 {
   "name": "boldo-web",
-  "version": "0.1.0",
+  "version": "2.5.1-dev",
   "private": true,
   "dependencies": {
     "@fullcalendar/core": "^5.3.1",
