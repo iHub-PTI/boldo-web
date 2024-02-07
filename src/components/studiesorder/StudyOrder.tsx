@@ -192,7 +192,7 @@ const StudyOrder = ({
       try {
         setLoading(true)
         const res = await axios.get(url)
-        if(mounted) setEncounter(res.data.encounter)
+        if (mounted) setEncounter(res.data.encounter)
       } catch (err) {
         const tags = {
           endpoint: url,
@@ -206,11 +206,11 @@ const StudyOrder = ({
           text: 'No se pudieron cargar algunos detalles. ¡Inténtelo nuevamente más tarde!',
         })
       } finally {
-        if(mounted) setLoading(false)
+        if (mounted) setLoading(false)
       }
     }
     load()
-    return () =>{
+    return () => {
       mounted = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,7 +346,7 @@ const StudyOrder = ({
             id: 1,
             category: '',
             urgent: false,
-            diagnosis: '',
+            diagnosis: encounter?.soep?.evaluation ?? '',
             studies_codes: [] as Array<StudiesWithIndication>,
             notes: '',
           },
@@ -397,19 +397,21 @@ const StudyOrder = ({
                     {messageStatus}
                   </Typography>
                   <Grid container>
-                    <IconButton
-                      aria-label='Eliminar'
-                      style={{
-                        padding: '3px',
-                        margin: '0',
-                        outline: 'none',
-                        position: 'absolute',
-                        right: '1px',
-                      }}
-                      onClick={() => deleteCategory(index)}
-                    >
-                      <TrashIcon title='Eliminar Orden'></TrashIcon>
-                    </IconButton>
+                    {orders.length > 1 && (
+                      <IconButton
+                        aria-label='Eliminar'
+                        style={{
+                          padding: '3px',
+                          margin: '0',
+                          outline: 'none',
+                          position: 'absolute',
+                          right: '1px',
+                        }}
+                        onClick={() => deleteCategory(index)}
+                      >
+                        <TrashIcon title='Eliminar Orden'></TrashIcon>
+                      </IconButton>
+                    )}
                     <Grid item container direction='row' spacing={5}>
                       <Grid item xs={5}>
                         <SelectCategory
