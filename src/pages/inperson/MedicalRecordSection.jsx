@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
-import { Button, Grid, TextField, Typography } from '@material-ui/core'
+import { Button, Grid, TextField, Typography, IconButton } from '@material-ui/core'
 import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -15,6 +15,8 @@ import useWindowDimensions from '../../util/useWindowDimensions'
 import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
 import handleSendSentry from '../../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import { FaMicrophone } from "react-icons/fa";
+import useSpeechToText from 'react-hook-speech-to-text';
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -67,6 +69,16 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   const [disableBCancel, setDisableBCancel] = useState(true)
   //width of the window
   const { width: screenWidth } = useWindowDimensions()
+
+  // hook para el speech to text
+  const { isRecording, results, startSpeechToText, stopSpeechToText, error } = useSpeechToText({
+    speechRecognitionProperties: {
+      lang:'es-PY',
+      interimResults: true
+    },
+    continuous: true,
+    useLegacyResults: false,
+  })
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -257,6 +269,50 @@ export default ({ appointment, setDisabledRedcordButton }) => {
       setSoepDisabled(false)
     }
   }, [mainReason, soepText])
+
+  useEffect(()=> {
+    if(error) {
+      addToast({
+        type: 'warning',
+        title: 'Advertencia',
+        text: error
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
+  const addTextSpeechTotext = (text) => {
+    let copyStrings = [...soepText]
+    switch (soepSelected) {
+      case Soep.Subjetive:
+        copyStrings[0] = copyStrings[0] + ' ' + text
+        break
+
+      case Soep.Objective:
+        copyStrings[1] = copyStrings[1] + ' ' + text
+        break
+
+      case Soep.Evalutation:
+        copyStrings[2] = copyStrings[2] + ' ' + text
+        
+        break
+
+      case Soep.Plan:
+        copyStrings[3] = copyStrings[3] + ' ' + text
+        break
+
+      default:
+        break
+    }
+    setSoepText(copyStrings)
+    debounceSoepText(mainReason, copyStrings)
+  }
+
+  useEffect(() => {
+      console.log(results[results.length - 1]?.transcript)
+      addTextSpeechTotext(results[results.length - 1]?.transcript)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results])
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
@@ -596,7 +652,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           onChange={onChangeFilter}
         />
 
-        <div className='flex flex-row flex-wrap mt-4 gap-2'>
+        <div className='flex flex-row flex-wrap mt-4 gap-2 items-center'>
           <Tooltip
             title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Subjetivo}</h1>}
             placement='top-end'
@@ -712,6 +768,21 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                 ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })} */}
             </button>
           </Tooltip>
+          <Tooltip title='Transcribir voz a texto' placement='top'>
+            <IconButton 
+              className={`focus:outline-none ${isRecording ? 'animate-pulse delay-75': null}`}
+              style={{ marginLeft:'10px',
+                backgroundColor: isRecording ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
+                color: isRecording ? 'white' : 'black',
+              }}
+              onClick={() => isRecording ? stopSpeechToText() : startSpeechToText()}
+              disabled={error ? true: false}
+            
+            >
+              <FaMicrophone className='text-lg'  />
+            </IconButton >
+          </Tooltip>
+          {isRecording && <span className='opacity-50'>Escuchando...</span>}
         </div>
 
         {initialLoad ? (
