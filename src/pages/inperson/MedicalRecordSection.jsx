@@ -1,21 +1,21 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
-import axios from 'axios'
-import { Button, Grid, TextField, Typography, IconButton } from '@material-ui/core'
-import { useRouteMatch } from 'react-router-dom'
-import moment from 'moment'
+import { Button, Grid, IconButton, TextField, Typography } from '@material-ui/core'
 import Tooltip from '@material-ui/core/Tooltip'
-import useStyles from './style'
-import { useToasts } from '../../components/Toast'
-import CancelAppointmentModal from '../../components/CancelAppointmentModal'
+import axios from 'axios'
 import _ from 'lodash'
+import moment from 'moment'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouteMatch } from 'react-router-dom'
+import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import { LoadingAutoSaved } from '../../components/LoadingAutoSaved'
+import { useToasts } from '../../components/Toast'
+import useStyles from './style'
 
-import useWindowDimensions from '../../util/useWindowDimensions'
-import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR } from '../../util/constants'
-import handleSendSentry from '../../util/Sentry/sentryHelper'
-import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
-import { FaMicrophone } from "react-icons/fa";
+import { FaMicrophone } from 'react-icons/fa'
 import { useSpeechToTextCustom } from '../../hooks/useSpeechToTextCustom'
+import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
+import handleSendSentry from '../../util/Sentry/sentryHelper'
+import { HEIGHT_BAR_STATE_APPOINTMENT, HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../../util/constants'
+import useWindowDimensions from '../../util/useWindowDimensions'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -134,15 +134,15 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         // setInitialLoad(false)
       } catch (err) {
         const tags = {
-          'endpoint': url,
-          'method': 'GET',
-          'appointment_id': id
+          endpoint: url,
+          method: 'GET',
+          appointment_id: id,
         }
         handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET_IN_MEDICAL_SECTION, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+          text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!',
         })
         setInitialLoad(false)
         //@ts-ignore
@@ -248,9 +248,9 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         } catch (err) {
           //console.log(err)
           const tags = {
-            'endpoint': url,
-            'method': 'GET',
-            'encounter_id': encounterId
+            endpoint: url,
+            method: 'GET',
+            encounter_id: encounterId,
           }
           handleSendSentry(err, ERROR_HEADERS.ENCOUNTER_HISTORY.FAILURE_GET, tags)
           setInitialLoad(false)
@@ -258,7 +258,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           addToast({
             type: 'error',
             title: 'Ha ocurrido un error.',
-            text: 'No hemos podido obtener el historial de las citas relacionadas. ¡Inténtelo nuevamente más tarde!'
+            text: 'No hemos podido obtener el historial de las citas relacionadas. ¡Inténtelo nuevamente más tarde!',
           })
         } finally {
           //FIXME:  comments in the file on line 23 InPersonAppointment.tsx
@@ -279,18 +279,18 @@ export default ({ appointment, setDisabledRedcordButton }) => {
     }
   }, [mainReason, soepText])
 
-  useEffect(()=> {
-    if(errorSoep || errorMainReason) {
+  useEffect(() => {
+    if (errorSoep || errorMainReason) {
       addToast({
         type: 'warning',
         title: 'Advertencia',
-        text: errorSoep || errorMainReason
+        text: errorSoep || errorMainReason,
       })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorSoep, errorMainReason])
 
-  const addTextSpeechTotext = (text) => {
+  const addTextSpeechTotext = text => {
     let copyStrings = [...soepText]
     switch (soepSelected) {
       case Soep.Subjetive:
@@ -303,7 +303,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
       case Soep.Evalutation:
         copyStrings[2] = copyStrings[2] + ' ' + text
-        
+
         break
 
       case Soep.Plan:
@@ -318,20 +318,19 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   }
 
   useEffect(() => {
-      //console.log(resultsSoep[resultsSoep.length - 1]?.transcript)
-      addTextSpeechTotext(resultsSoep[resultsSoep.length - 1]?.transcript)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    //console.log(resultsSoep[resultsSoep.length - 1]?.transcript)
+    addTextSpeechTotext(resultsSoep[resultsSoep.length - 1]?.transcript)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultsSoep])
 
-
   useEffect(() => {
-    if(resultsMainReason.length === 0) return
+    if (resultsMainReason.length === 0) return
 
     let temp = mainReason + resultsMainReason[resultsMainReason.length - 1]?.transcript
     setMainReason(temp)
     debounceSoepText(temp, soepText)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[resultsMainReason])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsMainReason])
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
@@ -347,16 +346,16 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
       } catch (err) {
         const tags = {
-          'endpoint': url,
-          'method': 'PUT',
-          'appointment_id': id
+          endpoint: url,
+          method: 'PUT',
+          appointment_id: id,
         }
         handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_PUT_IN_MEDICAL_SECTION, tags)
         setIsLoading(false)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No hemos podido actualizar los detalles de la cita. ¡Inténtelo nuevamente más tarde!'
+          text: 'No hemos podido actualizar los detalles de la cita. ¡Inténtelo nuevamente más tarde!',
         })
       }
     }, 1000),
@@ -617,7 +616,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         disabled={isAppointmentDisabled || soepDisabled}
         multiline
         rows='16'
-        classes={{root: classes.multiLineInput}}
+        classes={{ root: classes.multiLineInput }}
         InputProps={{
           //disableUnderline: true,
           classes: { input: classes.input },
@@ -659,9 +658,9 @@ export default ({ appointment, setDisabledRedcordButton }) => {
               color: isRecordingSoep ? 'white' : 'black',
             }}
             onClick={() => {
-              if(isRecordingMainReason) stopSpeechToTextMainReason()
-              if(!isRecordingMainReason) {
-                if(isRecordingSoep) stopSpeechToTextSoep()
+              if (isRecordingMainReason) stopSpeechToTextMainReason()
+              if (!isRecordingMainReason) {
+                if (isRecordingSoep) stopSpeechToTextSoep()
                 else startSpeechToTextSoep()
               }
             }}
@@ -675,13 +674,16 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   )
 
   return (
-    <div className='flex flex-col relative overflow-y-auto' style={{
-      height: ` ${
-        screenWidth >= WIDTH_XL
-          ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
-          : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-      }`,
-    }}>
+    <div
+      className='flex flex-col relative overflow-y-auto'
+      style={{
+        height: ` ${
+          screenWidth >= WIDTH_XL
+            ? `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR}px)`
+            : `calc(100vh - ${HEIGHT_BAR_STATE_APPOINTMENT + ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`,
+      }}
+    >
       <Grid style={{ marginInline: '30px' }}>
         <Grid>
           <Typography variant='h5' color='textPrimary'>
@@ -707,9 +709,11 @@ export default ({ appointment, setDisabledRedcordButton }) => {
               minWidth: '100%',
               backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
             }}
-            inputProps={{style:{
-              marginRight:'35px'
-            }}}
+            inputProps={{
+              style: {
+                marginRight: '35px',
+              },
+            }}
             inputRef={mainReason_Ref}
             placeholder='Ej: Dolor de cabeza prolongado'
             variant='outlined'
@@ -727,8 +731,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                   color: isRecordingMainReason ? 'white' : 'black',
                 }}
                 onClick={() => {
-                  if(isRecordingSoep) stopSpeechToTextSoep()
-                  if(!isRecordingSoep) {
+                  if (isRecordingSoep) stopSpeechToTextSoep()
+                  if (!isRecordingSoep) {
                     if (isRecordingMainReason) stopSpeechToTextMainReason()
                     else startSpeechToTextMainReason()
                   }
@@ -742,19 +746,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         </div>
 
         <div className='flex flex-row flex-wrap mt-4 gap-2 items-center'>
-          <Tooltip
-            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Subjetivo}</h1>}
-            placement='top-end'
-            arrow
-          >
+          <Tooltip title={<h1 style={{ fontSize: 14 }}>{soepPlaceholder.Subjetivo}</h1>} placement='top-end' arrow>
             <button
               style={{
                 height: '35',
-                backgroundColor: soepSelected === Soep.Subjetive 
-                  ? '#27BEC2' 
-                  : showHover === Soep.Subjetive 
-                    ? '#B9E7E9'
-                    : '#D4F2F3',
+                backgroundColor:
+                  soepSelected === Soep.Subjetive ? '#27BEC2' : showHover === Soep.Subjetive ? '#B9E7E9' : '#D4F2F3',
                 color: soepSelected === Soep.Subjetive ? 'white' : '#24AAAD',
               }}
               type='button'
@@ -770,19 +767,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                 ShowSoepHelper({ title: Soep.Subjetive, isBlackColor: soepSelected === Soep.Subjetive ? false : true })} */}
             </button>
           </Tooltip>
-          <Tooltip
-            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Objetivo}</h1>}
-            placement='top-end'
-            arrow
-          >
+          <Tooltip title={<h1 style={{ fontSize: 14 }}>{soepPlaceholder.Objetivo}</h1>} placement='top-end' arrow>
             <button
               style={{
                 height: '35',
-                backgroundColor: soepSelected === Soep.Objective 
-                  ? '#27BEC2' 
-                  : showHover === Soep.Objective 
-                    ? '#B9E7E9'
-                    : '#D4F2F3',
+                backgroundColor:
+                  soepSelected === Soep.Objective ? '#27BEC2' : showHover === Soep.Objective ? '#B9E7E9' : '#D4F2F3',
                 color: soepSelected === Soep.Objective ? 'white' : '#24AAAD',
               }}
               type='button'
@@ -798,17 +788,14 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                 ShowSoepHelper({ title: Soep.Objective, isBlackColor: soepSelected === Soep.Objective ? false : true })} */}
             </button>
           </Tooltip>
-          <Tooltip
-            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Evaluacion}</h1>}
-            placement='top-end'
-            arrow
-          >
+          <Tooltip title={<h1 style={{ fontSize: 14 }}>{soepPlaceholder.Evaluacion}</h1>} placement='top-end' arrow>
             <button
               style={{
                 height: '35',
-                backgroundColor: soepSelected === Soep.Evalutation 
-                  ? '#27BEC2' 
-                  : showHover === Soep.Evalutation 
+                backgroundColor:
+                  soepSelected === Soep.Evalutation
+                    ? '#27BEC2'
+                    : showHover === Soep.Evalutation
                     ? '#B9E7E9'
                     : '#D4F2F3',
                 color: soepSelected === Soep.Evalutation ? 'white' : '#24AAAD',
@@ -829,19 +816,12 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                 })} */}
             </button>
           </Tooltip>
-          <Tooltip
-            title={<h1 style={{fontSize: 14}}>{soepPlaceholder.Plan}</h1>}
-            placement='top-end'
-            arrow
-          >
+          <Tooltip title={<h1 style={{ fontSize: 14 }}>{soepPlaceholder.Plan}</h1>} placement='top-end' arrow>
             <button
               style={{
                 height: '35',
-                backgroundColor: soepSelected === Soep.Plan 
-                  ? '#27BEC2' 
-                  : showHover === Soep.Plan 
-                    ? '#B9E7E9'
-                    : '#D4F2F3',
+                backgroundColor:
+                  soepSelected === Soep.Plan ? '#27BEC2' : showHover === Soep.Plan ? '#B9E7E9' : '#D4F2F3',
                 color: soepSelected === Soep.Plan ? 'white' : '#24AAAD',
               }}
               type='button'
@@ -891,44 +871,45 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         >
           <CancelAppointmentModal isOpen={isOpen} setIsOpen={setIsOpen} appointmentId={id} />
         </div>
-        { appointment?.status === 'upcoming'
-          ? <div className='flex flex-row-reverse mt-6'>
-              <div className='ml-6'>
-                <Button
-                  disabled={disableBCancel}
-                  className={classes.muiButtonOutlined}
-                  variant='outlined'
-                  onClick={() => {
-                    setIsOpen(true)
-                  }}
-                  endIcon={
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='h-6 w-6'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                      />
-                    </svg>
-                  }
-                >
-                  Cancelar cita
-                </Button>
-              </div>
+        {appointment?.status === 'upcoming' ? (
+          <div className='flex flex-row-reverse mt-6'>
+            <div className='ml-6'>
+              <Button
+                disabled={disableBCancel}
+                className={classes.muiButtonOutlined}
+                variant='outlined'
+                onClick={() => {
+                  setIsOpen(true)
+                }}
+                endIcon={
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-6 w-6'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                    />
+                  </svg>
+                }
+              >
+                Cancelar cita
+              </Button>
             </div>
-          : <div></div>
-        }
-        { (appointment?.status === 'upcoming' || appointment?.status === 'open') &&
+          </div>
+        ) : (
+          <div></div>
+        )}
+        {(appointment?.status === 'upcoming' || appointment?.status === 'open') && (
           <Typography style={{ marginTop: '10px' }} variant='body2' color='textSecondary'>
             Una vez culminada la cita, dispondrá de 2 horas para actualizar las notas médicas del paciente.
           </Typography>
-        }
+        )}
       </Grid>
     </div>
   )
