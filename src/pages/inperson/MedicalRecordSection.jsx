@@ -5,7 +5,6 @@ import { useRouteMatch } from 'react-router-dom'
 import moment from 'moment'
 import Tooltip from '@material-ui/core/Tooltip'
 import useStyles from './style'
-// import ShowSoepHelper from '../../components/TooltipSoep'
 import { useToasts } from '../../components/Toast'
 import CancelAppointmentModal from '../../components/CancelAppointmentModal'
 import _ from 'lodash'
@@ -16,7 +15,7 @@ import { HEIGHT_NAVBAR, HEIGHT_BAR_STATE_APPOINTMENT, WIDTH_XL, ORGANIZATION_BAR
 import handleSendSentry from '../../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../../util/Sentry/errorHeaders'
 import { FaMicrophone } from "react-icons/fa";
-import useSpeechToText from 'react-hook-speech-to-text';
+import { useSpeechToTextCustom } from '../../hooks/useSpeechToTextCustom'
 
 const Soep = {
   Subjetive: 'Subjetivo',
@@ -70,15 +69,25 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   //width of the window
   const { width: screenWidth } = useWindowDimensions()
 
-  // hook para el speech to text
-  const { isRecording, results, startSpeechToText, stopSpeechToText, error } = useSpeechToText({
-    speechRecognitionProperties: {
-      lang:'es-PY',
-      interimResults: true
-    },
-    continuous: true,
-    useLegacyResults: false,
-  })
+  // hook para el speech to text en el soep
+  const {
+    isRecording: isRecordingSoep,
+    results: resultsSoep,
+    interimResult: interimResultSoep,
+    startSpeechToText: startSpeechToTextSoep,
+    stopSpeechToText: stopSpeechToTextSoep,
+    error: errorSoep,
+  } = useSpeechToTextCustom()
+
+  // hook para el speech to text en el motivo de consulta
+  const {
+    isRecording: isRecordingMainReason,
+    results: resultsMainReason,
+    interimResult: interimResultMainReason,
+    startSpeechToText: startSpeechToTextMainReason,
+    stopSpeechToText: stopSpeechToTextMainReason,
+    error: errorMainReason,
+  } = useSpeechToTextCustom()
 
   useEffect(() => {
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
@@ -271,15 +280,15 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   }, [mainReason, soepText])
 
   useEffect(()=> {
-    if(error) {
+    if(errorSoep || errorMainReason) {
       addToast({
         type: 'warning',
         title: 'Advertencia',
-        text: error
+        text: errorSoep || errorMainReason
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error])
+  }, [errorSoep, errorMainReason])
 
   const addTextSpeechTotext = (text) => {
     let copyStrings = [...soepText]
@@ -309,10 +318,20 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   }
 
   useEffect(() => {
-      console.log(results[results.length - 1]?.transcript)
-      addTextSpeechTotext(results[results.length - 1]?.transcript)
+      //console.log(resultsSoep[resultsSoep.length - 1]?.transcript)
+      addTextSpeechTotext(resultsSoep[resultsSoep.length - 1]?.transcript)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results])
+  }, [resultsSoep])
+
+
+  useEffect(() => {
+    if(resultsMainReason.length === 0) return
+
+    let temp = mainReason + resultsMainReason[resultsMainReason.length - 1]?.transcript
+    setMainReason(temp)
+    debounceSoepText(temp, soepText)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[resultsMainReason])
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
@@ -570,11 +589,19 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           placeholder={soepPlaceholder[soepSelected]}
           value={
             soepSelected === Soep.Subjetive
-              ? soepText[0]
+              ? interimResultSoep
+                ? soepText[0] + interimResultSoep
+                : soepText[0]
               : soepSelected === Soep.Objective
-              ? soepText[1]
+              ? interimResultSoep
+                ? soepText[1] + interimResultSoep
+                : soepText[1]
               : soepSelected === Soep.Evalutation
-              ? soepText[2]
+              ? interimResultSoep
+                ? soepText[2] + interimResultSoep
+                : soepText[2]
+              : interimResultSoep
+              ? soepText[3] + interimResultSoep
               : soepText[3]
           }
           onChange={onChangeSoepText}
@@ -584,33 +611,67 @@ export default ({ appointment, setDisabledRedcordButton }) => {
   )
 
   const soepSection = (
-    <TextField
-      inputRef={focusMe_RefSOEP}
-      disabled={isAppointmentDisabled || soepDisabled}
-      multiline
-      rows='16'
-      InputProps={{
-        //disableUnderline: true,
-        classes: { input: classes.input },
-      }}
-      style={{
-        marginTop: '20px',
-        backgroundColor: `${isAppointmentDisabled || disableMainReason || soepDisabled ? '#e5e7eb' : ''}`,
-      }}
-      fullWidth
-      variant='outlined'
-      placeholder={soepPlaceholder[soepSelected]}
-      value={
-        soepSelected === Soep.Subjetive
-          ? soepText[0]
-          : soepSelected === Soep.Objective
-          ? soepText[1]
-          : soepSelected === Soep.Evalutation
-          ? soepText[2]
-          : soepText[3]
-      }
-      onChange={onChangeSoepText}
-    />
+    <div className='relative'>
+      <TextField
+        inputRef={focusMe_RefSOEP}
+        disabled={isAppointmentDisabled || soepDisabled}
+        multiline
+        rows='16'
+        classes={{root: classes.multiLineInput}}
+        InputProps={{
+          //disableUnderline: true,
+          classes: { input: classes.input },
+        }}
+        style={{
+          marginTop: '20px',
+          backgroundColor: `${isAppointmentDisabled || disableMainReason || soepDisabled ? '#e5e7eb' : ''}`,
+        }}
+        fullWidth
+        variant='outlined'
+        placeholder={soepPlaceholder[soepSelected]}
+        value={
+          soepSelected === Soep.Subjetive
+            ? interimResultSoep
+              ? soepText[0] + interimResultSoep
+              : soepText[0]
+            : soepSelected === Soep.Objective
+            ? interimResultSoep
+              ? soepText[1] + interimResultSoep
+              : soepText[1]
+            : soepSelected === Soep.Evalutation
+            ? interimResultSoep
+              ? soepText[2] + interimResultSoep
+              : soepText[2]
+            : interimResultSoep
+            ? soepText[3] + interimResultSoep
+            : soepText[3]
+        }
+        onChange={onChangeSoepText}
+      />
+      <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+        {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+        <Tooltip title='Transcribir voz a texto' placement='top'>
+          <IconButton
+            className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+            style={{
+              marginLeft: '10px',
+              backgroundColor: isRecordingSoep ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
+              color: isRecordingSoep ? 'white' : 'black',
+            }}
+            onClick={() => {
+              if(isRecordingMainReason) stopSpeechToTextMainReason()
+              if(!isRecordingMainReason) {
+                if(isRecordingSoep) stopSpeechToTextSoep()
+                else startSpeechToTextSoep()
+              }
+            }}
+            disabled={errorSoep ? true : false}
+          >
+            <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+          </IconButton>
+        </Tooltip>
+      </div>
+    </div>
   )
 
   return (
@@ -639,18 +700,46 @@ export default ({ appointment, setDisabledRedcordButton }) => {
               : '(obligatorio)'}
           </span>
         </Typography>
-        <TextField
-          disabled={disableMainReason || isAppointmentDisabled}
-          style={{
-            minWidth: '100%',
-            backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
-          }}
-          inputRef={mainReason_Ref}
-          placeholder='Ej: Dolor de cabeza prolongado'
-          variant='outlined'
-          value={mainReason}
-          onChange={onChangeFilter}
-        />
+        <div className='relative'>
+          <TextField
+            disabled={disableMainReason || isAppointmentDisabled}
+            style={{
+              minWidth: '100%',
+              backgroundColor: `${isAppointmentDisabled || disableMainReason ? '#e5e7eb' : ''}`,
+            }}
+            inputProps={{style:{
+              marginRight:'35px'
+            }}}
+            inputRef={mainReason_Ref}
+            placeholder='Ej: Dolor de cabeza prolongado'
+            variant='outlined'
+            value={interimResultMainReason ? mainReason + interimResultMainReason : mainReason}
+            onChange={onChangeFilter}
+          />
+          <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+            {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+            <Tooltip title='Transcribir voz a texto' placement='top'>
+              <IconButton
+                className={`focus:outline-none ${isRecordingMainReason ? 'animate-pulse delay-75' : null}`}
+                style={{
+                  marginLeft: '10px',
+                  backgroundColor: isRecordingMainReason ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
+                  color: isRecordingMainReason ? 'white' : 'black',
+                }}
+                onClick={() => {
+                  if(isRecordingSoep) stopSpeechToTextSoep()
+                  if(!isRecordingSoep) {
+                    if (isRecordingMainReason) stopSpeechToTextMainReason()
+                    else startSpeechToTextMainReason()
+                  }
+                }}
+                disabled={errorMainReason ? true : false}
+              >
+                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </div>
 
         <div className='flex flex-row flex-wrap mt-4 gap-2 items-center'>
           <Tooltip
@@ -768,21 +857,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
                 ShowSoepHelper({ title: Soep.Plan, isBlackColor: soepSelected === Soep.Plan ? false : true })} */}
             </button>
           </Tooltip>
-          <Tooltip title='Transcribir voz a texto' placement='top'>
-            <IconButton 
-              className={`focus:outline-none ${isRecording ? 'animate-pulse delay-75': null}`}
-              style={{ marginLeft:'10px',
-                backgroundColor: isRecording ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
-                color: isRecording ? 'white' : 'black',
-              }}
-              onClick={() => isRecording ? stopSpeechToText() : startSpeechToText()}
-              disabled={error ? true: false}
-            
-            >
-              <FaMicrophone className='text-lg'  />
-            </IconButton >
-          </Tooltip>
-          {isRecording && <span className='opacity-50'>Escuchando...</span>}
         </div>
 
         {initialLoad ? (
