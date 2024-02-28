@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-export default makeStyles((theme) => ({
+export default makeStyles(theme => ({
   root: {
     backgroundColor: '#FFFFFF',
     display: 'flex',
@@ -73,9 +73,10 @@ export default makeStyles((theme) => ({
     color: 'white',
     borderRadius: '10px',
   },
-  input:{
+  input: {
     '&::placeholder': {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
-  }
-}));
+    marginRight:'35px'
+  },
+}))
