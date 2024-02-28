@@ -279,17 +279,6 @@ export default ({ appointment, setDisabledRedcordButton }) => {
     }
   }, [mainReason, soepText])
 
-  useEffect(() => {
-    if (errorSoep || errorMainReason) {
-      addToast({
-        type: 'warning',
-        title: 'Advertencia',
-        text: errorSoep || errorMainReason,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorSoep, errorMainReason])
-
   const addTextSpeechTotext = text => {
     let copyStrings = [...soepText]
     switch (soepSelected) {
@@ -650,26 +639,28 @@ export default ({ appointment, setDisabledRedcordButton }) => {
       {!(isAppointmentDisabled || soepDisabled) && (
         <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
           {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
-          <Tooltip title='Transcribir voz a texto' placement='top'>
-            <IconButton
-              className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
-              style={{
-                marginLeft: '10px',
-                backgroundColor: isRecordingSoep ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
-                color: isRecordingSoep ? 'white' : 'black',
-              }}
-              onClick={() => {
-                if (isRecordingMainReason) stopSpeechToTextMainReason()
-                if (!isRecordingMainReason) {
-                  if (isRecordingSoep) stopSpeechToTextSoep()
-                  else startSpeechToTextSoep()
-                }
-              }}
-              disabled={errorSoep ? true : false}
-            >
-              <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
-            </IconButton>
-          </Tooltip>
+          {!errorSoep && (
+            <Tooltip title='Transcribir voz a texto' placement='top'>
+              <IconButton
+                className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+                style={{
+                  marginLeft: '10px',
+                  backgroundColor: isRecordingSoep ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
+                  color: isRecordingSoep ? 'white' : 'black',
+                }}
+                onClick={() => {
+                  if (isRecordingMainReason) stopSpeechToTextMainReason()
+                  if (!isRecordingMainReason) {
+                    if (isRecordingSoep) stopSpeechToTextSoep()
+                    else startSpeechToTextSoep()
+                  }
+                }}
+                disabled={errorSoep ? true : false}
+              >
+                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+              </IconButton>
+            </Tooltip>
+          )}
         </div>
       )}
     </div>
@@ -725,26 +716,28 @@ export default ({ appointment, setDisabledRedcordButton }) => {
           {!(disableMainReason || isAppointmentDisabled) && (
             <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
               {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
-              <Tooltip title='Transcribir voz a texto' placement='top'>
-                <IconButton
-                  className={`focus:outline-none ${isRecordingMainReason ? 'animate-pulse delay-75' : null}`}
-                  style={{
-                    marginLeft: '10px',
-                    backgroundColor: isRecordingMainReason ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
-                    color: isRecordingMainReason ? 'white' : 'black',
-                  }}
-                  onClick={() => {
-                    if (isRecordingSoep) stopSpeechToTextSoep()
-                    if (!isRecordingSoep) {
-                      if (isRecordingMainReason) stopSpeechToTextMainReason()
-                      else startSpeechToTextMainReason()
-                    }
-                  }}
-                  disabled={errorMainReason ? true : false}
-                >
-                  <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
-                </IconButton>
-              </Tooltip>
+              {!errorMainReason && (
+                <Tooltip title='Transcribir voz a texto' placement='top'>
+                  <IconButton
+                    className={`focus:outline-none ${isRecordingMainReason ? 'animate-pulse delay-75' : null}`}
+                    style={{
+                      marginLeft: '10px',
+                      backgroundColor: isRecordingMainReason ? 'rgba(255, 0, 0, 0.8)' : 'rgba(200, 200, 200, 0.6)',
+                      color: isRecordingMainReason ? 'white' : 'black',
+                    }}
+                    onClick={() => {
+                      if (isRecordingSoep) stopSpeechToTextSoep()
+                      if (!isRecordingSoep) {
+                        if (isRecordingMainReason) stopSpeechToTextMainReason()
+                        else startSpeechToTextMainReason()
+                      }
+                    }}
+                    disabled={errorMainReason ? true : false}
+                  >
+                    <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                  </IconButton>
+                </Tooltip>
+              )}
             </div>
           )}
         </div>
