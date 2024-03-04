@@ -6,7 +6,7 @@ export const useSpeechToTextCustom = () => {
       lang: 'es-PY',
       interimResults: true,
     },
-    continuous: true,
+    continuous: false,
     useLegacyResults: false,
   };
   // NOTA: se quita soporte para otros navegadores con google cloud

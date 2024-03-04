@@ -5,16 +5,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Stream, { CallState } from '../components/Stream'
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  TextField,
-  Typography,
-  makeStyles,
-  withStyles,
-} from '@material-ui/core'
+import { Card, CardContent, CardHeader, Grid, TextField, Typography, makeStyles, withStyles, IconButton } from '@material-ui/core'
 import Accordion from '@material-ui/core/Accordion'
 import AccordionDetails from '@material-ui/core/AccordionDetails'
 import AccordionSummary from '@material-ui/core/AccordionSummary'
@@ -43,16 +34,18 @@ import { HEIGHT_NAVBAR, ORGANIZATION_BAR, WIDTH_XL } from '../util/constants'
 import { getColorCode } from '../util/helpers'
 import useWindowDimensions from '../util/useWindowDimensions'
 
-import * as Sentry from "@sentry/react"
+import * as Sentry from '@sentry/react'
 import { ToggleMenu } from '../components/call/toggle-menu'
 import { useCallStore } from '../store/callStore'
-
-
+import { useSpeechToTextCustom } from '../hooks/useSpeechToTextCustom'
+import { FaMicrophone } from 'react-icons/fa'
+import { ResultType } from 'react-hook-speech-to-text'
 
 type Status = Boldo.Appointment['status']
-type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & { organization: Boldo.Organization }
+type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {
+  organization: Boldo.Organization
+}
 type CallStatus = { connecting: boolean }
-
 
 const Gate = () => {
   const history = useHistory()
@@ -1033,51 +1026,53 @@ function SOEP({ appointment }: { appointment: any }) {
   const [evaluation, setEvaluation] = useState('')
   const [plan, setPlan] = useState('')
   const [selectedMedication, setSelectedMedication] = useState<any[]>([])
-  //const [soepHistory, setSoepHistory] = useState<any[]>([])
   const [diagnose, setDiagnose] = useState<string>('')
   const [instructions, setInstructions] = useState<string>('')
   const [initialLoad, setInitialLoad] = useState(true)
-  //const [showEditModal, setShowEditModal] = useState(false)
+
   const [showPrivateCommentMenu, setShowPrivateCommentMenu] = useState(false)
   const [encounterId, setEncounterId] = useState('')
   const [partOfEncounterId, setPartOfEncounterId] = useState('')
-  //const [encounterHistory, setEncounterHistory] = useState<any[]>([])
-  //const [selectedRow, setSelectedRow] = useState()
+
   const [privateCommentsRecord, setPrivateCommentsRecords] = useState([])
-  //const [isLoading, setIsLoading] = useState(false)
+
   const [showHover, setShowHover] = useState('')
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
-  // const { width } = useWindowDimensions()
-  // const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
-  //   setValue(newValue)
-  // }
+
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
 
-  /* const tableIcons: Icons = {
-    SortArrow: forwardRef((props, ref) => <ArrowUpward style={{ color: "#13A5A9" }} {...props} ref={ref} />),
-    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
-  } */
+  const [focusPanel, setFocusPanel] = useState('')
+
+  // hook para el speech to text en el motivo de consulta
+  const {
+    isRecording: isRecordingMainReason,
+    results: resultsMainReason,
+    interimResult: interimResultMainReason,
+    startSpeechToText: startSpeechToTextMainReason,
+    stopSpeechToText: stopSpeechToTextMainReason,
+    error: errorMainReason,
+  } = useSpeechToTextCustom()
+
+  // hook para el speech to text en el soep
+  const {
+    isRecording: isRecordingSoep,
+    results: resultsSoep,
+    interimResult: interimResultSoep,
+    startSpeechToText: startSpeechToTextSoep,
+    stopSpeechToText: stopSpeechToTextSoep,
+    error: errorSoep,
+  } = useSpeechToTextCustom()
+
+  const handleChange = (panel) => (event, newExpanded) => {
+    if (isRecordingSoep) stopSpeechToTextSoep()
+    if (isRecordingMainReason) stopSpeechToTextMainReason()
+    setFocusPanel(newExpanded ? panel : '')
+  }
 
   useEffect(() => {
-
     if (appointment === undefined || appointment.status === 'locked' || appointment.status === 'upcoming') {
       setAppointmentDisabled(true)
       setDisableMainReason(true)
@@ -1093,7 +1088,8 @@ function SOEP({ appointment }: { appointment: any }) {
       const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url)
-        if(mounted) {const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
+        if (mounted) {
+          const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
           setDiagnose(diagnosis)
           setInstructions(instructions)
           setSelectedMedication(prescriptions)
@@ -1108,28 +1104,28 @@ function SOEP({ appointment }: { appointment: any }) {
             plan !== undefined && setPlan(plan)
           }
           setInitialLoad(false)
-        } 
+        }
       } catch (err) {
-       if(mounted){
+        if (mounted) {
           const tags = {
-            'endpoint': url,
-            'method': 'GET',
-            'appointment_id': id
+            endpoint: url,
+            method: 'GET',
+            appointment_id: id,
           }
           handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_GET, tags)
           addToast({
             type: 'error',
             title: 'Ha ocurrido un error.',
-            text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!'
+            text: 'No se pudieron cargar las notas médicas. ¡Inténtelo nuevamente más tarde!',
           })
           setInitialLoad(false)
-       }
+        }
       }
     }
 
     load()
 
-    return () =>{
+    return () => {
       mounted = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1137,12 +1133,10 @@ function SOEP({ appointment }: { appointment: any }) {
 
   useEffect(() => {
     if (initialLoad === false) {
-
       if (mainReason?.trim() === '') {
         setMainReasonRequired(true)
         return
-      }
-      else if (mainReason !== undefined && mainReason?.trim() !== '') {
+      } else if (mainReason !== undefined && mainReason?.trim() !== '') {
         setMainReasonRequired(false)
         if (partOfEncounterId !== '') {
           debounce({
@@ -1183,6 +1177,36 @@ function SOEP({ appointment }: { appointment: any }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
+
+  useEffect(()=>{
+    if(resultsSoep.length === 0) return
+
+    let result = resultsSoep[resultsSoep.length - 1] as ResultType
+
+    switch(focusPanel){
+      case 'subjetive':
+        setSubjective(prev => {
+          return prev + result?.transcript
+        })    
+        break
+      case 'objective':
+        setObjective(prev => {
+          return prev + result?.transcript
+        })
+        break
+      case 'evaluation':
+        setEvaluation(prev => {
+          return prev + result?.transcript
+        })
+        break
+      case 'plan':
+        setPlan(prev => {
+          return prev + result?.transcript
+        })
+        break
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[resultsSoep])
 
   useEffect(() => {
     if (mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
@@ -1281,7 +1305,16 @@ function SOEP({ appointment }: { appointment: any }) {
       </ToolTipSoepHelper>
     )
   }
-  
+
+  useEffect(() => {
+    if (resultsMainReason.length === 0) return
+
+    let result = resultsMainReason[resultsMainReason.length - 1] as ResultType
+    let temp = mainReason + result?.transcript
+    setMainReason(temp)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsMainReason])
+
   const classes = useStyles()
   if (initialLoad)
     return (
@@ -1346,24 +1379,66 @@ function SOEP({ appointment }: { appointment: any }) {
               </Grid>
               <TabPanel classes={{ root: classes.tab }} value={value} index={0}>
                 <Typography variant='subtitle1' color='textPrimary' style={{ marginTop: '20px' }}>
-                  Motivo principal de la visita <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>{appointment?.status === 'upcoming' || appointment?.status === 'closed' || appointment?.status === 'locked' ? '' : '(obligatorio)'}</span>
+                  Motivo principal de la visita{' '}
+                  <span className={`${mainReasonRequired ? 'text-red-700' : 'text-gray-500'}`}>
+                    {appointment?.status === 'upcoming' ||
+                    appointment?.status === 'closed' ||
+                    appointment?.status === 'locked'
+                      ? ''
+                      : '(obligatorio)'}
+                  </span>
                 </Typography>
-
-                <TextField
-                  fullWidth
-                  disabled={disableMainReason || isAppointmentDisabled}
-                  autoFocus
-                  variant='outlined'
-                  placeholder={' Ej: Dolor de cabeza prolongado'}
-                  style={{
-                    background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
-                  }}
-                  value={mainReason}
-                  onChange={event => {
-                    setMainReason(event.target.value)
-                  }}
-                  required
-                />
+                <div className='relative'>
+                  <TextField
+                    fullWidth
+                    disabled={disableMainReason || isAppointmentDisabled}
+                    autoFocus
+                    variant='outlined'
+                    placeholder={' Ej: Dolor de cabeza prolongado'}
+                    inputProps={{
+                      style: {
+                        marginRight: '35px',
+                      },
+                    }}
+                    style={{
+                      background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
+                    }}
+                    value={interimResultMainReason ? mainReason + interimResultMainReason : mainReason}
+                    onChange={event => {
+                      setMainReason(event.target.value)
+                    }}
+                    required
+                  />
+                  {!(disableMainReason || isAppointmentDisabled) && (
+                    <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+                      {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+                      {!errorMainReason && (
+                        <Tooltip title='Transcribir voz a texto' placement='top'>
+                          <IconButton
+                            className={`focus:outline-none ${isRecordingMainReason ? 'animate-pulse delay-75' : null}`}
+                            style={{
+                              marginLeft: '10px',
+                              backgroundColor: isRecordingMainReason
+                                ? 'rgba(255, 0, 0, 0.8)'
+                                : 'rgba(200, 200, 200, 0.6)',
+                              color: isRecordingMainReason ? 'white' : 'black',
+                            }}
+                            onClick={() => {
+                              if (isRecordingSoep) stopSpeechToTextSoep()
+                              if (!isRecordingSoep) {
+                                if (isRecordingMainReason) stopSpeechToTextMainReason()
+                                else startSpeechToTextMainReason()
+                              }
+                            }}
+                            disabled={errorMainReason ? true : false}
+                          >
+                            <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <Accordion
                   classes={{
@@ -1376,6 +1451,8 @@ function SOEP({ appointment }: { appointment: any }) {
                     borderRadius: '10px',
                     marginTop: '30px',
                   }}
+                  expanded={focusPanel === 'subjetive'}
+                  onChange={handleChange('subjetive')}
                 >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
@@ -1403,26 +1480,57 @@ function SOEP({ appointment }: { appointment: any }) {
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <TextField
-                      fullWidth
-                      disabled={isAppointmentDisabled || mainReasonRequired}
-                      multiline
-                      rows='9'
-                      InputProps={{
-                        disableUnderline: true,
-                        classes: { input: classes.input }
-                      }}
-                      style={{
-                        borderRadius: '4px',
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
-                      }}
-                      value={subjective}
-                      onChange={event => {
-                        setSubjective(event.target.value)
-                      }}
-                      placeholder={soepPlaceholder['Subjetivo']}
-                      required
-                    />
+                    <div className='relative w-full'>
+                      <TextField
+                        fullWidth
+                        disabled={isAppointmentDisabled || mainReasonRequired}
+                        multiline
+                        rows='9'
+                        InputProps={{
+                          disableUnderline: true,
+                          classes: { input: classes.input },
+                        }}
+                        style={{
+                          borderRadius: '4px',
+                          background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
+                        }}
+                        value={interimResultSoep && (focusPanel === 'subjective') ? subjective + interimResultSoep : subjective}
+                        onChange={event => {
+                          setSubjective(event.target.value)
+                        }}
+                        placeholder={soepPlaceholder['Subjetivo']}
+                        required
+                      />
+                      {!(isAppointmentDisabled || mainReasonRequired) && (
+                        <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+                          {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+                          {!errorSoep && (
+                            <Tooltip title='Transcribir voz a texto' placement='top'>
+                              <IconButton
+                                className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+                                style={{
+                                  marginLeft: '10px',
+                                  backgroundColor: isRecordingSoep
+                                    ? 'rgba(255, 0, 0, 0.8)'
+                                    : 'rgba(200, 200, 200, 0.6)',
+                                  color: isRecordingSoep ? 'white' : 'black',
+                                }}
+                                onClick={() => {
+                                  if (isRecordingMainReason) stopSpeechToTextMainReason()
+                                  if (!isRecordingMainReason) {
+                                    if (isRecordingSoep) stopSpeechToTextSoep()
+                                    else startSpeechToTextSoep()
+                                  }
+                                }}
+                                disabled={errorSoep ? true : false}
+                              >
+                                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </AccordionDetails>
                 </Accordion>
 
@@ -1437,6 +1545,8 @@ function SOEP({ appointment }: { appointment: any }) {
                     borderRadius: '10px',
                     marginTop: '10px',
                   }}
+                  expanded={focusPanel === 'objective'}
+                  onChange={handleChange('objective')}
                 >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
@@ -1464,28 +1574,62 @@ function SOEP({ appointment }: { appointment: any }) {
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <TextField
-                      disabled={isAppointmentDisabled || mainReasonRequired}
-                      fullWidth
-                      multiline
-                      rows='9'
-                      InputProps={{
-                        disableUnderline: true,
-                        classes: { input: classes.input }
-                      }}
-                      style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
-                        // border: '2px solid #AAAAAA',
-                        // boxSizing: 'border-box',
-                        borderRadius: '4px',
-                      }}
-                      required
-                      value={objective}
-                      onChange={event => {
-                        setObjective(event.target.value)
-                      }}
-                      placeholder={soepPlaceholder['Objetivo']}
-                    />
+                    <div className='relative w-full'>
+                      <TextField
+                        disabled={isAppointmentDisabled || mainReasonRequired}
+                        fullWidth
+                        multiline
+                        rows='9'
+                        InputProps={{
+                          disableUnderline: true,
+                          classes: { input: classes.input },
+                          style: {
+                            marginRight: '35px !important',
+                          }
+                        }}
+                        style={{
+                          background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={interimResultSoep && (focusPanel === 'objective') ? objective + interimResultSoep : objective}
+                        onChange={event => {
+                          setObjective(event.target.value)
+                        }}
+                        placeholder={soepPlaceholder['Objetivo']}
+                      />
+                      {!(isAppointmentDisabled || mainReasonRequired) && (
+                        <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+                          {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+                          {!errorSoep && (
+                            <Tooltip title='Transcribir voz a texto' placement='top'>
+                              <IconButton
+                                className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+                                style={{
+                                  marginLeft: '10px',
+                                  backgroundColor: isRecordingSoep
+                                    ? 'rgba(255, 0, 0, 0.8)'
+                                    : 'rgba(200, 200, 200, 0.6)',
+                                  color: isRecordingSoep ? 'white' : 'black',
+                                }}
+                                onClick={() => {
+                                  if (isRecordingMainReason) stopSpeechToTextMainReason()
+                                  if (!isRecordingMainReason) {
+                                    if (isRecordingSoep) stopSpeechToTextSoep()
+                                    else startSpeechToTextSoep()
+                                  }
+                                }}
+                                disabled={errorSoep ? true : false}
+                              >
+                                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </AccordionDetails>
                 </Accordion>
 
@@ -1500,6 +1644,8 @@ function SOEP({ appointment }: { appointment: any }) {
                     borderRadius: '10px',
                     marginTop: '10px',
                   }}
+                  expanded={focusPanel === 'evaluation'}
+                  onChange={handleChange('evaluation')}
                 >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
@@ -1527,28 +1673,59 @@ function SOEP({ appointment }: { appointment: any }) {
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <TextField
-                      disabled={isAppointmentDisabled || mainReasonRequired}
-                      fullWidth
-                      multiline
-                      rows='9'
-                      InputProps={{
-                        disableUnderline: true,
-                        classes: { input: classes.input }
-                      }}
-                      style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
-                        // border: '2px solid #AAAAAA',
-                        // boxSizing: 'border-box',
-                        borderRadius: '4px',
-                      }}
-                      required
-                      value={evaluation}
-                      onChange={event => {
-                        setEvaluation(event.target.value)
-                      }}
-                      placeholder={soepPlaceholder['Evaluacion']}
-                    />
+                    <div className='relative w-full'>
+                      <TextField
+                        disabled={isAppointmentDisabled || mainReasonRequired}
+                        fullWidth
+                        multiline
+                        rows='9'
+                        InputProps={{
+                          disableUnderline: true,
+                          classes: { input: classes.input },
+                        }}
+                        style={{
+                          background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={interimResultSoep && (focusPanel === 'evaluation') ? evaluation + interimResultSoep : evaluation}
+                        onChange={event => {
+                          setEvaluation(event.target.value)
+                        }}
+                        placeholder={soepPlaceholder['Evaluacion']}
+                      />
+                      {!(isAppointmentDisabled || mainReasonRequired) && (
+                        <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+                          {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+                          {!errorSoep && (
+                            <Tooltip title='Transcribir voz a texto' placement='top'>
+                              <IconButton
+                                className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+                                style={{
+                                  marginLeft: '10px',
+                                  backgroundColor: isRecordingSoep
+                                    ? 'rgba(255, 0, 0, 0.8)'
+                                    : 'rgba(200, 200, 200, 0.6)',
+                                  color: isRecordingSoep ? 'white' : 'black',
+                                }}
+                                onClick={() => {
+                                  if (isRecordingMainReason) stopSpeechToTextMainReason()
+                                  if (!isRecordingMainReason) {
+                                    if (isRecordingSoep) stopSpeechToTextSoep()
+                                    else startSpeechToTextSoep()
+                                  }
+                                }}
+                                disabled={errorSoep ? true : false}
+                              >
+                                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </AccordionDetails>
                 </Accordion>
 
@@ -1563,6 +1740,8 @@ function SOEP({ appointment }: { appointment: any }) {
                     borderRadius: '10px',
                     marginTop: '10px',
                   }}
+                  expanded={focusPanel === 'plan'}
+                  onChange={handleChange('plan')}
                 >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon style={{ fill: '#177274' }} />}
@@ -1590,28 +1769,59 @@ function SOEP({ appointment }: { appointment: any }) {
                     </Grid>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <TextField
-                      disabled={isAppointmentDisabled || mainReasonRequired}
-                      fullWidth
-                      multiline
-                      rows='9'
-                      InputProps={{
-                        disableUnderline: true,
-                        classes: { input: classes.input }
-                      }}
-                      style={{
-                        background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
-                        // border: '2px solid #AAAAAA',
-                        // boxSizing: 'border-box',
-                        borderRadius: '4px',
-                      }}
-                      required
-                      value={plan}
-                      onChange={event => {
-                        setPlan(event.target.value)
-                      }}
-                      placeholder={soepPlaceholder['Plan']}
-                    />
+                    <div className='relative w-full'>
+                      <TextField
+                        disabled={isAppointmentDisabled || mainReasonRequired}
+                        fullWidth
+                        multiline
+                        rows='9'
+                        InputProps={{
+                          disableUnderline: true,
+                          classes: { input: classes.input },
+                        }}
+                        style={{
+                          background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
+                          // border: '2px solid #AAAAAA',
+                          // boxSizing: 'border-box',
+                          borderRadius: '4px',
+                        }}
+                        required
+                        value={interimResultSoep && (focusPanel === 'plan') ? plan + interimResultSoep : plan}
+                        onChange={event => {
+                          setPlan(event.target.value)
+                        }}
+                        placeholder={soepPlaceholder['Plan']}
+                      />
+                      {!(isAppointmentDisabled || mainReasonRequired) && (
+                        <div className='flex flex-row flex-no-wrap absolute right-2 bottom-2 items-center gap-1'>
+                          {/* {isRecording && <span className='opacity-50 text-xs'>Escuchando...</span>} */}
+                          {!errorSoep && (
+                            <Tooltip title='Transcribir voz a texto' placement='top'>
+                              <IconButton
+                                className={`focus:outline-none ${isRecordingSoep ? 'animate-pulse delay-75' : null}`}
+                                style={{
+                                  marginLeft: '10px',
+                                  backgroundColor: isRecordingSoep
+                                    ? 'rgba(255, 0, 0, 0.8)'
+                                    : 'rgba(200, 200, 200, 0.6)',
+                                  color: isRecordingSoep ? 'white' : 'black',
+                                }}
+                                onClick={() => {
+                                  if (isRecordingMainReason) stopSpeechToTextMainReason()
+                                  if (!isRecordingMainReason) {
+                                    if (isRecordingSoep) stopSpeechToTextSoep()
+                                    else startSpeechToTextSoep()
+                                  }
+                                }}
+                                disabled={errorSoep ? true : false}
+                              >
+                                <FaMicrophone className='text-lg' style={{ width: '13px', height: '13px' }} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </AccordionDetails>
                 </Accordion>
               </TabPanel>
