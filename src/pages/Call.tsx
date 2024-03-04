@@ -5,7 +5,17 @@ import { useHistory, useRouteMatch } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Stream, { CallState } from '../components/Stream'
 
-import { Card, CardContent, CardHeader, Grid, TextField, Typography, makeStyles, withStyles, IconButton } from '@material-ui/core'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  TextField,
+  Typography,
+  makeStyles,
+  withStyles,
+  IconButton,
+} from '@material-ui/core'
 import Accordion from '@material-ui/core/Accordion'
 import AccordionDetails from '@material-ui/core/AccordionDetails'
 import AccordionSummary from '@material-ui/core/AccordionSummary'
@@ -83,14 +93,14 @@ const Gate = () => {
         })
       } catch (err) {
         const tags = {
-          'endpoint': url,
-          'method': 'POST'
+          endpoint: url,
+          method: 'POST',
         }
         handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_STATUS_POST, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No se pudo actualizar el estado de la cita. !Inténtelo de nuevo más tarde¡'
+          text: 'No se pudo actualizar el estado de la cita. !Inténtelo de nuevo más tarde¡',
         })
       }
     },
@@ -109,14 +119,14 @@ const Gate = () => {
         console.log(err)
         if (mounted) {
           const tags = {
-            'endpoint': url,
-            'method': 'POST'
+            endpoint: url,
+            method: 'POST',
           }
           handleSendSentry(err, ERROR_HEADERS.APPOINTMENT.FAILURE_GET, tags)
           addToast({
             type: 'error',
             title: 'Ha ocurrido un error.',
-            text: 'Falló la carga de la cita. ¡Inténtelo nuevamente más tarde!'
+            text: 'Falló la carga de la cita. ¡Inténtelo nuevamente más tarde!',
           })
           history.replace(`/`)
         }
@@ -243,13 +253,23 @@ const Gate = () => {
   }
   return (
     <Layout>
-      <div style={{
-        height: ` ${width >= WIDTH_XL
-          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
-          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-          }`
-      }}>
-        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
+      <div
+        style={{
+          height: ` ${
+            width >= WIDTH_XL
+              ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+              : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+          }`,
+        }}
+      >
+        <div className='h-6'>
+          {Organizations && appointment && (
+            <OrganizationBar
+              orgColor={getColorCode(Organizations, appointment.organization.id)}
+              orgName={`${appointment.organization.name}`}
+            />
+          )}
+        </div>
 
         <SidebarMenuCall appointment={appointment}>
           {instance === 0 ? (
@@ -269,10 +289,10 @@ const Gate = () => {
                     bottom: '0',
                     right: '34%',
                     marginBottom: '20px',
-                    zIndex: 1
+                    zIndex: 1,
                   }}
                 >
-                  <ToggleMenu 
+                  <ToggleMenu
                     id={id}
                     appointment={appointment}
                     orders={orders}
@@ -327,7 +347,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
 
   const [showSidebarMenu, setShowSidebarMenu] = useState(false)
   const [sideBarAction, setSideBarAction] = useState(1)
-  const {audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled} = useCallStore(state => state)
+  const { audioEnabled, setAudioEnabled, videoEnabled, setVideoEnabled } = useCallStore(state => state)
   const { width } = useWindowDimensions()
   // this help us for identify the selected button
   const [selectedButton, setSelectedButton] = useState(1)
@@ -354,7 +374,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       mediaStream.getAudioTracks()[0].enabled = audioEnabled
       mediaStream.getVideoTracks()[0].enabled = videoEnabled
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaStream])
 
   const hangUp = async () => {
@@ -372,11 +392,12 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
       ref={container}
       className='flex w-full bg-cool-gray-50'
       style={{
-        height: ` ${width >= WIDTH_XL
-          ? `calc(100vh - ${ORGANIZATION_BAR}px)`
-          : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
-          }`,
-        marginLeft: '88px'
+        height: ` ${
+          width >= WIDTH_XL
+            ? `calc(100vh - ${ORGANIZATION_BAR}px)`
+            : `calc(100vh - ${ORGANIZATION_BAR + HEIGHT_NAVBAR}px)`
+        }`,
+        marginLeft: '88px',
       }}
     >
       <div className='relative flex-1'>
@@ -389,69 +410,70 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           socket={socket}
           onCallStateChange={onCallStateChange}
         />
-        
-        {(mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0]) && <div
-          className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
-          style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
-        >
-          <h3 className='text-lg font-medium leading-6 text-cool-gray-900'>
-            {appointment.patient.givenName} {appointment.patient.familyName}
-          </h3>
-          <div className='flex items-center space-x-4'>
-            <p className='mt-1 text-sm font-semibold leading-5 text-cool-gray-700'>
-               <Timer />
-            </p>
-            <button
-              className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-              aria-label='Pantalla completa'
-              onClick={() => {
-                const elem = container.current as any
-                if (!elem) return
 
-                if (document.fullscreenElement) return document.exitFullscreen()
-                else if ((document as any).webkitFullscreenElement)
-                  return (document as any).webkitExitFullscreen() /* Safari */
-                if (elem.requestFullscreen) return elem.requestFullscreen()
-                else if (elem.webkitRequestFullscreen) return elem.webkitRequestFullscreen() /* Safari */
-              }}
-            >
-              <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M7 9C7 9.55 6.55 10 6 10C5.45 10 5 9.55 5 9V6C5 5.45 5.45 5 6 5H9C9.55 5 10 5.45 10 6C10 6.55 9.55 7 9 7H7V9ZM5 15C5 14.45 5.45 14 6 14C6.55 14 7 14.45 7 15V17H9C9.55 17 10 17.45 10 18C10 18.55 9.55 19 9 19H6C5.45 19 5 18.55 5 18V15ZM17 17H15C14.45 17 14 17.45 14 18C14 18.55 14.45 19 15 19H18C18.55 19 19 18.55 19 18V15C19 14.45 18.55 14 18 14C17.45 14 17 14.45 17 15V17ZM15 7C14.45 7 14 6.55 14 6C14 5.45 14.45 5 15 5H18C18.55 5 19 5.45 19 6V9C19 9.55 18.55 10 18 10C17.45 10 17 9.55 17 9V7H15Z'
-                />
-              </svg>
-            </button>
-            {(document as any).pictureInPictureEnabled && (
+        {mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0] && (
+          <div
+            className='absolute top-0 left-0 flex items-center justify-between w-full px-10 py-4 blur-10'
+            style={{ backgroundColor: 'rgb(255 255 255 / 75%)' }}
+          >
+            <h3 className='text-lg font-medium leading-6 text-cool-gray-900'>
+              {appointment.patient.givenName} {appointment.patient.familyName}
+            </h3>
+            <div className='flex items-center space-x-4'>
+              <p className='mt-1 text-sm font-semibold leading-5 text-cool-gray-700'>
+                <Timer />
+              </p>
               <button
                 className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
-                aria-label='Imagen en imagen'
+                aria-label='Pantalla completa'
                 onClick={() => {
-                  if (!stream.current) return
+                  const elem = container.current as any
+                  if (!elem) return
 
-                  if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
-                    try {
-                      if ((document as any).pictureInPictureElement) {
-                        ; (document as any).exitPictureInPicture()
-                      }
-                      ; (stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
-                    } catch (err) {
-                      console.error(err)
-                    }
-                  }
+                  if (document.fullscreenElement) return document.exitFullscreen()
+                  else if ((document as any).webkitFullscreenElement)
+                    return (document as any).webkitExitFullscreen() /* Safari */
+                  if (elem.requestFullscreen) return elem.requestFullscreen()
+                  else if (elem.webkitRequestFullscreen) return elem.webkitRequestFullscreen() /* Safari */
                 }}
               >
                 <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
                   <path
                     fillRule='evenodd'
                     clipRule='evenodd'
-                    d='M23 19V4.98C23 3.88 22.1 3 21 3H3C1.9 3 1 3.88 1 4.98V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19ZM18 11H12C11.45 11 11 11.45 11 12V16C11 16.55 11.45 17 12 17H18C18.55 17 19 16.55 19 16V12C19 11.45 18.55 11 18 11ZM4 19.02H20C20.55 19.02 21 18.57 21 18.02V5.97C21 5.42 20.55 4.97 20 4.97H4C3.45 4.97 3 5.42 3 5.97V18.02C3 18.57 3.45 19.02 4 19.02Z'
+                    d='M7 9C7 9.55 6.55 10 6 10C5.45 10 5 9.55 5 9V6C5 5.45 5.45 5 6 5H9C9.55 5 10 5.45 10 6C10 6.55 9.55 7 9 7H7V9ZM5 15C5 14.45 5.45 14 6 14C6.55 14 7 14.45 7 15V17H9C9.55 17 10 17.45 10 18C10 18.55 9.55 19 9 19H6C5.45 19 5 18.55 5 18V15ZM17 17H15C14.45 17 14 17.45 14 18C14 18.55 14.45 19 15 19H18C18.55 19 19 18.55 19 18V15C19 14.45 18.55 14 18 14C17.45 14 17 14.45 17 15V17ZM15 7C14.45 7 14 6.55 14 6C14 5.45 14.45 5 15 5H18C18.55 5 19 5.45 19 6V9C19 9.55 18.55 10 18 10C17.45 10 17 9.55 17 9V7H15Z'
                   />
                 </svg>
               </button>
-            )}
-            {/* <button
+              {(document as any).pictureInPictureEnabled && (
+                <button
+                  className='p-2 rounded-full inline-box text-cool-gray-700 hover:bg-cool-gray-100 hover:text-cool-gray-500 focus:outline-none focus:shadow-outline focus:text-cool-gray-500'
+                  aria-label='Imagen en imagen'
+                  onClick={() => {
+                    if (!stream.current) return
+
+                    if ((document as any).pictureInPictureEnabled && !(stream.current as any).disablePictureInPicture) {
+                      try {
+                        if ((document as any).pictureInPictureElement) {
+                          ;(document as any).exitPictureInPicture()
+                        }
+                        ;(stream.current as any).requestPictureInPicture()?.catch((err: Error) => console.log(err))
+                      } catch (err) {
+                        console.error(err)
+                      }
+                    }
+                  }}
+                >
+                  <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M23 19V4.98C23 3.88 22.1 3 21 3H3C1.9 3 1 3.88 1 4.98V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19ZM18 11H12C11.45 11 11 11.45 11 12V16C11 16.55 11.45 17 12 17H18C18.55 17 19 16.55 19 16V12C19 11.45 18.55 11 18 11ZM4 19.02H20C20.55 19.02 21 18.57 21 18.02V5.97C21 5.42 20.55 4.97 20 4.97H4C3.45 4.97 3 5.42 3 5.97V18.02C3 18.57 3.45 19.02 4 19.02Z'
+                    />
+                  </svg>
+                </button>
+              )}
+              {/* <button
               className='p-2 text-white rounded-full inline-box bg-primary-500 hover:bg-primary-400 focus:outline-none focus:shadow-outline'
               onClick={() => setShowSidebarMenu(showSidebarMenu => !showSidebarMenu)}
             >
@@ -470,11 +492,15 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                 />
               </svg>
             </button> */}
+            </div>
           </div>
-        </div>}
+        )}
         <div className='absolute bottom-0 left-0 flex items-end justify-between w-full px-10 py-8'>
           <div className='absolute'>
-            <div className='aspect-h-9 aspect-w-16' style={{ maxWidth: '14rem', minWidth: '8rem', width: '12rem', height:'8rem'}}>
+            <div
+              className='aspect-h-9 aspect-w-16'
+              style={{ maxWidth: '14rem', minWidth: '8rem', width: '12rem', height: '8rem' }}
+            >
               <video
                 ref={video}
                 onCanPlay={e => (e.target as HTMLVideoElement).play()}
@@ -488,72 +514,60 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
           <div />
 
           <Grid justifyContent='center' container>
-            {mediaStream?.getAudioTracks()[0] && <button
-              className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
-              onClick={muteAudio}
-            >
-              {audioEnabled ? (
+            {mediaStream?.getAudioTracks()[0] && (
+              <button
+                className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
+                onClick={muteAudio}
+              >
+                {audioEnabled ? (
+                  <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
+                    />
+                  </svg>
+                ) : (
+                  <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
+                    <path
+                      fillRule='evenodd'
+                      clipRule='evenodd'
+                      d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
+                    />
+                  </svg>
+                )}
+              </button>
+            )}
+            {mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0] && (
+              <button
+                onClick={hangUp}
+                className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
+              >
                 <svg
-                  className='w-6 h-6'
-                  viewBox='0 0 24 24'
-                  fill='currentColor'
+                  style={{ transform: 'rotate(134deg)' }}
+                  height='30px'
+                  width='30px'
                   xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
                 >
                   <path
-                    fillRule='evenodd'
-                    clipRule='evenodd'
-                    d='M12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5C8 2.79086 9.79086 1 12 1ZM13 19.9381V21H16V23H8V21H11V19.9381C7.05369 19.446 4 16.0796 4 12V10H6V12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12V10H20V12C20 16.0796 16.9463 19.446 13 19.9381ZM10 5C10 3.89543 10.8954 3 12 3C13.1046 3 14 3.89543 14 5V12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12V5Z'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
                   />
                 </svg>
-              ) : (
-                <svg
-                  className='w-6 h-6'
-                  viewBox='0 0 24 24'
-                  fill='currentColor'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    clipRule='evenodd'
-                    d='M8.00008 9.41421L1.29297 2.70711L2.70718 1.29289L22.7072 21.2929L21.293 22.7071L16.9057 18.3199C15.7992 19.18 14.4608 19.756 13.0001 19.9381V21H16.0001V23H8.00008V21H11.0001V19.9381C7.05376 19.446 4.00008 16.0796 4.00008 12V10H6.00008V12C6.00008 15.3137 8.68637 18 12.0001 18C13.2959 18 14.4958 17.5892 15.4766 16.8907L14.032 15.4462C13.4365 15.7981 12.7419 16 12.0001 16C9.79094 16 8.00008 14.2091 8.00008 12V9.41421ZM12.5181 13.9323C12.3529 13.9764 12.1792 14 12.0001 14C10.8955 14 10.0001 13.1046 10.0001 12V11.4142L12.5181 13.9323ZM14.0001 5V9.78579L16.0001 11.7858V5C16.0001 2.79086 14.2092 1 12.0001 1C10.1614 1 8.61246 2.24059 8.14468 3.93039L10.0001 5.78579V5C10.0001 3.89543 10.8955 3 12.0001 3C13.1046 3 14.0001 3.89543 14.0001 5ZM19.3585 15.1442L17.7908 13.5765C17.9273 13.0741 18.0001 12.5456 18.0001 12V10H20.0001V12C20.0001 13.1162 19.7715 14.1791 19.3585 15.1442Z'
-                  />
-                </svg>
-              )}
-            </button>}
-            {(mediaStream?.getVideoTracks()[0] && mediaStream?.getAudioTracks()[0]) && 
-            <button
-            onClick={hangUp}
-            className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-red-600 rounded-full'
-          >
-            <svg
-              style={{ transform: 'rotate(134deg)' }}
-              height='30px'
-              width='30px'
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
-              />
-            </svg>
-          </button>}
-            {mediaStream?.getVideoTracks()[0] && 
-              (<button
+              </button>
+            )}
+            {mediaStream?.getVideoTracks()[0] && (
+              <button
                 className='flex items-center justify-center w-12 h-12 ml-4 text-white bg-gray-600 rounded-full'
                 onClick={muteVideo}
               >
                 {videoEnabled ? (
-                  <svg
-                    className='w-6 h-6'
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
+                  <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
                     <path
                       fillRule='evenodd'
                       clipRule='evenodd'
@@ -561,12 +575,7 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                     />
                   </svg>
                 ) : (
-                  <svg
-                    className='w-6 h-6'
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
+                  <svg className='w-6 h-6' viewBox='0 0 24 24' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
                     <path
                       fillRule='evenodd'
                       clipRule='evenodd'
@@ -574,9 +583,8 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
                     />
                   </svg>
                 )}
-              </button>)
-            }
-
+              </button>
+            )}
           </Grid>
 
           <Grid
@@ -585,21 +593,20 @@ const Call = ({ id, token, instance, updateStatus, appointment, onCallStateChang
               bottom: '0',
               right: '34%',
               marginBottom: '20px',
-              zIndex: 1
+              zIndex: 1,
             }}
           >
             <Grid style={{ marginBottom: '20px' }}>
-            <ToggleMenu 
-              id={id}
-              appointment={appointment}
-              orders={orders}
-              selectedButton={selectedButton}
-              setSelectedButton={setSelectedButton}
-              setSideBarAction={setSideBarAction}
-            />
+              <ToggleMenu
+                id={id}
+                appointment={appointment}
+                orders={orders}
+                selectedButton={selectedButton}
+                setSelectedButton={setSelectedButton}
+                setSideBarAction={setSideBarAction}
+              />
             </Grid>
           </Grid>
-
         </div>
         {callStatus.connecting && (
           <div
@@ -652,11 +659,16 @@ const useUserMedia = () => {
     const handleGetUserMediaError = (e: Error) => {
       switch (e.name) {
         case 'NotFoundError':
-          addToast({type: 'info', title:'Información de la llamada',  text: '¡Oops! Parece que no posee cámara. \n ¡Intentaremos reconectarlo solo con micrófono!'})
-          if(attemptsCounter.current < 1){
+          addToast({
+            type: 'info',
+            title: 'Información de la llamada',
+            text: '¡Oops! Parece que no posee cámara. \n ¡Intentaremos reconectarlo solo con micrófono!',
+          })
+          if (attemptsCounter.current < 1) {
             retryEnableStreamWithoutAudio()
             attemptsCounter.current += 1
-          }else if(attemptsCounter.current >= 1) addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
+          } else if (attemptsCounter.current >= 1)
+            addErrorToast('No se puede abrir la llamada porque no se encontró ninguna cámara y/o micrófono.')
           break
         case 'SecurityError':
           addErrorToast('Error de seguridad. Detalles: ' + e.message)
@@ -665,10 +677,9 @@ const useUserMedia = () => {
           addErrorToast('No se puede acceder al micrófono y a la cámara. Detalles: ' + e.message)
           break
         case 'NotReadableError':
-          if(e.message.includes('Could not start video source'))
+          if (e.message.includes('Could not start video source'))
             addErrorToast('No se puede iniciar la cámara. Detalles: ' + e.message)
-          else
-            addErrorToast('No se puede iniciar la cámara y/o el microfono. Detalles: ' + e.message)
+          else addErrorToast('No se puede iniciar la cámara y/o el microfono. Detalles: ' + e.message)
           break
         default:
           addErrorToast('Ha ocurrido un error al abrir la cámara y/o el micrófono: ' + e.message)
@@ -678,7 +689,7 @@ const useUserMedia = () => {
       //FIXME: Make sure we shut down our end of the RTCPeerConnection so we're ready to try again.
     }
 
-    async function enableStream({audio, video}: { audio: boolean, video:boolean }) {
+    async function enableStream({ audio, video }: { audio: boolean; video: boolean }) {
       try {
         stream.current = await navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
         if (mounted) setMediaStream(stream.current)
@@ -690,10 +701,10 @@ const useUserMedia = () => {
     }
 
     const retryEnableStreamWithoutAudio = () => {
-      if (!mediaStream) enableStream({audio:true, video:false})
+      if (!mediaStream) enableStream({ audio: true, video: false })
     }
 
-    if (!mediaStream) enableStream({audio:true, video:true})
+    if (!mediaStream) enableStream({ audio: true, video: true })
     return () => {
       mounted = false
       mediaStream?.getTracks().forEach(track => track.stop())
@@ -875,15 +886,18 @@ const Sidebar = ({ hideSidebar, appointment }: SidebarProps) => {
 function PationProfile({ appointment, age, birthDate }: { appointment: any; age: any; birthDate: any }) {
   const { width: screenWidth } = useWindowDimensions()
   return (
-    <Grid style={{
-      height: ` ${screenWidth >= WIDTH_XL ? `100vh` : `calc(100vh - ${HEIGHT_NAVBAR}px)`}`,
-      overflowY: 'auto'
-    }}>
+    <Grid
+      style={{
+        height: ` ${screenWidth >= WIDTH_XL ? `100vh` : `calc(100vh - ${HEIGHT_NAVBAR}px)`}`,
+        overflowY: 'auto',
+      }}
+    >
       <CardHeader
         title='Paciente'
         titleTypographyProps={{ variant: 'h6' }}
         style={{
-          backgroundColor: '#27BEC2', color: 'white',
+          backgroundColor: '#27BEC2',
+          color: 'white',
         }}
       />
 
@@ -972,7 +986,6 @@ TabPanel.propTypes = {
   value: PropTypes.any.isRequired,
 }
 
-
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -1004,17 +1017,19 @@ const useStyles = makeStyles(theme => ({
   },
   input: {
     '&::placeholder': {
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
-    paddingInline: '5px'
-  }
+    paddingInline: '5px',
+  },
 }))
 
 const soepPlaceholder = {
-  'Subjetivo': 'Los datos referidos por el paciente son datos descriptivos, como los Antecedentes Remotos de la Enfermedad Actual (AREA) y los Antecedentes de la Enfermedad Actual (AEA).',
-  'Objetivo': 'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
-  'Evaluacion': 'Impresión diagnóstica o presunción diagnóstica.',
-  'Plan': 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.'
+  Subjetivo:
+    'Los datos referidos por el paciente son datos descriptivos, como los Antecedentes Remotos de la Enfermedad Actual (AREA) y los Antecedentes de la Enfermedad Actual (AEA).',
+  Objetivo:
+    'Son los datos que obtenemos con el examen físico, signos vitales, resultados laboratoriales, lista de medicación.',
+  Evaluacion: 'Impresión diagnóstica o presunción diagnóstica.',
+  Plan: 'Se dan las orientaciones a seguir, como control de signos de alarma, interconsulta con otra especialidad, cita para control o seguimiento del cuadro.',
 }
 
 function SOEP({ appointment }: { appointment: any }) {
@@ -1066,7 +1081,7 @@ function SOEP({ appointment }: { appointment: any }) {
     error: errorSoep,
   } = useSpeechToTextCustom()
 
-  const handleChange = (panel) => (event, newExpanded) => {
+  const handleChange = panel => (event, newExpanded) => {
     if (isRecordingSoep) stopSpeechToTextSoep()
     if (isRecordingMainReason) stopSpeechToTextMainReason()
     setFocusPanel(newExpanded ? panel : '')
@@ -1178,16 +1193,16 @@ function SOEP({ appointment }: { appointment: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainReason, objective, subjective, evaluation, plan])
 
-  useEffect(()=>{
-    if(resultsSoep.length === 0) return
+  useEffect(() => {
+    if (resultsSoep.length === 0) return
 
     let result = resultsSoep[resultsSoep.length - 1] as ResultType
 
-    switch(focusPanel){
+    switch (focusPanel) {
       case 'subjetive':
         setSubjective(prev => {
           return prev + result?.transcript
-        })    
+        })
         break
       case 'objective':
         setObjective(prev => {
@@ -1205,8 +1220,8 @@ function SOEP({ appointment }: { appointment: any }) {
         })
         break
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[resultsSoep])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsSoep])
 
   useEffect(() => {
     if (mainReason === undefined || mainReason?.trim() === '') setMainReasonRequired(true)
@@ -1227,15 +1242,15 @@ function SOEP({ appointment }: { appointment: any }) {
       } catch (err) {
         //setIsLoading(false)
         const tags = {
-          'endpoint': url,
-          'method': 'PUT',
-          'appointment_id': id
+          endpoint: url,
+          method: 'PUT',
+          appointment_id: id,
         }
         handleSendSentry(err, ERROR_HEADERS.ENCOUNTER.FAILURE_PUT, tags)
         addToast({
           type: 'error',
           title: 'Ha ocurrido un error.',
-          text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!'
+          text: 'No fue posible actualizar. ¡Inténtelo nuevamente más tarde!',
         })
       }
     }, 5000),
@@ -1251,9 +1266,9 @@ function SOEP({ appointment }: { appointment: any }) {
       } catch (err) {
         console.log(err)
         const tags = {
-          "endpoint": url,
-          "method": "GET",
-          "encounter-id": encounterId
+          endpoint: url,
+          method: 'GET',
+          'encounter-id': encounterId,
         }
         handleSendSentry(err, ERROR_HEADERS.PRIVATE_COMMETS.FAILURE_GET, tags)
         addErrorToast('Algo salió mal, vuelve a intentarlo')
@@ -1276,7 +1291,6 @@ function SOEP({ appointment }: { appointment: any }) {
     },
   }))(Tooltip)
 
-  
   const showSoepHelper = ({ title }: { title: String }) => {
     var description = ''
     switch (title) {
@@ -1494,7 +1508,9 @@ function SOEP({ appointment }: { appointment: any }) {
                           borderRadius: '4px',
                           background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         }}
-                        value={interimResultSoep && (focusPanel === 'subjective') ? subjective + interimResultSoep : subjective}
+                        value={
+                          interimResultSoep && focusPanel === 'subjective' ? subjective + interimResultSoep : subjective
+                        }
                         onChange={event => {
                           setSubjective(event.target.value)
                         }}
@@ -1585,7 +1601,7 @@ function SOEP({ appointment }: { appointment: any }) {
                           classes: { input: classes.input },
                           style: {
                             marginRight: '35px !important',
-                          }
+                          },
                         }}
                         style={{
                           background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
@@ -1594,7 +1610,9 @@ function SOEP({ appointment }: { appointment: any }) {
                           borderRadius: '4px',
                         }}
                         required
-                        value={interimResultSoep && (focusPanel === 'objective') ? objective + interimResultSoep : objective}
+                        value={
+                          interimResultSoep && focusPanel === 'objective' ? objective + interimResultSoep : objective
+                        }
                         onChange={event => {
                           setObjective(event.target.value)
                         }}
@@ -1690,7 +1708,9 @@ function SOEP({ appointment }: { appointment: any }) {
                           borderRadius: '4px',
                         }}
                         required
-                        value={interimResultSoep && (focusPanel === 'evaluation') ? evaluation + interimResultSoep : evaluation}
+                        value={
+                          interimResultSoep && focusPanel === 'evaluation' ? evaluation + interimResultSoep : evaluation
+                        }
                         onChange={event => {
                           setEvaluation(event.target.value)
                         }}
@@ -1786,7 +1806,7 @@ function SOEP({ appointment }: { appointment: any }) {
                           borderRadius: '4px',
                         }}
                         required
-                        value={interimResultSoep && (focusPanel === 'plan') ? plan + interimResultSoep : plan}
+                        value={interimResultSoep && focusPanel === 'plan' ? plan + interimResultSoep : plan}
                         onChange={event => {
                           setPlan(event.target.value)
                         }}
@@ -2003,7 +2023,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
           </div>
         </div>
       )}
-          </div>
+    </div>
   )
 }
 
