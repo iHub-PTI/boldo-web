@@ -1509,7 +1509,7 @@ function SOEP({ appointment }: { appointment: any }) {
                           background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         }}
                         value={
-                          interimResultSoep && focusPanel === 'subjective' ? subjective + interimResultSoep : subjective
+                          interimResultSoep && focusPanel === 'subjetive' ? subjective + interimResultSoep : subjective
                         }
                         onChange={event => {
                           setSubjective(event.target.value)
