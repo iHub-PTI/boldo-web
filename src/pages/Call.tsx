@@ -1084,7 +1084,7 @@ function SOEP({ appointment }: { appointment: any }) {
   const handleChange = panel => (event, newExpanded) => {
     if (isRecordingSoep) stopSpeechToTextSoep()
     if (isRecordingMainReason) stopSpeechToTextMainReason()
-    setFocusPanel(newExpanded ? panel : '')
+    if (!isRecordingSoep) setFocusPanel(newExpanded ? panel : '')
   }
 
   useEffect(() => {
