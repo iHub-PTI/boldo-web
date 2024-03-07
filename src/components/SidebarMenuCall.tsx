@@ -1,17 +1,17 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import differenceInYears from 'date-fns/differenceInYears';
 import React, { useEffect, useRef, useState } from 'react';
+import { MdErrorOutline } from "react-icons/md";
 import { toUpperLowerCase } from '../util/helpers';
 import { MedicalHistoryCall } from './MedicalHistoryCall';
 import { RecordOutPatientCall } from './RecordOutPatientCall';
+import { OrderHistoryCall } from './history-study-order/OrderHistoryCall';
+import { StudyHistoryCall } from './history-study-order/StudyHistoryCall';
 import ArrowDown from './icons/ArrowDown';
 import HistoryIcon from './icons/HistoryIcon';
 import NoProfilePicture from './icons/NoProfilePicture';
 import StudyHistoryIcon from './icons/StudyHistoryIcon';
 import UserCircle from './icons/patient-register/UserCircle';
-import { StudyHistoryCall } from './history-study-order/StudyHistoryCall';
-import { OrderHistoryCall } from './history-study-order/OrderHistoryCall';
-import { MdErrorOutline } from "react-icons/md";
 
 
 export const stylePanelSidebar = {
