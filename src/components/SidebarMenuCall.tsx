@@ -11,6 +11,7 @@ import StudyHistoryIcon from './icons/StudyHistoryIcon';
 import UserCircle from './icons/patient-register/UserCircle';
 import { StudyHistoryCall } from './history-study-order/StudyHistoryCall';
 import { OrderHistoryCall } from './history-study-order/OrderHistoryCall';
+import { MdErrorOutline } from "react-icons/md";
 
 
 export const stylePanelSidebar = {
@@ -160,7 +161,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
               </div>
             )}
           </Disclosure>
-          <div className={`flex flex-col flex-no-wrap justify-center items-center transform ease-linear duration-500 ${transition ? 'translate-y-12' : ''}`}>
+          <div className={`flex flex-col h-full flex-no-wrap justify-start items-center transform ease-linear duration-500 ${transition ? 'translate-y-12' : ''}`}>
             <div className='flex flex-col items-start'>
               <button
                 className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none disabled:cursor-not-allowed`}
@@ -175,7 +176,9 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
                 className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
                 onClick={() => onClickOutPatientRecord()}
               >
-                <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
+                <div className='w-5'>
+                  <UserCircle className='w-5 h-5' fill={`${recordOutPatientButton ? '#13A5A9' : '#6B7280'}`} />
+                </div>
                 <div
                   className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${recordOutPatientButton && 'text-primary-600 font-semibold'}`}
                   style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Registro Ambulatorio</div>
@@ -195,12 +198,27 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
                 className={`flex flex-row flex-no-wrap justify-center items-center p-2 focus:outline-none`}
                 onClick={() => toggleButtonOrderHistory()}
               >
+                
                 <StudyHistoryIcon
                   fill={`${orderHistoryButton ? '#13A5A9' : '#6B7280'}`}
                 />
+                
                 <div
                   className={`ml-1 w-0 ${hoverSidebar && 'w-11/12 opacity-100'} opacity-0 flex  text-base font-medium text-gray-500 truncate ${orderHistoryButton && 'text-primary-600 font-semibold'}`}
                   style={{ transition: 'width 0.5s linear, opacity 0.5s linear' }}>Historial de Órdenes</div>
+              </button>
+            </div>
+            <div className='flex flex-col h-full justify-end mb-2'>
+              <button
+                    className={`rounded-lg p-2 bg-orange-dark focus:outline-none text-white flex flex-no-wrap gap-2 w-${hoverSidebar ? '48': '10'}`}
+                    style={{ transition: 'width 0.5s linear' }}
+              >
+                <div className='w-6'>
+                  <MdErrorOutline size={24} /> 
+                </div>
+                <div className={`truncate opacity-0 transition-opacity duration-500 ${hoverSidebar && 'opacity-100' }`}>
+                  Reportar Paciente
+                </div>
               </button>
             </div>
           </div>
