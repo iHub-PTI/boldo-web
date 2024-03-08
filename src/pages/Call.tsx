@@ -1201,22 +1201,22 @@ function SOEP({ appointment }: { appointment: any }) {
     switch (focusPanel) {
       case 'subjetive':
         setSubjective(prev => {
-          return prev + result?.transcript
+          return prev + ' '+ result?.transcript
         })
         break
       case 'objective':
         setObjective(prev => {
-          return prev + result?.transcript
+          return prev + ' '+ result?.transcript
         })
         break
       case 'evaluation':
         setEvaluation(prev => {
-          return prev + result?.transcript
+          return prev + ' '+ result?.transcript
         })
         break
       case 'plan':
         setPlan(prev => {
-          return prev + result?.transcript
+          return prev + ' '+ result?.transcript
         })
         break
     }
@@ -1417,7 +1417,7 @@ function SOEP({ appointment }: { appointment: any }) {
                     style={{
                       background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                     }}
-                    value={interimResultMainReason ? mainReason + interimResultMainReason : mainReason}
+                    value={interimResultMainReason ? mainReason + ' '+ interimResultMainReason : mainReason}
                     onChange={event => {
                       setMainReason(event.target.value)
                     }}
@@ -1509,7 +1509,7 @@ function SOEP({ appointment }: { appointment: any }) {
                           background: `${disableMainReason || isAppointmentDisabled ? '#f4f5f7' : '#ffff'}`,
                         }}
                         value={
-                          interimResultSoep && focusPanel === 'subjetive' ? subjective + interimResultSoep : subjective
+                          interimResultSoep && focusPanel === 'subjetive' ? subjective + ' ' + interimResultSoep : subjective
                         }
                         onChange={event => {
                           setSubjective(event.target.value)
@@ -1611,7 +1611,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         }}
                         required
                         value={
-                          interimResultSoep && focusPanel === 'objective' ? objective + interimResultSoep : objective
+                          interimResultSoep && focusPanel === 'objective' ? objective + ' ' + interimResultSoep : objective
                         }
                         onChange={event => {
                           setObjective(event.target.value)
@@ -1709,7 +1709,7 @@ function SOEP({ appointment }: { appointment: any }) {
                         }}
                         required
                         value={
-                          interimResultSoep && focusPanel === 'evaluation' ? evaluation + interimResultSoep : evaluation
+                          interimResultSoep && focusPanel === 'evaluation' ? evaluation + ' ' + interimResultSoep : evaluation
                         }
                         onChange={event => {
                           setEvaluation(event.target.value)
@@ -1806,7 +1806,7 @@ function SOEP({ appointment }: { appointment: any }) {
                           borderRadius: '4px',
                         }}
                         required
-                        value={interimResultSoep && focusPanel === 'plan' ? plan + interimResultSoep : plan}
+                        value={interimResultSoep && focusPanel === 'plan' ? plan + ' ' + interimResultSoep : plan}
                         onChange={event => {
                           setPlan(event.target.value)
                         }}

@@ -620,18 +620,18 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         value={
           soepSelected === Soep.Subjetive
             ? interimResultSoep
-              ? soepText[0] + interimResultSoep
+              ? soepText[0] + ' ' + interimResultSoep
               : soepText[0]
             : soepSelected === Soep.Objective
             ? interimResultSoep
-              ? soepText[1] + interimResultSoep
+              ? soepText[1] + ' ' + interimResultSoep
               : soepText[1]
             : soepSelected === Soep.Evalutation
             ? interimResultSoep
-              ? soepText[2] + interimResultSoep
+              ? soepText[2] + ' ' + interimResultSoep
               : soepText[2]
             : interimResultSoep
-            ? soepText[3] + interimResultSoep
+            ? soepText[3] + ' ' + interimResultSoep
             : soepText[3]
         }
         onChange={onChangeSoepText}
@@ -710,7 +710,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
             inputRef={mainReason_Ref}
             placeholder='Ej: Dolor de cabeza prolongado'
             variant='outlined'
-            value={interimResultMainReason ? mainReason + interimResultMainReason : mainReason}
+            value={interimResultMainReason ? mainReason + ' ' + interimResultMainReason : mainReason}
             onChange={onChangeFilter}
           />
           {!(disableMainReason || isAppointmentDisabled) && (
