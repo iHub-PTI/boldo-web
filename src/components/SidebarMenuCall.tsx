@@ -12,6 +12,8 @@ import HistoryIcon from './icons/HistoryIcon';
 import NoProfilePicture from './icons/NoProfilePicture';
 import StudyHistoryIcon from './icons/StudyHistoryIcon';
 import UserCircle from './icons/patient-register/UserCircle';
+import ModalReportPatient from './report-patient/ModalReportPatient';
+import { useEncounterStore } from '../store/encounterStore';
 
 
 export const stylePanelSidebar = {
@@ -35,6 +37,10 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
   const [transition, setTransition] = useState<boolean>(false)
   const [hoverSidebar, setHoverSidebar] = useState(false)
   const disclosureRef = useRef<HTMLButtonElement>(null)
+  
+  //report patient button
+  const [isOpenReportPatient, setIsOpenReportPatient] = useState(false)
+  const encounterId = useEncounterStore(state => state.encounterId)
 
   // const { status } = appointment
 
@@ -211,18 +217,19 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
             </div>
           </div>
           <button
-          className={`absolute rounded-lg p-2 bg-orange-dark focus:outline-none text-white flex flex-no-wrap gap-2 w-${hoverSidebar ? '48' : '10'}
+            className={`absolute rounded-lg p-2 bg-orange-dark focus:outline-none text-white flex flex-no-wrap gap-2 w-${hoverSidebar ? '48' : '10'}
                     bottom-5 left-6
                   `}
-          style={{ transition: 'width 0.3s linear' }}
-        >
-          <div className='w-6'>
-            <MdErrorOutline size={24} />
-          </div>
-          <div className={`truncate opacity-0 transition-opacity duration-500 ${hoverSidebar && 'opacity-100'}`}>
-            Reportar Paciente
-          </div>
-        </button>
+            style={{ transition: 'width 0.3s linear' }}
+            onClick={() => setIsOpenReportPatient(!isOpenReportPatient)}
+          >
+            <div className='w-6'>
+              <MdErrorOutline size={24} />
+            </div>
+            <div className={`truncate opacity-0 transition-opacity duration-500 ${hoverSidebar && 'opacity-100'}`}>
+              Reportar Paciente
+            </div>
+          </button>
         </div>
         <RecordOutPatientCall
           containerRef={container}
@@ -256,7 +263,12 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
           handleSidebarHoverOff={handleSidebarHoverOff}
         />
       </div>
-      
+      <ModalReportPatient 
+        isOpen={isOpenReportPatient} 
+        setIsOpen={setIsOpenReportPatient}
+        encounterId={encounterId}
+        patient={appointment?.patient}
+      />
       {children}
     </div>
   )
