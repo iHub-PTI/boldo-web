@@ -50,6 +50,7 @@ import { useCallStore } from '../store/callStore'
 import { useSpeechToTextCustom } from '../hooks/useSpeechToTextCustom'
 import { FaMicrophone } from 'react-icons/fa'
 import { ResultType } from 'react-hook-speech-to-text'
+import { useEncounterStore } from '../store/encounterStore'
 
 type Status = Boldo.Appointment['status']
 type AppointmentWithPatient = Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {
@@ -1055,6 +1056,9 @@ function SOEP({ appointment }: { appointment: any }) {
   const [isAppointmentDisabled, setAppointmentDisabled] = useState(true)
   const [mainReasonRequired, setMainReasonRequired] = useState(false)
 
+  //global current encounter ID
+  const setGlobalEncounterId = useEncounterStore(state => state.setEncounterId)
+
   const { addErrorToast, addToast } = useToasts()
   let match = useRouteMatch<{ id: string }>('/appointments/:id/call')
   const id = match?.params.id
@@ -1109,6 +1113,7 @@ function SOEP({ appointment }: { appointment: any }) {
           setInstructions(instructions)
           setSelectedMedication(prescriptions)
           setEncounterId(res.data.encounter.id)
+          setGlobalEncounterId(res.data.encounter.id)
           setPartOfEncounterId(res.data.encounter.partOfEncounterId)
           mainReason !== undefined && setMainReason(mainReason)
           if (res.data.encounter.soep !== undefined) {
@@ -1142,6 +1147,7 @@ function SOEP({ appointment }: { appointment: any }) {
 
     return () => {
       mounted = false
+      setGlobalEncounterId('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
