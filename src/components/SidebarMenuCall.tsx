@@ -299,7 +299,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
             className={`absolute rounded-lg p-2 bg-orange-dark focus:outline-none text-white flex flex-no-wrap gap-2 w-${
               hoverSidebar ? '48' : '10'
             }
-                  bottom-5 left-6 disabled:bg-orange-300 disabled:opacity-25
+                  bottom-5 left-6 disabled:opacity-25
                 `}
             style={{ transition: 'width 0.3s linear' }}
             onClick={() => setIsOpenReportPatient(!isOpenReportPatient)}
