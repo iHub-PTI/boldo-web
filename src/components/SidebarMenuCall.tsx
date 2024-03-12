@@ -216,12 +216,14 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
               </button>
             </div>
           </div>
+         
           <button
             className={`absolute rounded-lg p-2 bg-orange-dark focus:outline-none text-white flex flex-no-wrap gap-2 w-${hoverSidebar ? '48' : '10'}
-                    bottom-5 left-6
-                  `}
+                  bottom-5 left-6 disabled:bg-orange-300 disabled:opacity-25
+                `}
             style={{ transition: 'width 0.3s linear' }}
             onClick={() => setIsOpenReportPatient(!isOpenReportPatient)}
+            disabled={encounterId ? false : true}
           >
             <div className='w-6'>
               <MdErrorOutline size={24} />
@@ -230,6 +232,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
               Reportar Paciente
             </div>
           </button>
+          
         </div>
         <RecordOutPatientCall
           containerRef={container}
@@ -263,12 +266,13 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
           handleSidebarHoverOff={handleSidebarHoverOff}
         />
       </div>
-      <ModalReportPatient 
-        isOpen={isOpenReportPatient} 
-        setIsOpen={setIsOpenReportPatient}
-        encounterId={encounterId}
-        patient={appointment?.patient}
-      />
+      {encounterId &&
+        <ModalReportPatient
+          isOpen={isOpenReportPatient}
+          setIsOpen={setIsOpenReportPatient}
+          encounterId={encounterId}
+          patient={appointment?.patient}
+        />}
       {children}
     </div>
   )
