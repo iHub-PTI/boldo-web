@@ -59,6 +59,17 @@ const ModalReportPatient: React.FC<PropsModalReportPatient> = ({ isOpen, setIsOp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error])
 
+  useEffect(()=>{
+    if(!patient) {
+      addToast({
+        type: 'error',
+        title: 'Ha ocurrido un inconveniente',
+        text: `No se ha podido cargar el paciente`,
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[patient])
+
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
