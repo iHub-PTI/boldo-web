@@ -42,7 +42,7 @@ const ModalReportPatient: React.FC<PropsModalReportPatient> = ({ isOpen, setIsOp
       addToast({
         type: 'success',
         title: 'Notificación de reporte',
-        text: 'Su reporte ha sido enviado con éxito'
+        text: 'Su reporte ha sido enviado con éxito',
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,15 +103,17 @@ const ModalReportPatient: React.FC<PropsModalReportPatient> = ({ isOpen, setIsOp
                     </p>
                     {/* info del paciente */}
                     <div className='flex flex-row gap-3'>
-                      <div className='w-24 h-24 relative'>
-                        <img src={patient?.photoUrl} alt={patient?.givenName} className='rounded-full w-24 h-24' />
-                        <button
-                          className='absolute right-0 bottom-0 focus:outline-none'
-                          onClick={() => setPreviewPhoto(!previewPhoto)}
-                        >
-                          <img src={IconZoom} alt='zoom' />
-                        </button>
-                      </div>
+                      {patient?.photoUrl && (
+                        <div className='w-24 h-24 relative'>
+                          <img src={patient?.photoUrl} alt={patient?.givenName} className='rounded-full w-24 h-24' />
+                          <button
+                            className='absolute right-0 bottom-0 focus:outline-none'
+                            onClick={() => setPreviewPhoto(!previewPhoto)}
+                          >
+                            <img src={IconZoom} alt='zoom' />
+                          </button>
+                        </div>
+                      )}
                       <div className='flex flex-col'>
                         <h4 className='text-dark-cool font-normal text-xl'>{infoTitle}</h4>
                         <span className='font-semibold text-base' style={{ color: '#ABAFB6' }}>
