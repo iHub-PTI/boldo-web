@@ -115,7 +115,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
     <div className='flex flex-no-wrap relative h-full'>
       <div className='p-0 m-0 flex flex-no-wrap h-full' ref={container}>
         <div
-          className={`flex flex-col group relative ${
+          className={`flex flex-col group absolute inset-0 ${
             hoverSidebar && 'cursor-pointer w-60'
           } w-24 z-50 bg-gray-100 transition-all duration-500`}
           onMouseOver={() => handleSidebarHoverOn()}
