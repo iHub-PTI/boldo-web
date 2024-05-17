@@ -48,7 +48,7 @@ function PatientAccountDeletion() {
 
   return (
     <div className='bg-gradient-to-r from-blue-50 via-transparent'>
-      <AppBar position='sticky' style={{ backgroundColor: 'transparent' }}>
+      <AppBar position='sticky' style={{ backgroundColor: 'white' }}>
         <div className='flex flex-1 flex-row justify-between px-8 py-4 text-custom-link'>
           <div>
             <LogoHorizontal />
@@ -85,8 +85,11 @@ function PatientAccountDeletion() {
           <Tabs
             centered
             value={value}
+            variant='fullWidth'
             onChange={handleChange}
-            TabIndicatorProps={{ className: 'hover:border-blue-500' }}
+            TabIndicatorProps={{
+              style: { backgroundColor: '#1890FF' },
+            }}
           >
             <Tab label='Aplicación Móvil' />
             <Tab label='Solicitud vía correo' />
@@ -183,7 +186,7 @@ function PatientAccountDeletion() {
               Durante el proceso de eliminación de la cuenta, los siguientes datos serán completamente eliminados de
               nuestros sistemas:
             </p>
-            <ul>
+            <ul className="list-disc list-inside pl-4">
               <li>Información personal (nombre, dirección, fecha de nacimiento, etc.)</li>
               <li>Historial de actividad y uso de la aplicación</li>
               <li>Datos de inicio de sesión y credenciales</li>
@@ -195,7 +198,7 @@ function PatientAccountDeletion() {
               Sin embargo, es importante destacar que algunos datos relacionados con tu historial médico y de atención
               sanitaria se mantendrán por razones legales y de seguridad. Estos datos incluyen:
             </p>
-            <ul>
+            <ul className="list-disc list-inside pl-4">
               <li>Registros médicos, como consultas anteriores, resultados de exámenes y prescripciones médicas.</li>
               <li>Historial de vacunación.</li>
               <li>Información relevante relacionada con tu salud.</li>
