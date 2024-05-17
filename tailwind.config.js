@@ -11,12 +11,13 @@ module.exports = {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        'orange-dark':'#DB7D68',
+        'orange-dark': '#DB7D68',
         'pressed-gray': '#E0DEDE',
         'dark-cool': '#364152',
         'neutral-gray': '#F6F4F4',
         'ghost-white': '#F8FFFF',
         'green-darker': '#24AAAD',
+        'custom-link': '#364F6B',
         primary: {
           100: '#D4F2F3',
           200: '#A9E5E7',
@@ -50,9 +51,9 @@ module.exports = {
           800: '#66625D',
           900: '#33312F',
         },
-        bluish:{
-          500: '#EDF2F7'
-        }
+        bluish: {
+          500: '#EDF2F7',
+        },
       },
       screens: {
         'md-max': { max: '1024px' },
@@ -68,7 +69,7 @@ module.exports = {
     cursor: ['disabled', 'hover'],
     backgroundColor: ['checked', 'disabled', 'hover', 'group-hover'],
     width: ['hover', 'responsive', 'focus'],
-    borderColor: ['disabled']
+    borderColor: ['disabled'],
   },
   plugins: [require('@tailwindcss/aspect-ratio'), require('@tailwindcss/ui')({ layout: 'sidebar' })],
 }
