@@ -1,6 +1,6 @@
 import { AppBar } from '@material-ui/core'
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ReactComponent as LogoHorizontal } from '../../assets/logo-horizontal.svg'
 import { Link as MaterialLink } from '@material-ui/core'
 
@@ -10,7 +10,14 @@ interface CustomLinkProps {
 }
 
 const CustomLink = ({ children, to }: CustomLinkProps) => {
-  return <Link to={to}>{children} </Link>
+  const location = useLocation()
+  console.log({ location })
+  const hovered = location.pathname === to
+  return (
+    <Link to={to} className={hovered ? 'bg-neutral-gray p-2 rounded-md' : ''}>
+      {children}{' '}
+    </Link>
+  )
 }
 
 function Layout({ children }) {
