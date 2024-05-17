@@ -39,15 +39,23 @@ function PatientAccountDeletion() {
   return (
     <Layout>
       <div className='px-10'>
-        <div className='flex flex-col justify-around h-screen w-full'>
-          <div className='flex'>
+        <div className='flex flex-col justify-around lg:h-screen w-full gap-4'>
+          <div className='flex flex-col md:flex-row'>
             <div className='flex-1 justify-center content-center'>
               <span className='block text-2xl text-custom-link'>Instrucciones detalladas</span>
               <span className='block text-6xl font-bold text-custom-link'>Proceso de Eliminación de Cuenta</span>
             </div>
 
-            <div className='flex-1 flex justify-end'>
-              <img src={testingApp} alt='Testing Boldo' />
+            <div className='flex-1 relative flex justify-center items-center'>
+              {/* Rectángulos de fondo */}
+              <div className='absolute inset-0'>
+                <div className='absolute bottom-0  left-0 w-1/3 h-1/2 bg-card-gray'></div>
+                <div className='absolute right-0 top-0 w-1/3 h-1/2 bg-card-gray'></div>
+              </div>
+              {/* Imagen centrada */}
+              <div className='relative p-15'>
+                <img src={testingApp} alt='Testing Boldo' className='z-10 max-w-lg max-h-full' />
+              </div>
             </div>
           </div>
           <div className='p-8 bg-card-gray'>
@@ -59,7 +67,7 @@ function PatientAccountDeletion() {
           </div>
         </div>
 
-        <div className='h-72 mb-10'>
+        <div className='mb-10'>
           <Tabs
             centered
             value={value}
