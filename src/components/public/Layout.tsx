@@ -2,6 +2,7 @@ import { AppBar } from '@material-ui/core'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { ReactComponent as LogoHorizontal } from '../../assets/logo-horizontal.svg'
+import { Link as MaterialLink } from '@material-ui/core'
 
 interface CustomLinkProps {
   children?: React.ReactNode
@@ -20,10 +21,12 @@ function Layout({ children }) {
           <div>
             <LogoHorizontal />
           </div>
-          <div className='flex flex-row gap-4 '>
-            <CustomLink to='#'>Términos y Condiciones</CustomLink>
-            <CustomLink to='#'>Políticas de privacidad</CustomLink>
-            <CustomLink to='#'>Soporte</CustomLink>
+          <div className='flex flex-row gap-4 items-center'>
+            <CustomLink to='/boldo-app-terms-of-service'>Términos y Condiciones</CustomLink>
+            <CustomLink to='/boldo-app-privacy-policy'>Políticas de privacidad</CustomLink>
+            <CustomLink to='/boldo-app-account-deletion'>Eliminar cuenta</CustomLink>
+
+            <a href='mailto:info@bol.do'>Soporte</a>
           </div>
         </div>
       </AppBar>
@@ -32,7 +35,10 @@ function Layout({ children }) {
       <footer className='bg-neutral-gray flex flex-col items-center justify-center py-7'>
         <LogoHorizontal /> <span className='pt-4 text-sm font-semibold'>Correo electrónico: info@bol.do</span>
         <div className='my-4 border-b border-gray-300 w-3/4'></div>
-        <span className='text-xs'>Todos los derechos reservados 2024</span>
+        <MaterialLink href='https://www.pti.org.py/' target='_blank'>
+          Fundación Parque Tecnológico Itaipu
+        </MaterialLink>
+        <span className='text-xs'>Todos los derechos reservados {new Date().getFullYear()}</span>
       </footer>
     </div>
   )
