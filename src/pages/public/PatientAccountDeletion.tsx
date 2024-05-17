@@ -1,8 +1,7 @@
-import { AppBar, Box, Tab, Tabs, Typography } from '@material-ui/core'
+import { Box, Tab, Tabs, Typography } from '@material-ui/core'
 import React from 'react'
-import { Link } from 'react-router-dom'
 import testingApp from '../../assets/testing-mobile-app.png'
-import { ReactComponent as LogoHorizontal } from '../../assets/logo-horizontal.svg'
+import Layout from '../../components/public/Layout'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -30,15 +29,6 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-interface CustomLinkProps {
-  children?: React.ReactNode
-  to: string
-}
-
-const CustomLink = ({ children, to }: CustomLinkProps) => {
-  return <Link to={to}>{children} </Link>
-}
-
 function PatientAccountDeletion() {
   const [value, setValue] = React.useState(0)
 
@@ -47,19 +37,7 @@ function PatientAccountDeletion() {
   }
 
   return (
-    <div className='bg-gradient-to-r from-blue-50 via-transparent'>
-      <AppBar position='sticky' style={{ backgroundColor: 'white' }}>
-        <div className='flex flex-1 flex-row justify-between px-8 py-4 text-custom-link'>
-          <div>
-            <LogoHorizontal />
-          </div>
-          <div className='flex flex-row gap-4 '>
-            <CustomLink to='#'>Términos y Condiciones</CustomLink>
-            <CustomLink to='#'>Políticas de privacidad</CustomLink>
-            <CustomLink to='#'>Soporte</CustomLink>
-          </div>
-        </div>
-      </AppBar>
+    <Layout>
       <div className='px-10'>
         <div className='flex flex-col justify-around h-screen w-full'>
           <div className='flex'>
@@ -186,7 +164,7 @@ function PatientAccountDeletion() {
               Durante el proceso de eliminación de la cuenta, los siguientes datos serán completamente eliminados de
               nuestros sistemas:
             </p>
-            <ul className="list-disc list-inside pl-4">
+            <ul className='list-disc list-inside pl-4'>
               <li>Información personal (nombre, dirección, fecha de nacimiento, etc.)</li>
               <li>Historial de actividad y uso de la aplicación</li>
               <li>Datos de inicio de sesión y credenciales</li>
@@ -198,7 +176,7 @@ function PatientAccountDeletion() {
               Sin embargo, es importante destacar que algunos datos relacionados con tu historial médico y de atención
               sanitaria se mantendrán por razones legales y de seguridad. Estos datos incluyen:
             </p>
-            <ul className="list-disc list-inside pl-4">
+            <ul className='list-disc list-inside pl-4'>
               <li>Registros médicos, como consultas anteriores, resultados de exámenes y prescripciones médicas.</li>
               <li>Historial de vacunación.</li>
               <li>Información relevante relacionada con tu salud.</li>
@@ -220,12 +198,7 @@ function PatientAccountDeletion() {
           </section>
         </div>
       </div>
-      <footer className='bg-neutral-gray flex flex-col items-center justify-center py-7'>
-        <LogoHorizontal /> <span className='pt-4 text-sm font-semibold'>Correo electrónico: info@bol.do</span>
-        <div className='my-4 border-b border-gray-300 w-3/4'></div>
-        <span className='text-xs'>Todos los derechos reservados 2024</span>
-      </footer>
-    </div>
+    </Layout>
   )
 }
 
