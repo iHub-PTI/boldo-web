@@ -18,6 +18,7 @@ module.exports = {
         'ghost-white': '#F8FFFF',
         'green-darker': '#24AAAD',
         'custom-link': '#364F6B',
+        'card-gray':'#EDF2F7',
         primary: {
           100: '#D4F2F3',
           200: '#A9E5E7',

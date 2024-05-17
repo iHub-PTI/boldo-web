@@ -2,6 +2,8 @@ import { AppBar, Box, Tab, Tabs, Typography } from '@material-ui/core'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import testingApp from '../../assets/testing-mobile-app.png'
+import { ReactComponent as LogoHorizontal } from '../../assets/logo-horizontal.svg'
+
 interface TabPanelProps {
   children?: React.ReactNode
   index: any
@@ -45,11 +47,11 @@ function PatientAccountDeletion() {
   }
 
   return (
-    <div>
+    <div className='bg-gradient-to-r from-blue-50 via-transparent'>
       <AppBar position='sticky' style={{ backgroundColor: 'transparent' }}>
         <div className='flex flex-1 flex-row justify-between px-8 py-4 text-custom-link'>
           <div>
-            <Typography>Logo</Typography>
+            <LogoHorizontal />
           </div>
           <div className='flex flex-row gap-4 '>
             <CustomLink to='#'>Términos y Condiciones</CustomLink>
@@ -70,7 +72,7 @@ function PatientAccountDeletion() {
               <img src={testingApp} alt='Testing Boldo' />
             </div>
           </div>
-          <div className='p-8 bg-blue-50'>
+          <div className='p-8 bg-card-gray'>
             <span>
               En Boldo, entendemos que la privacidad y seguridad de tus datos son fundamentales. Si has decidido
               eliminar tu cuenta, queremos asegurarnos de que el proceso sea claro y transparente. Aquí te explicamos
@@ -78,17 +80,148 @@ function PatientAccountDeletion() {
             </span>
           </div>
         </div>
-        <Tabs value={value} onChange={handleChange} aria-label='simple tabs example'>
-          <Tab label='Aplicación Móvil' />
-          <Tab label='Solicitud vía correo' />
-        </Tabs>
-        <TabPanel value={value} index={0}>
-          Aplicación Móvil
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          Solicitud vía correo
-        </TabPanel>
+
+        <div className='h-72 mb-10'>
+          <Tabs
+            centered
+            value={value}
+            onChange={handleChange}
+            TabIndicatorProps={{ className: 'hover:border-blue-500' }}
+          >
+            <Tab label='Aplicación Móvil' />
+            <Tab label='Solicitud vía correo' />
+          </Tabs>
+          <TabPanel value={value} index={0}>
+            <div className='grid grid-cols-3 gap-4'>
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    1
+                  </div>
+                  <span>Solicitud de eliminación</span>
+                </div>
+                <p>
+                  Para iniciar el proceso de eliminación de tu cuenta en Boldo, simplemente accede a la configuración de
+                  tu cuenta en la aplicación. Dentro de las opciones de configuración, encontrarás la opción para
+                  eliminar tu cuenta. Al seleccionar esta opción, se te guiará a través del proceso para confirmar tu
+                  decisión.
+                </p>
+              </div>
+
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    2
+                  </div>
+                  <span>Periodo de eliminación</span>
+                </div>
+                <p>
+                  Después de solicitar la eliminación de tu cuenta, ten en cuenta que tus datos no se eliminarán de
+                  inmediato. El proceso de eliminación de la cuenta tomará 30 días para completarse.
+                </p>
+              </div>
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    3
+                  </div>
+                  <span>Notificación por correo</span>
+                </div>
+                <p>
+                  Transcurrido el período, recibirás una notificación por correo electrónico confirmando que tu cuenta y
+                  los datos asociados han sido eliminados de nuestros sistemas de manera permanente.
+                </p>
+              </div>
+            </div>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <div className='grid grid-cols-3 gap-4'>
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    1
+                  </div>
+                  <span>Solicitud de eliminación</span>
+                </div>
+                <p>
+                  Envia un correo a <b>info@bol.do</b> con los siguientes datos: Número de cedula, nombre completo,
+                  fecha de nacimiento, número de teléfono y correo Motivo: Solicitud de eliminación de cuenta
+                </p>
+              </div>
+
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    2
+                  </div>
+                  <span>Periodo de eliminación</span>
+                </div>
+                <p>
+                  Después de solicitar la eliminación de tu cuenta, ten en cuenta que tus datos no se eliminarán de
+                  inmediato. El proceso de eliminación de la cuenta tomará 30 días para completarse.
+                </p>
+              </div>
+              <div className='block'>
+                <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
+                  <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
+                    3
+                  </div>
+                  <span>Notificación por correo</span>
+                </div>
+                <p>
+                  Transcurrido el período, recibirás una notificación por correo electrónico confirmando que tu cuenta y
+                  los datos asociados han sido eliminados de nuestros sistemas de manera permanente.
+                </p>
+              </div>
+            </div>
+          </TabPanel>
+        </div>
+        <div className='flex flex-col gap-10 pb-10'>
+          <section>
+            <span className='font-bold text-xl text-custom-link'>Datos eliminados</span>
+            <p>
+              Durante el proceso de eliminación de la cuenta, los siguientes datos serán completamente eliminados de
+              nuestros sistemas:
+            </p>
+            <ul>
+              <li>Información personal (nombre, dirección, fecha de nacimiento, etc.)</li>
+              <li>Historial de actividad y uso de la aplicación</li>
+              <li>Datos de inicio de sesión y credenciales</li>
+            </ul>
+          </section>
+          <section>
+            <span className='font-bold text-xl text-custom-link'>Datos mantenidos</span>
+            <p>
+              Sin embargo, es importante destacar que algunos datos relacionados con tu historial médico y de atención
+              sanitaria se mantendrán por razones legales y de seguridad. Estos datos incluyen:
+            </p>
+            <ul>
+              <li>Registros médicos, como consultas anteriores, resultados de exámenes y prescripciones médicas.</li>
+              <li>Historial de vacunación.</li>
+              <li>Información relevante relacionada con tu salud.</li>
+            </ul>
+            <p>
+              Estos datos se mantendrán de acuerdo con nuestras políticas de privacidad y regulaciones aplicables para
+              garantizar la confidencialidad y seguridad de la información médica de nuestros usuarios.
+            </p>
+          </section>
+          <section>
+            <p>
+              Si tienes alguna pregunta o inquietud sobre el proceso de eliminación de la cuenta o la protección de
+              datos, no dudes en ponerte en contacto con nuestro equipo de soporte, estaremos encantados de ayudarte.
+            </p>
+            <p>
+              Gracias por confiar en Boldo para tu atención médica y esperamos haber facilitado el proceso de
+              eliminación de tu cuenta.
+            </p>
+          </section>
+        </div>
       </div>
+      <footer className='bg-neutral-gray flex flex-col items-center justify-center py-7'>
+        <LogoHorizontal /> <span className='pt-4 text-sm font-semibold'>Correo electrónico: info@bol.do</span>
+        <div className='my-4 border-b border-gray-300 w-3/4'></div>
+        <span className='text-xs'>Todos los derechos reservados 2024</span>
+      </footer>
     </div>
   )
 }
