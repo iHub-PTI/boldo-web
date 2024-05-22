@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
               Usted acepta esta Política de Privacidad al registrarse, acceder o utilizar los servicios, contenido,
               funcionalidades, tecnología o funciones disponibles de Boldo.
             </p>
-            <span className='block text-xl text-custom-link'>{'RECOPILACIÓN DE INFORMACIÓN PERSONAL'}</span>
+            <span className='block text-xl text-custom-link'>{'Recopilación de información personal'}</span>
             <p>
               Recopilamos la siguiente información personal con el fin de proporcionarle el uso de los servicios de
               Boldo y poder personalizar y mejorar su experiencia.
@@ -91,7 +91,7 @@ export default function PrivacyPolicy() {
               Finalmente, podemos según sea necesario para fines de cumplimiento de nuestras políticas, de las leyes
               vigentes o de cualquier acuerdo que pudiéramos tener con usted.
             </p>
-            <span className='block text-xl text-custom-link'>{'DIVULGACIÓN DE CONTENIDO'}</span>
+            <span className='block text-xl text-custom-link'>{'Divulgación de contenido'}</span>
             <p>
               Salvo la cláusula que sigue, sin su consentimiento explícito, no vendemos ni alquilamos ni divulgamos su
               información particular a terceros.
