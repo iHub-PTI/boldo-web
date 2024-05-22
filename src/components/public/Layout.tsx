@@ -37,7 +37,7 @@ function Layout({ children }) {
           </div>
         </div>
       </AppBar>
-      <div>{children}</div>
+      <div className='py-20'>{children}</div>
 
       <footer className='bg-neutral-gray flex flex-col items-center justify-center py-7'>
         <LogoHorizontal /> <span className='pt-4 text-sm font-semibold'>Correo electrónico: info@bol.do</span>
