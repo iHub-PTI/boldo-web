@@ -1,6 +1,5 @@
-import { Box, Tab, Tabs, Typography } from '@material-ui/core'
+import { Box, Container, Tab, Tabs, Typography } from '@material-ui/core'
 import React from 'react'
-import testingApp from '../../assets/testing-mobile-app.png'
 import Layout from '../../components/public/Layout'
 
 interface TabPanelProps {
@@ -38,36 +37,17 @@ function PatientAccountDeletion() {
 
   return (
     <Layout>
-      <div className='px-10'>
-        <div className='flex flex-col justify-around lg:h-screen w-full gap-4'>
-          <div className='flex flex-col md:flex-row'>
-            <div className='flex-1 justify-center content-center'>
-              <span className='block text-2xl text-custom-link'>Instrucciones detalladas</span>
-              <span className='block text-6xl font-bold text-custom-link'>Proceso de Eliminación de Cuenta</span>
-            </div>
-
-            <div className='flex-1 relative flex justify-center items-center'>
-              {/* Rectángulos de fondo */}
-              <div className='absolute inset-0'>
-                <div className='absolute bottom-0  left-0 w-1/3 h-1/2 bg-card-gray'></div>
-                <div className='absolute right-0 top-0 w-1/3 h-1/2 bg-card-gray'></div>
-              </div>
-              {/* Imagen centrada */}
-              <div className='relative p-15'>
-                <img src={testingApp} alt='Testing Boldo' className='z-10 max-w-lg max-h-full' />
-              </div>
-            </div>
-          </div>
-          <div className='p-8 bg-card-gray'>
-            <span>
-              En Boldo, entendemos que la privacidad y seguridad de tus datos son fundamentales. Si has decidido
-              eliminar tu cuenta, queremos asegurarnos de que el proceso sea claro y transparente. Aquí te explicamos
-              cómo funciona:
-            </span>
-          </div>
+      <Container component='main' maxWidth='md'>
+        <div className='flex flex-col justify-around w-full gap-4'>
+          <span className='block text-5xl font-bold text-custom-link'>Proceso de Eliminación de Cuenta</span>
+          <p>
+            En Boldo, entendemos que la privacidad y seguridad de tus datos son fundamentales. Si has decidido eliminar
+            tu cuenta, queremos asegurarnos de que el proceso sea claro y transparente. Aquí te explicamos cómo
+            funciona:
+          </p>
         </div>
 
-        <div className='mb-10'>
+        <div className='my-10'>
           <Tabs
             centered
             value={value}
@@ -81,7 +61,7 @@ function PatientAccountDeletion() {
             <Tab label='Solicitud vía correo' />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-3 gap-10'>
               <div className='block'>
                 <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
                   <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
@@ -124,7 +104,7 @@ function PatientAccountDeletion() {
             </div>
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-3 gap-10'>
               <div className='block'>
                 <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
                   <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
@@ -205,7 +185,7 @@ function PatientAccountDeletion() {
             </p>
           </section>
         </div>
-      </div>
+      </Container>
     </Layout>
   )
 }
