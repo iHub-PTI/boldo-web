@@ -6,7 +6,7 @@ export default function TermsOfService() {
   return (
     <Layout>
       <Container component='main' maxWidth='md'>
-        <div className='flex flex-col gap-10'>
+        <div className='flex flex-col gap-10 text-justify'>
           <div className='space-y-4'>
             <span className='block text-5xl font-bold text-custom-link'>Términos de Servicio</span>
             <p>

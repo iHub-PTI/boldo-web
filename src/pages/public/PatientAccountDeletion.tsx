@@ -1,6 +1,5 @@
 import { Box, Container, Tab, Tabs, Typography } from '@material-ui/core'
 import React from 'react'
-import testingApp from '../../assets/testing-mobile-app.png'
 import Layout from '../../components/public/Layout'
 
 interface TabPanelProps {
@@ -62,7 +61,7 @@ function PatientAccountDeletion() {
             <Tab label='Solicitud vía correo' />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-3 gap-10'>
               <div className='block'>
                 <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
                   <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
