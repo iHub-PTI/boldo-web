@@ -104,7 +104,7 @@ function PatientAccountDeletion() {
             </div>
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-3 gap-10'>
               <div className='block'>
                 <div className='pb-4 text-lg font-bold text-custom-link flex flex-row gap-4 items-center w-full'>
                   <div className='rounded-full border-solid border-2 border-custom-link h-10 w-10 flex items-center justify-center'>
