@@ -1,23 +1,15 @@
+import { CaptureConsole as CaptureConsoleIntegration, Debug as DebugIntegration, ExtraErrorData as ExtraErrorDataIntegration, ReportingObserver as ReportingObserverIntegration, RewriteFrames as RewriteFramesIntegration } from '@sentry/integrations'
+import * as Sentry from '@sentry/react'
+import { Integrations } from '@sentry/tracing'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
-import * as Sentry from '@sentry/react'
-import { Integrations } from '@sentry/tracing'
-import { RewriteFrames as RewriteFramesIntegration } from '@sentry/integrations'
-import { Debug as DebugIntegration } from '@sentry/integrations'
-import { ExtraErrorData as ExtraErrorDataIntegration } from '@sentry/integrations'
-import { CaptureConsole as CaptureConsoleIntegration } from '@sentry/integrations'
-import { ReportingObserver as ReportingObserverIntegration } from '@sentry/integrations'
 
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
-import soepReducer from './redux/reducers/soepReducer.js'
-
-import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
-import OrganizationProvider from '../src/contexts/Organizations/organizationSelectedContext'
 import { ReactKeycloakProvider } from '@react-keycloak/web'
-import keycloak from './keycloak'
+import OrganizationProvider from '../src/contexts/Organizations/organizationSelectedContext'
 import Private from './components/Private'
+import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
+import keycloak from './keycloak'
 
 if (process.env.NODE_ENV === 'production')
   Sentry.init({
@@ -36,8 +28,6 @@ if (process.env.NODE_ENV === 'production')
     tracesSampleRate: 1.0,
   })
 
-const configureStore = createStore(soepReducer)
-
 ReactDOM.render(
   <ReactKeycloakProvider
     authClient={keycloak}
@@ -47,15 +37,13 @@ ReactDOM.render(
       pkceMethod: 'S256',
     }}
   >
-    <Provider store={configureStore}>
-      <BrowserRouter>
-        <AllOrganizationProvider>
-          <OrganizationProvider>
-            <Private />
-          </OrganizationProvider>
-        </AllOrganizationProvider>
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <AllOrganizationProvider>
+        <OrganizationProvider>
+          <Private />
+        </OrganizationProvider>
+      </AllOrganizationProvider>
+    </BrowserRouter>
   </ReactKeycloakProvider>,
   document.getElementById('root')
 )
