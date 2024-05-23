@@ -45,6 +45,7 @@ ReactDOM.render(
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
       pkceMethod: 'S256',
+      //NOTE: no funciona con el checkLoginIframe porque renderiza y se pierde la autenticación
       checkLoginIframe: false,
     }}
   >

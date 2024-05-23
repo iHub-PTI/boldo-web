@@ -63,6 +63,9 @@ const App = () => {
     if (keycloak.token) {
       config.headers.Authorization = `Bearer ${keycloak.token}`
       config.headers['Access-Control-Allow-Origin'] = '*'
+    }else if(!keycloak.authenticated){
+      //NOTE: de esta manera se puede volver a pedir iniciar sesión.
+      keycloak.login()
     }
     return config
   })
@@ -105,6 +108,9 @@ const App = () => {
 
   // load the organization
   useEffect(() => {
+
+    if (ALLOWED_ROUTES.includes(window.location.pathname)) return
+
     const url = '/profile/doctor/organizations'
     axios
       .get(url)
