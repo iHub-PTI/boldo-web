@@ -69,32 +69,9 @@ const App = () => {
 
   useEffect(() => {
     if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
-      axios.interceptors.response.use(
-        response => response,
-        async error => {
-          if (error.response) {
-            if (error.response.status === 401 && error.response.data?.message) {
-              window.location.href = error.response.data.message
-              delete error.response.data.message
-            }
-            // The response was made and the server responded with a
-            // status code that is outside the 2xx range.
-            Sentry.setTags({
-              data: error.response.data,
-              headers: error.response.headers,
-              status_code: error.response.status,
-            })
-          } else if (error.request) {
-            // The request was made but no response was received
-            Sentry.setTag('request', error.request)
-          } else {
-            // Something happened while preparing the request that threw an Error
-            Sentry.setTag('message', error.message)
-          }
-          if (error?.response?.status !== 401) Sentry.captureException(error)
-          return Promise.reject(error)
-        }
-      )
+      if (!keycloak.authenticated) {
+        keycloak.login()
+      }
     } else {
       setError(false)
     }
@@ -224,14 +201,6 @@ const App = () => {
                 <Route>
                   <Redirect to='/' />
                 </Route>
-
-                {/* <Route exact path='/settingsnew'>
-                <SettingsNew />
-              </Route>
-
-              <Route exact path='/home'>
-                <Home />
-              </Route> */}
               </Switch>
             </div>
           </RoomsProvider>
