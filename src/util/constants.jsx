@@ -20,3 +20,10 @@ export const SOURCE_TYPE_STUDY = {
   practitioner: 'Practitioner',
   organization: 'Organization'
 }
+
+export const ALLOWED_ROUTES = [
+  '/boldo-app-privacy-policy',
+  '/boldo-app-terms-of-service',
+  '/download',
+  '/boldo-app-account-deletion',
+]

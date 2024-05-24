@@ -1,4 +1,10 @@
-import { CaptureConsole as CaptureConsoleIntegration, Debug as DebugIntegration, ExtraErrorData as ExtraErrorDataIntegration, ReportingObserver as ReportingObserverIntegration, RewriteFrames as RewriteFramesIntegration } from '@sentry/integrations'
+import {
+  CaptureConsole as CaptureConsoleIntegration,
+  Debug as DebugIntegration,
+  ExtraErrorData as ExtraErrorDataIntegration,
+  ReportingObserver as ReportingObserverIntegration,
+  RewriteFrames as RewriteFramesIntegration,
+} from '@sentry/integrations'
 import * as Sentry from '@sentry/react'
 import { Integrations } from '@sentry/tracing'
 import React from 'react'
@@ -10,8 +16,11 @@ import OrganizationProvider from '../src/contexts/Organizations/organizationSele
 import Private from './components/Private'
 import AllOrganizationProvider from './contexts/Organizations/organizationsContext'
 import keycloak from './keycloak'
+import { ALLOWED_ROUTES } from './util/constants'
 
-if (process.env.NODE_ENV === 'production')
+const isStaticRoute = ALLOWED_ROUTES.includes(window.location.pathname)
+
+if (process.env.NODE_ENV === 'production' && !isStaticRoute)
   Sentry.init({
     dsn: process.env.REACT_APP_SENTRY,
     autoSessionTracking: true,

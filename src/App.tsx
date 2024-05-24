@@ -28,6 +28,7 @@ import { ERROR_HEADERS } from './util/Sentry/errorHeaders'
 import TermsOfService from './components/TermsOfService'
 import { useKeycloak } from '@react-keycloak/web'
 import PatientAccountDeletion from './pages/public/PatientAccountDeletion'
+import { ALLOWED_ROUTES } from './util/constants'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
@@ -42,13 +43,6 @@ export const UserContext = createContext<{
   user: undefined,
   updateUser: async () => {},
 })
-
-const ALLOWED_ROUTES = [
-  '/boldo-app-privacy-policy',
-  '/boldo-app-terms-of-service',
-  '/download',
-  '/boldo-app-account-deletion',
-]
 
 const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
