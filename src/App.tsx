@@ -44,6 +44,8 @@ export const UserContext = createContext<{
   updateUser: async () => {},
 })
 
+const isStaticRoute = ALLOWED_ROUTES.includes(window.location.pathname)
+
 const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
@@ -52,8 +54,6 @@ const App = () => {
   const { setOrganization } = useContext(OrganizationContext)
   const { setOrganizations } = useContext(AllOrganizationContext)
   const { keycloak } = useKeycloak()
-
-  const isStaticRoute = ALLOWED_ROUTES.includes(window.location.pathname)
 
   axios.interceptors.request.use(async config => {
     if (keycloak.token) {
@@ -296,6 +296,7 @@ export const RoomsProvider: React.FC = ({ children }) => {
   // this find patients in waiting room
   useEffect(() => {
     if (!socket) return
+    if(isStaticRoute) return
 
     let today = Date.now()
     let hours = 2
