@@ -43,14 +43,14 @@ export const UserContext = createContext<{
   updateUser: async () => {},
 })
 
-const App = () => {
-  const ALLOWED_ROUTES = [
-    '/boldo-app-privacy-policy',
-    '/boldo-app-terms-of-service',
-    '/download',
-    '/boldo-app-account-deletion',
-  ]
+const ALLOWED_ROUTES = [
+  '/boldo-app-privacy-policy',
+  '/boldo-app-terms-of-service',
+  '/download',
+  '/boldo-app-account-deletion',
+]
 
+const App = () => {
   const [user, setUser] = useState<Boldo.Doctor | undefined>()
   const [error, setError] = useState(false)
 
@@ -59,19 +59,21 @@ const App = () => {
   const { setOrganizations } = useContext(AllOrganizationContext)
   const { keycloak } = useKeycloak()
 
+  const isStaticRoute = ALLOWED_ROUTES.includes(window.location.pathname)
+
   axios.interceptors.request.use(async config => {
     if (keycloak.token) {
       config.headers.Authorization = `Bearer ${keycloak.token}`
       config.headers['Access-Control-Allow-Origin'] = '*'
-    }else if(!keycloak.authenticated){
+    } else if (!keycloak.authenticated) {
       //NOTE: de esta manera se puede volver a pedir iniciar sesión.
-      keycloak.login()
+      if(!isStaticRoute) keycloak.login()
     }
     return config
   })
 
   useEffect(() => {
-    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
+    if (!isStaticRoute) {
       if (!keycloak.authenticated) {
         keycloak.login()
       }
@@ -98,7 +100,7 @@ const App = () => {
         handleSendSentry(err, ERROR_HEADERS.DOCTOR.FAILURE_GET_PROFILE, tags)
       }
     }
-    if (!ALLOWED_ROUTES.includes(window.location.pathname)) {
+    if (!isStaticRoute) {
       effect()
     } else {
       setError(false)
@@ -109,7 +111,7 @@ const App = () => {
   // load the organization
   useEffect(() => {
 
-    if (ALLOWED_ROUTES.includes(window.location.pathname)) return
+    if (isStaticRoute) return
 
     const url = '/profile/doctor/organizations'
     axios

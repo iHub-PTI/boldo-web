@@ -11,7 +11,7 @@ interface CustomLinkProps {
 
 const CustomLink = ({ children, to }: CustomLinkProps) => {
   const location = useLocation()
-  console.log({ location })
+  //console.log({ location })
   const hovered = location.pathname === to
   return (
     <Link to={to} className={hovered ? 'bg-neutral-gray p-2 rounded-md' : ''}>
