@@ -20,6 +20,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
   const { keycloak } = useKeycloak();
   const { pathname } = useLocation()
   const main = useRef<HTMLElement>(null)
+  const logout = () => keycloak.logout()
 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [waitingroomOpen, setWaitingroomOpen] = useState(false)
@@ -278,7 +279,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                             className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
                             style={{ cursor: "pointer" }}
-                            onClick={() => keycloak.logout()}
+                            onClick={logout}
                           >
                             Cerrar Sesión
                           </button>
@@ -518,7 +519,7 @@ const Layout: React.FC<Props> = ({ children, isLoading }) => {
                           <button
                             className='block w-full px-4 py-2 text-sm leading-5 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900'
                             role='menuitem'
-                            onClick={() => keycloak.logout()}
+                            onClick={logout}
                           >
                             Cerrar Sesión
                           </button>
