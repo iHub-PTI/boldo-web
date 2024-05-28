@@ -1,9 +1,6 @@
-# Docker
-# Build and push an image to Azure Container Registry
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - dev
+- reingenieria-dev
 - test
 - main
 
@@ -11,16 +8,12 @@ resources:
 - repo: self
 
 variables:
-  # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'FhirServerTest-T'
   imageRepository: 'ihubptiboldoweb'
   containerRegistry: 'fhirservertest.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
 stages:
 - stage: Build
   displayName: Build and push stage
@@ -30,15 +23,6 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-#    - task: Docker@2
-#      displayName: Build and push an image to container registry
-#      inputs:
-#        command: buildAndPush
-#        repository: $(imageRepository)
-#        dockerfile: $(dockerfilePath)
-#        containerRegistry: $(dockerRegistryServiceConnection)
-#        tags: |
-#          $(tag)
     - task: Docker@2
       displayName: Docker build dev
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
@@ -48,7 +32,15 @@ stages:
         command: 'build'
         Dockerfile: '**/Dockerfile'
         arguments: '--build-arg sockets_address=https://boldo-dev.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://b37813a7e56e452f8a93d69f01439f72@o1301148.ingest.sentry.io/4504095428771840 --build-arg kc_url=https://sso-dev-2.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
-    
+    - task: Docker@2
+      displayName: Docker build reingenieria-dev
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/reingenieria-dev'))
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageRepository)
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        arguments: '--build-arg sockets_address=https://boldo-dev.pti.org.py --build-arg app_server=https://boldo-dev.pti.org.py/api --build-arg app_sentry=https://b37813a7e56e452f8a93d69f01439f72@o1301148.ingest.sentry.io/4504095428771840 --build-arg kc_url=https://dev-sso.boldo.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
     - task: Docker@2
       displayName: Docker build test
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
@@ -58,7 +50,6 @@ stages:
         command: 'build'
         Dockerfile: '**/Dockerfile'
         arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-test.pti.org.py/api --build-arg app_sentry=https://90f954c9f2094c2eacfc92338aedb716@o1301148.ingest.sentry.io/4504095684624384  --build-arg kc_url=https://sso-test-2.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
-
     - task: Docker@2
       displayName: Docker build prod
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
@@ -68,14 +59,12 @@ stages:
         command: 'build'
         Dockerfile: '**/Dockerfile'
         arguments: '--build-arg sockets_address=https://bol.do --build-arg app_server=https://bol.do/api --build-arg app_sentry=https://e96cd615e8ef4b1aacf5f62da9fd0122@o1301148.ingest.sentry.io/4504095689605120  --build-arg kc_url=https://sso-2.bol.do --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
-
     - task: Docker@2
       displayName: Docker push
       inputs:
         containerRegistry: $(dockerRegistryServiceConnection)
         repository: $(imageRepository)
         command: 'push'
-
     - task: Kubernetes@1
       displayName: Deploy to healthcore-dev
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
@@ -87,7 +76,17 @@ stages:
         arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
-    
+    - task: Kubernetes@1
+      displayName: Deploy to boldo-dev
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/reingenieria-dev'))
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'boldo-dev'
+        namespace: 'boldo-dev'
+        command: 'set'
+        arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
     - task: Kubernetes@1
       displayName: Deploy to healthcore-test
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
@@ -99,7 +98,6 @@ stages:
         arguments: 'image deployment/boldo-web boldo-web=fhirservertest.azurecr.io/ihubptiboldoweb:$(Build.BuildId)'
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
-    
     - task: Kubernetes@1
       displayName: Deploy to healthcore-prod
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
