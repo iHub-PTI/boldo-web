@@ -57,7 +57,7 @@ stages:
         repository: $(imageRepository)
         command: 'build'
         Dockerfile: '**/Dockerfile'
-        arguments: '--build-arg sockets_address=https://boldo-test.boldo.pti.org.py --build-arg app_server=https://boldo-test.boldo.pti.org.py/api --build-arg app_sentry=https://90f954c9f2094c2eacfc92338aedb716@o1301148.ingest.sentry.io/4504095684624384  --build-arg kc_url=https://sso-test-2.boldo.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
+        arguments: '--build-arg sockets_address=https://boldo-test.pti.org.py --build-arg app_server=https://boldo-test.pti.org.py/api --build-arg app_sentry=https://90f954c9f2094c2eacfc92338aedb716@o1301148.ingest.sentry.io/4504095684624384  --build-arg kc_url=https://sso-test-2.pti.org.py --build-arg kc_realm=iHub --build-arg kc_client=boldo-doctor'
 
     - task: Docker@2
       displayName: Docker build prod
