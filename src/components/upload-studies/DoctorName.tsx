@@ -3,13 +3,13 @@ import { toUpperLowerCase } from '../../util/helpers';
 
 
 type Props = {
-  doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] };
+  doctor: any,
   className: string;
 }
 
 
 const DoctorName = (props: Props) => {
-  const {doctor={} as Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }, className=''} = props
+  const {doctor, className=''} = props
 
   return(
     <p className={className}>
@@ -21,10 +21,10 @@ const DoctorName = (props: Props) => {
             : ''
       }
       {
-        doctor?.givenName && toUpperLowerCase(doctor.givenName.split(' ')[0]) + ' '
+        doctor?.first_name && toUpperLowerCase(doctor.first_name.split(' ')[0]) + ' '
       }
       {
-        doctor?.familyName && toUpperLowerCase(doctor.familyName.split(' ')[0])
+        doctor?.last_name && toUpperLowerCase(doctor.last_name.split(' ')[0])
       }
     </p>
   );

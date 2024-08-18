@@ -26,51 +26,40 @@ import { AllOrganizationContext } from '../contexts/Organizations/organizationsC
 import { usePrescriptionContext } from '../contexts/Prescriptions/PrescriptionContext';
 import handleSendSentry from '../util/Sentry/sentryHelper'
 import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
-// import { type } from 'os'
+
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
-const eventDataTransform = (event: AppointmentWithPatient) => {
-  const getColorClass = (eventType: Boldo.Appointment['type']) => {
-    if (event.status === "cancelled") return 'event-cancel'
-    if (eventType === 'Appointment' && event.appointmentType === 'V') return 'event-online'
-    if (eventType === 'Appointment' && event.appointmentType === 'A') return 'event-inperson'
-    if (eventType === 'PrivateEvent') return 'event-private'
+const privateEventDataTransform = (event) => {
+
+  return {
+    title: `${event.name}`,
+    start: `${event.start}`,
+    end: `${event.end}`,
+    classNames: ['event-other', 'boldo-event'],
+    extendedProps: {...event, type: 'PrivateEvent'},
+  }  
+
+}
+
+const appointmentDataTransform = (event) => {
+
+  const getColorClass = (eventType) => {
+    if (eventType === 'VIRTUAL') return 'event-online'
+    if (eventType === 'ONSITE') return 'event-inperson'
     return 'event-other'
   }
+
   return {
-    title: event.type !== 'PrivateEvent'
-      ? `${event.patient?.givenName} ${event.patient?.familyName}`
-      : event.name,
-    start: event.start,
-    end: event.end,
+    title: `${event?.patient?.first_name} ${event?.patient?.last_name}`,
+    start: `${event.date} ${event.start_time}`,
+    end: `${event.date} ${event.end_time}`,
     classNames: [getColorClass(event.type), 'boldo-event'],
     extendedProps: event,
   }
-}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const calculateOpenHours = (openHours: Boldo.OpenHours, start: Date, end: Date) => {
-  // Create list of days
-  const days = differenceInDays(end, start)
-  const daysList = [...Array(days + 1).keys()].map(i => addDays(start, i))
-
-  return daysList.flatMap(day => {
-    const dayOfTheWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][day.getDay()] as keyof Boldo.OpenHours
-    const openHoursOfDay = openHours[dayOfTheWeek]
-
-    return openHoursOfDay.map(openHour => {
-      const startDate = new Date(day)
-      startDate.setHours(0, openHour.start, 0)
-      const endDate = new Date(day)
-      endDate.setHours(0, openHour.end, 0)
-
-      return { start: startDate, end: endDate }
-    })
-  })
 }
 
 type AppointmentForm = Omit<Boldo.Appointment, 'start' | 'end' | 'patientId' | 'doctorId'> & {
-  // Form has date and time seperate
   start: string
   end: string
   date: string
@@ -106,132 +95,40 @@ function reducer(state: AppointmentForm, action: Action): AppointmentForm {
   }
 }
 
-interface Room {
-  users: string[]
-  roomId: string
-}
-
 export default function Dashboard() {
+  
   const history = useHistory()
   const { addToast, addErrorToast } = useToasts()
-  const [appointments, setAppointments] = useState<EventInput[]>([])
-  const [dateRange, setDateRange] = useState<{ start: string; end: string; refetch: boolean }>({
-    start: '',
-    end: '',
-    refetch: false,
-  })
-  const [appointment, dispatch] = useReducer(reducer, initialAppointment)
-  const calendar = useRef<FullCalendar>(null)
+
+  const [appointments, setAppointments] = useState([]);
+  const [privateEvents, setPrivateEvents] = useState([]);
+  const [events, setEvents] = useState([]);
+
+  const [appointment, dispatch] = useReducer(reducer, initialAppointment);
+
+  const calendar = useRef<FullCalendar>(null);
+
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithPatient | null>(null)
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
   const [loadingAppointment, setLoadingAppointment] = useState(false)
+
   const { user } = useContext(UserContext)
-  // dont delete setOpenHours. We use in one useEffect to change and show open hours in the current organization
-  const [openHours, setOpenHours] = useState(undefined as Boldo.OpenHours)
   const newUser = user.new;
-  const [isOpen, setIsOpen] = useState(false)
-  // Context API Organization Boldo MultiOrganization
-  const { Organization, setOrganization } = useContext(OrganizationContext)
-  const { Organizations } = useContext(AllOrganizationContext)
-  // used for testing
-  // const fakeData = [
-  //    {id: "1", name: 'Hospital maria de los Angeles caballero', colorCode: '#0000FF', active: true, type: 'CORE'},
-  //    {id: "2", name: 'Hospital IPS', colorCode:'#FF0000', active: true, type: 'CORE'},
-  //    {id: "3", name: 'Clinicas', colorCode: '#00FF00', active: true, type: 'CORE'},
-  // ]
+
+  const [openHours, setOpenHours] = useState(undefined as Boldo.OpenHours)
+  const [isOpen, setIsOpen] = useState(false);
+
+
+  const { Organization, setOrganization } = useContext(OrganizationContext);
+  const { Organizations } = useContext(AllOrganizationContext);
 
   const loadingAppoimentRef = useRef<HTMLDivElement>()
 
   const { updatePrescriptions } = usePrescriptionContext();
-
-  // FIXME: Can this be improved?
-  const setAppointmentsAndReload: typeof setAppointments = arg0 => {
-    // console.log("arg0: " + arg0);
-    setAppointments(arg0)
-    setDateRange(range => ({ ...range, refetch: true }))
-  }
-
-  // The function updates the calendar events similar to the function 
-  // for the calendar with the EventSourceFunc component of the Fullcalendar 
-  // but this case to update directly with the calendarAPI reference
-  const loadEventsSourcesCalendar = (idOrganization: string) => {
-    const calendarAPI = calendar.current.getApi()
-    const start = calendarAPI.view.activeStart
-    const end = calendarAPI.view.activeEnd
-    const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
-
-    setLoadingAppointment(true)
-    axios
-      .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        url, {
-        params: {
-          organizationId: idOrganization
-        }
-      }
-      )
-      .then(res => {
-        //console.log("🚀 res appointment", res.data)
-        //const events = res.data.appointments.map(event => eventDataTransform(event))
-        //const openHourDates = openHours ? calculateOpenHours(openHours, start, end) : []
-        //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-
-        if (res.status === 200) {
-          //console.log("🚀 res appointment", res.data)
-          const events = res.data.appointments.map(event => eventDataTransform(event))
-          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-          setAppointments([...events])
-          calendarAPI.removeAllEvents()
-          calendarAPI.addEventSource([...events])
-        } else if (res.status === 204) {
-          // there is not appointments
-          setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
-          setAppointments([])
-          calendarAPI.removeAllEvents()
-          calendarAPI.addEventSource([])
-        }
-        setLoadingAppointment(false)
-      })
-      .catch(err => {
-        Sentry.setTag('endpoint', url)
-        Sentry.setTag('method', 'GET')
-        Sentry.setTag('organization_id', idOrganization)
-        if (err.response) {
-          // La respuesta fue hecha y el servidor respondió con un código de estado
-          // que esta fuera del rango de 2xx
-          if (err.response.status === 400) {
-            // console.log(err)
-            addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
-            setAppointments([])
-            calendarAPI.removeAllEvents()
-            calendarAPI.addEventSource([])
-          } else if (err.response.status === 500) {
-            addErrorToast('No fue posible cargar las citas. Por favor, vuelva a intentar luego.')
-          }
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // La petición fue hecha pero no se recibió respuesta
-          Sentry.setTag('request', err.request)
-          console.log(err.request)
-        } else {
-          // Algo paso al preparar la petición que lanzo un Error
-          Sentry.setTag('message', err.message)
-          console.log('Error', err)
-        }
-        Sentry.captureMessage("Could not reload the appointments on the Dashboard")
-        Sentry.captureException(err)
-        setLoadingAppointment(false)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error.',
-          text: 'No fue posible recargar automáticamente las citas.'
-        })
-      })
-  }
-
 
   useEffect(() => {
     // console.log("blocks: ", user.blocks)
@@ -248,30 +145,30 @@ export default function Dashboard() {
     const showOrNotToast = () => {
       if (Organizations === undefined) {
         addToast({ type: 'warning', title: "Ocurrió un error inesperado.", text: 'No se pudieron obtener los centros asistenciales.' })
-      } else if (Organizations?.length === 0) {
+      } 
+      else if (Organizations?.length === 0) {
         addToast({ type: 'info', text: 'No posee centros asistenciales. Contacte con el equipo de soporte.' })
       }
     }
-
     if (Organizations !== null) showOrNotToast()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
 
   useEffect(() => {
     if (window.innerHeight > window.innerWidth) {
       setIsOpen(true);
     }
-  }, [])
-
-  // the calendar will be updated every minute
+  }, 
+  []);
+  
   useEffect(() => {
     const timer = setInterval(() => {
-      if (Organizations?.length > 0) loadEventsSourcesCalendar(Organization.id)
-    }, 60000)
+      if(Organization){
+        loadEvents();
+      }
+    }, 
+    10000)
     return () => clearInterval(timer)
-  })
-
+  });
 
   const isNew = useMemo(() => {
     return appointment.id === 'new'
@@ -297,7 +194,7 @@ export default function Dashboard() {
 
     if (validationError) return setLoading(false)
 
-    const url = `/profile/doctor/appointments`
+    const url = `https://dev-doctors.boldo.pti.org.py/doctors/private-events`
     try {
       if (!Organization) {
         addToast({
@@ -310,14 +207,20 @@ export default function Dashboard() {
       }
 
       const payload = {
-        ...appointment,
-        start: new Date(`${appointment.date}T${appointment.start}`).toISOString(),
-        end: new Date(`${appointment.date}T${appointment.end}`).toISOString(),
-        idOrganization: Organization.id
+        name: appointment.name,
+        description: appointment.description,
+        date: `${appointment.date}`,
+        start: `${appointment.date} ${appointment.start}:00.000`,
+        end: `${appointment.date} ${appointment.end}:00.000`,
+        organization_id: Organization.id
       }
 
+      console.log(payload);
+
       const res = await axios.post(url, payload) // <Boldo.Appointment>
-      setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
+      // setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments]) 
+      loadEvents();
+
       setShowEditModal(false)
       dispatch({ type: 'reset' })
       addToast({
@@ -337,101 +240,89 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  // FIXME: It's a mess how this handles the loadEvents. It should work:
-  // This loads Events whenever needed and setsState
-  // FC automaticall rerenders when appointmens[] has changed.
-  // Check why it doesn't work like that.
-  const loadEvents: EventSourceFunc = (info, successCallback, failureCallback) => {
+  const loadEvents = async () => {
+    if(Organization && calendar.current){
+      const api = calendar.current.getApi();
+      const start = api.view.activeStart.toISOString().split('T')[0];
+      const end = api.view.activeEnd.toISOString().split('T')[0];
+      
+      setLoadingAppointment(true);
+      
+      await loadAppointments(start, end, Organization.id);
+      await loadPrivateEvents(start, end, Organization.id); 
+  
+      setLoadingAppointment(false);
+    }
+  }
 
-    const start = info.start.toISOString().split('T')[0]
-    const end = info.end.toISOString().split('T')[0]
-    const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
-    if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
+  const loadAppointments = async (start, end, organizationId) => {
+    const url = `https://dev-doctors.boldo.pti.org.py/doctors/appointments?start=${start}&end=${end}&organization_id=${organizationId}`
+    await axios.get(url).
+    then(res => {
+      setAppointments(res.status == 200 ? res.data : []);
+    }).
+    catch(err => {
+      console.log(err);
+      setAppointments([]);
+    })
+  }
 
-    let loadingDiv = Organization && loadingAppoimentRef.current
+  const loadPrivateEvents = async (start, end, organizationId) => {
+    const url = `https://dev-doctors.boldo.pti.org.py/doctors/private-events?start=${start}&end=${end}&organization_id=${organizationId}`
+    await axios.get(url).
+    then(res => {
+      setPrivateEvents(res.status == 200 ? res.data : []);
+    }).
+    catch(err => {
+      console.log(err);
+      setPrivateEvents([]);
+    })
+  }
 
-    if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('hidden', 'flex')
+  useEffect(() => {
+    if(Organization){
+      loadEvents();
+    }
+  },
+  [Organization]);
 
-    Organization && axios
-      .get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        url, {
-        params: {
-          organizationId: Organization.id
-        }
+  useEffect(() => {
+    let aEvents = appointments.map(event => appointmentDataTransform(event));
+    let pEvents = privateEvents.map(event => privateEventDataTransform(event));
+    setEvents([...aEvents, ...pEvents])
+  }, 
+  [privateEvents, appointments]);  
+
+  useEffect(() => {
+    const api = calendar.current.getApi();
+    api.removeAllEvents()
+    api.addEventSource([...events]);
+  }, 
+  [events]);
+
+  const handleDates = (dates) => {
+      console.log("change date", dates);
+      if(Organization){
+        loadEvents();
       }
-      )
-      .then(res => {
-        // const openHourDates = openHours ? calculateOpenHours(openHours, info.start, info.end) : []
-        //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
-        // successCallback(events) // Don't use it here to fix a bug with FullCalendar
-        if (res.status === 200) {
-          // console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
-          const events = res.data.appointments.map(event => eventDataTransform(event))
-          setDateRange({ start, end, refetch: false })
-          setAppointments([...events])
-          // console.log({ start, end, refetch: false })
-          // console.log([...events])
-          // successCallback(events) // Don't use it here to fix a bug with FullCalendar
-        } else if (res.status === 204) {
-          setDateRange({ start, end, refetch: false })
-          setAppointments([])
-        }
-        if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
-      })
-      .catch(err => {
-        Sentry.setTag('endpoint', url);
-        Sentry.setTag('method', 'GET')
-        Sentry.setTag('organization_id', Organization?.id)
-        if (err.response) {
-          // La respuesta fue hecha y el servidor respondió con un código de estado
-          // que esta fuera del rango de 2xx
-          if (err.response.status === 400) {
-            // console.log(err)
-            addErrorToast(`No encontramos este perfil en el centro asistencial seleccionado.`)
-            setDateRange({ start, end, refetch: false })
-            setAppointments([])
-          } else if (err.response.status === 500) {
-            addErrorToast('No fue posible cargar las citas. Por favor, vuelva a intentar luego.')
-          }
-          Sentry.setTag('data', err.response.data)
-          Sentry.setTag('headers', err.response.headers)
-          Sentry.setTag('status_code', err.response.status)
-        } else if (err.request) {
-          // La petición fue hecha pero no se recibió respuesta
-          Sentry.setTag('request', err.request)
-          console.log(err.request)
-        } else {
-          // Algo paso al preparar la petición que lanzo un Error
-          Sentry.setTag('message', err.message)
-          console.log('Error', err.message)
-        }
-        Sentry.captureMessage("Could not load the events")
-        Sentry.captureException(err)
-        addToast({
-          type: 'error',
-          title: 'Ha ocurrido un error.',
-          text: 'No fue posible cargar las citas.'
-        })
-        if (loadingDiv) loadingDiv.className = loadingDiv.className.toString().replace('flex', 'hidden')
-      })
   }
 
   const handleEventClick = (info: EventClickArg) => {
     info.jsEvent.stopPropagation()
     if (info.event.display === 'background') return
     if (info.event.extendedProps.type === 'Appointment')
-
-
       setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
+    if (info.event.extendedProps.status === 'CANCELLED') {
 
-    if (info.event.extendedProps.status === 'cancelled') {
-
-    } else if (info.event.extendedProps.type === 'PrivateEvent') {
+    } 
+    else if (info.event.extendedProps.type === 'PrivateEvent') {
       setSelectedAppointment(info.event.extendedProps as AppointmentWithPatient)
-    } else
-      if (info.event.extendedProps.appointmentType === 'V' && info.event.extendedProps.status !== 'locked') {
+    } 
+    else
+      if (info.event.extendedProps.type === 'VIRTUAL' && info.event.extendedProps.status !== 'LOCKED') {
         return history.push(`/appointments/${info.event.extendedProps.id}/call`)
-      } else {
+      } 
+      else {
         return history.push(`/appointments/${info.event.extendedProps.id}/inperson`)
       }
   }
@@ -517,9 +408,7 @@ export default function Dashboard() {
                       onChange={value => {
                         setOrganization(Organizations.find((d) => d.id === value))
                         Sentry.setTag('organization_current', Organizations.find((d) => d.id === value).name ?? '')
-                        //reset appointmets
-                        setAppointments([])
-                        loadEventsSourcesCalendar(value)
+                        loadEvents()
                       }}>
                     </ListboxColor>
                   }
@@ -551,7 +440,7 @@ export default function Dashboard() {
               </div>
               <FullCalendar
                 ref={calendar}
-                events={{ events: loadEvents, id: 'server' }}
+                events={events}
                 eventClick={handleEventClick}
                 eventContent={(eventInfo) => AppointmentCard(eventInfo, Organization?.colorCode)}
                 // we define it in tailwind.css
@@ -566,11 +455,11 @@ export default function Dashboard() {
                 initialView='timeGridWeek'
                 nowIndicator={true}
                 nowIndicatorContent={NowIndicatorContent}
+                datesSet={handleDates}
                 locale={esLocale}
                 dayHeaderFormat={{ weekday: 'long', day: 'numeric', omitCommas: true }}
                 dayHeaderContent={({ text, isToday }) => {
                   const [weekday, day] = text.split(' ')
-
                   return (
                     <div
                       className={
@@ -600,8 +489,6 @@ export default function Dashboard() {
                 allDaySlot={false}
                 slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
                 scrollTime={moment().format('HH:00:00')}
-              // don't tuch this, fix a visual bug when organization change
-              // eventColor={Organization?.colorCode}
               />
             </div>
           </>
@@ -749,19 +636,6 @@ export default function Dashboard() {
             </div>
           )}
           <div className='px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:justify-end'>
-            {/* {appointment.id !== 'new' ? (
-            <span className='flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto'>
-              <button
-                type='button'
-                className='inline-flex justify-center w-full px-4 py-2 text-base font-medium leading-6 text-white transition duration-150 ease-in-out bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-500 focus:outline-none focus:border-red-700 focus:shadow-outline-red sm:text-sm sm:leading-5'
-                onClick={() => handleDelete(appointment.id)}
-              >
-                Eliminar
-              </button>
-            </span>
-          ) : (
-            <div />
-          )} */}
             <div className='sm:flex'>
               <span className='flex w-full mt-3 rounded-md shadow-sm sm:mt-0 sm:w-auto'>
                 <button
@@ -811,7 +685,7 @@ export default function Dashboard() {
             if (!show) setSelectedAppointment(null)
           }}
           appointment={selectedAppointment}
-          setAppointmentsAndReload={setAppointmentsAndReload}
+          callback={() => { loadEvents(); }}
         />
       )}
     </>
@@ -821,35 +695,16 @@ export default function Dashboard() {
 interface EventModalProps {
   setShow: (arg: boolean) => void
   appointment: AppointmentWithPatient
-  setAppointmentsAndReload: (arg: any) => void
+  callback: () => void
 }
 
-const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventModalProps) => {
+const EventModal = ({ setShow, appointment, callback }: EventModalProps) => {
+
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const { addToast } = useToasts()
-  // const type = useMemo(() => {
-  //   let type = ''
-  //   switch (appointment.type) {
-  //     case 'PrivateEvent':
-  //       type = 'Evento Privado'
-  //       break
 
-  //     case 'CustomAppointment':
-  //       type = 'Custom Patient Consultation'
-  //       break
-
-  //     case 'Appointment':
-  //       type = 'Scheduled Patient Consultation'
-  //       break
-
-  //     default:
-  //       type = 'Other'
-  //       break
-  //   }
-  //   return type
-  // }, [appointment])
 
   const hasPicture = appointment.type === 'Appointment'
 
@@ -880,15 +735,14 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
     if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) return
     setLoading(true)
     setError('')
-    const url = `/profile/doctor/appointments/${id}`
+    const url = `https://dev-doctors.boldo.pti.org.py/doctors/private-events/${id}`
     try {
       await axios.delete(url)
-      setAppointmentsAndReload((appointments: EventInput[]) =>
-        appointments.filter(appointment => appointment.extendedProps?.id !== id)
-      )
+      callback();
       setLoading(false)
       setShow(false)
-    } catch (err) {
+    } 
+    catch (err) {
       const tags = {
         "endpoint": url,
         "method": "DELETE",

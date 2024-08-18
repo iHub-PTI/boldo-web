@@ -103,8 +103,8 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
   //current doctor
   let doctor = {
     id: props.appointment?.doctorId,
-    name: props.appointment?.doctor.givenName.split(' ')[0],
-    lastName: props.appointment?.doctor.familyName.split(' ')[0],
+    name: props.appointment?.doctor?.givenName.split(' ')[0],
+    lastName: props.appointment?.doctor?.familyName.split(' ')[0],
   }
 
   const getRecordsPatient = async ({ doctorId = 'ALL', content = '', count = 10, offset = 1, order = 'DESC' }) => {

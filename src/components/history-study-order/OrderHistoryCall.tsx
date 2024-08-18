@@ -19,7 +19,7 @@ import { StudyType, scrollParams } from './StudyHistory';
 // import { useToasts } from '../Toast';
 
 type OrderHistoryCallType = {
-  appointment: AppointmentWithPatient;
+  appointment: any,
   orderHistoryButton: boolean,
   containerRef: MutableRefObject<HTMLDivElement>,
   handleSidebarHoverOff: () => void,
@@ -39,9 +39,9 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
 
   //current doctor
   let doctor = {
-    id: appointment?.doctorId,
-    name: appointment?.doctor.givenName.split(' ')[0],
-    lastName: appointment?.doctor.familyName.split(' ')[0],
+    id: appointment?.doctor.id,
+    name: appointment?.doctor.first_name.split(' ')[0],
+    lastName: appointment?.doctor.last_name.split(' ')[0],
   }
 
   const patientId = appointment.patientId

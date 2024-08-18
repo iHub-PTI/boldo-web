@@ -66,10 +66,12 @@ export default function Dashboard() {
     let mounted = true
 
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.appointments/appointments/' + id
+      //const url = `/profile/doctor/appointments/${id}`
       try {
         const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
         if (mounted) {
+          console.log(res.data)
           setAppointment(res.data)
                   }
       } catch (err) {
@@ -104,7 +106,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='flex flex-col h-full overflow-hidden relative'>
-        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization.id)} orgName={`${appointment.organization.name}`} />}</div>
+        <div className='h-6'>{Organizations && appointment && <OrganizationBar orgColor={getColorCode(Organizations, appointment.organization?.id)} orgName={`${appointment.organization?.name}`} />}</div>
         <div className='flex flex-col text-black text-xl p-3 h-13 z-10'>
           Consulta
           {

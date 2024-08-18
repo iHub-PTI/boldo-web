@@ -41,7 +41,8 @@ export function PrescriptionContextProvider({
   const [state, dispatch] = useReducer(PrescriptionReducer, initialState);
 
   const updatePrescriptions = async function (id: string, payload?: Array<any>) {
-    const url = `/profile/doctor/appointments/${id}/encounter`;
+    const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+    //const url = `/profile/doctor/appointments/${id}/encounter`;
     try {
       if (payload) {
         dispatch({ type: 'GET_PRESCRIPTION', payload: payload });

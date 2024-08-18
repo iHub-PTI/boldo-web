@@ -29,10 +29,11 @@ import TermsOfService from './components/TermsOfService'
 import { useKeycloak } from '@react-keycloak/web'
 import PatientAccountDeletion from './pages/public/PatientAccountDeletion'
 import { ALLOWED_ROUTES } from './util/constants'
+import { start } from 'repl'
 
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient } & { organization: Boldo.Organization }
 
-axios.defaults.withCredentials = true
+//axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_ADDRESS
 axios.defaults.maxRedirects = 0
 
@@ -79,13 +80,33 @@ const App = () => {
 
   useEffect(() => {
     const effect = async () => {
-      const url = '/profile/doctor'
+      const url = '/doctors/profile'
       try {
         const res = await axios.get(url)
-        setUser(res.data)
+        setUser({
+          id: res.data.id,
+          photoUrl: res.data.picture,
+          givenName: res.data.first_name,
+          familyName: res.data.last_name,
+          birthDate: res.data.birth_date,
+          gender: res.data.gender,
+          email: undefined,
+          languages: undefined,
+          biography: res.data.biography,
+          phone: undefined,
+          street: undefined,
+          city: undefined,
+          neighborhood: undefined,
+          addressDescription: undefined,
+          specializations: undefined,
+          license: undefined,
+          blocks: [],
+          new: undefined
+        })
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id, email: res.data.email, username: res.data.identifier })
-      } catch (err) {
+      } 
+      catch (err) {
         console.log(err)
         const tags = {
           endpoint: url,
@@ -107,7 +128,8 @@ const App = () => {
 
     if (isStaticRoute) return
 
-    const url = '/profile/doctor/organizations'
+    //const url = '/profile/doctor/organizations'
+    const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.organizations/organizations/doctors?doctor_id=2'
     axios
       .get(url)
       .then(function (res) {
@@ -302,12 +324,19 @@ export const RoomsProvider: React.FC = ({ children }) => {
     let hours = 2
 
     const load = async () => {
-      const url = '/profile/doctor/appointments?status=open'
+      //const url = '/profile/doctor/appointments?status=open' 
+      //?start=${start.toISOString().split('T')[0]}&end=${end.toISOString().split('T')[0]}
+      const url = `https://dev-web.boldo.pti.org.py/mcs.boldo.appointments/doctors/2/appointments?organization_id=32947`
+
       await axios
         .get<{ appointments: AppointmentWithPatient[]; token: string }>(url, {
           params: {
-            start: changeHours(new Date(today), hours, 'subtract'),
-            end: changeHours(new Date(today), hours, 'add'),
+            /*
+              start: changeHours(new Date(today), hours, 'subtract'),
+              end: changeHours(new Date(today), hours, 'add'),
+            */
+            start: new Date(today).toISOString().split('T')[0],
+            end: new Date(today).toISOString().split('T')[0]
           },
         })
         .then(res => {

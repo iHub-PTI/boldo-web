@@ -101,7 +101,9 @@ const TableOfStudies = (props: Props) => {
       loading: true
     })
 
-    let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
+    //let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
+
+    let url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders/${rowData?.id ?? ''}`
 
     axios
       .get(url)
@@ -175,10 +177,10 @@ const TableOfStudies = (props: Props) => {
           title: "id",
         },
         {
-          field: "doctor.photoUrl",
-          render: (rowData) => rowData?.doctor?.photoUrl !== undefined
+          field: "encounter",
+          render: (rowData) => rowData?.encounter?.doctor.picture !== undefined
             ? <img
-              src={rowData.doctor.photoUrl}
+              src={rowData.encounter.doctor.picture}
               alt='Foto de Perfil'
               className='flex-none border-1 border-white w-11 h-11 rounded-full object-cover'
             />
@@ -188,34 +190,35 @@ const TableOfStudies = (props: Props) => {
           width: "5%"
         },
         {
-          field: "doctor",
-          render: rowData => <DoctorName doctor={rowData.doctor} className='not-italic font-normal text-sm leading-6 text-gray-700' />,
+          field: "encounter",
+          render: rowData => <DoctorName doctor={rowData.encounter.doctor} className='not-italic font-normal text-sm leading-6 text-gray-700' />,
           title: "Nombre del médico",
           sorting: false,
           width: "15%",
         },
         {
           field: "category",
-          render: rowData => <Category category={rowData.category} />,
+          render: rowData => <Category category={rowData.category.display} />,
           sorting: false,
           title: <SelectCategory categorySelected={categorySelected} setCategorySelected={setCategorySelected} />,
         },
         {
-          field: "authoredDate",
-          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{(moment(rowData.authoredDate).format('DD/MM/YYYY'))}</p>,
+          field: "authored_on",
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{(moment(rowData.authored_on).format('DD/MM/YYYY'))}</p>,
           title: "Fecha",
         },
         {
-          field: "orderNumber",
+          field: "number",
           sorting: false,
           title: "Nro Orden",
-          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.orderNumber === 'studyOrderMain' ? 'No definido' : rowData.orderNumber}</p>,
+          render: rowData => <p className='not-italic font-normal text-sm leading-5 text-gray-900'>{rowData.number === 'studyOrderMain' ? 'No definido' : rowData.number}</p>,
           width: "5%"
         }
       ]}
       data={query =>
         new Promise(async (resolve, reject) => {
-          let url = '/profile/doctor/serviceRequests'
+          //let url = '/profile/doctor/serviceRequests'
+          let url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders'
           // console.log(query.orderDirection)
           setIsLoading(true)
           setPageSize(query.pageSize)
@@ -223,12 +226,12 @@ const TableOfStudies = (props: Props) => {
             .get(url, {
               params: {
                 // '0' for default to get an empty array
-                patient_id: patientId ?? '0',
-                orderNumber: searchByOrder,
+                patient_id: 36982,// ?? '0',
+                //orderNumber: searchByOrder,
                 page: (query.page + 1),
-                count: query.pageSize,
-                dateOrder: query.orderDirection,
-                category: CategoryCode[categorySelected] ?? ''
+                page_size: query.pageSize,
+                //dateOrder: query.orderDirection,
+                //category: CategoryCode[categorySelected] ?? ''
               }
             })
             .then((res) => {
@@ -240,9 +243,9 @@ const TableOfStudies = (props: Props) => {
                 })
               }
               resolve({
-                data: res.data.items,
+                data: res.data.content,
                 page: (query.page),
-                totalCount: res.data.total
+                totalCount: res.data.total_elements
               })
             })
             .catch((err) => {

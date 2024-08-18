@@ -24,7 +24,8 @@ const DetailPanel = (props: Props) => {
 
   useEffect(() => {
     setLoadingOrder(true)
-    let url = `/profile/doctor/serviceRequest/${orderId}`
+    //let url = `/profile/doctor/serviceRequest/${orderId}`
+    let url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders/${orderId}`
 
     axios
       .get(url)
@@ -69,7 +70,7 @@ const DetailPanel = (props: Props) => {
               <div className='flex flex-col py-3'>
                 {/* category and urgency */}
                 <div className='flex flex-row space-x-4'>
-                  <Category category={orderStudy?.category ?? 'Other'} />
+                  <Category category={orderStudy?.category.code ?? 'Other'} />
                   {orderStudy?.urgent && <Urgency />}
                 </div>
                 {/* study codes */}

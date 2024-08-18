@@ -22,9 +22,7 @@ export const stylePanelSidebar = {
 
 type PropsSidebarMenuCall = {
   children: React.ReactNode
-  appointment: Boldo.Appointment & { doctor: iHub.Doctor } & { patient: iHub.Patient } & {
-    organization: Boldo.Organization
-  }
+  appointment: any
 }
 
 const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment }) => {
@@ -122,9 +120,9 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
           onMouseLeave={() => handleSidebarHoverOff()}
         >
           <div className='flex flex-col w-full flex-no-wrap mt-10 items-center'>
-            {appointment.patient.photoUrl ? (
+            {appointment.patient.picture ? (
               <img
-                src={appointment.patient.photoUrl}
+                src={appointment.patient.picture}
                 alt='Foto de Perfil'
                 className={`border-1 border-white rounded-full w-15 h-15 object-cover transform origin-top duration-500 ${
                   transition && hoverSidebar ? 'scale-150' : '100'
@@ -157,7 +155,7 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
                     <span className='overflow-hidden'>
                       {' '}
                       {toUpperLowerCase(
-                        appointment.patient.givenName.split(' ')[0] + ' ' + appointment.patient.familyName.split(' ')[0]
+                        appointment.patient.first_name.split(' ')[0] + ' ' + appointment.patient.last_name.split(' ')[0]
                       )}
                       {appointment.patient.birthDate && ', '}{' '}
                       {differenceInYears(Date.now(), new Date(appointment.patient.birthDate)) || ''}
@@ -165,9 +163,9 @@ const SidebarMenuCall: React.FC<PropsSidebarMenuCall> = ({ children, appointment
                     <ArrowDown className={` w-6 ${open ? 'rotate-180 transform' : ''}`} />
                   </div>
                   <span className='font-semibold text-base' style={{ color: '#ABAFB6' }}>
-                    {appointment.patient.identifier == null || appointment.patient.identifier.includes('-')
+                    {appointment.patient.document_number == null || appointment.patient.document_number.includes('-')
                       ? 'Paciente sin cédula'
-                      : 'CI ' + appointment.patient.identifier}
+                      : 'CI ' + appointment.patient.document_number}
                   </span>
                 </Disclosure.Button>
                 <Transition

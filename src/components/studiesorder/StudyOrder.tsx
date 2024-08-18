@@ -188,11 +188,12 @@ const StudyOrder = ({
     let mounted = true
     const load = async () => {
       const id = remoteMode ? matchCall?.params.id : matchInperson?.params.id
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      //const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
       try {
         setLoading(true)
         const res = await axios.get(url)
-        if (mounted) setEncounter(res.data.encounter)
+        if (mounted) setEncounter(res.data[0])
       } catch (err) {
         const tags = {
           endpoint: url,
@@ -228,6 +229,7 @@ const StudyOrder = ({
   }, [encounter])
 
   useEffect(() => {
+    console.log(encounter, "StudyOrder.tsx");
     if (!encounter) return
     loadOrderList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -333,7 +335,8 @@ const StudyOrder = ({
         })
       })
       // console.log(ordersCopy)
-      const url = `/profile/doctor/serviceRequest`
+      //const url = `/profile/doctor/serviceRequest`
+      const url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders`      
       try {
         setSendStudyLoading(true)
         let total = ordersCopy.length

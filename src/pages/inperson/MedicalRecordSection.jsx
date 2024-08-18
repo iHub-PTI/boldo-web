@@ -105,24 +105,31 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+      //const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url)
-        const {
+
+        let {
           diagnosis = '',
           instructions = '',
           prescriptions,
           mainReason = '',
           partOfEncounterId = '',
           //status = '',
-        } = res.data.encounter
+        } = res.data[0]
+
+        mainReason = res.data[0].main_reason;
+
+        console.log(res.data[0], mainReason);
+        
         setDiagnose(diagnosis)
         setInstructions(instructions)
         setSelectedMedication(prescriptions)
-        setEncounterId(res.data.encounter.id)
+        setEncounterId(res.data.id)
         setPartOfEncounterId(partOfEncounterId)
         mainReason !== undefined && setMainReason(mainReason)
-        if (res.data.encounter.soep !== undefined) {
+        if (res.data[0].soep !== undefined) {
           const { subjective = '', objective = '', evaluation = '', plan = '' } = res.data.encounter.soep
           let copyStrings = [...soepText]
           copyStrings[0] = subjective
@@ -133,6 +140,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
         // setInitialLoad(false)
       } catch (err) {
+        console.log(err);
         const tags = {
           endpoint: url,
           method: 'GET',
@@ -323,7 +331,8 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+      //const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         setIsLoading(true)
         setSucces(false)

@@ -84,7 +84,8 @@ export const StudiesTemplate = ({ show, setShow, ...props }) => {
   useEffect(() => {
     let mounted = true
     const loadTemplates = async () => {
-      const url = `profile/doctor/studyOrderTemplate`
+      //const url = `profile/doctor/studyOrderTemplate`
+      const url = `https://dev-web.boldo.pti.org.py/mcs.boldo.doctors/doctors/2/study-order-templates`
       try {
         setLoading(true)
         const res = await axios.get(url)

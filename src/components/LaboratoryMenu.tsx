@@ -253,7 +253,8 @@ export function LaboratoryMenu(props) {
   // this get the encounter
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+      //const url = `/profile/doctor/appointments/${id}/encounter`
       
       setDisabledButton(true)
       await axios

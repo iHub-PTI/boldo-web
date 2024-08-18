@@ -231,7 +231,8 @@ export default (props) => {
 
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;      
+      //const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url);
         setEncounter(res.data.encounter)

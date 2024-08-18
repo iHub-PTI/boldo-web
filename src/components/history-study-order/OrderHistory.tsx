@@ -40,8 +40,8 @@ const StudyHistory: React.FC<Props> = ({
   //current doctor
   let doctor = {
     id: appointment?.doctorId,
-    name: appointment?.doctor.givenName.split(' ')[0],
-    lastName: appointment?.doctor.familyName.split(' ')[0],
+    name: appointment?.doctor?.givenName?.split(' ')[0],
+    lastName: appointment?.doctor?.familyName?.split(' ')[0],
   }
 
   //const { addToast } = useToasts()

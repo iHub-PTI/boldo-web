@@ -12,7 +12,7 @@ import CloseButton from './icons/CloseButton';
 import { stylePanelSidebar } from './SidebarMenuCall';
 
 type RecordOutPatientType = {
-  appointment: AppointmentWithPatient;
+  appointment: any,
   recordOutPatientButton: boolean,
   containerRef: MutableRefObject<HTMLDivElement>,
   handleSidebarHoverOff: () => void,
@@ -31,12 +31,12 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
 }) => {
   //current doctor
   let doctor = {
-    id: appointment?.doctorId,
-    name: appointment?.doctor.givenName.split(' ')[0],
-    lastName: appointment?.doctor.familyName.split(' ')[0],
+    id: appointment?.doctor.id,
+    name: appointment?.doctor.first_name.split(' ')[0],
+    lastName: appointment?.doctor.last_name.split(' ')[0],
   }
 
-  const patientId = appointment.patientId
+  const patientId = appointment.patient.id
 
   // error page
   const [error, setError] = useState(false)

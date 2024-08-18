@@ -46,10 +46,10 @@ const OrderImported = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const CategoryMap = {
-    'DIAGNOSTIC IMAGING': 'IMAGE',
-    LABORATORY: 'LABORATORY',
-    OTHER: 'OTHER',
-    '': 'OTHER',
+    'DIAGNOSTIC IMAGING': 'IMG',
+    LABORATORY: 'LAB',
+    OTHER: 'OTH',
+    '': 'OTH',
   }
 
   const deleteMessage = '¿ Está seguro que quiere anular la importación de la orden ?'
@@ -59,7 +59,8 @@ const OrderImported = (props: Props) => {
   }
 
   const getUploadUrl = (): Promise<Presigned> => {
-    let url = '/presigned'
+    //let url = '/presigned'
+    const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.identity-validator/blob'
 
     return new Promise(async (resolve, reject) => {
       await axios
@@ -78,11 +79,12 @@ const OrderImported = (props: Props) => {
     })
   }
 
-  const uploadFile = (file: File, presigned: Presigned): Promise<Boldo.AttachmentUrl | null> => {
+  const uploadFile = (file: File, presigned: any): Promise<Boldo.AttachmentUrl | null> => {
     if (!presigned) return null
+    console.log(presigned?.upload_url ?? '', "uploadFile");
     return new Promise((resolve, reject) => {
       axios
-        .put(presigned?.uploadUrl ?? '', file, {
+        .put(presigned?.upload_url ?? '', file, {
           withCredentials: false,
           headers: { 'Content-Type': file.type, authentication: null },
         })
@@ -98,7 +100,7 @@ const OrderImported = (props: Props) => {
         .catch(err => {
           reject({} as Boldo.AttachmentUrl)
           const tags = {
-            'upload-url': presigned.uploadUrl,
+            'upload-url': presigned.upload_url,
             method: 'PUT',
           }
           let messageError = err?.message ?? ''
@@ -123,7 +125,8 @@ const OrderImported = (props: Props) => {
   const uploadStudy = (attachmentUrls: Boldo.AttachmentUrl[]): Promise<boolean> => {
     if (!attachmentUrls) return
 
-    let url = '/profile/doctor/diagnosticReport'
+    //let url = '/profile/doctor/diagnosticReport'
+    let url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/results'
 
     let currentDate = new Date()
     let year = currentDate.getFullYear()
@@ -135,13 +138,14 @@ const OrderImported = (props: Props) => {
     return new Promise((resolve, reject) => {
       axios
         .post(url, {
-          attachmentUrls: attachmentUrls,
-          category: CategoryMap[OrderImported?.category?.toUpperCase() ?? ''],
+          attachments: attachmentUrls.map(a => { return { file_name: a.title, url: a.url, extension: a.contentType }; }),
+          study_category_id: CategoryMap[OrderImported?.category?.code.toUpperCase() ?? ''],
           // conclusion: OrderImported.diagnosis,
           description: OrderImported?.studiesCodes?.map(study => study.display)?.join(', ') ?? '',
-          effectiveDate: formattedDate,
-          patientId: patientId,
-          serviceRequestId: OrderImported.id,
+          name: OrderImported?.studiesCodes?.map(study => study.display)?.join(', ') ?? '',          
+          study_date: formattedDate,
+          //patientId: patientId,
+          study_order_id: OrderImported.id,
         })
         .then(res => {
           if (res.status === 201) resolve(true)
@@ -382,7 +386,7 @@ const OrderImported = (props: Props) => {
           <div className='flex flex-col space-y-1'>
             {/* category and urgency */}
             <div className='flex flex-row space-x-4'>
-              <Category category={OrderImported?.category ?? ''} />
+              <Category category={OrderImported?.category.code ?? ''} />
               {OrderImported?.urgent && <Urgency />}
             </div>
             {/* list of requested studies */}

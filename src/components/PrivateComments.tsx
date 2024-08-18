@@ -55,7 +55,8 @@ export default function PrivateComments({
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+                const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+                const res = await axios.get(url);
                 const { status = '' } = res.data.encounter
                 if (status === 'finished' || status === 'locked' || status === 'cancelled') {
                     setAppointmentDisabled(true);

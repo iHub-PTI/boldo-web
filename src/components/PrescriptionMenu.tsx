@@ -64,7 +64,8 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     useEffect(() => {
         const load = async () => {
-            const url = `/profile/doctor/appointments/${id}/encounter`
+            const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+            //const url = `/profile/doctor/appointments/${id}/encounter`
             
             await axios
                 .get(url)
@@ -123,7 +124,8 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
-            const url = `/profile/doctor/appointments/${id}/encounter`
+            //const url = `/profile/doctor/appointments/${id}/encounter`
+            const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
             try {
                 setLoading(true)
                 await axios.put(url, _encounter)
@@ -241,7 +243,7 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
                                 {appointment.patient.givenName} {appointment.patient.familyName}
                             </Typography>
                             <Typography variant="subtitle1" color="textSecondary">
-                                CI: {appointment.patient.identifier}
+                                CI: {appointment.patient.document_number}
                             </Typography>
                         </Grid>
                     </>

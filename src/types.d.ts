@@ -30,7 +30,7 @@ interface OpenHours {
 export interface Appointment extends iHub.Appointment {
   name: string
   type: 'PrivateEvent' | 'CustomAppointment' | 'Appointment'
-  status: 'upcoming' | 'open' | 'closed' | 'locked' | 'cancelled'
+  status: any
   appointmentType:string
 }
 
@@ -101,9 +101,15 @@ export interface Soep {
   subjective?: string;
 }
 
+export interface Category {
+  code: string,
+  name: string,
+  display: string
+}
+
 export interface OrderStudy {
   authoredDate?: string
-  category?: string
+  category?: Category
   diagnosis?: string
   diagnosticReports?: DiagnosticReport[]
   doctor: Omit<iHub.Doctor, "specializations"> & { specializations: iHub.Specialization[] }
@@ -114,7 +120,8 @@ export interface OrderStudy {
   organization?: OrganizationInOrderStudy
   studiesCodes?: StudiesCode[]
   urgent?: boolean
-  notes?: string
+  notes?: string,
+  dependents?: any
 }
 
 export interface DiagnosticReport {

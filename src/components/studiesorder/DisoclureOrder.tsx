@@ -20,8 +20,8 @@ const DisoclureOrder: React.FC<Props> = ({ order = null, small = false }) => {
           <div className='text-sm text whitespace-no-wrap text-dark-cool font-medium'>
             Orden Nro: {order.orderNumber}
           </div>
-          <div className='w-7 flex flex-row items-center'>{getCategorySvg(order.category, 24, 24)}</div>
-          <div className='w-20 gap-2 text-sm leading-5 text-gray-900'>{getCategoryLabel(order.category)}</div>
+          <div className='w-7 flex flex-row items-center'>{getCategorySvg(order.category.code, 24, 24)}</div>
+          <div className='w-20 gap-2 text-sm leading-5 text-gray-900'>{getCategoryLabel(order.category.code)}</div>
           {!small && (
             <div className='w-20 text-sm leading-5 text-gray-900'>
               {order.authoredDate ? moment(order.authoredDate).format('DD/MM/YYYY') : 'Fecha Desconocida'}
@@ -30,7 +30,7 @@ const DisoclureOrder: React.FC<Props> = ({ order = null, small = false }) => {
           {!small && <div className='flex flex-row items-start pt-1 w-15'>{order.urgent && <Urgency />}</div>}
           {!small && (
             <div className='sm:hidden md:w-48 lg:w-56 lg:block xl:w-64 2xl:w-96 truncate text-sm leading-5 text-gray-900'>
-              {order.studiesCodes.map(study => study.display).join(', ')}
+              {order.dependents.map(dependent => dependent.study.id).join(', ')}
             </div>
           )}
           <Disclosure.Button className='focus:outline-none underline whitespace-no-wrap' style={{ color: '#24AAAD' }}>

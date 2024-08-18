@@ -35,32 +35,32 @@ function AppointmentCard(eventInfo, color = "#27BEC2") {
         {/* header of the container */}
         <div className="flex">
           { 
-            eventInfo.event.extendedProps.status === 'cancelled'
+            eventInfo.event.extendedProps.status === 'CANCELLED'
               ? <div className='mt-1 ml-1 mr-1'><Close /></div> 
-              : eventInfo.event.extendedProps.status === 'locked'
+              : eventInfo.event.extendedProps.status === 'LOCKED'
                 ? <div className='mt-1 ml-1 mr-1'><Check /></div>
-                : eventInfo.event.extendedProps.status === 'upcoming' || eventInfo.event.extendedProps.status === 'closed'
+                : eventInfo.event.extendedProps.status === 'upcoming' || eventInfo.event.extendedProps.status === 'CLOSED'
                   ? <div className='mt-1 ml-1 mr-1'><TimeSlot /></div>
                   // : eventInfo.event.extendedProps.status === 'open'
                   : <div className='mt-1 ml-1 mr-1'><Now /></div> 
           }
           {
-            eventInfo.event.extendedProps.status === 'cancelled'
+            eventInfo.event.extendedProps.status === 'CANCELLED'
             ? <p className="ml-1 text-orange-600">Cita cancelada</p> 
-            : eventInfo.event.extendedProps.status === 'locked'
+            : eventInfo.event.extendedProps.status === 'LOCKED'
               ? <p className="ml-1 text-teal-400">Cita atendida</p>
-              : eventInfo.event.extendedProps.status === 'upcoming' || eventInfo.event.extendedProps.status === 'closed'
+              : eventInfo.event.extendedProps.status === 'UPCOMING' || eventInfo.event.extendedProps.status === 'CLOSED'
                 ? <p className='ml-1'>{eventInfo.timeText}</p>
                 // : eventInfo.event.extendedProps.status === 'open'
                 : <p className="ml-1 text-orange-600">Cita abierta</p> 
           }
         </div>
         <div className='flex'>
-          { eventInfo.event.extendedProps.patient.photoUrl && 
+          { eventInfo.event.extendedProps.patient?.picture && 
             <div className='content-center justify-items-center'>
               <img
                 className='object-cover w-12 h-12 sm:h-8 md:h-12 lg:h-12 xl:h-12 rounded-full mt-2 ml-1 mr-1 ...'
-                src={eventInfo.event.extendedProps.patient.photoUrl}
+                src={eventInfo.event.extendedProps.patient.picture}
                 alt='Foto de perfil del paciente' 
               />
             </div>
@@ -68,21 +68,21 @@ function AppointmentCard(eventInfo, color = "#27BEC2") {
           <div>
             {/* name of the patient */}
             <div className="flex mt-1">
-              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
-              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
+              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient?.first_name?.split(' ')[0]}</p>
+              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient?.last_name?.split(' ')[0]}</p>
             </div>
             {/* icon */}
             <div>
               {
-                eventInfo.event.extendedProps.status === 'cancelled'
-                  ? eventInfo.event.extendedProps.appointmentType === 'V'
+                eventInfo.event.extendedProps.status === 'CANCELLED'
+                  ? eventInfo.event.extendedProps.type === 'VIRTUAL'
                     ? <div className='mt-1 ml-1 mr-1'><CancelVirtualIcon /></div> 
                     : <div className='mt-1 ml-1 mr-1'><CancelPresentialIcon /></div> 
-                  : eventInfo.event.extendedProps.appointmentType === 'V'
-                    ? eventInfo.event.extendedProps.status === 'open'
+                  : eventInfo.event.extendedProps.type === 'VIRTUAL'
+                    ? eventInfo.event.extendedProps.status === 'OPEN'
                       ? <div className='mt-1 ml-1 mr-1'><NowVirtualIcon /></div>
                       : <div className='mt-1 ml-1 mr-1'><VirtualIcon /></div>
-                    : eventInfo.event.extendedProps.status === 'locked'
+                    : eventInfo.event.extendedProps.status === 'LOCKED'
                       ? <div className='mt-1 ml-1 mr-1'><LockPresentialIcon /></div>
                       : <div className='mt-1 ml-1 mr-1'><PresentialIcon /></div>
               }

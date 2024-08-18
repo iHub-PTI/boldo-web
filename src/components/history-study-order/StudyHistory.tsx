@@ -50,8 +50,8 @@ const StudyHistory: React.FC<Props> = ({
   //current doctor
   let doctor = {
     id: appointment?.doctorId,
-    name: appointment?.doctor.givenName.split(' ')[0],
-    lastName: appointment?.doctor.familyName.split(' ')[0],
+    name: appointment?.doctor?.givenName?.split(' ')[0],
+    lastName: appointment?.doctor?.familyName?.split(' ')[0],
   }
 
   //const { addToast } = useToasts()
@@ -379,17 +379,17 @@ const StudyHistory: React.FC<Props> = ({
 }
 
 export const getCategorySvg = (category = '', width = 36, height = 36, hoverDarkMode = false) => {
-
+  console.log(category)
   const classDarkMode = hoverDarkMode ? 'group-hover:text-cool-gray-700 text-white' : 'text-cool-gray-700'
   if (!category) return
   switch (category.toLowerCase()) {
-    case 'laboratory':
+    case 'LAB':
     case 'laboratorio':
       return <LabIcon className={classDarkMode} width={width} height={height} />;
-    case 'other':
+    case 'OTH':
     case 'otros':
       return <OtherIcon className={classDarkMode} width={width} height={height} />;
-    case 'image':
+    case 'IMG':
     case 'diagnostic imaging':
     case 'imágen':
       return <ImgIcon className={classDarkMode} width={width} height={height} />;

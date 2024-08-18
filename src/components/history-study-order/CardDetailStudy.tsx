@@ -59,7 +59,8 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   }
 
   const getServiceRequest = id => {
-    let url = '/profile/doctor/serviceRequest/' + id
+    //let url = '/profile/doctor/serviceRequest/' + id
+    let url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders/${id}`
     setLoading(true)
     setError(null)
     axios

@@ -84,8 +84,8 @@ const Gate = () => {
     async (status?: Status) => {
       setInstance(0)
       if (!status) return
-
-      const url = `/profile/doctor/appointments/${id}`
+      const url = 'https://dev-doctors.boldo.pti.org.py/doctors/appointments/' + id;
+      //const url = `/profile/doctor/appointments/${id}`
       try {
         if (['closed', 'open'].includes(status)) await axios.post(url, { status })
         setAppointment(appointment => {
@@ -112,9 +112,10 @@ const Gate = () => {
     let mounted = true
 
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}`
+      const url = 'https://dev-doctors.boldo.pti.org.py/doctors/appointments/' + id
+      //const url = `/profile/doctor/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
+        const res = await axios.get(url)
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
@@ -142,7 +143,7 @@ const Gate = () => {
   }, [addToast, history, id])
 
   useEffect(() => {
-    if (appointment?.status !== 'upcoming') return
+    if (appointment?.status !== 'UPCOMING') return
     let mounted = true
 
     const calculate = async () => {
@@ -150,7 +151,7 @@ const Gate = () => {
       const minutes = differenceInMinutes(parseISO(appointment.start as any), Date.now())
       if (minutes < 15) {
         clearInterval(timer)
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(`/profile/doctor/appointments/${id}`)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(`https://dev-doctors.boldo.pti.org.py/doctors/appointments/${id}`)
         if (mounted) setAppointment(res.data)
       } else if (minutes < 16) {
         const seconds = differenceInSeconds(parseISO(appointment.start as any), Date.now())
@@ -172,7 +173,7 @@ const Gate = () => {
   useEffect(() => {
     let token = appointment?.token || ''
     if (!socket) return
-    if (appointment?.status !== 'open' || !token) return
+    if (appointment?.status !== 'OPEN' || !token) return
 
     socket.emit('ready?', { room: id, token })
     socket.on('ready!', (roomId: string) => {
@@ -188,7 +189,7 @@ const Gate = () => {
 
   useEffect(() => {
     if (!socket) return
-    if (appointment?.status !== 'open') return
+    if (appointment?.status !== 'OPEN') return
     socket.on('end call', () => {
       addToast({ type: 'success', title: 'Llamada Finalizada', text: '¡El paciente ha terminado la llamada!' })
       updateStatus()
@@ -1104,7 +1105,8 @@ function SOEP({ appointment }: { appointment: any }) {
   useEffect(() => {
     let mounted = true
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
+      //const url = `/profile/doctor/appointments/${id}/encounter`
       try {
         const res = await axios.get(url)
         if (mounted) {
@@ -1126,6 +1128,7 @@ function SOEP({ appointment }: { appointment: any }) {
           setInitialLoad(false)
         }
       } catch (err) {
+        console.log(err);
         if (mounted) {
           const tags = {
             endpoint: url,
@@ -1238,7 +1241,8 @@ function SOEP({ appointment }: { appointment: any }) {
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      //const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = 'https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/encounters?appointment_id=' + id;
       try {
         //setIsLoading(true)
         const res = await axios.put(url, _encounter)
@@ -1870,7 +1874,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
   const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='flex items-center justify-center flex-grow'>
-      {status === 'upcoming' && (
+      {status === 'UPCOMING' && (
         <div className='max-w-xs m-4'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full'>
             {/* Heroicon name: clock */}
@@ -1927,7 +1931,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
           </div>
         </div>
       )}
-      {status === 'open' && (
+      {status === 'OPEN' && (
         <div className='max-w-xs m-4'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <svg
@@ -1968,7 +1972,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
         </div>
       )}
 
-      {status === 'closed' && (
+      {status === 'CLOSED' && (
         <div className='max-w-xs m-4'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <svg
@@ -2001,7 +2005,7 @@ const CallStatusMessage = ({ status, statusText, updateStatus, appointmentId }: 
           </div>
         </div>
       )}
-      {status === 'locked' && (
+      {status === 'LOCKED' && (
         <div className='max-w-xs m-4'>
           <div className='flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full'>
             <svg

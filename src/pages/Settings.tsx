@@ -282,7 +282,7 @@ const Settings = (props: Props) => {
 
     const load = async () => {
       try {
-        const res = await axios.get('/profile/doctor') // used to be <Boldo.Doctor | null>
+        const res = await axios.get('/doctors/profile') // used to be <Boldo.Doctor | null>
         const res2 = await axios.get<iHub.Specialization[]>('/specializations')
 
         if (mounted) {

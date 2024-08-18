@@ -148,12 +148,12 @@ const MedicalHistory: React.FC<Props> = ({ show = false, setShow, appointment, .
 
   const { width: screenWidth } = useWindowDimensions()
 
-  const patientId = appointment.patient.id
-  const { gender } = appointment.patient
+  const patientId = appointment?.patient?.id
+  const { gender = 'male' } = appointment?.patient??{}
   //rectrict medical history
   const isEditable = appointment.status === 'closed' || appointment.status === 'open'
   //console.log(isEditable, appointment.status)
-  const organizationId = appointment.organization.id
+  const organizationId = appointment?.organization?.id
   const appointmentId = appointment.id
 
   const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, show)

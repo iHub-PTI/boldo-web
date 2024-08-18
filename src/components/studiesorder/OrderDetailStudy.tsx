@@ -27,8 +27,8 @@ const OrderDetailStudy: React.FC<Props> = ({ orderID }) => {
 
   useEffect(() => {
     setLoading(true)
-    let url = `/profile/doctor/serviceRequest/${orderID ?? ''}`
-
+    //let url = `/profile/doctor/serviceRequest/${orderID ?? ''}`
+    let url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders/${orderID ?? ''}`
     axios
       .get(url)
       .then(res => {
@@ -82,9 +82,9 @@ const OrderDetailStudy: React.FC<Props> = ({ orderID }) => {
                 {/* Header Study */}
                 <div className='flex flex-row justify-between'>
                   <div className='flex flex-row gap-2 items-center'>
-                    {getCategorySvg(studyOrder?.category, 24, 24)}
+                    {getCategorySvg(studyOrder?.category.code, 24, 24)}
                     <div className='text-cool-gray-700 text-sm' style={{ lineHeight: '20px' }}>
-                      {getCategoryLabel(studyOrder?.category)}
+                      {getCategoryLabel(studyOrder?.category.code)}
                     </div>
                   </div>
                   {studyOrder?.urgent && (

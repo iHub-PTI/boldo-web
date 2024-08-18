@@ -19,7 +19,7 @@ import { CardDetailStudy } from './CardDetailStudy';
 import { useToasts } from '../Toast';
 
 type StudyHistoryCallType = {
-  appointment: AppointmentWithPatient;
+  appointment: any;
   studyHistoryButton: boolean,
   containerRef: MutableRefObject<HTMLDivElement>,
   handleSidebarHoverOff: () => void,
@@ -39,9 +39,9 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
 
   //current doctor
   let doctor = {
-    id: appointment?.doctorId,
-    name: appointment?.doctor.givenName.split(' ')[0],
-    lastName: appointment?.doctor.familyName.split(' ')[0],
+    id: appointment?.doctor.id,
+    name: appointment?.doctor.first_name.split(' ')[0],
+    lastName: appointment?.doctor.last_name.split(' ')[0],
   }
 
   const patientId = appointment.patientId

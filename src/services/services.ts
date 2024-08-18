@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 export function getStudyOrdersByEncounter(encounterId: string, patientId: string) {
-  const url = `/profile/doctor/patient/${patientId}/encounter/${encounterId}/studyOrders`
+  //const url = `/profile/doctor/patient/${patientId}/encounter/${encounterId}/studyOrders`
+
+  const url = `https://dev-web.boldo.pti.org.py/mcs.boldo.encounters/studies/orders?encounter_id=${encounterId}`
+
   return axios.get<Boldo.OrderStudy[]>(url)
 }
 
