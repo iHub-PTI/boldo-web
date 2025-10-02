@@ -81,14 +81,16 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
     setLoading(true)
     setDetailRecordPatient(null)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/all`, {
         params: {
           doctorId: doctorId === 'ALL' ? '' : doctor.id,
+          patientId,
           content: content,
           count: count,
           offset: offset,
           order: order,
         },
+        withCredentials: false
       })
       .then(res => {
         setRecordsPatient(res.data.items)
@@ -103,7 +105,7 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters?patientId=${patientId}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)
@@ -127,14 +129,16 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
   }) => {
     setLoadingScroll(true)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/all`, {
         params: {
+          patientId,
           doctorId: doctorId === 'ALL' ? '' : doctor.id,
           content: content,
           count: count,
           offset: offset,
           order: order,
         },
+        withCredentials: false
       })
       .then(res => {
         setRecordsPatient([...recordsPatient, ...res.data.items])
@@ -146,7 +150,7 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
         addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters?patientId=${patientId}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)
@@ -175,10 +179,10 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
     if (id === activeID) return
     setLoadingDetail(true)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`, { withCredentials: false })
       .then(res => {
-        //console.log('data record patient details', res.data)
-        setDetailRecordPatient(res.data)
+        console.log('data record patient details', res.data.encounter);
+        setDetailRecordPatient(res.data.encounter)
         setLoadingDetail(false)
       })
       .catch(err => {
@@ -186,7 +190,7 @@ export const RecordOutPatientCall: React.FC<RecordOutPatientType> = ({
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)

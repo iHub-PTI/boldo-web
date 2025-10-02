@@ -59,11 +59,12 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   }
 
   const getServiceRequest = id => {
-    let url = '/profile/doctor/serviceRequest/' + id
+    
+    let url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders/${id}`
     setLoading(true)
     setError(null)
     axios
-      .get(url)
+      .get(url, { withCredentials: false })
       .then(res => {
         setStudyOrder(res.data)
         //console.log(res.data)
@@ -81,11 +82,11 @@ export const CardDetailStudy: React.FC<PropsDetailStudy> = ({
   }
 
   const getDiagnosticReport = id => {
-    let url = '/profile/doctor/diagnosticReport/' + id
+    let url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/results/${id}`
     setLoading(true)
     setError(null)
     axios
-      .get(url)
+      .get(url, { withCredentials: false })
       .then(res => {
         setStudyOrder(res.data)
         //console.log(res.data)

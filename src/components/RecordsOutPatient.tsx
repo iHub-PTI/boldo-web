@@ -112,14 +112,16 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     setLoading(true)
     setDetailRecordPatient(null)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/all`, {
         params: {
+          patientId,
           doctorId: doctorId === 'ALL' ? '' : doctor.id,
           content: content,
           count: count,
           offset: offset,
           order: order,
         },
+        withCredentials: false
       })
       .then(res => {
         setRecordsPatient(res.data.items)
@@ -134,7 +136,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters?patientId=${patientId}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)
@@ -158,14 +160,16 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
   }) => {
     setLoadingScroll(true)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters`, {
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/all`, {
         params: {
+          patientId,
           doctorId: doctorId === 'ALL' ? '' : doctor.id,
           content: content,
           count: count,
           offset: offset,
           order: order,
         },
+        withCredentials: false
       })
       .then(res => {
         setRecordsPatient([...recordsPatient, ...res.data.items])
@@ -177,7 +181,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         addErrorToast('Ha ocurrido un error al traer más registros' + err.message)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters?patientId=${patientId}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)
@@ -206,10 +210,10 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
     if (id === activeID) return
     setLoadingDetail(true)
     await axios
-      .get(`/profile/doctor/patient/${patientId}/encounters/${id}`)
+      .get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`, { withCredentials: false })
       .then(res => {
         //console.log('data record patient details', res.data)
-        setDetailRecordPatient(res.data)
+        setDetailRecordPatient(res.data.encounter)
         setLoadingDetail(false)
       })
       .catch(err => {
@@ -217,7 +221,7 @@ export const RecordsOutPatient: React.FC<Props> = ({ show = false, setShow = () 
         console.error(err)
         Sentry.setTags({
           'patient id': patientId,
-          GET: `/profile/doctor/patient/${patientId}/encounters/${id}`,
+          GET: `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`,
           'Doctor Id session': doctor.id,
         })
         Sentry.captureException(err)
@@ -428,7 +432,7 @@ export const PatientRecord = ({
       <div className='flex flex-col w-full truncate'>
         <div
           className={`font-semibold text-base truncate w-full ${darkMode ? 'group-hover:text-gray-700 text-white' : 'text-gray-700'}`}
-          title={toUpperLowerCase(patientRecord.doctorDto.givenName + ' ' + patientRecord.doctorDto.familyName ?? '')}
+          title={toUpperLowerCase(patientRecord.doctorDto.givenName + ' ' + (patientRecord.doctorDto.familyName ?? ''))}
         >
           {`${patientRecord.doctorDto.gender === 'male' ? 'Dr.' : 'Dra.'} ${toUpperLowerCase(
             patientRecord.doctorDto.givenName.split(' ')[0]
@@ -460,6 +464,11 @@ export const PatientRecord = ({
 }
 
 export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordPatientProps, darkMode = false, isCall = true, ...props }) => {
+
+  useEffect(() => {
+    console.log(data);
+  }, [])
+
   return (
     <div className='flex flex-col w-full h-full gap-5'>
       <div>
@@ -474,24 +483,30 @@ export const DescripcionRecordPatientDetail = ({ data = {} as DescripcionRecordP
 
       <div>
         <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Prescripciones</div>
-        {data.prescriptions.length === 0 && <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>Sin prescripción médica.</div>
-        }
-        <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
-          {data.prescriptions.map((prescription, index) => (
-            <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
-              <div className='flex flex-col p-2 w-6/12'>
-                <div className='text-black'>{prescription.medicationName}</div>
-                <div className='text-gray-500'>{prescription.medicationDto.form}</div>
-              </div>
-              <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
-                {prescription.instructions ? prescription.instructions : 'Sin indicaciones'}
-              </div>
+        {
+          data.prescriptions.length == 0 ? (
+            <div className={`font-semibold ${darkMode ? 'text-white' : ''}`}>Sin prescripción médica.</div>
+          )
+          :
+          (
+            <div className='flex flex-col gap-1 pt-1 justify-center items-start'>
+              {data.prescriptions.map((prescription, index) => (
+                <div key={index} className={`flex flex-row bg-gray-100 rounded-md  ${isCall ? 'w-full' : 'w-10/12'}`}>
+                  <div className='flex flex-col p-2 w-6/12'>
+                    <div className='text-black'>{prescription?.medicationName}</div>
+                    <div className='text-gray-500'>{prescription?.medicationDto?.form}</div>
+                  </div>
+                  <div className='flex flex-col p-2 m-1 bg-white rounded-md w-6/12'>
+                    {prescription?.instructions ? prescription?.instructions : 'Sin indicaciones'}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )
+        }
       </div>
       {/* SOEP */}
-      {Object.keys(data.soep).length > 0 && (
+      {Object.keys(data.soep||{}).length > 0 && (
         <div>
           <div className={`font-normal  ${darkMode ? 'text-gray-100' : 'text-primary-500'}`}>Plan</div>
           <p className={`w-10/12  ${darkMode ? 'text-white font-semibold' : ''}`}>{data.soep.plan || 'Sin plan.'}</p>

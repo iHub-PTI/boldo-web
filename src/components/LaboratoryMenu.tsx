@@ -224,14 +224,14 @@ export function LaboratoryMenu(props) {
       try {
         if (selectedRow !== undefined) {
           //@ts-ignore
-          const res = await axios.get(`/profile/doctor/diagnosticReport/${selectedRow.id}`)
+          const res = await axios.get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/results/${selectedRow.id}`, { withCredentials: false })
           setStudyDetail(res.data)
         }
       } catch (err) {
         let tags = {}
         if (selectedRow) { 
           //@ts-ignore
-          tags = {"endpoint": `/profile/doctor/diagnosticReport/${selectedRow.id}`}
+          tags = {"endpoint": `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/results/${selectedRow.id}`}
         }
         tags = { ...tags, ...{"method": "GET"}}
         handleSendSentry(err, ERROR_HEADERS.SERVICE_REQUEST.FAILURE_GET_DESCRIPTION, tags)
@@ -253,11 +253,11 @@ export function LaboratoryMenu(props) {
   // this get the encounter
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       
       setDisabledButton(true)
       await axios
-        .get(url)
+        .get(url, { withCredentials: false })
         .then((res) => {
           const data = res.data.encounter as Boldo.Encounter
           if (Object.keys(data.soep).length === 0) {

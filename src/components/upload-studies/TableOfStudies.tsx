@@ -101,10 +101,10 @@ const TableOfStudies = (props: Props) => {
       loading: true
     })
 
-    let url = `/profile/doctor/serviceRequest/${rowData?.id ?? ''}`
+    let url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders/${rowData?.id ?? ''}`
 
     axios
-      .get(url)
+      .get(url, { withCredentials: false })
       .then((res) => {
         // console.log("ORDER STUDY => ", res.data)
         setOrderImported(res.data as Boldo.OrderStudy)

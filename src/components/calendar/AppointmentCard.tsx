@@ -56,7 +56,7 @@ function AppointmentCard(eventInfo, color = "#27BEC2") {
           }
         </div>
         <div className='flex'>
-          { eventInfo.event.extendedProps.patient.photoUrl && 
+          { eventInfo?.event?.extendedProps?.patient?.photoUrl && 
             <div className='content-center justify-items-center'>
               <img
                 className='object-cover w-12 h-12 sm:h-8 md:h-12 lg:h-12 xl:h-12 rounded-full mt-2 ml-1 mr-1 ...'
@@ -68,8 +68,8 @@ function AppointmentCard(eventInfo, color = "#27BEC2") {
           <div>
             {/* name of the patient */}
             <div className="flex mt-1">
-              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.givenName.split(' ')[0]}</p>
-              <p className="ml-1 font-medium">{eventInfo.event.extendedProps.patient.familyName.split(' ')[0]}</p>
+              <p className="ml-1 font-medium">{eventInfo?.event?.extendedProps?.patient?.givenName.split(' ')[0]}</p>
+              <p className="ml-1 font-medium">{eventInfo?.event?.extendedProps?.patient?.familyName.split(' ')[0]}</p>
             </div>
             {/* icon */}
             <div>

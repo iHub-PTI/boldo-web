@@ -84,13 +84,12 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
     count = pageParams.count,
     page = 1,
   }) => {
-    let api = '/profile/doctor/studyResults'
-    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
-    `
+    let api = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/results`
+    let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}`
     setLoading(true)
     setSelectedStudy(null)
     setError(null)
-    axios.get(url)
+    axios.get(url, { withCredentials: false })
       .then(res => {
         if (res.status === 200) {
           setDataStudy(res.data.items)
@@ -137,12 +136,11 @@ export const StudyHistoryCall: React.FC<StudyHistoryCallType> = ({
     count = pageParams.count,
     page = 1,
   }) => {
-    let api = '/profile/doctor/studyResults'
-    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}
-    `
+    let api = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/results`
+    let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withOrder === undefined ? '' : `&withOrder=${withOrder}`}&description=${inputContent}&count=${count}&page=${page}`
     setLoadingScroll(true)
     setError(null)
-    axios.get(url)
+    axios.get(url, { withCredentials: false })
       .then(res => {
         if (res.status === 200) {
           setDataStudy([...dataStudy, ...res.data.items])

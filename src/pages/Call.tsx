@@ -85,9 +85,9 @@ const Gate = () => {
       setInstance(0)
       if (!status) return
 
-      const url = `/profile/doctor/appointments/${id}`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/appointments/${id}`
       try {
-        if (['closed', 'open'].includes(status)) await axios.post(url, { status })
+        if (['closed', 'open'].includes(status)) await axios.post(url, { status }, { withCredentials: false })
         setAppointment(appointment => {
           if (!appointment || !status) return
           return { ...appointment, status: status }
@@ -112,9 +112,9 @@ const Gate = () => {
     let mounted = true
 
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url, { withCredentials: false })
         if (mounted) setAppointment(res.data)
       } catch (err) {
         console.log(err)
@@ -1104,9 +1104,9 @@ function SOEP({ appointment }: { appointment: any }) {
   useEffect(() => {
     let mounted = true
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
-        const res = await axios.get(url)
+        const res = await axios.get(url, { withCredentials: false })
         if (mounted) {
           const { diagnosis, instructions, prescriptions, mainReason } = res.data.encounter
           setDiagnose(diagnosis)
@@ -1116,7 +1116,7 @@ function SOEP({ appointment }: { appointment: any }) {
           setGlobalEncounterId(res.data.encounter.id)
           setPartOfEncounterId(res.data.encounter.partOfEncounterId)
           mainReason !== undefined && setMainReason(mainReason)
-          if (res.data.encounter.soep !== undefined) {
+          if (res.data.encounter.soep != undefined) {
             const { subjective, objective, evaluation, plan } = res.data.encounter.soep
             objective !== undefined && setObjective(objective)
             subjective !== undefined && setSubjective(subjective)
@@ -1126,6 +1126,7 @@ function SOEP({ appointment }: { appointment: any }) {
           setInitialLoad(false)
         }
       } catch (err) {
+        console.log(err);
         if (mounted) {
           const tags = {
             endpoint: url,
@@ -1238,10 +1239,10 @@ function SOEP({ appointment }: { appointment: any }) {
 
   const debounce = useCallback(
     _.debounce(async (_encounter: object) => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
         //setIsLoading(true)
-        const res = await axios.put(url, _encounter)
+        const res = await axios.put(url, _encounter, { withCredentials: false })
         console.log('response', res.data)
         //setIsLoading(false)
         addToast({ type: 'success', title: 'Ficha médica actualizada con exito', text: '' })
@@ -1265,9 +1266,9 @@ function SOEP({ appointment }: { appointment: any }) {
 
   useEffect(() => {
     const getPrivateCommentsRecords = async () => {
-      const url = `/profile/doctor/relatedEncounters/${encounterId}/privateComments`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${encounterId}/private-comments`
       try {
-        const res = await axios.get(url)
+        const res = await axios.get(url, { withCredentials: false })
         setPrivateCommentsRecords(res.data.encounter.items)
       } catch (err) {
         console.log(err)

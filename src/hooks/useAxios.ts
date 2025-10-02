@@ -10,7 +10,7 @@ import { useToasts } from "../components/Toast"
  * @param dependencies - boolean dependency, that only if it is true the request will be made
  * @returns 
  */
-export function useAxiosFetch<T>(url: string, params: {}, dependency: boolean) {
+export function useAxiosFetch<T>(url: string, params: {}, withCredentials: boolean, dependency: boolean) {
   const { addToast } = useToasts()
   const [data, setData] = useState<T>(null);
   const [loading, setLoading] = useState(null);
@@ -21,6 +21,7 @@ export function useAxiosFetch<T>(url: string, params: {}, dependency: boolean) {
     setError(null)
     axios.get(url, {
       params: params,
+      withCredentials
     })
       .then((res) => {
         setData(res.data)

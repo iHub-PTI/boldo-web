@@ -101,9 +101,9 @@ const App = () => {
 
   useEffect(() => {
     const effect = async () => {
-      const url = '/profile/doctor'
+      const url = process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA + 'doctors/profile'
       try {
-        const res = await axios.get(url)
+        const res = await axios.get(url, { withCredentials: false })
         setUser(res.data)
         //console.log(res.data)
         Sentry.setUser({ id: res.data.id, email: res.data.email, username: res.data.identifier })
@@ -130,7 +130,7 @@ const App = () => {
   useEffect(() => {
     const url = '/profile/doctor/organizations';
     axios.get(
-      url
+      process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA + 'doctors/profile/organizations', { withCredentials: false }
     )
     .then(function (res) {
       if (res.status === 200) {
@@ -331,10 +331,11 @@ export const RoomsProvider: React.FC = ({ children }) => {
     const load = async () => {
       const url = '/profile/doctor/appointments?status=open'
       await axios.get<{ appointments: AppointmentWithPatient[]; token: string }>(
-        url, {
+        process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA + 'doctors/appointments', {
+          withCredentials: false,
           params: {
-            start: changeHours(new Date(today), hours, 'subtract'),
-            end: changeHours(new Date(today), hours, 'add')
+            start: changeHours(new Date(today), hours, 'subtract').split("T")[0],
+            end: changeHours(new Date(today), hours, 'add').split("T")[0]
           }
         }
       )

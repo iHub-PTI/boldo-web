@@ -54,7 +54,7 @@ export const MedicalHistoryCall: React.FC<Props> = ({
 
   const isEditable  = appointment.status === 'closed' || appointment.status === 'open'
 
-  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(urls.getHistory, { patient_id: patientId }, medicalHistoryButton)
+  const { data, loading, error, reload } = useAxiosFetch<MedicalHistoryType>(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}patients/${patientId}/clinical-history`, {}, false, medicalHistoryButton)
   const [saveLoading, setSaveLoading] = useState(null)
   const [dataHistory, setDataHistory] = useState<MedicalHistoryType>(initialState)
 

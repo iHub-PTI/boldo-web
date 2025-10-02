@@ -41,12 +41,12 @@ export function PrescriptionContextProvider({
   const [state, dispatch] = useReducer(PrescriptionReducer, initialState);
 
   const updatePrescriptions = async function (id: string, payload?: Array<any>) {
-    const url = `/profile/doctor/appointments/${id}/encounter`;
+    const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`;
     try {
       if (payload) {
         dispatch({ type: 'GET_PRESCRIPTION', payload: payload });
       } else {
-        const res = await axios.get(url);
+        const res = await axios.get(url, { withCredentials: false });
         dispatch({ type: 'GET_PRESCRIPTION', payload: res.data.encounter.prescriptions });
       }
     } catch(err) {

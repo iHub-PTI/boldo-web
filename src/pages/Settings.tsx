@@ -144,7 +144,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
           for (let indexOrg = 0; indexOrg < action.organizations.length; indexOrg++) {
             let exist = false
             for (let index = 0; index < action.value.blocks.length; index++) {
-              if (action.organizations[indexOrg].id === action.value.blocks[index].idOrganization) {
+              if (action.organizations[indexOrg].id == action.value.blocks[index].idOrganization) {
                 exist = true
                 break
               }
@@ -180,7 +180,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
-      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
+      const block = state.blocks.find(bloc => bloc.idOrganization == idOrganization)
 
       //const day = [...state.openHours[action.value.day], { start: 0, end: 0 }]
       const day = [...block.openHours[action.value.day], { start: 0, end: 0 }]
@@ -191,7 +191,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       const newBlock = [{ openHours, idOrganization }] as Array<Boldo.Block>
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
-        if (state.blocks[index].idOrganization === idOrganization) {
+        if (state.blocks[index].idOrganization == idOrganization) {
           state.blocks[index] = newBlock[0]
         }
       }
@@ -204,7 +204,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
       // we search the bloc organization
-      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
+      const block = state.blocks.find(bloc => bloc.idOrganization == idOrganization)
       const day = block.openHours[action.value.day].filter((_, i) => i !== action.value.index)
       //const openHours = { ...state.openHours, [action.value.day]: day }
       const openHours = { ...block.openHours, [action.value.day]: day }
@@ -212,7 +212,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       const newBlock = [{ openHours, idOrganization }] as Array<Boldo.Block>
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
-        if (state.blocks[index].idOrganization === idOrganization) {
+        if (state.blocks[index].idOrganization == idOrganization) {
           state.blocks[index] = newBlock[0]
         }
       }
@@ -223,7 +223,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
     case 'ChangeOpenHour': {
       let idOrganization = action.org
       // console.log("idOrganization => ", idOrganization)
-      const block = state.blocks.find(bloc => bloc.idOrganization === idOrganization)
+      const block = state.blocks.find(bloc => bloc.idOrganization == idOrganization)
 
       const day = block.openHours[action.value.day].map((interval, i) =>
         i === action.value.index ? action.value.interval : interval
@@ -236,7 +236,7 @@ function reducer(state: DoctorForm, action: Action): DoctorForm {
       // console.log("newBlock => ", newBlock)
       // we replace the block that matches the idOrganization
       for (let index = 0; index < state.blocks.length; index++) {
-        if (state.blocks[index].idOrganization === idOrganization) {
+        if (state.blocks[index].idOrganization == idOrganization) {
           state.blocks[index] = newBlock[0]
         }
       }
@@ -282,26 +282,27 @@ const Settings = (props: Props) => {
 
     const load = async () => {
       try {
-        const res = await axios.get('/profile/doctor') // used to be <Boldo.Doctor | null>
-        const res2 = await axios.get<iHub.Specialization[]>('/specializations')
-
+        const res = await axios.get(process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA + 'doctors/profile', { withCredentials: false }) 
+        const res2 = await axios.get<iHub.Specialization[]>(process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA + 'specializations', { withCredentials: false })
         if (mounted) {
           if (res.data) {
             const doctor = {
               ...res.data,
               languages: res.data.languages.map((l: any) => l.id),
-              specializations: res.data.specializations.map((l: any) => l.id),
+              specializations: res.data.specializations.map((l: any) => l.id.toString()),
             }
+            console.log(doctor);
             dispatch({ type: 'initial', value: doctor, organizations: Organizations })
           }
           const specializations = res2.data.map(spec => {
             return { value: spec.id.toString(), name: spec.description }
           })
+          console.log(specializations);
           setSpecializations(specializations)
           setShow(true)
         }
-      } catch (err) {
-        // console.log(err)
+      } 
+      catch (err) {
         handleSendSentry(err, 'Could not get the doctor profile with the specializations')
         if (mounted) {
           addToast({ type: 'error', title: 'Ha ocurrido un error.', text: 'Falló la carga inicial de los datos.' })
@@ -361,7 +362,7 @@ const Settings = (props: Props) => {
       })
 
       if (!validationError) {
-        const url = '/profile/doctor'
+        const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/profile`
         try {
           let photoUrl = doctor.photoUrl
           if (doctor.photoUrl) {
@@ -371,7 +372,7 @@ const Settings = (props: Props) => {
             dispatch({ type: 'default', value: { photoUrl } })
           }
 
-          await axios.put(url, { ...doctor, photoUrl })
+          await axios.put(url, { ...doctor, photoUrl }, { withCredentials: false })
           // setSuccess('Actualización exitosa!')
           addToast({
             type: 'success',
@@ -462,11 +463,13 @@ const Settings = (props: Props) => {
   }
 
   const getOrganizationNameById = (idOrganization: String) => {
-    return Organizations.find(organization => organization.id === idOrganization).name
+    return Organizations.find(organization => organization.id == idOrganization).name
   }
   const getOrganizationById = (idOrganization: String) => {
     if(!idOrganization) throw new Error('No ha ingresado un id')
-    return Organizations.find(organization => organization.id === idOrganization)
+    let deet = Organizations.find(organization => organization.id == idOrganization)
+    console.log(deet);
+    return deet;
   }
 
   return (
@@ -654,7 +657,6 @@ const Settings = (props: Props) => {
                             id='biography'
                             rows={3}
                             className='block w-full mt-1 transition duration-150 ease-in-out form-textarea sm:text-sm sm:leading-5'
-                            placeholder='Recibido en la Universidad Nacional de Asunción con especialización en Dermatología Pediátrica. Miembro de la asiciocion DERLA hace 6 años.'
                             onChange={e => dispatch({ type: 'default', value: { biography: e.target.value } })}
                             value={doctor.biography}
                           />
@@ -1132,9 +1134,9 @@ export function AppoinmentModality(props) {
           label='modalidad'
           onChange={handleChange}
         >
-          <MenuItem value={'V'}>Virtual</MenuItem>
-          <MenuItem value={'A'}>Presencial</MenuItem>
-          <MenuItem value={'AV'}>Ambos</MenuItem>
+          <MenuItem value={'VIRTUAL'}>Virtual</MenuItem>
+          <MenuItem value={'ONSITE'}>Presencial</MenuItem>
+          <MenuItem value={'HYBRID'}>Ambos</MenuItem>
         </Select>
       </FormControl>
     </Box>

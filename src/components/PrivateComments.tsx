@@ -55,7 +55,7 @@ export default function PrivateComments({
     useEffect(() => {
         const load = async () => {
             try {
-                const res = await axios.get(`/profile/doctor/appointments/${id}/encounter`);
+                const res = await axios.get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`, { withCredentials: false});
                 const { status = '' } = res.data.encounter
                 if (status === 'finished' || status === 'locked' || status === 'cancelled') {
                     setAppointmentDisabled(true);
@@ -88,7 +88,7 @@ export default function PrivateComments({
 
             if (selectedCommnent === undefined) {
                 // send new comment
-                await axios.post(`/profile/doctor/encounters/${encounterId}/privateComments`, payload)
+                await axios.post(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${encounterId}/private-comments`, payload, { withCredentials: false })
                 setIsLoading(false);
                 setCommentText('')
                 getPrivateCommentsRecords()
@@ -96,7 +96,7 @@ export default function PrivateComments({
             } else {
                 // update comment
                 //@ts-ignore
-                await axios.put(`/profile/doctor/encounters/${selectedCommnent.idEncounter}/privateComments/${selectedCommnent.id}`, payload)
+                await axios.put(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${selectedCommnent.idEncounter}/private-comments/${selectedCommnent.id}`, payload, { withCredentials: false })
                 //console.log('respuesta', res.data)
                 setIsLoading(false);
                 setCommentText('')
@@ -116,7 +116,7 @@ export default function PrivateComments({
         try {
             // delete comment
             //@ts-ignore
-           await axios.delete(`/profile/doctor/encounters/${item.idEncounter}/privateComments/${item.id}`);
+           await axios.delete(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${item.idEncounter}/private-comments/${item.id}`, { withCredentials: false });
             setIsLoading(false);
             setCommentText('')
             setSelectedCommnent(undefined)
@@ -134,7 +134,7 @@ export default function PrivateComments({
     const getPrivateCommentsRecords = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.get(`/profile/doctor/relatedEncounters/${encounterId}/privateComments`)
+            const res = await axios.get(`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${encounterId}/private-comments`, { withCredentials: false })
             setIsLoading(false);
             let tempArray = res.data.encounter.items;
             tempArray.reverse();

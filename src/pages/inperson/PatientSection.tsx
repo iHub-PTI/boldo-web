@@ -231,9 +231,9 @@ export default (props) => {
 
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
-        const res = await axios.get(url);
+        const res = await axios.get(url,  { withCredentials: false });
         setEncounter(res.data.encounter)
         // setInitialLoad(false)
       } catch (err) {

@@ -64,10 +64,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     useEffect(() => {
         const load = async () => {
-            const url = `/profile/doctor/appointments/${id}/encounter`
+            const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
             
             await axios
-                .get(url)
+                .get(url, { withCredentials: false })
                 .then((res) => {
                     const data = res.data.encounter as Boldo.Encounter
                     // console.log("res",res.data)
@@ -123,10 +123,10 @@ export function PrescriptionMenu({ appointment, isFromInperson = false }: { appo
 
     const debounce = useCallback(
         _.debounce(async (_encounter: object) => {
-            const url = `/profile/doctor/appointments/${id}/encounter`
+            const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
             try {
                 setLoading(true)
-                await axios.put(url, _encounter)
+                await axios.put(url, _encounter, { withCredentials: false })
                 setLoading(false)
                 setSuccess(true)
                 //console.log('response', res.data)

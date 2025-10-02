@@ -66,9 +66,9 @@ export default function Dashboard() {
     let mounted = true
 
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/appointments/${id}`
       try {
-        const res = await axios.get<AppointmentWithPatient & { token: string }>(url)
+        const res = await axios.get<AppointmentWithPatient & { token: string }>(url, { withCredentials: false })
         if (mounted) {
           setAppointment(res.data)
                   }

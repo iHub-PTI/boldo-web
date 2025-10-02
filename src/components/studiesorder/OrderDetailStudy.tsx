@@ -26,11 +26,10 @@ const OrderDetailStudy: React.FC<Props> = ({ orderID }) => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setLoading(true)
-    let url = `/profile/doctor/serviceRequest/${orderID ?? ''}`
-
+    setLoading(true)    
+    let url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders/${orderID ?? ''}`
     axios
-      .get(url)
+      .get(url, { withCredentials: false })
       .then(res => {
         // console.log(res.data)
         setStudyOrder(res.data)

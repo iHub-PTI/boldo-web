@@ -24,10 +24,9 @@ const DetailPanel = (props: Props) => {
 
   useEffect(() => {
     setLoadingOrder(true)
-    let url = `/profile/doctor/serviceRequest/${orderId}`
-
+    let url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders/${orderId}`
     axios
-      .get(url)
+      .get(url, { withCredentials: false })
       .then(res => {
         // console.log(res.data)
         setOrderStudy(res.data as Boldo.OrderStudy)

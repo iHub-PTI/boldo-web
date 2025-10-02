@@ -188,10 +188,10 @@ const StudyOrder = ({
     let mounted = true
     const load = async () => {
       const id = remoteMode ? matchCall?.params.id : matchInperson?.params.id
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
         setLoading(true)
-        const res = await axios.get(url)
+        const res = await axios.get(url, { withCredentials: false })
         if (mounted) setEncounter(res.data.encounter)
       } catch (err) {
         const tags = {

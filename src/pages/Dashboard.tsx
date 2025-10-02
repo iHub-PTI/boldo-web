@@ -30,6 +30,7 @@ import { ERROR_HEADERS } from '../util/Sentry/errorHeaders'
 type AppointmentWithPatient = Boldo.Appointment & { patient: iHub.Patient }
 
 const eventDataTransform = (event: AppointmentWithPatient) => {
+  console.log(event);
   const getColorClass = (eventType: Boldo.Appointment['type']) => {
     if (event.status === "cancelled") return 'event-cancel'
     if (eventType === 'Appointment' && event.appointmentType === 'V') return 'event-online'
@@ -160,12 +161,13 @@ export default function Dashboard() {
     const calendarAPI = calendar.current.getApi()
     const start = calendarAPI.view.activeStart
     const end = calendarAPI.view.activeEnd
-    const url = `/profile/doctor/appointments?start=${start.toISOString()}&end=${end.toISOString()}`
+    const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/appointments?start=${start.toISOString().split("T")[0]}&end=${end.toISOString().split("T")[0]}`
 
     setLoadingAppointment(true)
     axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
+        withCredentials: false,
         params: {
           organizationId: idOrganization
         }
@@ -178,7 +180,7 @@ export default function Dashboard() {
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
 
         if (res.status === 200) {
-          //console.log("🚀 res appointment", res.data)
+          console.log("🚀 res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], refetch: false })
           setAppointments([...events])
@@ -297,7 +299,7 @@ export default function Dashboard() {
 
     if (validationError) return setLoading(false)
 
-    const url = `/profile/doctor/appointments`
+    const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/private-events`
     try {
       if (!Organization) {
         addToast({
@@ -316,7 +318,7 @@ export default function Dashboard() {
         idOrganization: Organization.id
       }
 
-      const res = await axios.post(url, payload) // <Boldo.Appointment>
+      const res = await axios.post(url, payload, { withCredentials: false}) // <Boldo.Appointment>
       setAppointmentsAndReload(appointments => [eventDataTransform(res.data), ...appointments])
       setShowEditModal(false)
       dispatch({ type: 'reset' })
@@ -345,7 +347,7 @@ export default function Dashboard() {
 
     const start = info.start.toISOString().split('T')[0]
     const end = info.end.toISOString().split('T')[0]
-    const url = `/profile/doctor/appointments?start=${info.start.toISOString()}&end=${info.end.toISOString()}`
+    const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/appointments?start=${start}&end=${end}`
     if (start === dateRange.start && end === dateRange.end && !dateRange.refetch) return successCallback(appointments)
 
     let loadingDiv = Organization && loadingAppoimentRef.current
@@ -355,6 +357,7 @@ export default function Dashboard() {
     Organization && axios
       .get<{ appointments: AppointmentWithPatient[]; token: string }>(
         url, {
+        withCredentials: false,
         params: {
           organizationId: Organization.id
         }
@@ -365,7 +368,7 @@ export default function Dashboard() {
         //const openHourDatesTransformed = openHourDates.map(event => ({ ...event, display: 'background' }))
         // successCallback(events) // Don't use it here to fix a bug with FullCalendar
         if (res.status === 200) {
-          // console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
+          console.log("🚀 ~ file: Dashboard.tsx ~ line 193 ~ Dashboard ~ res appointment", res.data)
           const events = res.data.appointments.map(event => eventDataTransform(event))
           setDateRange({ start, end, refetch: false })
           setAppointments([...events])
@@ -880,9 +883,9 @@ const EventModal = ({ setShow, appointment, setAppointmentsAndReload }: EventMod
     if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) return
     setLoading(true)
     setError('')
-    const url = `/profile/doctor/appointments/${id}`
+    const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/private-events/${id}`
     try {
-      await axios.delete(url)
+      await axios.delete(url, {withCredentials: false})
       setAppointmentsAndReload((appointments: EventInput[]) =>
         appointments.filter(appointment => appointment.extendedProps?.id !== id)
       )

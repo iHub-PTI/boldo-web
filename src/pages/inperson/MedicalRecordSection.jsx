@@ -105,9 +105,9 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   useEffect(() => {
     const load = async () => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
-        const res = await axios.get(url)
+        const res = await axios.get(url, { withCredentials: false })
         const {
           diagnosis = '',
           instructions = '',
@@ -122,7 +122,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         setEncounterId(res.data.encounter.id)
         setPartOfEncounterId(partOfEncounterId)
         mainReason !== undefined && setMainReason(mainReason)
-        if (res.data.encounter.soep !== undefined) {
+        if (res.data.encounter.soep != undefined) {
           const { subjective = '', objective = '', evaluation = '', plan = '' } = res.data.encounter.soep
           let copyStrings = [...soepText]
           copyStrings[0] = subjective
@@ -133,6 +133,7 @@ export default ({ appointment, setDisabledRedcordButton }) => {
         }
         // setInitialLoad(false)
       } catch (err) {
+        console.log(err);
         const tags = {
           endpoint: url,
           method: 'GET',
@@ -323,11 +324,11 @@ export default ({ appointment, setDisabledRedcordButton }) => {
 
   const debounce = useCallback(
     _.debounce(async _encounter => {
-      const url = `/profile/doctor/appointments/${id}/encounter`
+      const url = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/encounters/${id}`
       try {
         setIsLoading(true)
         setSucces(false)
-        const res = await axios.put(url, _encounter)
+        const res = await axios.put(url, _encounter, { withCredentials: false })
         if (res.data === 'OK') {
           setIsLoading(false)
           setSucces(true)

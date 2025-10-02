@@ -84,13 +84,13 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
     count = pageParams.count,
     page = 1,
   }) => {
-    let api = '/profile/doctor/studyOrders'
+    let api =`${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders`
     let url = api + `?patient_id=${patientId}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withResult === undefined ? '' : `&withResult=${withResult}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoading(true)
     setSelectedOrder(null)
     setError(null)
-    axios.get(url)
+    axios.get(url, { withCredentials: false })
       .then(res => {
         if (res.status === 200) {
           setDataOrders(res.data.items)
@@ -137,12 +137,12 @@ export const OrderHistoryCall: React.FC<OrderHistoryCallType> = ({
     count = pageParams.count,
     page = 1,
   }) => {
-    let api = '/profile/doctor/studyOrders'
+    let api = `${process.env.REACT_APP_SERVER_ADDRESS_REINGENIERIA}doctors/study/orders`
     let url = api + `?patient_id=${16336}&newFirst=${newFirst}&currentDoctorOnly=${currentDoctorOnly}${withResult === undefined ? '' : `&withResult=${withResult}`}&description=${inputContent}&count=${count}&page=${page}
     `
     setLoadingScroll(true)
     setError(null)
-    axios.get(url)
+    axios.get(url, { withCredentials: false })
       .then(res => {
         if (res.status === 200) {
           setDataOrders([...dataOrders, ...res.data.items])
